@@ -1,2 +1,6 @@
 packages:
   - 'packages/*'
+  - 'docs'
+  - 'web'
+  - 'api'
+  - 'libs/dashforge/*'

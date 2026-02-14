@@ -2,5 +2,30 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": []
+  "references": [
+    {
+      "path": "./docs"
+    },
+    {
+      "path": "./web"
+    },
+    {
+      "path": "./api"
+    },
+    {
+      "path": "./libs/dashforge/tokens"
+    },
+    {
+      "path": "./libs/dashforge/theme-mui"
+    },
+    {
+      "path": "./libs/dashforge/ui"
+    },
+    {
+      "path": "./libs/dashforge/forms"
+    },
+    {
+      "path": "./libs/dashforge/theme-core"
+    }
+  ]
 }
