@@ -26,6 +26,10 @@ export type ColorBorder = {
   focus: string;
 };
 
+export type ColorBackdrop = {
+  dim: string;
+};
+
 export type TypographyScale = {
   xs: string;
   sm: string;
@@ -59,6 +63,7 @@ export interface DashforgeTheme {
     surface: ColorSurface;
     text: ColorText;
     border: ColorBorder;
+    backdrop: ColorBackdrop;
   };
 
   typography: {

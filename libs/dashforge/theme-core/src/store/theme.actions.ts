@@ -2,6 +2,13 @@ import type { DashforgeTheme } from '@dashforge/tokens';
 import { themeStore } from './theme.store';
 
 /**
+ * DeepPartial utility
+ */
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+/**
  * Replace entire theme
  */
 export function replaceTheme(next: DashforgeTheme) {
@@ -11,7 +18,7 @@ export function replaceTheme(next: DashforgeTheme) {
 /**
  * Patch theme partially (deep merge)
  */
-export function patchTheme(partial: Partial<DashforgeTheme>) {
+export function patchTheme(partial: DeepPartial<DashforgeTheme>) {
   deepMerge(themeStore, partial);
 }
 

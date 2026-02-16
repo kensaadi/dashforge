@@ -1,1 +1,3 @@
-export * from './lib/theme-mui';
+import './types/mui-augmentation';
+export * from './adapter/createMuiTheme';
+export * from './provider/DashforgeThemeProvider';

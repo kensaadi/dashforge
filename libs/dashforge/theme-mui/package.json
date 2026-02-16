@@ -1,6 +1,7 @@
 {
   "name": "@dashforge/theme-mui",
   "version": "0.0.1",
+  "private": true,
   "type": "module",
   "main": "./dist/index.esm.js",
   "module": "./dist/index.esm.js",
@@ -8,10 +9,16 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "@org/source": "./src/index.ts",
       "types": "./dist/index.esm.d.ts",
       "import": "./dist/index.esm.js",
       "default": "./dist/index.esm.js"
     }
+  },
+  "dependencies": {
+    "@dashforge/tokens": "workspace:*",
+    "@dashforge/theme-core": "workspace:*",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.8"
   }
 }

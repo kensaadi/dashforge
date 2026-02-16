@@ -9,7 +9,6 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "@dashforge/theme-core": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
