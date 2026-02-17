@@ -11,7 +11,9 @@
     "moduleResolution": "bundler",
     "rootDir": "src",
     "jsx": "react-jsx",
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "customConditions": ["import", "default"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "exclude": [
     "out-tsc",
@@ -40,5 +42,10 @@
     "eslint.config.cjs",
     "eslint.config.mjs"
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
+  "references": [
+    {
+      "path": "../ui-core/tsconfig.lib.json"
+    }
+  ]
 }

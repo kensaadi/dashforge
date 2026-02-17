@@ -1,0 +1,54 @@
+/**
+ * @dashforge/ui-core animations
+ * CSS-only transitions using max-height strategy for visibility
+ */
+
+/* Base animated node wrapper */
+.dashforge-animated-node {
+  transition-property: max-height, opacity, margin, padding;
+  transition-timing-function: ease-in-out;
+  overflow: hidden;
+}
+
+/* Fast transitions (200ms) */
+.dashforge-animated-node.dashforge-speed-fast {
+  transition-duration: 200ms;
+}
+
+/* Normal transitions (300ms - default) */
+.dashforge-animated-node.dashforge-speed-normal {
+  transition-duration: 300ms;
+}
+
+/* Slow transitions (500ms) */
+.dashforge-animated-node.dashforge-speed-slow {
+  transition-duration: 500ms;
+}
+
+/* Visible state - expanded */
+.dashforge-animated-node.dashforge-visible {
+  max-height: var(--dashforge-max-height, 1000px);
+  opacity: 1;
+}
+
+/* Hidden state - collapsed */
+.dashforge-animated-node.dashforge-hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Instant toggle (no transition) */
+.dashforge-animated-node.dashforge-speed-instant {
+  transition: none;
+}
+
+/* Accessibility: Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .dashforge-animated-node {
+    transition: none;
+  }
+}

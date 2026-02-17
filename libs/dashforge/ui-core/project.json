@@ -1,0 +1,35 @@
+{
+  "name": "@dashforge/ui-core",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/dashforge/ui-core/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/dashforge/ui-core",
+        "main": "libs/dashforge/ui-core/src/index.ts",
+        "tsConfig": "libs/dashforge/ui-core/tsconfig.lib.json",
+        "assets": ["libs/dashforge/ui-core/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/dashforge/ui-core/**/*.ts",
+          "libs/dashforge/ui-core/**/*.tsx"
+        ]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/dashforge/ui-core/tsconfig.lib.json"
+      }
+    }
+  },
+  "tags": ["type:library", "scope:dashforge"]
+}

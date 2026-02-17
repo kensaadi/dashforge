@@ -23,6 +23,7 @@
       "@dashforge/theme-core": ["libs/dashforge/theme-core/src/index.ts"],
       "@dashforge/theme-mui": ["libs/dashforge/theme-mui/src/index.ts"],
       "@dashforge/ui": ["libs/dashforge/ui/src/index.ts"],
+      "@dashforge/ui-core": ["libs/dashforge/ui-core/src/index.ts"],
       "@dashforge/forms": ["libs/dashforge/forms/src/index.ts"]
     }
   }

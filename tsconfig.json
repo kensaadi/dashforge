@@ -26,6 +26,9 @@
     },
     {
       "path": "./libs/dashforge/theme-core"
+    },
+    {
+      "path": "./libs/dashforge/ui-core"
     }
   ]
 }

@@ -1,0 +1,24 @@
+{
+  "name": "@dashforge/ui-core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./animations.css": "./src/animations/animations.css"
+  },
+  "dependencies": {
+    "valtio": "2.3.0",
+    "tslib": "^2.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

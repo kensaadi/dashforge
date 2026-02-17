@@ -12,7 +12,8 @@
       "vite/client"
     ],
     "module": "esnext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "customConditions": ["import", "default"]
   },
   "exclude": [
     "out-tsc",

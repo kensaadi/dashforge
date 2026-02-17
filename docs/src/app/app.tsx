@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link, patch, useTheme } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -28,10 +29,11 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-
+import { patchTheme } from '@dashforge/theme-core';
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 
 function ThemeSmokeGallery() {
+  const muiTheme = useTheme();
   const theme = useDashTheme();
   const [menuEl, setMenuEl] = useState<null | HTMLElement>(null);
   const [popEl, setPopEl] = useState<null | HTMLElement>(null);
@@ -41,7 +43,7 @@ function ThemeSmokeGallery() {
   const [tabValue, setTabValue] = useState(0);
 
   const isDark = theme.meta.mode === 'dark';
-
+  console.log('theme', muiTheme);
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <AppBar position="sticky" elevation={1}>
@@ -154,6 +156,16 @@ function ThemeSmokeGallery() {
 
             <Button variant="contained" onClick={() => setDialogOpen(true)}>
               Open Dialog
+            </Button>
+
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() =>
+                patchTheme({ color: { intent: { primary: '#ff0000' } } })
+              }
+            >
+              Patch Theme
             </Button>
           </Stack>
 
@@ -342,7 +354,34 @@ function ThemeSmokeGallery() {
     </Box>
   );
 }
+function TopNav() {
+  return (
+    <AppBar position="sticky" elevation={1}>
+      <Toolbar>
+        <Typography variant="h6" sx={{ flex: 1 }}>
+          Dashforge docs — Playground
+        </Typography>
 
+        <Button color="inherit" component={Link} href="/" sx={{ mr: 1 }}>
+          Theme Gallery
+        </Button>
+
+        <Button
+          color="inherit"
+          component={Link}
+          href="/playground/bound-text-field"
+        >
+          Bound TextField
+        </Button>
+
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+
+        {/* mantiene toggle theme mode */}
+        {/* qui puoi riusare il tuo IconButton toggleThemeMode se vuoi */}
+      </Toolbar>
+    </AppBar>
+  );
+}
 export default function App() {
   return <ThemeSmokeGallery />;
 }
