@@ -227,7 +227,17 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@20.19.9)(jiti@2.4.2)(terser@5.46.0)(yaml@2.8.2))
 
-  libs/dashforge/forms: {}
+  libs/dashforge/forms:
+    dependencies:
+      '@dashforge/ui-core':
+        specifier: workspace:*
+        version: link:../ui-core
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+      react-hook-form:
+        specifier: ^7.71.1
+        version: 7.71.1(react@18.3.1)
 
   libs/dashforge/theme-core:
     dependencies:
@@ -266,6 +276,10 @@ importers:
         version: 2.8.1
 
   libs/dashforge/ui:
+    dependencies:
+      '@dashforge/ui-core':
+        specifier: workspace:*
+        version: link:../ui-core
     devDependencies:
       '@emotion/react':
         specifier: ^11.14.0
@@ -5721,6 +5735,12 @@ packages:
     resolution: {integrity: sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==}
     peerDependencies:
       react: ^19.2.4
+
+  react-hook-form@7.71.1:
+    resolution: {integrity: sha512-9SUJKCGKo8HUSsCO+y0CtqkqI5nNuaDqTxyqPsZPqIwudpj4rCrAz/jZV+jn57bx5gtZKOh3neQu94DXMc+w5w==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -13226,6 +13246,10 @@ snapshots:
     dependencies:
       react: 19.2.4
       scheduler: 0.27.0
+
+  react-hook-form@7.71.1(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-is@16.13.1: {}
 

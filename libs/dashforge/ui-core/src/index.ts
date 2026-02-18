@@ -106,6 +106,9 @@ export {
   useEngineField,
   useEngineCheckbox,
   useEngineSelect,
+
+  // Visibility hooks
+  useEngineVisibility,
 } from './react';
 
 export type { EngineProviderProps, EngineFieldResult } from './react';
@@ -227,6 +230,13 @@ export type {
   PathValue,
   FieldError,
 } from './integrations';
+
+// ============================================================================
+// FORM BRIDGE
+// ============================================================================
+
+export { DashFormContext } from './bridge';
+export type { DashFormBridge, FieldRegistration } from './bridge';
 
 // ============================================================================
 // VERSION & METADATA

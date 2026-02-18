@@ -1,0 +1,79 @@
+import { createContext } from 'react';
+import type { Engine } from '../types';
+
+/**
+ * Generic field registration result.
+ * Intentionally loosely-typed to avoid coupling ui-core to react-hook-form.
+ * Consumers (like useDashRegister) can cast to their specific types.
+ */
+export interface FieldRegistration {
+  name: string;
+  onChange?: (event: unknown) => void | Promise<unknown>;
+  onBlur?: (event: unknown) => void;
+  ref?: (instance: unknown) => void;
+  [key: string]: unknown; // Allow additional RHF properties
+}
+
+/**
+ * Minimal bridge interface for form integration.
+ * This allows ui components to detect and integrate with DashForm
+ * without depending on the full @dashforge/forms package.
+ *
+ * Implementation provided by @dashforge/forms DashFormProvider.
+ */
+export interface DashFormBridge {
+  /**
+   * The reactive Engine instance managing form state.
+   */
+  engine: Engine;
+
+  /**
+   * Register a field with the form system.
+   * Returns an object with onChange, onBlur, ref, etc.
+   *
+   * @param name - Field name
+   * @param rules - Validation rules (opaque to ui-core)
+   */
+  register?: (name: string, rules?: unknown) => FieldRegistration;
+
+  /**
+   * Set a field value programmatically.
+   *
+   * @param name - Field name
+   * @param value - New value
+   */
+  setValue?: (name: string, value: unknown) => void;
+
+  /**
+   * Get current field value.
+   *
+   * @param name - Field name
+   */
+  getValue?: (name: string) => unknown;
+
+  /**
+   * Debug mode flag.
+   */
+  debug?: boolean;
+}
+
+/**
+ * React context for sharing DashForm bridge across the component tree.
+ *
+ * **Architecture:**
+ * - Defined in ui-core (foundation layer)
+ * - Implemented by @dashforge/forms DashFormProvider
+ * - Consumed by @dashforge/ui intelligent components
+ *
+ * This creates a clean dependency flow:
+ * - ui-core (defines contract)
+ * - forms (implements contract)
+ * - ui (uses contract)
+ *
+ * No circular dependencies!
+ */
+export const DashFormContext = createContext<DashFormBridge | null>(null);
+
+if (process.env.NODE_ENV !== 'production') {
+  DashFormContext.displayName = 'DashFormContext';
+}

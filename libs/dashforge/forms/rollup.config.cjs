@@ -8,7 +8,7 @@ module.exports = withNx(
     outputPath: './dist',
     tsConfig: './tsconfig.lib.json',
     compiler: 'babel',
-    external: ['react', 'react-dom', 'react/jsx-runtime'],
+    external: ['react', 'react-dom', 'react/jsx-runtime', '@dashforge/ui-core'],
     format: ['esm'],
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
   },

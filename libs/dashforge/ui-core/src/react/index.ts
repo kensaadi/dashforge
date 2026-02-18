@@ -24,3 +24,6 @@ export {
   useEngineSelect,
 } from './useEngineField';
 export type { EngineFieldResult } from './useEngineField';
+
+// Visibility hooks
+export { useEngineVisibility } from './useEngineVisibility';

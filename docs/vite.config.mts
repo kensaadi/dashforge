@@ -32,6 +32,10 @@ export default defineConfig(() => ({
       '@dashforge/ui-core': fileURLToPath(
         new URL('../libs/dashforge/ui-core/src/index.ts', import.meta.url)
       ),
+      '@dashforge/forms': path.resolve(
+        import.meta.dirname,
+        '../libs/dashforge/forms/src/index.ts'
+      ),
     },
   },
   // Uncomment this if you are using workers.

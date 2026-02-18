@@ -33,8 +33,10 @@ import Toolbar from '@mui/material/Toolbar';
 import { patchTheme } from '@dashforge/theme-core';
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 
-import { BoundTextFieldPlayground } from './playground/bound-text-field';
-import { EngineStressPlayground } from './playground/engine-stress';
+// import { BoundTextFieldPlayground } from './playground/bound-text-field';
+// import { EngineStressPlayground } from './playground/engine-stress';
+import { FormStressPage } from '../pages/form-stress';
+import { VisibilityStressForm } from './playground/stress';
 
 function ThemeSmokeGallery() {
   const muiTheme = useTheme();
@@ -370,6 +372,7 @@ function TopNav() {
           Theme Gallery
         </Button>
 
+        {/* Temporarily disabled - BoundTextField removed
         <Button
           color="inherit"
           component={Link}
@@ -380,6 +383,15 @@ function TopNav() {
 
         <Button color="inherit" component={Link} to="/playground/engine-stress">
           Engine Stress
+        </Button>
+        */}
+
+        <Button color="inherit" component={Link} to="/form-stress">
+          Form Stress
+        </Button>
+
+        <Button color="inherit" component={Link} to="/visibility-stress">
+          Visibility Stress
         </Button>
 
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
@@ -396,6 +408,7 @@ export default function App() {
       <TopNav />
       <Routes>
         <Route path="/" element={<ThemeSmokeGallery />} />
+        {/* Temporarily disabled - BoundTextField removed
         <Route
           path="/playground/bound-text-field"
           element={<BoundTextFieldPlayground />}
@@ -404,6 +417,9 @@ export default function App() {
           path="/playground/engine-stress"
           element={<EngineStressPlayground />}
         />
+        */}
+        <Route path="/form-stress" element={<FormStressPage />} />
+        <Route path="/visibility-stress" element={<VisibilityStressForm />} />
       </Routes>
     </Box>
   );
