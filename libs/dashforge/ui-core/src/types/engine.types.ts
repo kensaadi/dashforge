@@ -126,6 +126,20 @@ export interface Engine {
   addRule(rule: Rule): void;
 
   /**
+   * Register multiple rules in a single batch.
+   *
+   * This triggers FULL evaluation ONCE after all rules are registered.
+   * Significantly more efficient than calling addRule() in a loop.
+   *
+   * Complexity: O(n) where n is the total number of rules (after batching).
+   * Sequential addRule() would be O(n²).
+   *
+   * @param rules - Array of rules to register
+   * @throws Error if any rule ID already exists
+   */
+  addRules(rules: Rule[]): void;
+
+  /**
    * Remove a rule from the engine.
    *
    * @param ruleId - The ID of the rule to remove

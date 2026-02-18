@@ -34,6 +34,7 @@ import { patchTheme } from '@dashforge/theme-core';
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 
 import { BoundTextFieldPlayground } from './playground/bound-text-field';
+import { EngineStressPlayground } from './playground/engine-stress';
 
 function ThemeSmokeGallery() {
   const muiTheme = useTheme();
@@ -377,6 +378,10 @@ function TopNav() {
           Bound TextField
         </Button>
 
+        <Button color="inherit" component={Link} to="/playground/engine-stress">
+          Engine Stress
+        </Button>
+
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 
         {/* mantiene toggle theme mode */}
@@ -394,6 +399,10 @@ export default function App() {
         <Route
           path="/playground/bound-text-field"
           element={<BoundTextFieldPlayground />}
+        />
+        <Route
+          path="/playground/engine-stress"
+          element={<EngineStressPlayground />}
         />
       </Routes>
     </Box>

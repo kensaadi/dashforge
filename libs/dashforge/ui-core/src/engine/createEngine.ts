@@ -12,6 +12,26 @@ import { createStore, type Store } from '../store';
 import { DependencyTracker } from '../core/DependencyTracker';
 import { RuleEvaluator } from '../core/RuleEvaluator';
 
+type NodePatch<TValue> = NodeUpdate<TValue>;
+
+function hasAnyNodeChange<TValue>(
+  node: Node<TValue>,
+  patch: NodePatch<TValue>
+): boolean {
+  // Object.entries loses key typing, so we re-type safely.
+  const entries = Object.entries(patch) as Array<
+    [keyof NodePatch<TValue>, NodePatch<TValue>[keyof NodePatch<TValue>]]
+  >;
+
+  for (const [key, next] of entries) {
+    // `key` is a real key of the patch, so this is safe.
+    const prev = node[key as keyof Node<TValue>];
+    if (prev !== next) return true;
+  }
+
+  return false;
+}
+
 /**
  * Creates a new reactive engine instance.
  *
@@ -57,7 +77,10 @@ export function createEngine(config: EngineConfig = {}): Engine {
         console.warn(`[Engine] Cannot update non-existent node: ${nodeId}`);
         return;
       }
-
+      // diff-guard
+      if (!hasAnyNodeChange(node, update)) {
+        return;
+      }
       // Apply update to the Valtio proxy (triggers reactivity)
       Object.assign(node, update);
 
@@ -146,6 +169,9 @@ export function createEngine(config: EngineConfig = {}): Engine {
       if (!node) {
         throw new Error(`Node with id "${nodeId}" does not exist`);
       }
+      if (!hasAnyNodeChange(node, update)) {
+        return;
+      }
 
       // Apply update to the Valtio proxy
       Object.assign(node, update);
@@ -205,6 +231,47 @@ export function createEngine(config: EngineConfig = {}): Engine {
         store.state.nodes,
         createUpdateFunction()
       );
+    },
+
+    /**
+     * Register multiple rules in a single batch.
+     *
+     * This triggers FULL evaluation ONCE after all rules are registered.
+     * Significantly more efficient than calling addRule() in a loop.
+     *
+     * Complexity: O(n) where n = total number of rules (after batching).
+     * Sequential addRule() would be O(n²).
+     */
+    addRules(rules: Rule[]): void {
+      // Validate and register all rules first
+      for (const rule of rules) {
+        if (store.state.rules[rule.id]) {
+          throw new Error(`Rule with id "${rule.id}" already exists`);
+        }
+
+        // Register rule in dependency tracker (validates explicit dependencies)
+        dependencyTracker.registerRule(rule);
+
+        // Add rule to store
+        store.state.rules[rule.id] = rule;
+
+        if (debug) {
+          console.log(`[Engine] Rule added (batched): ${rule.id}`);
+        }
+      }
+
+      // Single evaluation after all rules are registered
+      ruleEvaluator.evaluateAll(
+        store.state.rules,
+        store.state.nodes,
+        createUpdateFunction()
+      );
+
+      if (debug) {
+        console.log(
+          `[Engine] Batch registration complete: ${rules.length} rules added`
+        );
+      }
     },
 
     /**

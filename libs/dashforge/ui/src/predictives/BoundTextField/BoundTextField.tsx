@@ -9,12 +9,6 @@ import {
   useEngineContext,
 } from '@dashforge/ui-core';
 
-import * as CoreFromUI from '@dashforge/ui-core';
-console.log(
-  'UI ui-core useEngineContext ===',
-  (CoreFromUI as any).useEngineContext
-);
-
 export interface BoundTextFieldProps
   extends Omit<TextFieldProps, 'value' | 'defaultValue'> {
   nodeId: string;
