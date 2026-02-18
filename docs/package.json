@@ -6,6 +6,8 @@
     "@dashforge/theme-core": "workspace:*",
     "@dashforge/theme-mui": "workspace:*",
     "@dashforge/tokens": "workspace:*",
+    "@dashforge/ui": "workspace:*",
+    "@dashforge/ui-core": "workspace:*",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.3.8"

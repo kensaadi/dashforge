@@ -1,98 +1,108 @@
-import { useMemo, useState } from 'react';
-import Stack from '@mui/material/Stack';
+import { useEffect, useMemo, useState } from 'react';
+import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
 
-import { createEngine } from '@dashforge/ui-core';
+import { createEngine, EngineProvider } from '@dashforge/ui-core';
 import type { Rule } from '@dashforge/ui-core';
 
 import { BoundTextField } from '@dashforge/ui';
 
 export function BoundTextFieldPlayground() {
-  const [engine] = useState(() => createEngine({ debug: true }));
+  const engine = useMemo(() => {
+    const e = createEngine({ debug: true });
 
-  // Add initial nodes once (safe)
-  useMemo(() => {
-    if (!engine.getNode('email')) {
-      engine.registerNode({ id: 'email', value: '', visible: true });
-    }
-    if (!engine.getNode('note')) {
-      engine.registerNode({ id: 'note', value: '', visible: true });
-    }
-  }, [engine]);
+    // Register nodes synchronously
+    e.registerNode({ id: 'email', value: '', visible: true });
+    e.registerNode({ id: 'note', value: '', visible: false });
 
-  // Add a rule once
-  useMemo(() => {
     const rule: Rule = {
       id: 'note-visibility-from-email',
-      target: 'note',
+      name: 'Show note when email contains @',
       dependencies: ['email'],
-      when: (state) => {
-        const email = state.nodes.email?.value;
-        return typeof email === 'string' && email.includes('@');
-      },
+      priority: 0,
+      condition: () => true,
       effect: (update, state) => {
-        // If when() true => show note, else hide
-        const ok = (() => {
-          const email = state.nodes.email?.value;
-          return typeof email === 'string' && email.includes('@');
-        })();
-
+        const email = state.nodes.email?.value;
+        const ok = typeof email === 'string' && email.includes('@');
         update('note', { visible: ok });
       },
-      priority: 0,
     };
 
-    // Prevent double add if hot reload
-    if (!engine.getRule(rule.id)) {
-      engine.addRule(rule);
-    }
+    e.addRule(rule);
+
+    // Ensure deterministic first render
+    e.evaluateForNode('email');
+
+    return e;
+  }, []);
+
+  // optional debug tick
+  const [debugTick, setDebugTick] = useState(0);
+  useEffect(() => {
+    const unsub = engine.subscribe(() => setDebugTick((t) => t + 1));
+    return () => unsub();
   }, [engine]);
 
   return (
-    <Box sx={{ p: 3, maxWidth: 900, mx: 'auto' }}>
-      <Typography variant="h5" sx={{ mb: 1 }}>
-        BoundTextField Playground
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Type an email. When it contains &quot;@&quot;, the Note field becomes
-        visible.
-      </Typography>
+    <EngineProvider engine={engine}>
+      <Box sx={{ p: 3, maxWidth: 900, mx: 'auto' }}>
+        <Typography variant="h5" sx={{ mb: 0.5 }}>
+          BoundTextField Playground
+        </Typography>
 
-      <Paper elevation={1} sx={{ p: 2 }}>
-        <Stack spacing={2} sx={{ maxWidth: 520 }}>
-          <BoundTextField
-            engine={engine}
-            nodeId="email"
-            label="Email"
-            defaultValue=""
-          />
+        <Paper elevation={1} sx={{ p: 2 }}>
+          <Stack spacing={2} sx={{ maxWidth: 560 }}>
+            <BoundTextField nodeId="email" label="Email" defaultValue="" />
 
-          <BoundTextField
-            engine={engine}
-            nodeId="note"
-            label="Note (visible only if email contains @)"
-            defaultValue=""
-            multiline
-            minRows={3}
-          />
-        </Stack>
+            <BoundTextField
+              nodeId="note"
+              label="Note (visible only if email contains @)"
+              defaultValue=""
+              initialVisible={false}
+              multiline
+              minRows={3}
+            />
+          </Stack>
 
-        <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 2 }} />
 
-        <Button
-          variant="outlined"
-          onClick={() => {
-            engine.updateNode('email', { value: '' });
-            engine.updateNode('note', { value: '' });
-          }}
-        >
-          Reset
-        </Button>
-      </Paper>
-    </Box>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                engine.updateNode('email', { value: '' });
+                engine.updateNode('note', { value: '' });
+              }}
+            >
+              Reset
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={() => {
+                engine.updateNode('email', { value: 'hello@dashforge.dev' });
+              }}
+            >
+              Set valid email
+            </Button>
+          </Stack>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box sx={{ mt: 2, fontFamily: 'monospace', fontSize: '0.875rem' }}>
+            <Typography variant="caption" display="block">
+              tick: {debugTick}
+            </Typography>
+            <Typography variant="caption" display="block">
+              note.visible: {String(engine.getNode('note')?.visible ?? false)}
+            </Typography>
+          </Box>
+        </Paper>
+      </Box>
+    </EngineProvider>
   );
 }

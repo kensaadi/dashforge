@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, patch, useTheme } from '@mui/material';
+import { Link, Route, Routes } from 'react-router-dom';
+import { useTheme } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -31,6 +32,8 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { patchTheme } from '@dashforge/theme-core';
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
+
+import { BoundTextFieldPlayground } from './playground/bound-text-field';
 
 function ThemeSmokeGallery() {
   const muiTheme = useTheme();
@@ -362,14 +365,14 @@ function TopNav() {
           Dashforge docs — Playground
         </Typography>
 
-        <Button color="inherit" component={Link} href="/" sx={{ mr: 1 }}>
+        <Button color="inherit" component={Link} to="/" sx={{ mr: 1 }}>
           Theme Gallery
         </Button>
 
         <Button
           color="inherit"
           component={Link}
-          href="/playground/bound-text-field"
+          to="/playground/bound-text-field"
         >
           Bound TextField
         </Button>
@@ -383,5 +386,16 @@ function TopNav() {
   );
 }
 export default function App() {
-  return <ThemeSmokeGallery />;
+  return (
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      <TopNav />
+      <Routes>
+        <Route path="/" element={<ThemeSmokeGallery />} />
+        <Route
+          path="/playground/bound-text-field"
+          element={<BoundTextFieldPlayground />}
+        />
+      </Routes>
+    </Box>
+  );
 }

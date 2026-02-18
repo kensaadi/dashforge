@@ -207,6 +207,12 @@ importers:
       '@dashforge/tokens':
         specifier: workspace:*
         version: link:../libs/dashforge/tokens
+      '@dashforge/ui':
+        specifier: workspace:*
+        version: link:../libs/dashforge/ui
+      '@dashforge/ui-core':
+        specifier: workspace:*
+        version: link:../libs/dashforge/ui-core
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.4)

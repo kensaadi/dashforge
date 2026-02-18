@@ -37,6 +37,12 @@
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
   "references": [
     {
+      "path": "../libs/dashforge/ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../libs/dashforge/ui-core/tsconfig.lib.json"
+    },
+    {
       "path": "../libs/dashforge/tokens/tsconfig.lib.json"
     },
     {

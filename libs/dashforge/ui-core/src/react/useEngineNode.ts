@@ -2,9 +2,9 @@
  * React hook for subscribing to a specific engine node.
  *
  * CRITICAL ARCHITECTURAL CONTRACT:
- * - MUST use node-level subscription: useSnapshot(engine._store.nodes[id])
- * - MUST NOT use global subscription: useSnapshot(engine._store)
- * - Node-level subscriptions prevent unnecessary re-renders
+ * - Subscribes to the nodes map to detect node registration and property changes
+ * - Re-renders when a node is added or when its properties change
+ * - Returns undefined if node doesn't exist (allows conditional rendering)
  */
 
 import { useSnapshot } from 'valtio';
@@ -14,8 +14,9 @@ import { useEngineContext } from './EngineProvider';
 /**
  * Hook to subscribe to a specific node in the engine.
  *
- * CRITICAL: This hook uses node-level subscription for optimal performance.
- * Only re-renders when the specific node changes, not when any part of the store changes.
+ * CRITICAL: This hook subscribes to the nodes map to detect when:
+ * - A node is registered after initial render
+ * - An existing node's properties change
  *
  * @param nodeId - The ID of the node to subscribe to
  * @returns The node snapshot (immutable) or undefined if not found
@@ -38,11 +39,12 @@ export function useEngineNode<TValue = unknown>(
 ): Node<TValue> | undefined {
   const engine = useEngineContext();
 
-  // ✅ CORRECT: Node-level subscription
-  // This only triggers re-render when THIS specific node changes
-  const nodesSnapshot = useSnapshot(engine._store.nodes);
+  // Subscribe to the nodes map to detect node registration and property changes
+  // Using getState().nodes ensures we get the correct proxy reference
+  const nodes = useSnapshot(engine.getState().nodes);
+  const node = nodes[nodeId];
 
-  return nodesSnapshot[nodeId] as Node<TValue> | undefined;
+  return node as Node<TValue> | undefined;
 }
 
 /**
