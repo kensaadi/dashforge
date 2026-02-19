@@ -236,7 +236,7 @@ export type {
 // ============================================================================
 
 export { DashFormContext } from './bridge';
-export type { DashFormBridge, FieldRegistration } from './bridge';
+export type { DashFormBridge, FieldRegistration, BridgeFieldError } from './bridge';
 
 // ============================================================================
 // VERSION & METADATA

@@ -7,9 +7,35 @@ import type {
   PathValue,
 } from 'react-hook-form';
 import { createEngine, DashFormContext } from '@dashforge/ui-core';
-import type { DashFormBridge } from '@dashforge/ui-core';
+import type { DashFormBridge, BridgeFieldError } from '@dashforge/ui-core';
 import type { DashFormContextValue, DashFormProviderProps } from './form.types';
 import { FormEngineAdapter } from './FormEngineAdapter';
+
+/**
+ * Helper to safely traverse an object by dot path.
+ * Returns the value at the path, or null if not found.
+ *
+ * @param obj - Object to traverse
+ * @param path - Dot-separated path (e.g., "dependent.group0")
+ * @returns Value at path or null
+ */
+function getByPath(obj: unknown, path: string): unknown {
+  if (!obj || typeof obj !== 'object') {
+    return null;
+  }
+
+  const keys = path.split('.');
+  let current: unknown = obj;
+
+  for (const key of keys) {
+    if (!current || typeof current !== 'object') {
+      return null;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return current;
+}
 
 /**
  * Internal context for @dashforge/forms package use only.
@@ -86,6 +112,18 @@ export function DashFormProvider<
     mode,
   });
 
+  // Subscribe to formState.errors to ensure reactivity
+  const errors = rhf.formState.errors;
+
+  // Derive errorVersion synchronously from errors
+  // Use safe stringify to avoid circular structure errors from HTMLElement refs
+  // Changes whenever RHF re-renders with new errors, triggering TextField re-renders
+  const errorVersion = JSON.stringify(errors ?? {}, (key, value) => {
+    if (key === 'ref') return undefined;
+    if (typeof value === 'function') return undefined;
+    return value;
+  });
+
   // Create adapter instance
   // Memoized to maintain stable reference across renders
   const adapter = useMemo(() => {
@@ -146,6 +184,20 @@ export function DashFormProvider<
           onChange: wrappedOnChange,
         } as never;
       },
+      getError: (name: string): BridgeFieldError | null => {
+        const err = getByPath(errors, name);
+
+        // Check if error has a message property
+        if (err && typeof err === 'object' && 'message' in err) {
+          const msg = (err as { message: unknown }).message;
+          if (typeof msg === 'string') {
+            return { message: msg };
+          }
+        }
+
+        return null;
+      },
+      errorVersion,
       setValue: (name: string, value: unknown) => {
         rhf.setValue(
           name as FieldPath<TFieldValues>,
@@ -157,7 +209,7 @@ export function DashFormProvider<
       },
       debug,
     }),
-    [engine, rhf, adapter, debug]
+    [engine, rhf, adapter, debug, errorVersion]
   );
 
   // Build internal context value for @dashforge/forms hooks

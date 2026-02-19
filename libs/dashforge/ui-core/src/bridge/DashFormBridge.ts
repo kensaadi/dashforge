@@ -15,6 +15,14 @@ export interface FieldRegistration {
 }
 
 /**
+ * Minimal field error representation.
+ * Intentionally loosely-typed to avoid coupling ui-core to react-hook-form.
+ */
+export interface BridgeFieldError {
+  message?: string;
+}
+
+/**
  * Minimal bridge interface for form integration.
  * This allows ui components to detect and integrate with DashForm
  * without depending on the full @dashforge/forms package.
@@ -37,6 +45,14 @@ export interface DashFormBridge {
   register?: (name: string, rules?: unknown) => FieldRegistration;
 
   /**
+   * Get validation error for a field.
+   * Returns null if no error exists.
+   *
+   * @param name - Field name (supports dot paths)
+   */
+  getError?: (name: string) => BridgeFieldError | null;
+
+  /**
    * Set a field value programmatically.
    *
    * @param name - Field name
@@ -50,6 +66,13 @@ export interface DashFormBridge {
    * @param name - Field name
    */
   getValue?: (name: string) => unknown;
+
+  /**
+   * Error version string derived from RHF formState.errors.
+   * Changes when errors change and is used to trigger consumer re-renders.
+   * Phase 1.1 pragmatic approach (can be optimized later).
+   */
+  errorVersion?: string;
 
   /**
    * Debug mode flag.

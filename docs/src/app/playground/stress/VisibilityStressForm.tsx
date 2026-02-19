@@ -26,7 +26,7 @@ export function VisibilityStressForm() {
   console.log('VisibilityStressForm renders:', renders.current);
 
   return (
-    <DashForm defaultValues={{ controller: '', dependent: '' }}>
+    <DashForm defaultValues={{ controller: '', dependent: '', test: {} }}>
       <div
         style={{
           display: 'flex',
@@ -52,7 +52,57 @@ export function VisibilityStressForm() {
             </li>
             <li>Type "SHOW" in "Dependent 0" to reveal nested fields</li>
             <li>Verify only affected fields re-render</li>
+            <li>Test validation: blur required field, type invalid email</li>
           </ol>
+        </div>
+
+        {/* Validation Test Fields */}
+        <div
+          style={{
+            padding: '16px',
+            backgroundColor: '#ffebee',
+            borderRadius: '8px',
+          }}
+        >
+          <h3>Validation Test Fields</h3>
+          <TextField
+            name="test.required"
+            label="Required Field"
+            fullWidth
+            style={{ marginBottom: '8px' }}
+            rules={{ required: 'This field is required' }}
+          />
+          <TextField
+            name="test.email"
+            label="Email Field"
+            fullWidth
+            style={{ marginBottom: '8px' }}
+            rules={{
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: 'Invalid email address',
+              },
+            }}
+          />
+          <TextField
+            name="test.minLength"
+            label="Min Length Field (min 5 chars)"
+            fullWidth
+            style={{ marginBottom: '8px' }}
+            rules={{
+              minLength: {
+                value: 5,
+                message: 'Must be at least 5 characters',
+              },
+            }}
+          />
+          <TextField
+            name="test.override"
+            label="Override Test (explicit helperText)"
+            fullWidth
+            helperText="This helper text should always show"
+            rules={{ required: 'This should not show' }}
+          />
         </div>
 
         {/* Controller Field */}
