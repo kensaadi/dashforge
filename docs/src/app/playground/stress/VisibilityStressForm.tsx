@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { TextField } from '@dashforge/ui';
 import { DashForm } from '@dashforge/forms';
+import Button from '@mui/material/Button';
 
 /**
  * Visibility Stress Test Form
@@ -26,7 +27,11 @@ export function VisibilityStressForm() {
   console.log('VisibilityStressForm renders:', renders.current);
 
   return (
-    <DashForm defaultValues={{ controller: '', dependent: '', test: {} }}>
+    <DashForm
+      defaultValues={{ controller: '', dependent: '', test: {} }}
+      mode="onChange"
+    >
+      {(form) => (
       <div
         style={{
           display: 'flex',
@@ -48,11 +53,18 @@ export function VisibilityStressForm() {
           <ol>
             <li>Open browser console to see render logs</li>
             <li>
+              <strong>Error Gating Test:</strong> Type in "Required Field" - error
+              should NOT show until blur (touched) OR submit
+            </li>
+            <li>
+              <strong>Submit Test:</strong> Click "Submit" button - all validation
+              errors show immediately (even untouched fields)
+            </li>
+            <li>
               Type in "Controller" field (5+ chars to show dependent fields)
             </li>
             <li>Type "SHOW" in "Dependent 0" to reveal nested fields</li>
             <li>Verify only affected fields re-render</li>
-            <li>Test validation: blur required field, type invalid email</li>
           </ol>
         </div>
 
@@ -64,17 +76,20 @@ export function VisibilityStressForm() {
             borderRadius: '8px',
           }}
         >
-          <h3>Validation Test Fields</h3>
+          <h3>Validation Test Fields (Error Gating)</h3>
+          <p style={{ fontSize: '14px', color: '#666', marginBottom: '12px' }}>
+            Errors show only after field blur (touched) OR form submit
+          </p>
           <TextField
             name="test.required"
-            label="Required Field"
+            label="Required Field (blur or submit to see error)"
             fullWidth
             style={{ marginBottom: '8px' }}
             rules={{ required: 'This field is required' }}
           />
           <TextField
             name="test.email"
-            label="Email Field"
+            label="Email Field (blur or submit to see error)"
             fullWidth
             style={{ marginBottom: '8px' }}
             rules={{
@@ -86,7 +101,7 @@ export function VisibilityStressForm() {
           />
           <TextField
             name="test.minLength"
-            label="Min Length Field (min 5 chars)"
+            label="Min Length Field (min 5 chars, blur to see error)"
             fullWidth
             style={{ marginBottom: '8px' }}
             rules={{
@@ -103,6 +118,17 @@ export function VisibilityStressForm() {
             helperText="This helper text should always show"
             rules={{ required: 'This should not show' }}
           />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={form.handleSubmit((data) => {
+              console.log('Form submitted:', data);
+              alert('Form valid! Check console for data.');
+            })}
+            style={{ marginTop: '16px' }}
+          >
+            Submit (triggers error display on all fields)
+          </Button>
         </div>
 
         {/* Controller Field */}
@@ -200,6 +226,7 @@ export function VisibilityStressForm() {
           </div>
         </div>
       </div>
+      )}
     </DashForm>
   );
 }

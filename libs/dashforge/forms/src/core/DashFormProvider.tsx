@@ -112,17 +112,24 @@ export function DashFormProvider<
     mode,
   });
 
-  // Subscribe to formState.errors to ensure reactivity
+  // Subscribe to formState fields to ensure reactivity
   const errors = rhf.formState.errors;
+  const touchedFields = rhf.formState.touchedFields;
+  const dirtyFields = rhf.formState.dirtyFields;
+  const submitCount = rhf.formState.submitCount;
 
-  // Derive errorVersion synchronously from errors
-  // Use safe stringify to avoid circular structure errors from HTMLElement refs
-  // Changes whenever RHF re-renders with new errors, triggering TextField re-renders
-  const errorVersion = JSON.stringify(errors ?? {}, (key, value) => {
+  // Safe replacer function to avoid circular structure errors from HTMLElement refs
+  const replacer = (key: string, value: unknown) => {
     if (key === 'ref') return undefined;
     if (typeof value === 'function') return undefined;
     return value;
-  });
+  };
+
+  // Derive version strings synchronously from formState
+  // Changes whenever RHF re-renders with new state, triggering consumer re-renders
+  const errorVersion = JSON.stringify(errors ?? {}, replacer);
+  const touchedVersion = JSON.stringify(touchedFields ?? {}, replacer);
+  const dirtyVersion = JSON.stringify(dirtyFields ?? {}, replacer);
 
   // Create adapter instance
   // Memoized to maintain stable reference across renders
@@ -198,6 +205,17 @@ export function DashFormProvider<
         return null;
       },
       errorVersion,
+      isTouched: (name: string): boolean => {
+        const touched = getByPath(touchedFields, name);
+        return Boolean(touched);
+      },
+      isDirty: (name: string): boolean => {
+        const dirty = getByPath(dirtyFields, name);
+        return Boolean(dirty);
+      },
+      touchedVersion,
+      dirtyVersion,
+      submitCount,
       setValue: (name: string, value: unknown) => {
         rhf.setValue(
           name as FieldPath<TFieldValues>,
@@ -209,7 +227,7 @@ export function DashFormProvider<
       },
       debug,
     }),
-    [engine, rhf, adapter, debug, errorVersion]
+    [engine, rhf, adapter, debug, errorVersion, touchedVersion, dirtyVersion, submitCount]
   );
 
   // Build internal context value for @dashforge/forms hooks

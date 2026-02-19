@@ -576,12 +576,239 @@ However, this enhancement is **explicitly deferred** until after this documentat
 
 ---
 
+## Form Closure v1: Touched/Dirty/SubmitCount Gating
+
+**Date:** 2026-02-19  
+**Status:** ✅ Implemented & Verified  
+**Enhancement:** Error display gating via touched/dirty/submitCount tracking
+
+### What Changed
+
+The initial implementation showed validation errors immediately based on RHF's validation mode. This created "error spam" where users would see error messages while typing before they even finished interacting with a field.
+
+**Form Closure v1** adds intelligent error gating to prevent this:
+- Errors now only display AFTER field is touched (user blurred the field) OR form submitted
+- This provides a better UX: users can type freely without immediate error feedback
+- After blur, errors appear on subsequent changes (helpful feedback)
+- After submit attempt, ALL errors show (even on untouched fields)
+
+### Bridge Contract Extensions
+
+**File:** `libs/dashforge/ui-core/src/bridge/DashFormBridge.ts`
+
+Added methods and fields:
+```typescript
+interface DashFormBridge {
+  // ... existing fields ...
+  
+  // Touched tracking
+  isTouched?: (name: string) => boolean;
+  touchedVersion?: string;
+  
+  // Dirty tracking
+  isDirty?: (name: string) => boolean;
+  dirtyVersion?: string;
+  
+  // Submit tracking
+  submitCount?: number;
+}
+```
+
+### Implementation in DashFormProvider
+
+**File:** `libs/dashforge/forms/src/core/DashFormProvider.tsx`
+
+Added RHF formState subscriptions:
+```typescript
+const errors = rhf.formState.errors;
+const touchedFields = rhf.formState.touchedFields;
+const dirtyFields = rhf.formState.dirtyFields;
+const submitCount = rhf.formState.submitCount;
+```
+
+Computed version strings with circular-safe replacer:
+```typescript
+const replacer = (key: string, value: unknown) => {
+  if (key === 'ref') return undefined;
+  if (typeof value === 'function') return undefined;
+  return value;
+};
+
+const errorVersion = JSON.stringify(errors ?? {}, replacer);
+const touchedVersion = JSON.stringify(touchedFields ?? {}, replacer);
+const dirtyVersion = JSON.stringify(dirtyFields ?? {}, replacer);
+```
+
+Implemented bridge methods:
+```typescript
+isTouched: (name: string): boolean => {
+  const touched = getByPath(touchedFields, name);
+  return Boolean(touched);
+},
+isDirty: (name: string): boolean => {
+  const dirty = getByPath(dirtyFields, name);
+  return Boolean(dirty);
+}
+```
+
+Updated useMemo deps:
+```typescript
+[engine, rhf, adapter, debug, errorVersion, touchedVersion, dirtyVersion, submitCount]
+```
+
+### TextField Gating Logic
+
+**File:** `libs/dashforge/ui/src/components/TextField/TextField.tsx`
+
+Added subscriptions at top level:
+```typescript
+// Subscribe to form state changes
+const _errorVersion = bridge?.errorVersion;
+const _touchedVersion = bridge?.touchedVersion;
+const _dirtyVersion = bridge?.dirtyVersion;
+const _submitCount = bridge?.submitCount;
+```
+
+Added gating logic:
+```typescript
+// Get auto error from form validation
+const autoErr = bridge.getError?.(name) ?? null;
+
+// Get touched state and submit count for error gating
+const autoTouched = bridge.isTouched?.(name) ?? false;
+const submitCount = bridge.submitCount ?? 0;
+
+// Gate error display: only show if field touched OR form submitted
+const allowAutoError = autoTouched || submitCount > 0;
+
+// Compute resolved props with precedence
+const resolvedError = rest.error ?? (Boolean(autoErr) && allowAutoError);
+const resolvedHelperText = rest.helperText ?? (allowAutoError ? autoErr?.message : undefined);
+```
+
+### New Behavior Truth Table
+
+| User Action | Field Touched | Submit Count | Auto Error Exists | Error Displayed? |
+|-------------|---------------|--------------|-------------------|------------------|
+| Type in field (before blur) | ❌ No | 0 | ✅ Yes | ❌ No (gated) |
+| Blur field with error | ✅ Yes | 0 | ✅ Yes | ✅ Yes (touched) |
+| Click Submit with errors | ❌ No | 1+ | ✅ Yes | ✅ Yes (submitted) |
+| Explicit `error={true}` prop | - | - | - | ✅ Yes (explicit wins) |
+| Explicit `helperText="custom"` | - | - | ✅ Yes | Shows "custom" (explicit wins) |
+
+### Testing Scenarios
+
+**File:** `docs/src/app/playground/stress/VisibilityStressForm.tsx`
+
+Updated with:
+1. **Submit button** - triggers form submission to increment submitCount
+2. **Updated instructions** - explains error gating behavior
+3. **Enhanced field labels** - clarify when errors will show
+4. **Explicit scenarios**:
+   - Type in required field → error should NOT show
+   - Blur required field → error SHOULD show
+   - Click Submit → ALL errors show (even untouched fields)
+
+### Verification Commands
+
+```bash
+# Build all packages (all pass with no errors)
+pnpm -w nx build @dashforge/ui-core
+pnpm -w nx build @dashforge/forms
+pnpm -w nx build @dashforge/ui
+
+# Run docs app
+pnpm -w nx serve docs
+# Navigate to http://localhost:4200/playground/stress
+```
+
+### Manual Testing Checklist
+
+- [x] Type in "Required Field" → no error shows (gated by touched)
+- [x] Blur "Required Field" → error appears (touched = true)
+- [x] Type invalid email → no error until blur (gated by touched)
+- [x] Click "Submit" → all validation errors appear immediately (submitCount > 0)
+- [x] Explicit helperText prop still overrides auto error message
+- [x] Explicit error prop still overrides auto error state
+- [x] No JSON circular structure errors
+- [x] No crashes or console errors
+- [x] Builds pass cleanly
+
+### Key Design Decisions
+
+**Why touched OR submitCount (not AND)?**
+- Users expect to see errors after blur (touched)
+- Users expect to see ALL errors after clicking Submit
+- Both are valid "user has had a chance to interact" signals
+- OR logic provides best UX for both scenarios
+
+**Why not use isDirty for gating?**
+- Dirty = "value changed from default"
+- A field can be dirty but not touched (programmatic setValue)
+- Touched = "user interacted via blur event" (more intentional)
+- Touched is the more reliable UX signal for error display
+
+**Why subscribe to touchedVersion/dirtyVersion/submitCount?**
+- React needs explicit dependencies to trigger re-renders
+- Reading these values at top level ensures TextField subscribes to changes
+- When formState updates, versions change → TextField re-renders
+- Variables intentionally "unused" (just for subscription)
+
+### Architectural Impact
+
+**No Breaking Changes:**
+- Existing forms continue working
+- Explicit props still override auto values
+- Bridge remains optional (standalone TextField still works)
+
+**Clean Extension:**
+- Bridge contract extended with new optional methods
+- DashFormProvider implements new methods
+- TextField consumes new methods
+- No changes to engine, adapters, or other components
+
+**Incremental Enhancement:**
+- Form Closure v1 solves the immediate UX problem
+- Future enhancements can build on this foundation:
+  - Per-field error strategy override
+  - Form-level error support
+  - Multi-error display
+  - Async validation pending state
+
+### Files Modified
+
+1. `libs/dashforge/ui-core/src/bridge/DashFormBridge.ts` - Bridge contract extension
+2. `libs/dashforge/forms/src/core/DashFormProvider.tsx` - RHF formState integration
+3. `libs/dashforge/ui/src/components/TextField/TextField.tsx` - Gating logic + subscriptions
+4. `docs/src/app/playground/stress/VisibilityStressForm.tsx` - Testing scenarios + submit button
+
+### Performance Notes
+
+- Version string computation (JSON.stringify) is synchronous and fast
+- Happens only when formState changes (not on every render)
+- TextField re-renders only when subscribed state changes
+- getByPath helper efficiently traverses dot-notation paths
+- No additional network requests or async operations
+
+---
+
 ## Conclusion
 
-The TextField auto error binding feature is **fully implemented and verified**. The implementation maintains clean architectural boundaries via the bridge contract pattern, preserves RHF as the validation source of truth, and allows for incremental enhancement without breaking changes.
+The TextField auto error binding feature is **fully implemented and verified** with **Form Closure v1 error gating enhancements**. 
 
-The current "immediate RHF validation" strategy is simple, predictable, and sufficient for this development stage. More sophisticated error display strategies (touched tracking, per-field modes, form-level errors) can be added incrementally via bridge extensions when requirements become clearer.
+The implementation maintains clean architectural boundaries via the bridge contract pattern, preserves RHF as the validation source of truth, and provides intelligent error display gating for better UX.
 
-**Status:** ✅ Complete - Documentation Frozen  
-**Next Step:** Review this report before implementing any enhancements  
-**Decision Required:** Approve touched tracking enhancement or explore other areas
+**Phase 1 (Auto Error Binding):**
+- ✅ Automatic error + helperText binding via bridge
+- ✅ Clean package separation
+- ✅ Explicit props override auto values
+
+**Phase 2 (Form Closure v1):**
+- ✅ Touched/dirty/submitCount tracking via bridge
+- ✅ Error gating (touched OR submitCount > 0)
+- ✅ No error spam while typing
+- ✅ Errors show after blur or submit
+
+**Status:** ✅ Complete - Form Closure v1 Implemented  
+**Next Step:** Scale pattern to other form components (Select, Checkbox, etc.)  
+**Future Enhancements:** Per-field strategy override, form-level errors, multi-error display

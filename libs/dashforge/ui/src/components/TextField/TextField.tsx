@@ -23,6 +23,10 @@ export interface TextFieldProps extends Omit<MuiTextFieldProps, 'name'> {
  * - Supports reactive visibility via visibleWhen prop
  * - Auto binds error + helperText from form validation
  *
+ * Error Display Gating (Form Closure v1):
+ * - Errors show only when field is touched (after blur) OR form submitted
+ * - Prevents error spam while typing before user interaction
+ *
  * Precedence:
  * - Explicit error/helperText props override auto values
  *
@@ -44,10 +48,17 @@ export function TextField(props: TextFieldProps) {
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
   const engine = bridge?.engine;
 
-  // Subscribe to error changes by accessing errorVersion
-  // This ensures TextField re-renders when validation errors change
+  // Subscribe to form state changes by accessing version strings
+  // This ensures TextField re-renders when validation errors or touched state changes
   // Must be read at top level to guarantee subscription
+  // @ts-expect-error - Intentionally unused, for subscription only
   const _errorVersion = bridge?.errorVersion;
+  // @ts-expect-error - Intentionally unused, for subscription only
+  const _touchedVersion = bridge?.touchedVersion;
+  // @ts-expect-error - Intentionally unused, for subscription only
+  const _dirtyVersion = bridge?.dirtyVersion;
+  // @ts-expect-error - Intentionally unused, for subscription only
+  const _submitCount = bridge?.submitCount;
 
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
@@ -64,11 +75,20 @@ export function TextField(props: TextFieldProps) {
     // Get auto error from form validation
     const autoErr = bridge.getError?.(name) ?? null;
 
+    // Get touched state and submit count for error gating
+    const autoTouched = bridge.isTouched?.(name) ?? false;
+    const submitCount = bridge.submitCount ?? 0;
+
+    // Gate error display: only show if field touched OR form submitted
+    // This prevents error spam while typing before user interacts with field
+    const allowAutoError = autoTouched || submitCount > 0;
+
     // Compute resolved props with precedence:
-    // 1. Explicit props override auto values
-    // 2. Auto values from form validation
-    const resolvedError = rest.error ?? Boolean(autoErr);
-    const resolvedHelperText = rest.helperText ?? autoErr?.message;
+    // 1. Explicit props override auto values (explicit wins)
+    // 2. Auto values from form validation (gated by touched/submit)
+    const resolvedError = rest.error ?? (Boolean(autoErr) && allowAutoError);
+    const resolvedHelperText =
+      rest.helperText ?? (allowAutoError ? autoErr?.message : undefined);
 
     return (
       <MuiTextField

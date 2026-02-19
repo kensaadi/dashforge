@@ -75,6 +75,40 @@ export interface DashFormBridge {
   errorVersion?: string;
 
   /**
+   * Check if a field has been touched (user interacted with it).
+   * Returns true after field blur event.
+   *
+   * @param name - Field name (supports dot paths)
+   */
+  isTouched?: (name: string) => boolean;
+
+  /**
+   * Check if a field value has changed from its default value.
+   *
+   * @param name - Field name (supports dot paths)
+   */
+  isDirty?: (name: string) => boolean;
+
+  /**
+   * Touched version string derived from RHF formState.touchedFields.
+   * Changes when touched state changes and is used to trigger consumer re-renders.
+   */
+  touchedVersion?: string;
+
+  /**
+   * Dirty version string derived from RHF formState.dirtyFields.
+   * Changes when dirty state changes and is used to trigger consumer re-renders.
+   */
+  dirtyVersion?: string;
+
+  /**
+   * Number of times form has been submitted (including failed submissions).
+   * Increments on each submit attempt.
+   * Used to gate error display: show errors after first submit attempt.
+   */
+  submitCount?: number;
+
+  /**
    * Debug mode flag.
    */
   debug?: boolean;
