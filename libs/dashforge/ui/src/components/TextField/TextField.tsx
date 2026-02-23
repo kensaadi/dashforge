@@ -59,6 +59,8 @@ export function TextField(props: TextFieldProps) {
   const _dirtyVersion = bridge?.dirtyVersion;
   // @ts-expect-error - Intentionally unused, for subscription only
   const _submitCount = bridge?.submitCount;
+  // @ts-expect-error - Intentionally unused, for subscription only
+  const _valuesVersion = bridge?.valuesVersion;
 
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
@@ -89,6 +91,97 @@ export function TextField(props: TextFieldProps) {
     const resolvedError = rest.error ?? (Boolean(autoErr) && allowAutoError);
     const resolvedHelperText =
       rest.helperText ?? (allowAutoError ? autoErr?.message : undefined);
+
+    // Special handling for MUI Select (when select prop is true)
+    // MUI Select requires controlled value prop for proper integration with RHF
+    if (rest.select) {
+      // Get current value from RHF for controlled component
+      const currentValue = bridge.getValue?.(name) ?? '';
+
+      // Wrap onChange to provide correct event shape for RHF
+      // MUI Select onChange passes SelectChangeEvent which has different structure
+      // RHF expects: event.target.name and event.target.value
+      const handleChange = async (event: unknown) => {
+        // Extract value from MUI SelectChangeEvent
+        let value: unknown;
+        if (event && typeof event === 'object' && 'target' in event) {
+          const target = (event as { target: unknown }).target;
+          if (target && typeof target === 'object' && 'value' in target) {
+            value = (target as { value: unknown }).value;
+          }
+        }
+
+        // Create a properly structured synthetic event for RHF
+        const syntheticEvent = {
+          target: { name, value },
+          type: 'change',
+        };
+
+        // Call RHF's onChange handler with the synthetic event
+        if (registration.onChange) {
+          await registration.onChange(syntheticEvent as never);
+        }
+
+        // ALSO use bridge.setValue to ensure value is updated
+        // This is necessary because MUI Select doesn't have a real DOM input
+        // that RHF can track via ref
+        if (bridge.setValue) {
+          bridge.setValue(name, value);
+        }
+      };
+
+      // For MUI Select, we need to handle touch state via onClose instead of onBlur
+      // because MUI Select doesn't properly trigger onBlur on the combobox div
+      const handleClose = () => {
+        // Create a synthetic blur event for RHF's touch tracking
+        // RHF expects: { type: 'blur', target: { name } }
+        if (registration.onBlur) {
+          const syntheticEvent = new FocusEvent('blur', {
+            bubbles: true,
+            cancelable: true,
+          });
+
+          // Attach target with name for RHF field identification
+          Object.defineProperty(syntheticEvent, 'target', {
+            writable: false,
+            value: { name, value: currentValue },
+          });
+
+          registration.onBlur(syntheticEvent as never);
+        }
+
+        // Call any existing onClose from SelectProps
+        if (rest.SelectProps?.onClose) {
+          rest.SelectProps.onClose({} as never);
+        }
+      };
+
+      return (
+        <MuiTextField
+          name={name}
+          value={currentValue}
+          error={resolvedError}
+          helperText={resolvedHelperText}
+          {...rest}
+          // IMPORTANT: Put RHF handlers AFTER {...rest} spread
+          // to ensure they override any handlers from rest
+          // Pass wrapped onChange handler for MUI Select
+          onChange={handleChange as never}
+          // For MUI Select, use onClose to mark as touched
+          SelectProps={{
+            ...rest.SelectProps,
+            onClose: handleClose as never,
+          }}
+          // For MUI Select, inputRef connects to the hidden input element
+          inputRef={registration.ref}
+          // Ensure inputProps has the name for the hidden input
+          inputProps={{
+            ...rest.inputProps,
+            name,
+          }}
+        />
+      );
+    }
 
     return (
       <MuiTextField

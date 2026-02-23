@@ -3,3 +3,6 @@ export * from './primitives';
 
 export { TextField } from './components/TextField/TextField';
 export type { TextFieldProps } from './components/TextField/TextField';
+
+export { Select } from './components/Select/Select';
+export type { SelectProps, SelectOption } from './components/Select/Select';

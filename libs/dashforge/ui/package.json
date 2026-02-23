@@ -29,6 +29,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.2",
+    "@testing-library/user-event": "^14.5.2",
+    "@testing-library/jest-dom": "^6.6.3"
   }
 }

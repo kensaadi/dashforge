@@ -118,6 +118,9 @@ export function DashFormProvider<
   const dirtyFields = rhf.formState.dirtyFields;
   const submitCount = rhf.formState.submitCount;
 
+  // Watch all form values to ensure reactivity when values change
+  const values = rhf.watch();
+
   // Safe replacer function to avoid circular structure errors from HTMLElement refs
   const replacer = (key: string, value: unknown) => {
     if (key === 'ref') return undefined;
@@ -130,6 +133,7 @@ export function DashFormProvider<
   const errorVersion = JSON.stringify(errors ?? {}, replacer);
   const touchedVersion = JSON.stringify(touchedFields ?? {}, replacer);
   const dirtyVersion = JSON.stringify(dirtyFields ?? {}, replacer);
+  const valuesVersion = JSON.stringify(values ?? {}, replacer);
 
   // Create adapter instance
   // Memoized to maintain stable reference across renders
@@ -215,6 +219,7 @@ export function DashFormProvider<
       },
       touchedVersion,
       dirtyVersion,
+      valuesVersion,
       submitCount,
       setValue: (name: string, value: unknown) => {
         rhf.setValue(
@@ -227,7 +232,17 @@ export function DashFormProvider<
       },
       debug,
     }),
-    [engine, rhf, adapter, debug, errorVersion, touchedVersion, dirtyVersion, submitCount]
+    [
+      engine,
+      rhf,
+      adapter,
+      debug,
+      errorVersion,
+      touchedVersion,
+      dirtyVersion,
+      valuesVersion,
+      submitCount,
+    ]
   );
 
   // Build internal context value for @dashforge/forms hooks

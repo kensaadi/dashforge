@@ -102,6 +102,13 @@ export interface DashFormBridge {
   dirtyVersion?: string;
 
   /**
+   * Values version string derived from RHF form values.
+   * Changes when any form value changes and is used to trigger consumer re-renders.
+   * Phase 1.1 pragmatic approach (can be optimized later for per-field granularity).
+   */
+  valuesVersion?: string;
+
+  /**
    * Number of times form has been submitted (including failed submissions).
    * Increments on each submit attempt.
    * Used to gate error display: show errors after first submit attempt.
