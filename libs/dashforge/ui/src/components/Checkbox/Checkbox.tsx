@@ -163,7 +163,7 @@ export function Checkbox(props: CheckboxProps) {
       <MuiCheckbox
         {...rest}
         name={name}
-        defaultChecked={checked}
+        checked={checked}
         onChange={handleChange as MuiCheckboxProps['onChange']}
         onBlur={handleBlur as MuiCheckboxProps['onBlur']}
         inputRef={registration.ref}

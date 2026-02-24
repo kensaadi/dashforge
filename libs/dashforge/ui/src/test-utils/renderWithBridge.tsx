@@ -4,6 +4,7 @@ import { DashFormContext, EngineProvider } from '@dashforge/ui-core';
 import type { DashFormBridge, Engine } from '@dashforge/ui-core';
 import { createMockBridge } from './mockBridge';
 import type { MockBridgeOptions } from './mockBridge';
+import { useState, useEffect } from 'react';
 
 /**
  * Options for renderWithBridge helper.
@@ -73,13 +74,41 @@ export function renderWithBridge(
   const state = mockResult.state;
   const engine = providedEngine ?? bridge.engine;
 
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <EngineProvider engine={engine}>
-      <DashFormContext.Provider value={bridge}>
-        {children}
-      </DashFormContext.Provider>
-    </EngineProvider>
-  );
+  // Wrapper component that provides reactive bridge updates
+  // This simulates how the real DashFormProvider re-renders consumers when state changes
+  const Wrapper = ({ children }: { children: React.ReactNode }) => {
+    // Use a counter to force re-renders when bridge state changes
+    // Each state change increments the counter, causing the entire tree to re-render
+    const [updateCount, setUpdateCount] = useState(0);
+
+    useEffect(() => {
+      if (!state) return; // Only subscribe if we have a state object (mockBridge)
+
+      // Register a subscriber that forces re-render when bridge state changes
+      const subscriber = () => {
+        setUpdateCount((prev) => prev + 1);
+      };
+
+      state._subscribers.add(subscriber);
+
+      return () => {
+        state._subscribers.delete(subscriber);
+      };
+    }, [state]);
+
+    // Create a new bridge wrapper object on each render that includes updateCount
+    // This ensures Context consumers re-render when state changes
+    // The bridge object itself is stable, but wrapping it forces React to see it as changed
+    const bridgeWithVersion = { ...bridge, _updateCount: updateCount };
+
+    return (
+      <EngineProvider engine={engine}>
+        <DashFormContext.Provider value={bridgeWithVersion}>
+          {children}
+        </DashFormContext.Provider>
+      </EngineProvider>
+    );
+  };
 
   const renderResult = render(ui, { wrapper: Wrapper, ...renderOptions });
 

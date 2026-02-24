@@ -46,11 +46,19 @@ export interface MockBridgeState {
   errors: Record<string, { message: string }>;
   touched: Record<string, boolean>;
   submitCount: number;
+  /**
+   * Subscribers that get notified when state changes.
+   * Used by renderWithBridge to trigger re-renders.
+   */
+  _subscribers: Set<() => void>;
 }
 
 /**
  * Creates a minimal mock DashFormBridge for unit testing form-bound components.
  * Does NOT depend on react-hook-form.
+ *
+ * Key feature: Version strings update reactively when state changes,
+ * triggering React re-renders in components that subscribe via void bridge.valuesVersion.
  *
  * Usage:
  * ```tsx
@@ -76,11 +84,19 @@ export function createMockBridge(options: MockBridgeOptions = {}): {
     errors: { ...options.errors },
     touched: { ...options.touched },
     submitCount: options.submitCount ?? 0,
+    _subscribers: new Set(),
+  };
+
+  // Helper to notify subscribers when state changes
+  const notifySubscribers = () => {
+    state._subscribers.forEach((callback) => callback());
   };
 
   const engine =
     options.engine ?? createEngine({ debug: options.debug ?? false });
 
+  // Create bridge with reactive getters for version strings
+  // These must be getters so they compute fresh values on each access
   const bridge: DashFormBridge = {
     engine,
 
@@ -99,9 +115,11 @@ export function createMockBridge(options: MockBridgeOptions = {}): {
             value = event;
           }
           state.values[name] = value;
+          notifySubscribers();
         },
         onBlur: (_event: unknown) => {
           state.touched[name] = true;
+          notifySubscribers();
         },
         ref: () => {
           // No-op for mock
@@ -115,6 +133,7 @@ export function createMockBridge(options: MockBridgeOptions = {}): {
 
     setValue: (name: string, value: unknown) => {
       state.values[name] = value;
+      notifySubscribers();
     },
 
     getValue: (name: string) => {
@@ -132,11 +151,29 @@ export function createMockBridge(options: MockBridgeOptions = {}): {
       return currentValue !== defaultValue;
     },
 
-    errorVersion: JSON.stringify(state.errors),
-    touchedVersion: JSON.stringify(state.touched),
-    dirtyVersion: JSON.stringify(state.values),
-    valuesVersion: JSON.stringify(state.values),
-    submitCount: state.submitCount,
+    // Reactive getters: these compute fresh values on each access
+    // Components subscribe by reading these in render (via void bridge.valuesVersion)
+    // When state changes, the getter returns a new string, triggering re-render
+    get errorVersion() {
+      return JSON.stringify(state.errors);
+    },
+
+    get touchedVersion() {
+      return JSON.stringify(state.touched);
+    },
+
+    get dirtyVersion() {
+      return JSON.stringify(state.values);
+    },
+
+    get valuesVersion() {
+      return JSON.stringify(state.values);
+    },
+
+    get submitCount() {
+      return state.submitCount;
+    },
+
     debug: options.debug ?? false,
   };
 

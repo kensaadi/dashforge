@@ -133,16 +133,23 @@ describe('Checkbox', () => {
         'Subscribe to newsletter'
       ) as HTMLInputElement;
       expect(state?.values.subscribe).toBe(false);
+      expect(checkbox.checked).toBe(false);
 
       await user.click(checkbox);
 
       // Bridge value should be updated to true
       expect(state?.values.subscribe).toBe(true);
+      // Wait for component to re-render with new checked value
+      await screen.findByLabelText('Subscribe to newsletter');
+      expect(checkbox.checked).toBe(true);
 
       await user.click(checkbox);
 
       // Bridge value should be updated to false
       expect(state?.values.subscribe).toBe(false);
+      // Wait for component to re-render with new checked value
+      await screen.findByLabelText('Subscribe to newsletter');
+      expect(checkbox.checked).toBe(false);
     });
 
     it('marks field as touched on blur', async () => {
@@ -264,5 +271,9 @@ describe('Checkbox', () => {
 
       expect(screen.getByLabelText('Accept terms')).toBeInTheDocument();
     });
+
+    // Note: visibleWhen with false condition requires Engine reactivity (valtio)
+    // This is tested in integration tests, not unit tests
+    // See TextField tests for similar pattern (line 212-214)
   });
 });
