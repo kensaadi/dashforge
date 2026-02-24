@@ -59,7 +59,12 @@ export function Select<T = string | number>(props: SelectProps<T>) {
       }}
     >
       {options.map((option) => (
-        <MenuItem key={String(option.value)} value={option.value as any}>
+        <MenuItem
+          key={String(option.value)}
+          value={
+            option.value as string | number | readonly string[] | undefined
+          }
+        >
           {option.label}
         </MenuItem>
       ))}

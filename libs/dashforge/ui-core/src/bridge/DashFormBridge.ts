@@ -5,13 +5,23 @@ import type { Engine } from '../types';
  * Generic field registration result.
  * Intentionally loosely-typed to avoid coupling ui-core to react-hook-form.
  * Consumers (like useDashRegister) can cast to their specific types.
+ *
+ * Explicitly lists all properties to avoid permissive index signatures.
+ * Based on react-hook-form UseFormRegisterReturn shape.
  */
 export interface FieldRegistration {
   name: string;
   onChange?: (event: unknown) => void | Promise<unknown>;
   onBlur?: (event: unknown) => void;
   ref?: (instance: unknown) => void;
-  [key: string]: unknown; // Allow additional RHF properties
+  // Additional properties that may be present from RHF or other form libraries
+  disabled?: boolean;
+  min?: string | number;
+  max?: string | number;
+  maxLength?: number;
+  minLength?: number;
+  pattern?: string;
+  required?: boolean;
 }
 
 /**

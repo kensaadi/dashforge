@@ -5,9 +5,14 @@ import type {
   DefaultValues,
   FieldPath,
   PathValue,
+  RegisterOptions,
 } from 'react-hook-form';
 import { createEngine, DashFormContext } from '@dashforge/ui-core';
-import type { DashFormBridge, BridgeFieldError } from '@dashforge/ui-core';
+import type {
+  DashFormBridge,
+  BridgeFieldError,
+  FieldRegistration,
+} from '@dashforge/ui-core';
 import type { DashFormContextValue, DashFormProviderProps } from './form.types';
 import { FormEngineAdapter } from './FormEngineAdapter';
 
@@ -157,7 +162,13 @@ export function DashFormProvider<
       engine,
       register: (name: string, rules?: unknown) => {
         const fieldName = name as FieldPath<TFieldValues>;
-        const rhfRegister = rhf.register(fieldName, rules as never);
+
+        // Type rules as RegisterOptions for RHF compatibility
+        // Bridge accepts unknown (library-agnostic), we narrow here at RHF boundary
+        const typedRules = rules as
+          | RegisterOptions<TFieldValues, FieldPath<TFieldValues>>
+          | undefined;
+        const rhfRegister = rhf.register(fieldName, typedRules);
 
         // Register field with adapter (creates Engine node)
         adapter.registerField(fieldName);
@@ -165,10 +176,19 @@ export function DashFormProvider<
         // Wrap onChange to sync to Engine
         const originalOnChange = rhfRegister.onChange;
         const wrappedOnChange = async (event: unknown) => {
-          // Call original RHF onChange first
-          const result = await originalOnChange(event as never);
+          // RHF expects { target: unknown; type?: unknown } but components pass various event shapes
+          // We narrow unknown to the shape RHF expects using a type guard
+          const isEventLike = (
+            e: unknown
+          ): e is { target: unknown; type?: unknown } => {
+            return e !== null && typeof e === 'object' && 'target' in e;
+          };
+          const rhfEvent = isEventLike(event) ? event : { target: event };
 
-          // Extract value from event
+          // Call original RHF onChange first
+          const result = await originalOnChange(rhfEvent);
+
+          // Extract value from event for Engine sync
           let value: unknown;
           if (
             event &&
@@ -190,10 +210,11 @@ export function DashFormProvider<
         };
 
         // Return registration with wrapped onChange
+        // Type as FieldRegistration (bridge contract) which extends RHF registration
         return {
           ...rhfRegister,
           onChange: wrappedOnChange,
-        } as never;
+        } as FieldRegistration;
       },
       getError: (name: string): BridgeFieldError | null => {
         const err = getByPath(errors, name);

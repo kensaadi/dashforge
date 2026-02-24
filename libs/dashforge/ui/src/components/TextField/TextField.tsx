@@ -118,8 +118,9 @@ export function TextField(props: TextFieldProps) {
         };
 
         // Call RHF's onChange handler with the synthetic event
+        // RHF's onChange accepts unknown, so we pass the synthetic event directly
         if (registration.onChange) {
-          await registration.onChange(syntheticEvent as never);
+          await registration.onChange(syntheticEvent);
         }
 
         // ALSO use bridge.setValue to ensure value is updated
@@ -147,12 +148,18 @@ export function TextField(props: TextFieldProps) {
             value: { name, value: currentValue },
           });
 
-          registration.onBlur(syntheticEvent as never);
+          // RHF's onBlur accepts unknown, so we pass the synthetic event directly
+          registration.onBlur(syntheticEvent);
         }
 
         // Call any existing onClose from SelectProps
+        // Type guard to ensure we have the correct shape
         if (rest.SelectProps?.onClose) {
-          rest.SelectProps.onClose({} as never);
+          const onCloseHandler = rest.SelectProps.onClose as (
+            event: unknown,
+            reason?: string
+          ) => void;
+          onCloseHandler({}, 'selectOption');
         }
       };
 
@@ -166,11 +173,17 @@ export function TextField(props: TextFieldProps) {
           // IMPORTANT: Put RHF handlers AFTER {...rest} spread
           // to ensure they override any handlers from rest
           // Pass wrapped onChange handler for MUI Select
-          onChange={handleChange as never}
+          // MUI TextField onChange expects React.ChangeEventHandler
+          // Our handleChange matches this signature (accepts unknown event)
+          onChange={handleChange as MuiTextFieldProps['onChange']}
           // For MUI Select, use onClose to mark as touched
           SelectProps={{
             ...rest.SelectProps,
-            onClose: handleClose as never,
+            // MUI SelectProps.onClose expects (event: {}, reason: string) => void
+            // Our handleClose matches this signature
+            onClose: handleClose as NonNullable<
+              MuiTextFieldProps['SelectProps']
+            >['onClose'],
           }}
           // For MUI Select, inputRef connects to the hidden input element
           inputRef={registration.ref}
