@@ -17,8 +17,10 @@ export default defineConfig(() => ({
     setupFiles: ['./src/test-setup.ts'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: './test-output/vitest/coverage',
+      reportsDirectory: './coverage',
       provider: 'v8' as const,
+      enabled: true,
+      reporter: ['text', 'html'],
     },
   },
 }));
