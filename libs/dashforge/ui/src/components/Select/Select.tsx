@@ -3,12 +3,12 @@ import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextFiel
 import type { Engine } from '@dashforge/ui-core';
 import { TextField } from '../TextField/TextField';
 
-export interface SelectOption<T = string | number> {
+export interface SelectOption<T extends string | number = string | number> {
   value: T;
   label: string;
 }
 
-export interface SelectProps<T = string | number>
+export interface SelectProps<T extends string | number = string | number>
   extends Omit<MuiTextFieldProps, 'name' | 'select'> {
   name: string;
   rules?: unknown;
@@ -40,9 +40,11 @@ export interface SelectProps<T = string | number>
  *
  * It only depends on the bridge contract from @dashforge/ui-core.
  */
-export function Select<T = string | number>(props: SelectProps<T>) {
+export function Select<T extends string | number = string | number>(
+  props: SelectProps<T>
+) {
   const { name, rules, label, options, visibleWhen, ...rest } = props;
-  console.log('Select props:', rest);
+
   // Compose Select from TextField with select mode enabled
   // TextField handles all form integration, error binding, and gating
   return (
@@ -59,12 +61,7 @@ export function Select<T = string | number>(props: SelectProps<T>) {
       }}
     >
       {options.map((option) => (
-        <MenuItem
-          key={String(option.value)}
-          value={
-            option.value as string | number | readonly string[] | undefined
-          }
-        >
+        <MenuItem key={String(option.value)} value={option.value}>
           {option.label}
         </MenuItem>
       ))}
