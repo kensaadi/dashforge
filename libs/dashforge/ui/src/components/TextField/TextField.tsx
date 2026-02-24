@@ -39,28 +39,18 @@ export interface TextFieldProps extends Omit<MuiTextFieldProps, 'name'> {
 export function TextField(props: TextFieldProps) {
   const { name, rules, visibleWhen, ...rest } = props;
 
-  // DEV ONLY: Render instrumentation for stress testing
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('TextField render:', name);
-  }
-
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
   const engine = bridge?.engine;
 
   // Subscribe to form state changes by accessing version strings
   // This ensures TextField re-renders when validation errors or touched state changes
-  // Must be read at top level to guarantee subscription
-  // @ts-expect-error - Intentionally unused, for subscription only
-  const _errorVersion = bridge?.errorVersion;
-  // @ts-expect-error - Intentionally unused, for subscription only
-  const _touchedVersion = bridge?.touchedVersion;
-  // @ts-expect-error - Intentionally unused, for subscription only
-  const _dirtyVersion = bridge?.dirtyVersion;
-  // @ts-expect-error - Intentionally unused, for subscription only
-  const _submitCount = bridge?.submitCount;
-  // @ts-expect-error - Intentionally unused, for subscription only
-  const _valuesVersion = bridge?.valuesVersion;
+  // Using void to explicitly mark as intentional subscription without side effects
+  void bridge?.errorVersion;
+  void bridge?.touchedVersion;
+  void bridge?.dirtyVersion;
+  void bridge?.submitCount;
+  void bridge?.valuesVersion;
 
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
@@ -98,6 +88,9 @@ export function TextField(props: TextFieldProps) {
       // Get current value from RHF for controlled component
       const currentValue = bridge.getValue?.(name) ?? '';
 
+      // Check if this is a native select
+      const isNativeSelect = rest.SelectProps?.native === true;
+
       // Wrap onChange to provide correct event shape for RHF
       // MUI Select onChange passes SelectChangeEvent which has different structure
       // RHF expects: event.target.name and event.target.value
@@ -131,37 +124,68 @@ export function TextField(props: TextFieldProps) {
         }
       };
 
-      // For MUI Select, we need to handle touch state via onClose instead of onBlur
+      // For native select, create onBlur handler
+      // For non-native MUI Select, we use onClose (see below)
+      const handleBlur = isNativeSelect
+        ? (event: unknown) => {
+            // Get the current value at blur time to avoid stale closure
+            const valueAtBlurTime = bridge.getValue?.(name) ?? '';
+
+            // Create a synthetic blur event for RHF's touch tracking
+            const syntheticEvent = new FocusEvent('blur', {
+              bubbles: true,
+              cancelable: true,
+            });
+
+            // Attach target with name for RHF field identification
+            Object.defineProperty(syntheticEvent, 'target', {
+              writable: false,
+              value: { name, value: valueAtBlurTime },
+            });
+
+            // Call RHF's onBlur handler
+            if (registration.onBlur) {
+              registration.onBlur(syntheticEvent);
+            }
+          }
+        : undefined;
+
+      // For MUI Select (non-native), we need to handle touch state via onClose instead of onBlur
       // because MUI Select doesn't properly trigger onBlur on the combobox div
-      const handleClose = () => {
-        // Create a synthetic blur event for RHF's touch tracking
-        // RHF expects: { type: 'blur', target: { name } }
-        if (registration.onBlur) {
-          const syntheticEvent = new FocusEvent('blur', {
-            bubbles: true,
-            cancelable: true,
-          });
+      const handleClose = !isNativeSelect
+        ? () => {
+            // Create a synthetic blur event for RHF's touch tracking
+            // RHF expects: { type: 'blur', target: { name } }
+            if (registration.onBlur) {
+              // Get the current value at close time to avoid stale closure
+              const valueAtCloseTime = bridge.getValue?.(name) ?? '';
 
-          // Attach target with name for RHF field identification
-          Object.defineProperty(syntheticEvent, 'target', {
-            writable: false,
-            value: { name, value: currentValue },
-          });
+              const syntheticEvent = new FocusEvent('blur', {
+                bubbles: true,
+                cancelable: true,
+              });
 
-          // RHF's onBlur accepts unknown, so we pass the synthetic event directly
-          registration.onBlur(syntheticEvent);
-        }
+              // Attach target with name for RHF field identification
+              Object.defineProperty(syntheticEvent, 'target', {
+                writable: false,
+                value: { name, value: valueAtCloseTime },
+              });
 
-        // Call any existing onClose from SelectProps
-        // Type guard to ensure we have the correct shape
-        if (rest.SelectProps?.onClose) {
-          const onCloseHandler = rest.SelectProps.onClose as (
-            event: unknown,
-            reason?: string
-          ) => void;
-          onCloseHandler({}, 'selectOption');
-        }
-      };
+              // RHF's onBlur accepts unknown, so we pass the synthetic event directly
+              registration.onBlur(syntheticEvent);
+            }
+
+            // Call any existing onClose from SelectProps
+            // Type guard to ensure we have the correct shape
+            if (rest.SelectProps?.onClose) {
+              const onCloseHandler = rest.SelectProps.onClose as (
+                event: unknown,
+                reason?: string
+              ) => void;
+              onCloseHandler({}, 'selectOption');
+            }
+          }
+        : rest.SelectProps?.onClose;
 
       return (
         <MuiTextField
@@ -176,11 +200,12 @@ export function TextField(props: TextFieldProps) {
           // MUI TextField onChange expects React.ChangeEventHandler
           // Our handleChange matches this signature (accepts unknown event)
           onChange={handleChange as MuiTextFieldProps['onChange']}
-          // For MUI Select, use onClose to mark as touched
+          // For native select, attach onBlur. For non-native, use onClose
+          onBlur={handleBlur as MuiTextFieldProps['onBlur']}
           SelectProps={{
             ...rest.SelectProps,
-            // MUI SelectProps.onClose expects (event: {}, reason: string) => void
-            // Our handleClose matches this signature
+            // For non-native MUI Select, use onClose to mark as touched
+            // For native select, onClose is either undefined or user-provided
             onClose: handleClose as NonNullable<
               MuiTextFieldProps['SelectProps']
             >['onClose'],
