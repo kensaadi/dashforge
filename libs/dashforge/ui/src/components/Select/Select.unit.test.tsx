@@ -277,4 +277,57 @@ describe('Select', () => {
       expect(helperText).toBeInTheDocument();
     });
   });
+
+  describe('Intent E: Form Closure v1 error gating', () => {
+    it('hides error message when not touched and submitCount=0', () => {
+      renderWithBridge(
+        <Select name="country" label="Country" options={testOptions} />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { country: '' },
+            errors: { country: { message: 'Required' } },
+            touched: { country: false },
+            submitCount: 0,
+          },
+        }
+      );
+
+      // Error should NOT be visible (not touched and not submitted)
+      expect(screen.queryByText('Required')).not.toBeInTheDocument();
+    });
+
+    it('shows error message when field is touched', () => {
+      renderWithBridge(
+        <Select name="country" label="Country" options={testOptions} />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { country: '' },
+            errors: { country: { message: 'Required' } },
+            touched: { country: true },
+            submitCount: 0,
+          },
+        }
+      );
+
+      // Error should be visible when touched
+      expect(screen.getByText('Required')).toBeInTheDocument();
+    });
+
+    it('shows error message when submitCount > 0 even if not touched', () => {
+      renderWithBridge(
+        <Select name="country" label="Country" options={testOptions} />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { country: '' },
+            errors: { country: { message: 'Required' } },
+            touched: { country: false },
+            submitCount: 1,
+          },
+        }
+      );
+
+      // Error should be visible when form was submitted
+      expect(screen.getByText('Required')).toBeInTheDocument();
+    });
+  });
 });
