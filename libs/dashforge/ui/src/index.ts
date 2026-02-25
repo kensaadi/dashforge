@@ -15,3 +15,6 @@ export type { SwitchProps } from './components/Switch/Switch';
 
 export { RadioGroup } from './components/RadioGroup/RadioGroup';
 export type { RadioGroupProps } from './components/RadioGroup/RadioGroup';
+
+export { NumberField } from './components/NumberField/NumberField';
+export type { NumberFieldProps } from './components/NumberField/NumberField';
