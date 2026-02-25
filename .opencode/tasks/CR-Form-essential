@@ -1,0 +1,130 @@
+# Task
+Audit + Verify "Form Essential v0.1" completeness for @dashforge/ui
+
+# Context
+We believe the Essential Form Components set is complete:
+- TextField
+- Textarea
+- NumberField
+- Select
+- Checkbox
+- RadioGroup
+- Switch
+- Autocomplete
+- DateTimePicker
+
+We must verify, component by component, that all of them comply with Dashforge policies and the agreed component contract:
+- Plain mode + Bound mode (DashFormContext bridge)
+- Form Closure v1 error gating (touched === true OR submitCount > 0)
+- visibleWhen(engine) support via useEngineVisibility
+- Explicit prop precedence (explicit error/helperText/value override auto/bridge)
+- No console.log
+- No skipped tests
+- Typecheck + full test suite pass
+
+Project: Dashforge Nx monorepo
+Package: @dashforge/ui
+
+# Scope
+Application name: Dashforge
+Folder name: libs/dashforge/ui
+Files to READ/ANALYZE (no edits by default):
+- libs/dashforge/ui/src/components/** (all relevant form components)
+- libs/dashforge/ui/src/index.ts
+- libs/dashforge/ui/src/** tests
+
+Files to CREATE:
+- /dashforge/.opencode/form-essential-v0.1-audit.md
+
+If you find issues, DO NOT refactor broadly.
+Only do minimal fixes if:
+1) the fix is strictly necessary to meet the checklist, and
+2) it can be done in-place in the component or its unit test without touching shared infra.
+
+If issues require more than a minimal fix, produce follow-up tasks instead of implementing.
+
+# Goal
+Produce a definitive audit proving whether "Form Essential v0.1" can be frozen.
+
+Deliverables:
+1) A written audit report in `/dashforge/.opencode/form-essential-v0.1-audit.md`
+2) A pass/fail matrix per component with evidence (file paths + short notes)
+3) Verification command outputs summary (typecheck + tests)
+4) If any component fails: list exact findings + smallest possible fix strategy + suggested follow-up tasks
+
+# Rules
+1) No console logs: verify repository for `console.log`, `console.warn`, `console.error` usage inside @dashforge/ui components/tests.
+2) No skipped tests: verify there are no `it.skip`, `describe.skip`, `test.skip`.
+3) Contract verification per component must include:
+   - Plain mode behavior (outside DashFormContext)
+   - Bound mode behavior (inside DashFormContext, bridge.register usage)
+   - Subscriptions to bridge versions when required for reactive updates
+   - Error gating v1: error visible only when touched OR submitCount>0
+   - Precedence:
+     - props.value !== undefined overrides bridge value
+     - props.error defined overrides auto error
+     - props.helperText defined overrides auto helper text
+     - error={false} suppresses bridge error message (where applicable)
+   - visibleWhen support (renders null when not visible)
+4) Keep the audit factual and grounded. Don’t assume patterns: confirm in code.
+5) If you implement minimal fixes, you MUST add/adjust tests accordingly and re-run verification.
+
+# Constraints
+Must run and report:
+- npx nx run @dashforge/ui:typecheck
+- npx nx run @dashforge/ui:test --run
+
+No new dependencies.
+No changes to package.json fields: name, version, publishConfig.
+
+# Output
+Create `/dashforge/.opencode/form-essential-v0.1-audit.md` containing:
+
+## 1) Executive Summary
+- Can we freeze Form Essential v0.1? (YES/NO)
+- Blocking issues count (if any)
+
+## 2) Component Compliance Matrix
+A table with rows for each component and columns:
+- Plain mode
+- Bound mode
+- Error gating v1
+- visibleWhen
+- Precedence rules
+- Tests present + relevant intents covered
+- Notes (1–3 bullet points)
+- Status: PASS/FAIL
+
+Components:
+- TextField
+- Textarea
+- NumberField
+- Select
+- Checkbox
+- RadioGroup
+- Switch
+- Autocomplete
+- DateTimePicker
+
+## 3) Evidence
+For each component:
+- File path(s)
+- Test file path(s)
+- Quick notes citing the exact implementation choices that satisfy the contract
+
+## 4) Policy Checks
+- Results for console.* scan
+- Results for skipped tests scan
+
+## 5) Verification Results
+- Typecheck summary (pass/fail)
+- Test summary (pass/fail, counts)
+
+## 6) Follow-up Tasks (only if needed)
+If any FAIL:
+- Provide a minimal task list with:
+  - component name
+  - exact issue
+  - smallest safe fix
+  - which tests to add/update
+  - estimated risk level (low/medium/high)

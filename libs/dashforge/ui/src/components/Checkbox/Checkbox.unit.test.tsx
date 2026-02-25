@@ -172,6 +172,40 @@ describe('Checkbox', () => {
 
       expect(state?.touched.terms).toBe(true);
     });
+
+    it('props.checked={false} overrides bridge value true', () => {
+      renderWithBridge(
+        <Checkbox name="terms" label="Accept terms" checked={false} />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { terms: true },
+          },
+        }
+      );
+
+      const checkbox = screen.getByLabelText(
+        'Accept terms'
+      ) as HTMLInputElement;
+      // props.checked takes precedence over bridge value
+      expect(checkbox.checked).toBe(false);
+    });
+
+    it('props.checked={true} overrides bridge value false', () => {
+      renderWithBridge(
+        <Checkbox name="terms" label="Accept terms" checked={true} />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { terms: false },
+          },
+        }
+      );
+
+      const checkbox = screen.getByLabelText(
+        'Accept terms'
+      ) as HTMLInputElement;
+      // props.checked takes precedence over bridge value
+      expect(checkbox.checked).toBe(true);
+    });
   });
 
   describe('Intent C: Error gating (Form Closure v1)', () => {
@@ -257,6 +291,23 @@ describe('Checkbox', () => {
 
       // Should show custom helperText
       expect(screen.getByText('Custom hint')).toBeInTheDocument();
+      expect(screen.queryByText('Bridge error')).not.toBeInTheDocument();
+    });
+
+    it('error={false} suppresses bridge error message', () => {
+      renderWithBridge(
+        <Checkbox name="terms" label="Accept terms" error={false} />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { terms: false },
+            errors: { terms: { message: 'Bridge error' } },
+            touched: { terms: true },
+            submitCount: 1,
+          },
+        }
+      );
+
+      // Bridge error should be suppressed even though touched and submitted
       expect(screen.queryByText('Bridge error')).not.toBeInTheDocument();
     });
   });

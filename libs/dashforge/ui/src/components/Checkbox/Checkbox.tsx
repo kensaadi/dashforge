@@ -83,13 +83,25 @@ export function Checkbox(props: CheckboxProps) {
     // Compute resolved props with precedence:
     // 1. Explicit props override auto values (explicit wins)
     // 2. Auto values from form validation (gated by touched/submit)
-    const resolvedError = error ?? (Boolean(autoErr) && allowAutoError);
+    const resolvedError =
+      error !== undefined ? error : Boolean(autoErr) && allowAutoError;
+    // Resolve final helper text (explicit prop overrides bridge error message)
+    // When helperText is provided, use it
+    // When error is explicitly false, suppress bridge error message
+    // Otherwise show bridge error message if allowAutoError
     const resolvedHelperText =
-      helperText ?? (allowAutoError ? autoErr?.message : undefined);
+      helperText !== undefined
+        ? helperText
+        : error === false
+        ? undefined
+        : allowAutoError
+        ? autoErr?.message
+        : undefined;
 
     // Get current checked value from bridge (default to false if undefined)
-    const currentValue = bridge.getValue?.(name);
-    const checked = currentValue === true;
+    const bridgeValue = bridge.getValue?.(name);
+    const resolvedChecked =
+      props.checked !== undefined ? props.checked : Boolean(bridgeValue);
 
     // Wrap onChange to provide correct event shape for bridge
     // Checkbox needs to pass both checked and value properties
@@ -163,7 +175,7 @@ export function Checkbox(props: CheckboxProps) {
       <MuiCheckbox
         {...rest}
         name={name}
-        checked={checked}
+        checked={resolvedChecked}
         onChange={handleChange as MuiCheckboxProps['onChange']}
         onBlur={handleBlur as MuiCheckboxProps['onBlur']}
         inputRef={registration.ref}
