@@ -21,3 +21,9 @@ export type { NumberFieldProps } from './components/NumberField/NumberField';
 
 export { Textarea } from './components/Textarea/Textarea';
 export type { TextareaProps } from './components/Textarea/Textarea';
+
+export { Autocomplete } from './components/Autocomplete/Autocomplete';
+export type {
+  AutocompleteProps,
+  AutocompleteOption,
+} from './components/Autocomplete/Autocomplete';
