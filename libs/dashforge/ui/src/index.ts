@@ -27,3 +27,9 @@ export type {
   AutocompleteProps,
   AutocompleteOption,
 } from './components/Autocomplete/Autocomplete';
+
+export { DateTimePicker } from './components/DateTimePicker/DateTimePicker';
+export type {
+  DateTimePickerProps,
+  DateTimePickerMode,
+} from './components/DateTimePicker/DateTimePicker';
