@@ -18,3 +18,6 @@ export type { RadioGroupProps } from './components/RadioGroup/RadioGroup';
 
 export { NumberField } from './components/NumberField/NumberField';
 export type { NumberFieldProps } from './components/NumberField/NumberField';
+
+export { Textarea } from './components/Textarea/Textarea';
+export type { TextareaProps } from './components/Textarea/Textarea';

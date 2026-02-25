@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.71% </span>
+                <span class="strong">86.2% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>48/56</span>
+                <span class='fraction'>50/58</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">67.85% </span>
+                <span class="strong">67.24% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>38/56</span>
+                <span class='fraction'>39/58</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.71% </span>
+                <span class="strong">86.2% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>48/56</span>
+                <span class='fraction'>50/58</span>
             </div>
         
             
@@ -336,7 +336,12 @@
 <a name='L271'></a><a href='#L271'>271</a>
 <a name='L272'></a><a href='#L272'>272</a>
 <a name='L273'></a><a href='#L273'>273</a>
-<a name='L274'></a><a href='#L274'>274</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a>
+<a name='L278'></a><a href='#L278'>278</a>
+<a name='L279'></a><a href='#L279'>279</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -544,12 +549,17 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -803,7 +813,7 @@ export function NumberField(
       ? autoErr?.message
       : undefined;
 &nbsp;
-  // Handle change: call registration.onChange first, then bridge.setValue, then user onChange
+  // Handle change: update bridge FIRST (source of truth), then notify registration, then user onChange
   const handleChange = (event: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; {
     const raw = event.target.value; // string from input
 &nbsp;
@@ -817,7 +827,6 @@ export function NumberField(
         parsedValue = num;
       } else <span class="missing-if-branch" title="else path not taken" >E</span>{
         // Invalid number (NaN or Infinity) - do not write to bridge
-        // Call user onChange (if provided) but skip bridge update
 <span class="cstat-no" title="statement not covered" >        if (explicitOnChange) {</span>
 <span class="cstat-no" title="statement not covered" >          explicitOnChange(event);</span>
         }
@@ -825,8 +834,14 @@ export function NumberField(
       }
     }
 &nbsp;
-    // Call registration.onChange first with event-like shape (raw string value)
-    // This allows RHF to trigger validation with the original input
+    // 1) Update bridge immediately with normalized value (number|null)
+    // This guarantees the bridge never stores strings for NumberField.
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (bridge.setValue) {
+      bridge.setValue(name, parsedValue);
+    }
+&nbsp;
+    // 2) Notify registration (validation, touched logic, etc.)
+    // We pass the raw string because validators may want the original input text.
     <span class="missing-if-branch" title="else path not taken" >E</span>if (registration.onChange) {
       registration.onChange({
         target: {
@@ -837,13 +852,13 @@ export function NumberField(
       });
     }
 &nbsp;
-    // THEN update bridge value with parsed number (overwrites any string set by registration)
-    // This ensures the stored value is always number | null, never a string
+    // 3) Re-assert bridge value to avoid any registration implementation
+    // accidentally writing a string into the bridge.
     <span class="missing-if-branch" title="else path not taken" >E</span>if (bridge.setValue) {
       bridge.setValue(name, parsedValue);
     }
 &nbsp;
-    // Call user onChange last (if provided)
+    // 4) Call user onChange last (if provided)
     <span class="missing-if-branch" title="if path not taken" >I</span>if (explicitOnChange) {
 <span class="cstat-no" title="statement not covered" >      explicitOnChange(event);</span>
     }
@@ -889,7 +904,7 @@ export function NumberField(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-25T13:28:08.255Z
+                at 2026-02-25T14:02:29.156Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
