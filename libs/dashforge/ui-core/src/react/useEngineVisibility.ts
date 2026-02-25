@@ -23,13 +23,14 @@ import type { Engine } from '../types';
  * @returns true if visible, false if hidden
  *
  * Behavior:
- * - If engine is null/undefined: returns true (cannot evaluate, default to visible)
  * - If visibleWhen is not provided: returns true (no condition, always visible)
- * - Otherwise: subscribes to engine changes and evaluates predicate
+ * - If engine exists: subscribes to engine changes and evaluates predicate with engine
+ * - If engine is null/undefined but predicate exists: evaluates predicate without engine (plain mode)
  * - If predicate throws: returns true (fail-safe to visible) with dev warning
  *
  * @example
  * ```tsx
+ * // With engine (reactive)
  * function ConditionalField() {
  *   const engine = useEngineContext();
  *   const isVisible = useEngineVisibility(
@@ -40,30 +41,61 @@ import type { Engine } from '../types';
  *   if (!isVisible) return null;
  *   return <input name="state" />;
  * }
+ *
+ * // Without engine (plain mode)
+ * function StaticField() {
+ *   const isVisible = useEngineVisibility(
+ *     null,
+ *     () => false // Simple predicate without engine dependency
+ *   );
+ *
+ *   if (!isVisible) return null;
+ *   return <input name="field" />;
+ * }
  * ```
  */
 export function useEngineVisibility(
   engine: Engine | null | undefined,
   visibleWhen?: ((engine: Engine) => boolean) | undefined
 ): boolean {
-  // Safe defaults: if no engine or no predicate, always visible
-  if (!engine || !visibleWhen) {
+  // If no predicate provided, always visible
+  if (!visibleWhen) {
     return true;
   }
 
-  // Subscribe to engine nodes map - this causes re-render when any node changes
-  // We don't need to use the snapshot directly, just accessing it creates the subscription
-  useSnapshot(engine.getState().nodes);
+  // If we have an engine, subscribe to changes and evaluate with engine
+  if (engine) {
+    // Subscribe to engine nodes map - this causes re-render when any node changes
+    // We don't need to use the snapshot directly, just accessing it creates the subscription
+    useSnapshot(engine.getState().nodes);
 
-  // Evaluate the predicate with error handling
+    // Evaluate the predicate with error handling
+    try {
+      return !!visibleWhen(engine);
+    } catch (err) {
+      // Fail-safe: if predicate throws, default to visible
+      // Only warn in development to avoid console spam in production
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          '[ui-core] visibleWhen predicate threw an error, defaulting to visible',
+          err
+        );
+      }
+      return true;
+    }
+  }
+
+  // No engine but predicate exists: evaluate predicate without engine
+  // This allows simple predicates like () => false to work in plain mode
   try {
-    return !!visibleWhen(engine);
+    // Pass null as engine - predicate must handle this or not use engine parameter
+    return !!visibleWhen(null as any);
   } catch (err) {
-    // Fail-safe: if predicate throws, default to visible
-    // Only warn in development to avoid console spam in production
+    // If predicate requires engine and throws, default to visible
+    // This maintains backward compatibility for engine-dependent predicates
     if (process.env.NODE_ENV !== 'production') {
       console.warn(
-        '[ui-core] visibleWhen predicate threw an error, defaulting to visible',
+        '[ui-core] visibleWhen predicate requires engine but none provided, defaulting to visible',
         err
       );
     }
