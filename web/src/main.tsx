@@ -1,5 +1,5 @@
 import { StrictMode } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { DashforgeThemeProvider } from '@dashforge/theme-mui';
 import * as ReactDOM from 'react-dom/client';
 import App from './app/app';
 
@@ -9,8 +9,8 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <BrowserRouter>
+    <DashforgeThemeProvider>
       <App />
-    </BrowserRouter>
+    </DashforgeThemeProvider>
   </StrictMode>
 );

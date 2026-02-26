@@ -40,3 +40,20 @@ export type {
   BreadcrumbNode,
   BreadcrumbMatch,
 } from './components/Breadcrumbs/types';
+
+export { LeftNav } from './components/LeftNav/LeftNav';
+export type {
+  LeftNavProps,
+  LeftNavItem,
+  LeftNavItemType,
+  LeftNavSize,
+  LeftNavMobileVariant,
+  RenderLinkFn,
+  IsActiveFn,
+} from './components/LeftNav/types';
+
+export { AppShell } from './components/AppShell/AppShell';
+export type { AppShellProps } from './components/AppShell/types';
+
+export { TopBar } from './components/TopBar/TopBar';
+export type { TopBarProps } from './components/TopBar/types';

@@ -1,5 +1,11 @@
 {
-  "name": "@org/web",
+  "name": "dashforge-web",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.8",
+    "@mui/material": "^7.3.8"
+  }
 }

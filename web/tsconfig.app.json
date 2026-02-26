@@ -11,7 +11,6 @@
       "@nx/react/typings/image.d.ts",
       "vite/client"
     ],
-    "rootDir": "src",
     "module": "esnext",
     "moduleResolution": "bundler"
   },
@@ -34,5 +33,17 @@
     "eslint.config.cjs",
     "eslint.config.mjs"
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
+
+  "references": [
+    {
+      "path": "../libs/dashforge/theme-core/tsconfig.lib.json"
+    },
+    {
+      "path": "../libs/dashforge/ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../libs/dashforge/theme-mui/tsconfig.lib.json"
+    }
+  ]
 }
