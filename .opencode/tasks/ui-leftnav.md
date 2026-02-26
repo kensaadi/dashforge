@@ -1,189 +1,333 @@
 Task
 
-Implement Dashforge LeftNav v1 from scratch (collapsed + click flyout, router-agnostic, theme-driven).
+Implement LeftNav v1 (framework-agnostic) in Dashforge UI following Dashforge UI Component Policy.
+TDD-first is mandatory.
 
-Context
+Application
 
-We want a framework-level Left Navigation component for Dashforge, inspired by the SaaSable AdminLayout concept, but fully app-agnostic:
+Dashforge – libs/dashforge/ui
 
-No router imports
+Component Name
 
-No auth/roles
+LeftNav
 
-No i18n
+Target Directory
 
-No global stores
-
-Consumer injects routing via callbacks
-Collapsed mode must include click-based Popper flyout for collapsible items.
+libs/dashforge/ui/src/components/LeftNav/
 
 Scope
 
-Application name: libs/dashforge/ui
-Folder: libs/dashforge/ui/src/components/LeftNav/
-Files to create:
-
-types.ts
-
-LeftNav.tsx
-
-LeftNav.styled.ts
-
-index.ts
-
-LeftNav.test.tsx
-
-(Optional but recommended next): libs/dashforge/ui/src/components/TopBar/ (not in this task unless time allows)
-
-Goal
-
-Deliver LeftNav with:
+Build a router-agnostic sidebar navigation component that supports:
 
 Desktop: permanent drawer with animated width (expanded/collapsed)
 
-Mobile (< breakpoint): temporary drawer overlay
+Mobile: temporary drawer (overlay) below configurable breakpoint
 
-Collapsed mode: icon-only + click-to-open Popper flyout for collapse items
+Expanded mode: inline collapses
 
-Expanded mode: inline collapses using MUI Collapse
+Collapsed mode: click-based Popper flyout for collapsible items
 
-Active pill background style (selected state)
+Active state: pill background
 
-Size variants: sm | md | lg
+Sizes: sm | md | lg
 
 Slots: header, footer
 
-Controlled and uncontrolled state support for open and expandedIds
+Controlled + uncontrolled state for:
 
-Accessibility baseline: Enter/Space actions, Esc closes flyout, aria attributes
+drawer open
 
-Rules
+expanded collapses expandedIds
 
-Do NOT import any router library (react-router, next/link, next/navigation, etc.)
+Constraints:
 
-Do NOT import any auth/i18n/state management libs
+No DashFormContext, no DashFormBridge (plain UI component only)
 
-Use MUI components + existing Dashforge utilities only
+No router imports (react-router, next/navigation, etc.)
 
-Public types and JSDoc must be in English
+No i18n imports
 
-Do NOT modify package.json fields version/name/publishConfig
+No global stores (valtio, swr, etc.)
 
-API (Must Implement)
-Data model (types.ts)
+No any in runtime code, no as never, no cascading casts
+
+No console.log
+
+Public types + JSDoc in English
+
+Files To Create
+
+libs/dashforge/ui/src/components/LeftNav/types.ts
+
+libs/dashforge/ui/src/components/LeftNav/LeftNav.tsx
+
+libs/dashforge/ui/src/components/LeftNav/LeftNav.styled.ts
+
+libs/dashforge/ui/src/components/LeftNav/index.ts
+
+libs/dashforge/ui/src/components/LeftNav/LeftNav.unit.test.tsx
+
+(Optionals only if strictly needed by implementation)
+
+libs/dashforge/ui/src/components/LeftNav/utils.ts (no exports unless necessary)
+
+Step 1 – Define Intents (Tests First)
+
+Create only tests first in:
+
+libs/dashforge/ui/src/components/LeftNav/LeftNav.unit.test.tsx
+
+Test Setup Requirements
+
+Use existing Dashforge test utilities (Testing Library).
+
+If media query needs mocking, do it inside the test file (no new infra).
+
+Intent A – Plain Render & Slots
+Test A1: renders header and footer slots
+
+Given header and footer nodes
+
+Expect both to be in the document
+
+Test A2: forwards className to root
+
+Render with className="x"
+
+Expect root container has class x
+
+Intent B – Router-Agnostic Link Contract
+Test B1: calls renderLink for leaf items
+
+Provide 2 leaf items
+
+renderLink is a mock function
+
+Expect it is called for each leaf item exactly once
+
+Ensure the returned node is rendered
+
+Test B2: applies active pill when isActive(item) is true
+
+isActive returns true for a specific item
+
+Expect that item is rendered with aria-current="page"
+
+Expect pill styling marker is applied (use a stable selector: e.g. data-dash-active="true")
+
+Intent C – Controlled vs Uncontrolled Drawer Open
+Test C1: controlled open does not mutate internal state
+
+Render with open={false} and onOpenChange=mock
+
+Click toggle button (you must expose a stable test id: data-testid="LeftNav.Toggle")
+
+Expect onOpenChange(true) called
+
+Re-render with open={false}
+
+Expect drawer still collapsed
+
+Test C2: uncontrolled open toggles with defaultOpen
+
+Render with defaultOpen={false}
+
+Click toggle
+
+Expect drawer becomes open (assert via width state marker: data-dash-open="true")
+
+If onOpenChange provided, expect it called
+
+Intent D – Inline Collapse (Expanded Mode)
+Test D1: clicking collapse toggles children inline in expanded mode
+
+Render with open={true} (expanded)
+
+Item with type='collapse' and children
+
+Click collapse row
+
+Expect children visible
+
+Click again
+
+Expect children hidden
+
+Test D2: controlled expandedIds calls onExpandedIdsChange
+
+Render with expandedIds={[]}, onExpandedIdsChange=mock
+
+Click collapse
+
+Expect callback called with array containing collapse id
+
+Intent E – Flyout (Collapsed Mode, Click)
+Test E1: collapsed + click collapse opens popper flyout
+
+Render with open={false} (collapsed)
+
+Click collapse item
+
+Expect flyout content visible
+
+Test E2: click-away closes flyout
+
+Open flyout
+
+Click document body
+
+Expect flyout content hidden
+
+Test E3: Escape closes flyout
+
+Open flyout
+
+Press Escape
+
+Expect flyout content hidden
+
+Test E4: opening another collapse closes previous flyout
+
+Open flyout A
+
+Click collapse B
+
+Expect A content hidden, B content visible
+
+Intent F – Mobile Variant Close-on-Navigate
+Test F1: on mobile, clicking leaf closes drawer if closeOnNavigateMobile=true
+
+Mock breakpoint so component behaves as mobile temporary
+
+Render with open={true}, onOpenChange=mock, closeOnNavigateMobile={true}
+
+Click a leaf item
+
+Expect onOpenChange(false) called
+
+Intent G – Size Variants
+Test G1: size changes item height marker
+
+Render size="sm" and assert an item has data-dash-size="sm"
+
+Render size="lg" and assert data-dash-size="lg"
+
+(Implementation must add stable data attributes for testability.)
+
+STOP HERE. No implementation until all tests above exist.
+
+Step 2 – Implement Component
+
+Create component files listed above.
+
+Implementation requirements:
+
+Public Types (types.ts)
+
+Implement:
 
 LeftNavItemType = 'group' | 'collapse' | 'item'
 
 LeftNavSize = 'sm' | 'md' | 'lg'
 
-LeftNavItem with:
+LeftNavItem model:
 
-id: string
+id, type, label, key, icon?, disabled?, badge?, children?, dividerBefore?
 
-type: LeftNavItemType
+Callback types:
 
-label: string (already translated)
+renderLink(item, children)
 
-key: string (routing key, framework does not navigate)
+isActive(item)
 
-icon?: ReactNode
+Props interface LeftNavProps exactly matching test expectations.
 
-disabled?: boolean
+Styling (LeftNav.styled.ts)
 
-badge?: { content: string | number; color?; variant? }
+Use MUI styled + shouldForwardProp where needed.
 
-children?: LeftNavItem[]
+Width transition uses theme.transitions.create('width').
 
-dividerBefore?: boolean
+Active pill uses theme vars (e.g. theme.vars.palette.primary.lighter) and works in dark mode via vars.
 
-Router agnostic callbacks
+Do NOT add new global theme keys.
 
-renderLink(item, children): ReactNode (required)
+Component Logic (LeftNav.tsx)
 
-isActive(item): boolean (required)
+Resolve open state (controlled vs uncontrolled).
 
-onItemClick?(item, event)
+Resolve expandedIds state (controlled vs uncontrolled).
 
-State
+Build expanded mode renderer (inline Collapse).
 
-Controlled/uncontrolled open:
+Build collapsed mode renderer (Popper flyout on click).
 
-open?, defaultOpen?, onOpenChange?(open)
+Maintain flyout state:
 
-Controlled/uncontrolled expanded ids:
+activeFlyoutId: string | null
 
-expandedIds?, defaultExpandedIds?, onExpandedIdsChange?(ids)
+close on click-away and Escape
 
-Responsive + behavior
+opening a new one closes previous
 
-breakpoint?: 'sm'|'md'|'lg'|'xl' (default 'lg')
+Mobile behavior:
 
-mobileVariant?: 'temporary'|'disabled' (default 'temporary')
+useMediaQuery(theme.breakpoints.down(breakpoint))
 
-closeOnNavigateMobile?: boolean (default true)
+temporary drawer when mobile (unless mobileVariant='disabled')
 
-Style
+close on navigate for leaf items when mobile + option enabled
 
-size?: 'sm'|'md'|'lg' (default 'md')
+Add stable test attributes used by tests:
 
-widthExpanded?: number (default 254)
+root data-dash-open
 
-widthCollapsed?: number (default 77)
+active item data-dash-active
 
-sx?, className?
+size data-dash-size
 
-header?, footer?
+toggle button data-testid="LeftNav.Toggle"
 
-Interaction spec
+Exports (index.ts)
 
-Collapsed mode:
+Export LeftNav and relevant types.
 
-click on collapse opens a Popper flyout anchored to the row
+Step 3 – Minimal Optional Integration
 
-click-away closes flyout
+Not required (no form, no RHF).
+Only add a smoke test if needed for breakpoints/popper.
 
-Esc closes flyout
+Verification
 
-opening another collapse closes previous flyout
+Run:
 
-Expanded mode:
+npx nx run @dashforge/ui:typecheck
+npx nx run @dashforge/ui:test
 
-click on collapse toggles inline Collapse
+Requirements:
 
-Leaf click:
+0 type errors
 
-calls onItemClick if provided
+All tests pass
 
-navigation handled by consumer via renderLink
+0 skipped tests
 
-on mobile, if closeOnNavigateMobile=true, close the drawer
+Acceptance Criteria
 
-Theming
+LeftNav.unit.test.tsx exists and all tests pass.
 
-Use theme.vars.palette.\* for colors
+Component is router-agnostic (verified: no router imports).
 
-Use theme.transitions.\* for animations
+Component is form-agnostic (verified: no DashFormContext/Bridge imports).
 
-Do NOT introduce theme.layout.\*
+No console.log.
 
-Support MUI component theming via component name (e.g. DashforgeLeftNav) if the repo pattern exists; otherwise keep props + sx.
+No unsafe casts (any in runtime, as never, cascading casts).
 
-Tests (LeftNav.test.tsx)
+Active pill background implemented and testable via data-dash-active.
 
-At minimum:
+Collapsed flyout is click-based and closes via click-away and Escape.
 
-Applies active pill style when isActive(item) is true
+Mobile leaf click closes temporary drawer when configured.
 
-Toggles open state in uncontrolled mode and triggers onOpenChange
-
-Respects controlled open (does not change internally)
-
-Expanded mode toggles collapse inline
-
-Collapsed mode opens Popper flyout on click and closes on click-away / Esc
-
-On mobile variant, clicking leaf closes drawer when closeOnNavigateMobile=true (simulate with breakpoint override or mock media query)
-
-Output
-
-All files implemented + tests passing + typecheck clean.
+Summary of changes provided.
