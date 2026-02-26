@@ -33,3 +33,10 @@ export type {
   DateTimePickerProps,
   DateTimePickerMode,
 } from './components/DateTimePicker/DateTimePicker';
+
+export { Breadcrumbs } from './components/Breadcrumbs/Breadcrumbs';
+export type { BreadcrumbsProps } from './components/Breadcrumbs/Breadcrumbs';
+export type {
+  BreadcrumbNode,
+  BreadcrumbMatch,
+} from './components/Breadcrumbs/types';
