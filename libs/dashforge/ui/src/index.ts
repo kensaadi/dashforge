@@ -57,3 +57,6 @@ export type { AppShellProps } from './components/AppShell/types';
 
 export { TopBar } from './components/TopBar/TopBar';
 export type { TopBarProps } from './components/TopBar/types';
+
+export { Animate } from './components/Animate/Animate';
+export type { AnimateProps } from './components/Animate/Animate';

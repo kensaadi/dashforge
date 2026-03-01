@@ -18,24 +18,13 @@ import SchemaIcon from '@mui/icons-material/Schema';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import InsightsIcon from '@mui/icons-material/Insights';
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
-
-function BrandMark() {
-  return (
-    <Box sx={{ display: 'grid', placeItems: 'center' }}>
-      <Box
-        sx={{
-          width: 30,
-          height: 30,
-          borderRadius: 999,
-          background:
-            'radial-gradient(12px 12px at 35% 35%, rgba(255,255,255,0.95), rgba(255,255,255,0) 60%),' +
-            'linear-gradient(145deg, rgba(59,130,246,1), rgba(99,102,241,1))',
-          boxShadow: '0 10px 25px rgba(15, 23, 42, 0.25)',
-        }}
-      />
-    </Box>
-  );
-}
+import { Animate } from '@dashforge/ui';
+import { UseCasesSection } from './components/UseCases';
+import { NotJustAnotherFormLibrarySection } from './components/NotJustAnotherFormLibrarySection';
+import { TrustedForComplexFormsSection } from './components/TrustedForComplexFormSection';
+import { GetStartedCtaSection } from './components/GetStartedCtaSection';
+import { RevealOnScroll } from '../../components/motion/RevealOnScroll';
+import { RevealStagger } from '../../components/motion/RevealStagger';
 
 export function HomePage() {
   const dashTheme = useDashTheme();
@@ -71,18 +60,12 @@ export function HomePage() {
             justifyContent="space-between"
           >
             <Stack direction="row" alignItems="center" spacing={1.25}>
-              <BrandMark />
-              <Typography
-                sx={{
-                  fontWeight: 900,
-                  letterSpacing: -0.2,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.92)'
-                    : 'rgba(15,23,42,0.92)',
-                }}
-              >
-                Dashforge
-              </Typography>
+              <img
+                src={isDark ? './logo-light.png' : './logo-dark.png'}
+                alt="Dashforge Logo"
+                width={110}
+                // height={32}
+              />
             </Stack>
 
             <Stack
@@ -397,77 +380,134 @@ export function HomePage() {
               },
             ].map((f) => (
               <Grid key={f.title} size={{ xs: 12, md: 4 }}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    height: '100%',
-                    borderRadius: 2,
-                    border: isDark
-                      ? '1px solid rgba(255,255,255,0.10)'
-                      : '1px solid rgba(15,23,42,0.08)',
-                    background: isDark
-                      ? 'linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))'
-                      : 'linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.82))',
-                  }}
-                >
-                  <CardContent>
-                    <Stack spacing={1}>
-                      <Stack direction="row" spacing={1.25} alignItems="center">
-                        <Box
-                          sx={{
-                            width: 34,
-                            height: 34,
-                            borderRadius: 1.5,
-                            display: 'grid',
-                            placeItems: 'center',
-                            border: isDark
-                              ? '1px solid rgba(255,255,255,0.14)'
-                              : '1px solid rgba(15,23,42,0.10)',
-                            background: isDark
-                              ? 'linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))'
-                              : 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.75))',
-                            color: isDark
-                              ? 'rgba(255,255,255,0.85)'
-                              : 'rgba(15,23,42,0.80)',
-                            boxShadow: isDark
-                              ? '0 18px 40px rgba(0,0,0,0.28)'
-                              : '0 12px 26px rgba(15,23,42,0.10)',
-                          }}
+                <RevealOnScroll>
+                  <Card
+                    elevation={0}
+                    sx={{
+                      height: '100%',
+                      borderRadius: 2,
+                      border: isDark
+                        ? '1px solid rgba(255,255,255,0.10)'
+                        : '1px solid rgba(15,23,42,0.08)',
+                      background: isDark
+                        ? 'linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))'
+                        : 'linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.82))',
+                    }}
+                  >
+                    <CardContent>
+                      <Stack spacing={1}>
+                        <Stack
+                          direction="row"
+                          spacing={1.25}
+                          alignItems="center"
                         >
-                          {f.icon}
-                        </Box>
+                          <Box
+                            sx={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: 1.5,
+                              display: 'grid',
+                              placeItems: 'center',
+                              border: isDark
+                                ? '1px solid rgba(255,255,255,0.14)'
+                                : '1px solid rgba(15,23,42,0.10)',
+                              background: isDark
+                                ? 'linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))'
+                                : 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.75))',
+                              color: isDark
+                                ? 'rgba(255,255,255,0.85)'
+                                : 'rgba(15,23,42,0.80)',
+                              boxShadow: isDark
+                                ? '0 18px 40px rgba(0,0,0,0.28)'
+                                : '0 12px 26px rgba(15,23,42,0.10)',
+                            }}
+                          >
+                            {f.icon}
+                          </Box>
 
+                          <Typography
+                            sx={{
+                              fontWeight: 950,
+                              color: isDark
+                                ? 'rgba(255,255,255,0.88)'
+                                : 'rgba(15,23,42,0.88)',
+                            }}
+                          >
+                            {f.title}
+                          </Typography>
+                        </Stack>
+                        <Divider />
                         <Typography
                           sx={{
-                            fontWeight: 950,
+                            pt: 0.5,
+                            fontSize: 13,
+                            lineHeight: 1.6,
                             color: isDark
-                              ? 'rgba(255,255,255,0.88)'
-                              : 'rgba(15,23,42,0.88)',
+                              ? 'rgba(255,255,255,0.64)'
+                              : 'rgba(15,23,42,0.64)',
                           }}
                         >
-                          {f.title}
+                          {f.description}
                         </Typography>
                       </Stack>
-                      <Divider />
-                      <Typography
-                        sx={{
-                          pt: 0.5,
-                          fontSize: 13,
-                          lineHeight: 1.6,
-                          color: isDark
-                            ? 'rgba(255,255,255,0.64)'
-                            : 'rgba(15,23,42,0.64)',
-                        }}
-                      >
-                        {f.description}
-                      </Typography>
-                    </Stack>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </RevealOnScroll>
               </Grid>
             ))}
           </Grid>
         </Stack>
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            mb: 3,
+            mt: 6,
+          }}
+        />
+        <RevealStagger>
+          <UseCasesSection />
+        </RevealStagger>
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            mb: 3,
+            mt: 6,
+          }}
+        />
+        <NotJustAnotherFormLibrarySection />
+        <RevealStagger>
+          <Divider
+            sx={{
+              borderColor: isDark
+                ? 'rgba(255,255,255,0.10)'
+                : 'rgba(15,23,42,0.08)',
+              mb: 3,
+              mt: 6,
+            }}
+          />
+          <TrustedForComplexFormsSection />
+          <Divider
+            sx={{
+              borderColor: isDark
+                ? 'rgba(255,255,255,0.10)'
+                : 'rgba(15,23,42,0.08)',
+              mb: 3,
+              mt: 6,
+            }}
+          />
+          <GetStartedCtaSection />
+          <Divider
+            sx={{
+              borderColor: isDark
+                ? 'rgba(255,255,255,0.10)'
+                : 'rgba(15,23,42,0.08)',
+            }}
+          />
+        </RevealStagger>
       </Container>
     </Box>
   );

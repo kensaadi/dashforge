@@ -1,5 +1,5 @@
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
-import { HomePage } from '../pages/HomePage';
+import { HomePage } from '../pages/Home/HomePage';
 import { DocsPage } from '../pages/DocsPage';
 import { ComponentsPage } from '../pages/ComponentsPage';
 import { PricingPage } from '../pages/PricingPage';
