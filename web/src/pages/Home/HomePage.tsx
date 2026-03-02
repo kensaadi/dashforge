@@ -150,17 +150,8 @@ export function HomePage() {
       <HeroHome />
 
       {/* ========================= NEXT SECTION PLACEHOLDER ========================= */}
-      {/* Keep the page “docs-first”: next sections should be lean and truth-based (no fake previews). */}
-      <Container sx={{ pb: 10 }}>
-        <Divider
-          sx={{
-            borderColor: isDark
-              ? 'rgba(255,255,255,0.10)'
-              : 'rgba(15,23,42,0.08)',
-            mb: 3,
-          }}
-        />
-
+      {/* Keep the page "docs-first": next sections should be lean and truth-based (no fake previews). */}
+      <Container sx={{ pb: 10, pt: 6 }}>
         <Stack spacing={2}>
           <Typography
             sx={{
@@ -268,57 +259,54 @@ export function HomePage() {
             ))}
           </Grid>
         </Stack>
+
         <Divider
           sx={{
             borderColor: isDark
               ? 'rgba(255,255,255,0.10)'
               : 'rgba(15,23,42,0.08)',
-            mb: 3,
-            mt: 6,
+            my: 6,
           }}
         />
+
         <RevealStagger>
           <UseCasesSection />
         </RevealStagger>
+
         <Divider
           sx={{
             borderColor: isDark
               ? 'rgba(255,255,255,0.10)'
               : 'rgba(15,23,42,0.08)',
-            mb: 3,
-            mt: 6,
+            my: 6,
           }}
         />
+
         <NotJustAnotherFormLibrarySection />
+
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            my: 6,
+          }}
+        />
+
         <RevealStagger>
-          <Divider
-            sx={{
-              borderColor: isDark
-                ? 'rgba(255,255,255,0.10)'
-                : 'rgba(15,23,42,0.08)',
-              mb: 3,
-              mt: 6,
-            }}
-          />
           <TrustedForComplexFormsSection />
-          <Divider
-            sx={{
-              borderColor: isDark
-                ? 'rgba(255,255,255,0.10)'
-                : 'rgba(15,23,42,0.08)',
-              mb: 3,
-              mt: 6,
-            }}
-          />
-          <GetStartedCtaSection />
-          <Divider
-            sx={{
-              borderColor: isDark
-                ? 'rgba(255,255,255,0.10)'
-                : 'rgba(15,23,42,0.08)',
-            }}
-          />
         </RevealStagger>
+
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            my: 6,
+          }}
+        />
+
+        <GetStartedCtaSection />
       </Container>
     </Box>
   );

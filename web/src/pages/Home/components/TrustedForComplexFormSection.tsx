@@ -2,13 +2,11 @@
 import * as React from 'react';
 
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { Animate } from '@dashforge/ui';
 
 type TrustItem = {
   label: string;
@@ -43,19 +41,14 @@ export function TrustedForComplexFormsSection() {
 
   const labelColor = isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.78)';
 
-  const titleColor = isDark ? 'rgba(255,255,255,0.88)' : 'rgba(15,23,42,0.88)';
-
   return (
-    <Container sx={{ py: { xs: 4, md: 5 } }}>
-      <Stack spacing={2.25} alignItems="center">
+    <Stack spacing={2.25}>
+      <Stack spacing={0.75}>
         <Typography
           sx={{
-            fontSize: { xs: 18, md: 20 },
+            fontSize: 14,
             fontWeight: 950,
-            letterSpacing: '-0.02em',
-            color: titleColor,
-            textAlign: 'center',
-            textShadow: isDark ? '0 2px 14px rgba(0,0,0,0.45)' : 'none',
+            color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
           }}
         >
           Built for complex forms
@@ -63,81 +56,79 @@ export function TrustedForComplexFormsSection() {
 
         <Typography
           sx={{
-            fontSize: { xs: 18, md: 20 },
-            fontWeight: 950,
-            letterSpacing: '-0.02em',
-            color: titleColor,
-            textAlign: 'center',
-            textShadow: isDark ? '0 2px 14px rgba(0,0,0,0.45)' : 'none',
+            fontSize: 13,
+            lineHeight: 1.6,
+            maxWidth: 680,
+            color: isDark ? 'rgba(255,255,255,0.64)' : 'rgba(15,23,42,0.64)',
           }}
         >
-          Open-source core with a docs-first approach and MUI-native components
+          Open-source core with a docs-first approach and MUI-native components.
         </Typography>
-        <Box
+      </Stack>
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 980,
+          borderRadius: 2,
+          border: barBorder,
+          background: barBg,
+          boxShadow: barShadow,
+          backdropFilter: 'blur(14px)',
+          overflow: 'hidden',
+          px: { xs: 1.25, md: 1.75 },
+          py: { xs: 1.2, md: 1.35 },
+        }}
+      >
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
           sx={{
             width: '100%',
-            maxWidth: 980,
-            borderRadius: 2,
-            border: barBorder,
-            background: barBg,
-            boxShadow: barShadow,
-            backdropFilter: 'blur(14px)',
-            overflow: 'hidden',
-            px: { xs: 1.25, md: 1.75 },
-            py: { xs: 1.2, md: 1.35 },
+            gap: { xs: 1, md: 0 },
+            flexWrap: { xs: 'wrap', md: 'nowrap' }, // mobile wraps nicely
           }}
         >
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{
-              width: '100%',
-              gap: { xs: 1, md: 0 },
-              flexWrap: { xs: 'wrap', md: 'nowrap' }, // mobile wraps nicely
-            }}
-          >
-            {ITEMS.map((it, idx) => (
-              <React.Fragment key={it.label}>
-                <Box
+          {ITEMS.map((it, idx) => (
+            <React.Fragment key={it.label}>
+              <Box
+                sx={{
+                  flex: { xs: '1 1 45%', md: '1 1 0%' },
+                  minWidth: { xs: 160, md: 0 },
+                  textAlign: 'center',
+                  px: { xs: 1, md: 2 },
+                  py: { xs: 0.75, md: 0.5 },
+                }}
+              >
+                <Typography
                   sx={{
-                    flex: { xs: '1 1 45%', md: '1 1 0%' },
-                    minWidth: { xs: 160, md: 0 },
-                    textAlign: 'center',
-                    px: { xs: 1, md: 2 },
-                    py: { xs: 0.75, md: 0.5 },
+                    fontSize: { xs: 13, md: 14 },
+                    fontWeight: 850,
+                    color: labelColor,
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: { xs: 13, md: 14 },
-                      fontWeight: 850,
-                      color: labelColor,
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {it.label}
-                  </Typography>
-                </Box>
+                  {it.label}
+                </Typography>
+              </Box>
 
-                {idx < ITEMS.length - 1 ? (
-                  <Divider
-                    orientation="vertical"
-                    flexItem
-                    sx={{
-                      display: { xs: 'none', md: 'block' }, // separators only on desktop like screenshot
-                      borderColor: dividerColor,
-                      opacity: 1,
-                    }}
-                  />
-                ) : null}
-              </React.Fragment>
-            ))}
-          </Stack>
-        </Box>
-      </Stack>
-    </Container>
+              {idx < ITEMS.length - 1 ? (
+                <Divider
+                  orientation="vertical"
+                  flexItem
+                  sx={{
+                    display: { xs: 'none', md: 'block' }, // separators only on desktop like screenshot
+                    borderColor: dividerColor,
+                    opacity: 1,
+                  }}
+                />
+              ) : null}
+            </React.Fragment>
+          ))}
+        </Stack>
+      </Box>
+    </Stack>
   );
 }

@@ -57,25 +57,27 @@ export function UseCasesSection() {
 
   return (
     <Stack spacing={2}>
-      <Typography
-        sx={{
-          fontSize: 14,
-          fontWeight: 950,
-          color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
-        }}
-      >
-        Built for real-world form complexity
-      </Typography>
+      <Stack spacing={0.75}>
+        <Typography
+          sx={{
+            fontSize: 14,
+            fontWeight: 950,
+            color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
+          }}
+        >
+          Built for real-world form complexity
+        </Typography>
 
-      <Typography
-        sx={{
-          fontSize: 14,
-          fontWeight: 950,
-          color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
-        }}
-      >
-        Common pain points — solved as derived state.
-      </Typography>
+        <Typography
+          sx={{
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: isDark ? 'rgba(255,255,255,0.64)' : 'rgba(15,23,42,0.64)',
+          }}
+        >
+          Common pain points — solved as derived state.
+        </Typography>
+      </Stack>
       <Grid container spacing={2}>
         {USE_CASES.map((u) => (
           <Grid key={u.title} size={{ xs: 12, md: 6 }}>
