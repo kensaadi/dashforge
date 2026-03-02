@@ -27,46 +27,26 @@ type UseCase = {
 const USE_CASES: UseCase[] = [
   {
     title: 'Conditional Visibility',
-    description:
-      'Fields appear/disappear based on domain rules, not UI glue code.',
-    bullets: [
-      'No “watch + setValue” chains',
-      'Visibility is derived state',
-      'Rules stay in the schema',
-    ],
+    description: 'Visibility becomes derived state — no UI glue.',
+    bullets: ['Rules live in schema', 'No watcher chains'],
     icon: <VisibilityIcon fontSize="small" />,
   },
   {
     title: 'Cross-Field Constraints',
-    description:
-      'When A changes, B can reset, validate, clamp, or recompute deterministically.',
-    bullets: [
-      'Explicit dependencies graph',
-      'Atomic updates (no cascades)',
-      'Predictable re-evaluation',
-    ],
+    description: 'Deterministic updates when fields depend on each other.',
+    bullets: ['Explicit dependency graph', 'Atomic re-evaluation'],
     icon: <HubIcon fontSize="small" />,
   },
   {
     title: 'Async Domain Rules',
-    description:
-      'Eligibility checks, server hints, and policy validation without ad-hoc effects.',
-    bullets: [
-      'Async rules as first-class',
-      'Stable loading/error gating',
-      'No duplicated client logic',
-    ],
+    description: 'Server-backed rules without effect chaos.',
+    bullets: ['First-class async rules', 'Stable loading & error gating'],
     icon: <RuleIcon fontSize="small" />,
   },
   {
-    title: 'Wizard & State Machines',
-    description:
-      'Step gating, transitions, and derived progress — forms as real state machines.',
-    bullets: [
-      'Step enabled/blocked by rules',
-      'Derived progress + guardrails',
-      'Fewer edge-case effects',
-    ],
+    title: 'Wizards & Workflows',
+    description: 'Forms behave like real state machines.',
+    bullets: ['Step gating via rules', 'Derived progress & guardrails'],
     icon: <AccountTreeIcon fontSize="small" />,
   },
 ];
@@ -84,9 +64,18 @@ export function UseCasesSection() {
           color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
         }}
       >
-        Use cases
+        Built for real-world form complexity
       </Typography>
 
+      <Typography
+        sx={{
+          fontSize: 14,
+          fontWeight: 950,
+          color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
+        }}
+      >
+        Common pain points — solved as derived state.
+      </Typography>
       <Grid container spacing={2}>
         {USE_CASES.map((u) => (
           <Grid key={u.title} size={{ xs: 12, md: 6 }}>
@@ -178,9 +167,10 @@ export function UseCasesSection() {
                         >
                           <Box
                             sx={{
-                              mt: '7px',
-                              width: 6,
-                              height: 6,
+                              width: 8,
+                              height: 8,
+                              position: 'relative',
+                              top: 6,
                               borderRadius: 999,
                               backgroundColor: isDark
                                 ? 'rgba(96,165,250,0.85)'
@@ -188,13 +178,13 @@ export function UseCasesSection() {
                               boxShadow: isDark
                                 ? '0 0 0 3px rgba(59,130,246,0.16)'
                                 : '0 0 0 3px rgba(37,99,235,0.10)',
-                              flex: '0 0 auto',
+                              // flex: '0 0 auto',
                             }}
                           />
                           <Typography
                             sx={{
                               fontSize: 13,
-                              lineHeight: 1.55,
+                              // lineHeight: 1.55,
                               color: isDark
                                 ? 'rgba(255,255,255,0.70)'
                                 : 'rgba(15,23,42,0.66)',

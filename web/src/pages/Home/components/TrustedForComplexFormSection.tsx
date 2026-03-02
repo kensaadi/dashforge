@@ -15,10 +15,10 @@ type TrustItem = {
 };
 
 const ITEMS: TrustItem[] = [
-  { label: 'Type-Safe & Predictable' },
-  { label: 'Works with MUI' },
-  { label: 'Docs-First Approach' },
-  { label: 'Open Source Core' },
+  { label: 'Strict typing' },
+  { label: 'MUI-first' },
+  { label: 'Docs & examples' },
+  { label: 'Open-source core' },
 ];
 
 export function TrustedForComplexFormsSection() {
@@ -58,75 +58,85 @@ export function TrustedForComplexFormsSection() {
             textShadow: isDark ? '0 2px 14px rgba(0,0,0,0.45)' : 'none',
           }}
         >
-          Trusted For Complex Forms
+          Built for complex forms
         </Typography>
 
-        <Animate>
-          <Box
+        <Typography
+          sx={{
+            fontSize: { xs: 18, md: 20 },
+            fontWeight: 950,
+            letterSpacing: '-0.02em',
+            color: titleColor,
+            textAlign: 'center',
+            textShadow: isDark ? '0 2px 14px rgba(0,0,0,0.45)' : 'none',
+          }}
+        >
+          Open-source core with a docs-first approach and MUI-native components
+        </Typography>
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 980,
+            borderRadius: 2,
+            border: barBorder,
+            background: barBg,
+            boxShadow: barShadow,
+            backdropFilter: 'blur(14px)',
+            overflow: 'hidden',
+            px: { xs: 1.25, md: 1.75 },
+            py: { xs: 1.2, md: 1.35 },
+          }}
+        >
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
             sx={{
               width: '100%',
-              maxWidth: 980,
-              borderRadius: 2,
-              border: barBorder,
-              background: barBg,
-              boxShadow: barShadow,
-              backdropFilter: 'blur(14px)',
-              overflow: 'hidden',
-              px: { xs: 1.25, md: 1.75 },
-              py: { xs: 1.2, md: 1.35 },
+              gap: { xs: 1, md: 0 },
+              flexWrap: { xs: 'wrap', md: 'nowrap' }, // mobile wraps nicely
             }}
           >
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              sx={{
-                width: '100%',
-                gap: { xs: 1, md: 0 },
-                flexWrap: { xs: 'wrap', md: 'nowrap' }, // mobile wraps nicely
-              }}
-            >
-              {ITEMS.map((it, idx) => (
-                <React.Fragment key={it.label}>
-                  <Box
+            {ITEMS.map((it, idx) => (
+              <React.Fragment key={it.label}>
+                <Box
+                  sx={{
+                    flex: { xs: '1 1 45%', md: '1 1 0%' },
+                    minWidth: { xs: 160, md: 0 },
+                    textAlign: 'center',
+                    px: { xs: 1, md: 2 },
+                    py: { xs: 0.75, md: 0.5 },
+                  }}
+                >
+                  <Typography
                     sx={{
-                      flex: { xs: '1 1 45%', md: '1 1 0%' },
-                      minWidth: { xs: 160, md: 0 },
-                      textAlign: 'center',
-                      px: { xs: 1, md: 2 },
-                      py: { xs: 0.75, md: 0.5 },
+                      fontSize: { xs: 13, md: 14 },
+                      fontWeight: 850,
+                      color: labelColor,
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
                     }}
                   >
-                    <Typography
-                      sx={{
-                        fontSize: { xs: 13, md: 14 },
-                        fontWeight: 850,
-                        color: labelColor,
-                        whiteSpace: 'nowrap',
-                        textOverflow: 'ellipsis',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {it.label}
-                    </Typography>
-                  </Box>
+                    {it.label}
+                  </Typography>
+                </Box>
 
-                  {idx < ITEMS.length - 1 ? (
-                    <Divider
-                      orientation="vertical"
-                      flexItem
-                      sx={{
-                        display: { xs: 'none', md: 'block' }, // separators only on desktop like screenshot
-                        borderColor: dividerColor,
-                        opacity: 1,
-                      }}
-                    />
-                  ) : null}
-                </React.Fragment>
-              ))}
-            </Stack>
-          </Box>
-        </Animate>
+                {idx < ITEMS.length - 1 ? (
+                  <Divider
+                    orientation="vertical"
+                    flexItem
+                    sx={{
+                      display: { xs: 'none', md: 'block' }, // separators only on desktop like screenshot
+                      borderColor: dividerColor,
+                      opacity: 1,
+                    }}
+                  />
+                ) : null}
+              </React.Fragment>
+            ))}
+          </Stack>
+        </Box>
       </Stack>
     </Container>
   );
