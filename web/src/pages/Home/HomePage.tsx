@@ -152,8 +152,8 @@ export function HomePage() {
 
       {/* ========================= NEXT SECTION PLACEHOLDER ========================= */}
       {/* Keep the page "docs-first": next sections should be lean and truth-based (no fake previews). */}
-      <Container sx={{ pb: 10, pt: 6 }}>
-        <Stack spacing={3}>
+      <Container sx={{ pb: { xs: 10, md: 12 }, pt: { xs: 5, md: 6 } }}>
+        <Stack spacing={2}>
           <SectionHeader title="What you get" />
 
           <Grid container spacing={2}>
@@ -258,7 +258,7 @@ export function HomePage() {
             borderColor: isDark
               ? 'rgba(255,255,255,0.10)'
               : 'rgba(15,23,42,0.08)',
-            my: 6,
+            my: { xs: 5, md: 6 },
           }}
         />
 
@@ -271,7 +271,7 @@ export function HomePage() {
             borderColor: isDark
               ? 'rgba(255,255,255,0.10)'
               : 'rgba(15,23,42,0.08)',
-            my: 6,
+            my: { xs: 5, md: 6 },
           }}
         />
 
@@ -282,7 +282,7 @@ export function HomePage() {
             borderColor: isDark
               ? 'rgba(255,255,255,0.10)'
               : 'rgba(15,23,42,0.08)',
-            my: 6,
+            my: { xs: 5, md: 6 },
           }}
         />
 
@@ -295,7 +295,7 @@ export function HomePage() {
             borderColor: isDark
               ? 'rgba(255,255,255,0.10)'
               : 'rgba(15,23,42,0.08)',
-            my: 6,
+            my: { xs: 5, md: 6 },
           }}
         />
 

@@ -5,18 +5,14 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { SectionHeader } from '../../../components/header/SectionHeader';
+import { SectionHeader } from './SectionHeader';
 
 export function GetStartedCtaSection() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <Stack
-      spacing={3}
-      alignItems="center"
-      sx={{ textAlign: 'center', py: { xs: 4, md: 5 } }}
-    >
+    <Stack spacing={2} alignItems="center" sx={{ textAlign: 'center' }}>
       <SectionHeader
         title="Get started in minutes"
         subtitle="Quickstart, examples, and core concepts."

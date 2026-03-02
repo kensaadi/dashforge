@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { SectionHeader } from '../../../components/header/SectionHeader';
+import { SectionHeader } from './SectionHeader';
 
 type TrustItem = {
   label: string;
@@ -43,7 +43,7 @@ export function TrustedForComplexFormsSection() {
   const labelColor = isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.78)';
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={2}>
       <SectionHeader
         title="Built for complex forms"
         subtitle="Open-source core with a docs-first approach and MUI-native components."

@@ -114,7 +114,7 @@ export function NotJustAnotherFormLibrarySection() {
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={2}>
       <SectionHeader
         title="A domain-first approach to forms"
         subtitle="Dashforge provides domain logic closure: rules and dependencies produce derived state, allowing UI components to remain declarative and free from implementation glue."

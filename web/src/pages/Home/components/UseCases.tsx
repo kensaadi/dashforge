@@ -57,7 +57,7 @@ export function UseCasesSection() {
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={2}>
       <SectionHeader
         title="Built for real-world form complexity"
         subtitle="Common pain points — solved as derived state."
