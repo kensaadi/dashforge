@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
+import { SectionHeader } from './SectionHeader';
 
 type TrustItem = {
   label: string;
@@ -42,29 +43,12 @@ export function TrustedForComplexFormsSection() {
   const labelColor = isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.78)';
 
   return (
-    <Stack spacing={2.25}>
-      <Stack spacing={0.75}>
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 950,
-            color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
-          }}
-        >
-          Built for complex forms
-        </Typography>
-
-        <Typography
-          sx={{
-            fontSize: 13,
-            lineHeight: 1.6,
-            maxWidth: 680,
-            color: isDark ? 'rgba(255,255,255,0.64)' : 'rgba(15,23,42,0.64)',
-          }}
-        >
-          Open-source core with a docs-first approach and MUI-native components.
-        </Typography>
-      </Stack>
+    <Stack spacing={3}>
+      <SectionHeader
+        title="Built for complex forms"
+        subtitle="Open-source core with a docs-first approach and MUI-native components."
+        maxWidth={680}
+      />
       <Box
         sx={{
           width: '100%',

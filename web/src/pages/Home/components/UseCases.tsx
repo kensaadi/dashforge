@@ -16,6 +16,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 import { useDashTheme } from '@dashforge/theme-core';
 import { Animate } from '@dashforge/ui';
+import { SectionHeader } from './SectionHeader';
 
 type UseCase = {
   title: string;
@@ -56,28 +57,12 @@ export function UseCasesSection() {
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <Stack spacing={2}>
-      <Stack spacing={0.75}>
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 950,
-            color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
-          }}
-        >
-          Built for real-world form complexity
-        </Typography>
+    <Stack spacing={3}>
+      <SectionHeader
+        title="Built for real-world form complexity"
+        subtitle="Common pain points — solved as derived state."
+      />
 
-        <Typography
-          sx={{
-            fontSize: 13,
-            lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.64)' : 'rgba(15,23,42,0.64)',
-          }}
-        >
-          Common pain points — solved as derived state.
-        </Typography>
-      </Stack>
       <Grid container spacing={2}>
         {USE_CASES.map((u) => (
           <Grid key={u.title} size={{ xs: 12, md: 6 }}>

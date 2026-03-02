@@ -3,9 +3,9 @@ import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
+import { SectionHeader } from './SectionHeader';
 
 export function GetStartedCtaSection() {
   const dashTheme = useDashTheme();
@@ -13,32 +13,16 @@ export function GetStartedCtaSection() {
 
   return (
     <Stack
-      spacing={2.5}
+      spacing={3}
       alignItems="center"
       sx={{ textAlign: 'center', py: { xs: 4, md: 5 } }}
     >
-      <Stack spacing={0.75} alignItems="center">
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 950,
-            color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
-          }}
-        >
-          Get started in minutes
-        </Typography>
-
-        <Typography
-          sx={{
-            fontSize: 13,
-            lineHeight: 1.6,
-            maxWidth: 680,
-            color: isDark ? 'rgba(255,255,255,0.64)' : 'rgba(15,23,42,0.64)',
-          }}
-        >
-          Quickstart, examples, and core concepts.
-        </Typography>
-      </Stack>
+      <SectionHeader
+        title="Get started in minutes"
+        subtitle="Quickstart, examples, and core concepts."
+        align="center"
+        maxWidth={680}
+      />
 
       <Stack
         direction="row"

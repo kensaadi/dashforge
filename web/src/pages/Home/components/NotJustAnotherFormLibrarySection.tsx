@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { Animate } from '@dashforge/ui';
+import { SectionHeader } from './SectionHeader';
 
 type CompareRow = {
   left: string;
@@ -114,31 +114,12 @@ export function NotJustAnotherFormLibrarySection() {
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <Stack spacing={2}>
-      <Stack spacing={0.75}>
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 950,
-            color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
-          }}
-        >
-          A domain-first approach to forms
-        </Typography>
-
-        <Typography
-          sx={{
-            fontSize: 13,
-            lineHeight: 1.6,
-            maxWidth: 760,
-            color: isDark ? 'rgba(255,255,255,0.62)' : 'rgba(15,23,42,0.62)',
-          }}
-        >
-          Dashforge provides <b>domain logic closure</b>: rules and dependencies
-          produce derived state, allowing UI components to remain declarative
-          and free from implementation glue.
-        </Typography>
-      </Stack>
+    <Stack spacing={3}>
+      <SectionHeader
+        title="A domain-first approach to forms"
+        subtitle="Dashforge provides domain logic closure: rules and dependencies produce derived state, allowing UI components to remain declarative and free from implementation glue."
+        maxWidth={760}
+      />
 
       <Card
         elevation={0}

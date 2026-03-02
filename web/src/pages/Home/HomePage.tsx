@@ -25,6 +25,7 @@ import { GetStartedCtaSection } from './components/GetStartedCtaSection';
 import { RevealOnScroll } from '../../components/motion/RevealOnScroll';
 import { RevealStagger } from '../../components/motion/RevealStagger';
 import { HeroHome } from './components/HeroHome';
+import { SectionHeader } from './components/SectionHeader';
 
 export function HomePage() {
   const dashTheme = useDashTheme();
@@ -152,16 +153,8 @@ export function HomePage() {
       {/* ========================= NEXT SECTION PLACEHOLDER ========================= */}
       {/* Keep the page "docs-first": next sections should be lean and truth-based (no fake previews). */}
       <Container sx={{ pb: 10, pt: 6 }}>
-        <Stack spacing={2}>
-          <Typography
-            sx={{
-              fontSize: 14,
-              fontWeight: 950,
-              color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
-            }}
-          >
-            What you get
-          </Typography>
+        <Stack spacing={3}>
+          <SectionHeader title="What you get" />
 
           <Grid container spacing={2}>
             {[
