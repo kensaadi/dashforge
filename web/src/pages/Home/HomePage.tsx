@@ -25,7 +25,7 @@ import { GetStartedCtaSection } from './components/GetStartedCtaSection';
 import { RevealOnScroll } from '../../components/motion/RevealOnScroll';
 import { RevealStagger } from '../../components/motion/RevealStagger';
 import { HeroHome } from './components/HeroHome';
-import { SectionHeader } from './components/SectionHeader';
+import { SectionHeader } from '../../components/header/SectionHeader';
 
 export function HomePage() {
   const dashTheme = useDashTheme();

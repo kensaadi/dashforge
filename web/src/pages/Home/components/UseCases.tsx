@@ -16,7 +16,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 import { useDashTheme } from '@dashforge/theme-core';
 import { Animate } from '@dashforge/ui';
-import { SectionHeader } from './SectionHeader';
+import { SectionHeader } from '../../../components/header/SectionHeader';
 
 type UseCase = {
   title: string;

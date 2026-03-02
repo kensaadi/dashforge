@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { SectionHeader } from './SectionHeader';
+import { SectionHeader } from '../../../components/header/SectionHeader';
 
 type CompareRow = {
   left: string;

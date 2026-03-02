@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { SectionHeader } from './SectionHeader';
+import { SectionHeader } from '../../../components/header/SectionHeader';
 
 type TrustItem = {
   label: string;
