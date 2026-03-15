@@ -71,7 +71,13 @@ export function TextFieldExamples() {
   rows={4}
 />`,
       component: (
-        <TextField label="Description" name="description" multiline rows={4} />
+        <TextField
+          label="Description"
+          name="description"
+          multiline
+          rows={4}
+          fullWidth
+        />
       ),
     },
   ];
