@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { TextField } from '@dashforge/ui';
 import { useDashTheme } from '@dashforge/theme-core';
-import { CodeBlock } from '../shared/CodeBlock';
+import { DocsPreviewBlock } from '../DocsPreviewBlock';
 
 interface Example {
   title: string;
@@ -108,20 +108,9 @@ export function TextFieldExamples() {
               </Typography>
             </Box>
 
-            <Box
-              sx={{
-                p: 3,
-                borderRadius: 1,
-                bgcolor: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.8)',
-                border: isDark
-                  ? '1px solid rgba(255,255,255,0.08)'
-                  : '1px solid rgba(15,23,42,0.08)',
-              }}
-            >
+            <DocsPreviewBlock code={example.code} badge="">
               {example.component}
-            </Box>
-
-            <CodeBlock code={example.code} language="tsx" />
+            </DocsPreviewBlock>
           </Stack>
         </Box>
       ))}

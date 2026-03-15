@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsPreviewBlock } from '../DocsPreviewBlock';
 import { FormIntegrationDemo } from './demos/FormIntegrationDemo';
 import { PredictiveDemo } from './demos/PredictiveDemo';
 
@@ -195,119 +196,10 @@ function ContactForm() {
                 {scenario.description}
               </Typography>
 
-              {/* Live Demo - Primary Focus */}
-              <Box
-                sx={{
-                  position: 'relative',
-                  borderRadius: 2.5,
-                  bgcolor: isDark
-                    ? 'rgba(17,24,39,0.50)'
-                    : 'rgba(255,255,255,0.90)',
-                  border: isDark
-                    ? '2px solid rgba(139,92,246,0.30)'
-                    : '2px solid rgba(139,92,246,0.20)',
-                  boxShadow: isDark
-                    ? '0 4px 16px rgba(0,0,0,0.30), inset 0 1px 0 rgba(139,92,246,0.10)'
-                    : '0 2px 12px rgba(15,23,42,0.08), inset 0 1px 0 rgba(139,92,246,0.08)',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* "Live Preview" Badge */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: 12,
-                    right: 12,
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: 1,
-                    bgcolor: isDark
-                      ? 'rgba(139,92,246,0.20)'
-                      : 'rgba(139,92,246,0.12)',
-                    border: isDark
-                      ? '1px solid rgba(139,92,246,0.40)'
-                      : '1px solid rgba(139,92,246,0.25)',
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: 0.5,
-                      textTransform: 'uppercase',
-                      color: isDark
-                        ? 'rgba(139,92,246,0.95)'
-                        : 'rgba(109,40,217,0.95)',
-                    }}
-                  >
-                    Live Preview
-                  </Typography>
-                </Box>
-
-                {/* Demo Content */}
-                <Box sx={{ p: { xs: 2, md: 3 }, pt: { xs: 5, md: 5 } }}>
-                  {scenario.demo}
-                </Box>
-              </Box>
-
-              {/* Code Example - Supporting Material */}
-              <Box>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    letterSpacing: 0.3,
-                    textTransform: 'uppercase',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                    mb: 1.5,
-                  }}
-                >
-                  Code
-                </Typography>
-                <Box
-                  component="pre"
-                  sx={{
-                    m: 0,
-                    p: 2.5,
-                    borderRadius: 1.5,
-                    fontSize: 12,
-                    lineHeight: 1.6,
-                    fontFamily:
-                      '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
-                    fontWeight: 450,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.30)'
-                      : 'rgba(248,250,252,0.80)',
-                    border: isDark
-                      ? '1px solid rgba(255,255,255,0.06)'
-                      : '1px solid rgba(15,23,42,0.08)',
-                    overflowX: 'auto',
-                    WebkitFontSmoothing: 'antialiased',
-                    '&::-webkit-scrollbar': {
-                      height: 6,
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      bgcolor: isDark
-                        ? 'rgba(0,0,0,0.20)'
-                        : 'rgba(15,23,42,0.05)',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      bgcolor: isDark
-                        ? 'rgba(255,255,255,0.15)'
-                        : 'rgba(15,23,42,0.20)',
-                      borderRadius: 1,
-                    },
-                  }}
-                >
-                  {scenario.code}
-                </Box>
-              </Box>
+              {/* Live Preview with Collapsible Code */}
+              <DocsPreviewBlock code={scenario.code}>
+                {scenario.demo}
+              </DocsPreviewBlock>
 
               {/* Why It Matters */}
               <Box
