@@ -31,6 +31,12 @@ interface DocsPreviewBlockProps {
   defaultExpanded?: boolean;
 
   minHeight?: number;
+
+  /**
+   * Whether to vertically center the content
+   * @default false
+   */
+  centerContent?: boolean;
 }
 
 /**
@@ -43,6 +49,7 @@ export function DocsPreviewBlock({
   badge = 'Live Preview',
   defaultExpanded = false,
   minHeight = 100,
+  centerContent = false,
 }: DocsPreviewBlockProps) {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -101,8 +108,12 @@ export function DocsPreviewBlock({
               position: 'absolute',
               top: 12,
               right: 12,
-              px: 1.5,
-              py: 0.5,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 20,
+              px: 1.75,
+              py: 0.625,
               borderRadius: 1,
               bgcolor: isDark
                 ? 'rgba(139,92,246,0.20)'
@@ -114,8 +125,9 @@ export function DocsPreviewBlock({
           >
             <Box
               sx={{
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: 700,
+                lineHeight: 1,
                 letterSpacing: 0.5,
                 textTransform: 'uppercase',
                 color: isDark
@@ -129,7 +141,18 @@ export function DocsPreviewBlock({
         )}
 
         {/* Preview Content */}
-        <Box sx={{ p: { xs: 2, md: 3 }, pt: { xs: 5, md: 5 } }}>{children}</Box>
+        <Box
+          sx={{
+            display: centerContent ? 'flex' : 'block',
+            flexDirection: centerContent ? 'column' : undefined,
+            justifyContent: centerContent ? 'center' : undefined,
+            minHeight: centerContent ? minHeight : undefined,
+            px: { xs: 2, md: 3 },
+            py: { xs: 5, md: 5 },
+          }}
+        >
+          {children}
+        </Box>
       </Box>
 
       {/* Toggle Button */}

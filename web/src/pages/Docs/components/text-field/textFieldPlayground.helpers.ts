@@ -3,7 +3,7 @@
  * Generates JSX code snippets based on current prop values
  */
 
-export type FieldLayout = 'stacked' | 'inline';
+export type FieldLayout = 'floating' | 'stacked' | 'inline';
 export type TextFieldVariant = 'outlined' | 'filled' | 'standard';
 
 export interface TextFieldPlaygroundState {
@@ -38,7 +38,7 @@ export const DEFAULT_TEXTFIELD_STATE: TextFieldPlaygroundState = {
   disabled: false,
   error: false,
   fullWidth: false,
-  layout: 'stacked',
+  layout: 'floating',
   variant: 'outlined',
 };
 
@@ -58,7 +58,7 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: false,
       error: false,
       fullWidth: false,
-      layout: 'stacked',
+      layout: 'floating',
       variant: 'outlined',
     },
   },
@@ -73,7 +73,7 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: true,
       error: false,
       fullWidth: false,
-      layout: 'stacked',
+      layout: 'floating',
       variant: 'outlined',
     },
   },
@@ -88,7 +88,7 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: false,
       error: true,
       fullWidth: false,
-      layout: 'stacked',
+      layout: 'floating',
       variant: 'outlined',
     },
   },
@@ -103,7 +103,7 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: false,
       error: false,
       fullWidth: true,
-      layout: 'stacked',
+      layout: 'floating',
       variant: 'outlined',
     },
   },
@@ -128,12 +128,12 @@ export function generateTextFieldCode(state: TextFieldPlaygroundState): string {
     props.push(`helperText="${state.helperText}"`);
   }
 
-  // Only include layout if not default
-  if (state.layout !== 'stacked') {
+  // Only include layout if not default (floating)
+  if (state.layout !== 'floating') {
     props.push(`layout="${state.layout}"`);
   }
 
-  // Only include variant if not default
+  // Only include variant if not default (outlined)
   if (state.variant !== 'outlined') {
     props.push(`variant="${state.variant}"`);
   }

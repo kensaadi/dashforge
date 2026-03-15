@@ -37,8 +37,9 @@ export interface TextFieldProps
 
   /**
    * Field layout mode
-   * - 'stacked': label above control (default)
-   * - 'inline': label to the left of control
+   * - 'floating': standard MUI floating label behavior (default)
+   * - 'stacked': external label above control
+   * - 'inline': external label to the left of control
    */
   layout?: FieldLayout;
 }

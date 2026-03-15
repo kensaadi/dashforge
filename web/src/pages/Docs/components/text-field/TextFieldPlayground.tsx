@@ -240,7 +240,7 @@ export function TextFieldPlayground() {
           Field Layout
         </Typography>
         <ButtonGroup fullWidth size="small">
-          {(['stacked', 'inline'] as const).map((layout) => {
+          {(['floating', 'stacked', 'inline'] as const).map((layout) => {
             const isActive = state.layout === layout;
             return (
               <Button

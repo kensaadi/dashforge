@@ -4,13 +4,15 @@ import FormHelperText from '@mui/material/FormHelperText';
 import type { ReactNode } from 'react';
 import type { DashforgeTheme } from '@dashforge/tokens';
 
-export type FieldLayout = 'stacked' | 'inline';
+export type FieldLayout = 'floating' | 'stacked' | 'inline';
+export type CustomFieldLayout = 'stacked' | 'inline';
 
 export interface FieldLayoutShellProps {
   /**
    * Layout mode: stacked (label above) or inline (label left)
+   * Note: 'floating' is not handled by this shell - it uses standard MUI behavior
    */
-  layout: FieldLayout;
+  layout: CustomFieldLayout;
 
   /**
    * Field label text

@@ -19,7 +19,7 @@ import { FieldLayoutShell } from '../_internal/FieldLayoutShell';
  * - If used outside → behaves as plain MUI TextField
  * - Supports reactive visibility via visibleWhen prop
  * - Auto binds error + helperText from form validation
- * - Supports layout modes (stacked/inline) via layout prop
+ * - Supports layout modes (floating/stacked/inline) via layout prop
  *
  * Error Display Gating (Form Closure v1):
  * - Errors show only when field is touched (after blur) OR form submitted
@@ -29,9 +29,10 @@ import { FieldLayoutShell } from '../_internal/FieldLayoutShell';
  * - Explicit error/helperText props override auto values
  *
  * Layout:
- * - layout="stacked" (default): label above control
- * - layout="inline": label to the left of control
- * - When layout is specified, uses internal FieldLayoutShell
+ * - layout="floating" (default): standard MUI floating label behavior
+ * - layout="stacked": external label above control
+ * - layout="inline": external label to the left of control
+ * - When layout is stacked/inline, uses internal FieldLayoutShell
  * - MUI's variant prop is preserved for appearance (outlined/filled/standard)
  *
  * This component does NOT depend on:
@@ -45,7 +46,7 @@ export function TextField(props: TextFieldProps) {
     name,
     rules,
     visibleWhen,
-    layout = 'stacked',
+    layout = 'floating',
     label,
     helperText: userHelperText,
     required,
@@ -88,6 +89,24 @@ export function TextField(props: TextFieldProps) {
 
   // Standalone mode: no form integration
   if (!bridge || typeof bridge.register !== 'function') {
+    // Floating layout: use standard MUI TextField with internal label
+    if (layout === 'floating') {
+      return (
+        <MuiTextField
+          {...rest}
+          id={fieldId}
+          name={name}
+          label={label}
+          helperText={validation.helperText}
+          required={required}
+          error={validation.error}
+          disabled={disabled}
+          fullWidth={fullWidth}
+        />
+      );
+    }
+
+    // Custom layouts (stacked/inline): use external shell
     const control = (
       <MuiTextField
         {...rest}
@@ -132,6 +151,29 @@ export function TextField(props: TextFieldProps) {
       isNativeSelectMode(rest.slotProps)
     );
 
+    // Floating layout: use standard MUI TextField with internal label
+    if (layout === 'floating') {
+      return (
+        <MuiTextField
+          {...rest}
+          id={fieldId}
+          name={name}
+          label={label}
+          helperText={validation.helperText}
+          required={required}
+          value={selectProps.value}
+          error={validation.error}
+          disabled={disabled}
+          fullWidth={fullWidth}
+          onChange={selectProps.onChange}
+          onBlur={selectProps.onBlur}
+          inputRef={selectProps.inputRef}
+          slotProps={selectProps.slotProps}
+        />
+      );
+    }
+
+    // Custom layouts (stacked/inline): use external shell
     const control = (
       <MuiTextField
         {...rest}
@@ -169,6 +211,25 @@ export function TextField(props: TextFieldProps) {
   }
 
   // Standard TextField mode
+  // Floating layout: use standard MUI TextField with internal label
+  if (layout === 'floating') {
+    return (
+      <MuiTextField
+        {...rest}
+        {...registration}
+        id={fieldId}
+        name={name}
+        label={label}
+        helperText={validation.helperText}
+        required={required}
+        error={validation.error}
+        disabled={disabled}
+        fullWidth={fullWidth}
+      />
+    );
+  }
+
+  // Custom layouts (stacked/inline): use external shell
   const control = (
     <MuiTextField
       {...rest}
