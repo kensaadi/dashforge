@@ -9,7 +9,16 @@ export interface SelectOption<T extends string | number = string | number> {
 }
 
 export interface SelectProps<T extends string | number = string | number>
-  extends Omit<MuiTextFieldProps, 'name' | 'select'> {
+  extends Omit<
+    MuiTextFieldProps,
+    | 'name'
+    | 'select'
+    | 'SelectProps'
+    | 'InputProps'
+    | 'InputLabelProps'
+    | 'FormHelperTextProps'
+    | 'inputProps'
+  > {
   name: string;
   rules?: unknown;
   label?: string;
@@ -55,9 +64,12 @@ export function Select<T extends string | number = string | number>(
       label={label}
       visibleWhen={visibleWhen}
       select
-      SelectProps={{
-        native: false,
-        ...rest.SelectProps,
+      slotProps={{
+        ...rest.slotProps,
+        select: {
+          native: false,
+          ...(rest.slotProps?.select as Record<string, unknown> | undefined),
+        },
       }}
     >
       {options.map((option) => (

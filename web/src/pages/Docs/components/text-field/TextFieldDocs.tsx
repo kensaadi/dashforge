@@ -8,6 +8,7 @@ import { TextFieldCapabilities } from './TextFieldCapabilities';
 import { TextFieldScenarios } from './TextFieldScenarios';
 import { TextFieldApi } from './TextFieldApi';
 import { TextFieldNotes } from './TextFieldNotes';
+import { TextFieldDebug } from './TextFieldDebug';
 
 /**
  * TextFieldDocs is the main documentation page for the TextField component
@@ -55,6 +56,29 @@ export function TextFieldDocs() {
       />
 
       <TextFieldPlayground />
+
+      <Divider
+        sx={{
+          borderColor: isDark
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(15,23,42,0.08)',
+        }}
+      />
+
+      <Stack spacing={3}>
+        <Typography
+          id="debug"
+          variant="h2"
+          sx={{
+            fontSize: { xs: 24, md: 28 },
+            fontWeight: 700,
+            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
+          }}
+        >
+          Debug Comparison
+        </Typography>
+        <TextFieldDebug />
+      </Stack>
 
       <Divider
         sx={{

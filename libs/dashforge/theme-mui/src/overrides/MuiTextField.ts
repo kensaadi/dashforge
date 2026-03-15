@@ -8,6 +8,7 @@ export function getMuiTextFieldOverrides(
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
+        size: 'small',
       },
     },
   };

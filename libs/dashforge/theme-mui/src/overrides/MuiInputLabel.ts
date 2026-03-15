@@ -21,6 +21,14 @@ export function getMuiInputLabelOverrides(
           '&.Mui-disabled': {
             color: dash.color.text.muted,
           },
+
+          // Fix vertical centering for outlined small labels
+          // Use MUI's default 9px transform which is calibrated for proper visual balance
+          // with font metrics and baseline
+          '&.MuiInputLabel-outlined.MuiInputLabel-sizeSmall:not(.MuiInputLabel-shrink)':
+            {
+              transform: 'translate(14px, 9px) scale(1)',
+            },
         },
       },
     },

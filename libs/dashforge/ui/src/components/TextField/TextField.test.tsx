@@ -259,7 +259,7 @@ describe('TextField', () => {
           name="country"
           label="Country"
           select
-          SelectProps={{ native: true }}
+          slotProps={{ select: { native: true } }}
         >
           {selectChildren}
         </TextField>,
@@ -286,7 +286,7 @@ describe('TextField', () => {
           name="country"
           label="Country"
           select
-          SelectProps={{ native: true }}
+          slotProps={{ select: { native: true } }}
         >
           {selectChildren}
         </TextField>,
@@ -313,7 +313,7 @@ describe('TextField', () => {
           name="country"
           label="Country"
           select
-          SelectProps={{ native: true }}
+          slotProps={{ select: { native: true } }}
         >
           {selectChildren}
         </TextField>,
@@ -343,13 +343,13 @@ describe('TextField', () => {
           name="country"
           label="Country"
           select
-          SelectProps={{ native: true }}
+          slotProps={{ select: { native: true } }}
         >
           {selectChildren}
         </TextField>,
         {
           mockBridgeOptions: {
-            defaultValues: { country: 'us' },
+            defaultValues: { country: '' },
           },
         }
       );
@@ -387,15 +387,17 @@ describe('TextField', () => {
       expect(hiddenInput?.value).toBe('ca');
     });
 
-    it('passes through SelectProps to MUI TextField', () => {
+    it('passes through slotProps.select to MUI TextField', () => {
       renderWithBridge(
         <TextField
           name="country"
           label="Country"
           select
-          SelectProps={{
-            native: true,
-            id: 'custom-select-id',
+          slotProps={{
+            select: {
+              native: true,
+              id: 'custom-select-id',
+            },
           }}
         >
           {selectChildren}

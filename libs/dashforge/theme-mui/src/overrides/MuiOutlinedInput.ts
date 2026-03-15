@@ -6,9 +6,6 @@ export function getMuiOutlinedInputOverrides(
 ): ThemeOptions['components'] {
   return {
     MuiOutlinedInput: {
-      defaultProps: {
-        size: 'small',
-      },
       styleOverrides: {
         root: {
           borderRadius: dash.radius.md,
@@ -43,6 +40,13 @@ export function getMuiOutlinedInputOverrides(
           // disabled (no token field: fallback to subtle)
           '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
             borderColor: dash.color.border.subtle,
+          },
+
+          // Fix vertical centering for small size inputs
+          // Use MUI's default 8.5px padding which is calibrated for proper visual balance
+          // with the label at 9px transform
+          '&.MuiInputBase-sizeSmall input': {
+            padding: '8.5px 14px',
           },
         },
 

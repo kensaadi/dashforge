@@ -1,18 +1,13 @@
 import MuiTextField from '@mui/material/TextField';
-import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import { useContext } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
-import type {
-  DashFormBridge,
-  FieldRegistration,
-  Engine,
-} from '@dashforge/ui-core';
-
-export interface TextFieldProps extends Omit<MuiTextFieldProps, 'name'> {
-  name: string;
-  rules?: unknown;
-  visibleWhen?: (engine: Engine) => boolean;
-}
+import type { DashFormBridge } from '@dashforge/ui-core';
+import type { TextFieldProps } from './textField.types';
+import { resolveValidationState } from './textField.validation';
+import {
+  createSelectIntegration,
+  isNativeSelectMode,
+} from './textField.select';
 
 /**
  * Intelligent TextField component.
@@ -60,178 +55,53 @@ export function TextField(props: TextFieldProps) {
     return null;
   }
 
-  // If inside DashForm, register with form
-  if (bridge && typeof bridge.register === 'function') {
-    const registration: FieldRegistration = bridge.register(name, rules);
+  // Standalone mode: no form integration
+  if (!bridge || typeof bridge.register !== 'function') {
+    return <MuiTextField {...rest} name={name} />;
+  }
 
-    // Get auto error from form validation
-    const autoErr = bridge.getError?.(name) ?? null;
+  // Form-integrated mode
+  const registration = bridge.register(name, rules);
+  const validation = resolveValidationState(
+    name,
+    bridge,
+    rest.error,
+    rest.helperText
+  );
 
-    // Get touched state and submit count for error gating
-    const autoTouched = bridge.isTouched?.(name) ?? false;
-    const submitCount = bridge.submitCount ?? 0;
-
-    // Gate error display: only show if field touched OR form submitted
-    // This prevents error spam while typing before user interacts with field
-    const allowAutoError = autoTouched || submitCount > 0;
-
-    // Compute resolved props with precedence:
-    // 1. Explicit props override auto values (explicit wins)
-    // 2. Auto values from form validation (gated by touched/submit)
-    const resolvedError = rest.error ?? (Boolean(autoErr) && allowAutoError);
-    const resolvedHelperText =
-      rest.helperText ?? (allowAutoError ? autoErr?.message : undefined);
-
-    // Special handling for MUI Select (when select prop is true)
-    // MUI Select requires controlled value prop for proper integration with RHF
-    if (rest.select) {
-      // Get current value from RHF for controlled component
-      const currentValue = bridge.getValue?.(name) ?? '';
-
-      // Check if this is a native select
-      const isNativeSelect = rest.SelectProps?.native === true;
-
-      // Wrap onChange to provide correct event shape for RHF
-      // MUI Select onChange passes SelectChangeEvent which has different structure
-      // RHF expects: event.target.name and event.target.value
-      const handleChange = async (event: unknown) => {
-        // Extract value from MUI SelectChangeEvent
-        let value: unknown;
-        if (event && typeof event === 'object' && 'target' in event) {
-          const target = (event as { target: unknown }).target;
-          if (target && typeof target === 'object' && 'value' in target) {
-            value = (target as { value: unknown }).value;
-          }
-        }
-
-        // Create a properly structured synthetic event for RHF
-        const syntheticEvent = {
-          target: { name, value },
-          type: 'change',
-        };
-
-        // Call RHF's onChange handler with the synthetic event
-        // RHF's onChange accepts unknown, so we pass the synthetic event directly
-        if (registration.onChange) {
-          await registration.onChange(syntheticEvent);
-        }
-
-        // ALSO use bridge.setValue to ensure value is updated
-        // This is necessary because MUI Select doesn't have a real DOM input
-        // that RHF can track via ref
-        if (bridge.setValue) {
-          bridge.setValue(name, value);
-        }
-      };
-
-      // For native select, create onBlur handler
-      // For non-native MUI Select, we use onClose (see below)
-      const handleBlur = isNativeSelect
-        ? (event: unknown) => {
-            // Get the current value at blur time to avoid stale closure
-            const valueAtBlurTime = bridge.getValue?.(name) ?? '';
-
-            // Create a synthetic blur event for RHF's touch tracking
-            const syntheticEvent = new FocusEvent('blur', {
-              bubbles: true,
-              cancelable: true,
-            });
-
-            // Attach target with name for RHF field identification
-            Object.defineProperty(syntheticEvent, 'target', {
-              writable: false,
-              value: { name, value: valueAtBlurTime },
-            });
-
-            // Call RHF's onBlur handler
-            if (registration.onBlur) {
-              registration.onBlur(syntheticEvent);
-            }
-          }
-        : undefined;
-
-      // For MUI Select (non-native), we need to handle touch state via onClose instead of onBlur
-      // because MUI Select doesn't properly trigger onBlur on the combobox div
-      const handleClose = !isNativeSelect
-        ? () => {
-            // Create a synthetic blur event for RHF's touch tracking
-            // RHF expects: { type: 'blur', target: { name } }
-            if (registration.onBlur) {
-              // Get the current value at close time to avoid stale closure
-              const valueAtCloseTime = bridge.getValue?.(name) ?? '';
-
-              const syntheticEvent = new FocusEvent('blur', {
-                bubbles: true,
-                cancelable: true,
-              });
-
-              // Attach target with name for RHF field identification
-              Object.defineProperty(syntheticEvent, 'target', {
-                writable: false,
-                value: { name, value: valueAtCloseTime },
-              });
-
-              // RHF's onBlur accepts unknown, so we pass the synthetic event directly
-              registration.onBlur(syntheticEvent);
-            }
-
-            // Call any existing onClose from SelectProps
-            // Type guard to ensure we have the correct shape
-            if (rest.SelectProps?.onClose) {
-              const onCloseHandler = rest.SelectProps.onClose as (
-                event: unknown,
-                reason?: string
-              ) => void;
-              onCloseHandler({}, 'selectOption');
-            }
-          }
-        : rest.SelectProps?.onClose;
-
-      return (
-        <MuiTextField
-          name={name}
-          value={currentValue}
-          error={resolvedError}
-          helperText={resolvedHelperText}
-          {...rest}
-          // IMPORTANT: Put RHF handlers AFTER {...rest} spread
-          // to ensure they override any handlers from rest
-          // Pass wrapped onChange handler for MUI Select
-          // MUI TextField onChange expects React.ChangeEventHandler
-          // Our handleChange matches this signature (accepts unknown event)
-          onChange={handleChange as MuiTextFieldProps['onChange']}
-          // For native select, attach onBlur. For non-native, use onClose
-          onBlur={handleBlur as MuiTextFieldProps['onBlur']}
-          SelectProps={{
-            ...rest.SelectProps,
-            // For non-native MUI Select, use onClose to mark as touched
-            // For native select, onClose is either undefined or user-provided
-            onClose: handleClose as NonNullable<
-              MuiTextFieldProps['SelectProps']
-            >['onClose'],
-          }}
-          // For MUI Select, inputRef connects to the hidden input element
-          inputRef={registration.ref}
-          // Ensure inputProps has the name for the hidden input
-          inputProps={{
-            ...rest.inputProps,
-            name,
-          }}
-        />
-      );
-    }
+  // Select mode: requires special handling for controlled value and touch tracking
+  if (rest.select) {
+    const selectProps = createSelectIntegration(
+      name,
+      bridge,
+      registration,
+      rest.slotProps,
+      isNativeSelectMode(rest.slotProps)
+    );
 
     return (
       <MuiTextField
         {...rest}
-        {...registration}
         name={name}
-        error={resolvedError}
-        helperText={resolvedHelperText}
+        value={selectProps.value}
+        error={validation.error}
+        helperText={validation.helperText}
+        onChange={selectProps.onChange}
+        onBlur={selectProps.onBlur}
+        inputRef={selectProps.inputRef}
+        slotProps={selectProps.slotProps}
       />
     );
   }
 
-  // Standalone fallback
-  return <MuiTextField {...rest} name={name} />;
+  // Standard TextField mode
+  return (
+    <MuiTextField
+      {...rest}
+      {...registration}
+      name={name}
+      error={validation.error}
+      helperText={validation.helperText}
+    />
+  );
 }
