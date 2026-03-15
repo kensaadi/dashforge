@@ -4,6 +4,7 @@ import Divider from '@mui/material/Divider';
 import { useDashTheme } from '@dashforge/theme-core';
 import { TextFieldPlayground } from './TextFieldPlayground';
 import { TextFieldExamples } from './TextFieldExamples';
+import { TextFieldCapabilities } from './TextFieldCapabilities';
 import { TextFieldApi } from './TextFieldApi';
 import { TextFieldNotes } from './TextFieldNotes';
 
@@ -74,6 +75,28 @@ export function TextFieldDocs() {
           Examples
         </Typography>
         <TextFieldExamples />
+      </Stack>
+
+      <Divider
+        sx={{
+          borderColor: isDark
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(15,23,42,0.08)',
+        }}
+      />
+
+      <Stack spacing={3}>
+        <Typography
+          variant="h2"
+          sx={{
+            fontSize: { xs: 24, md: 28 },
+            fontWeight: 700,
+            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
+          }}
+        >
+          Dashforge Capabilities
+        </Typography>
+        <TextFieldCapabilities />
       </Stack>
 
       <Divider
