@@ -1,6 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { HomePage } from '../pages/Home/HomePage';
-import { DocsPage } from '../pages/DocsPage';
+import { DocsPage } from '../pages/Docs/DocsPage';
 import { ComponentsPage } from '../pages/ComponentsPage';
 import { PricingPage } from '../pages/PricingPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
