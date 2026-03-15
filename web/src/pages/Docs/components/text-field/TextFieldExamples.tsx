@@ -44,6 +44,7 @@ export function TextFieldExamples() {
 />`,
       component: (
         <TextField
+          variant="outlined"
           label="Email"
           name="email"
           error

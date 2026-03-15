@@ -6,6 +6,9 @@ export function getMuiOutlinedInputOverrides(
 ): ThemeOptions['components'] {
   return {
     MuiOutlinedInput: {
+      defaultProps: {
+        size: 'small',
+      },
       styleOverrides: {
         root: {
           borderRadius: dash.radius.md,
@@ -26,7 +29,7 @@ export function getMuiOutlinedInputOverrides(
             borderWidth: 1,
           },
           '&.Mui-focused': {
-            boxShadow: `0 0 0 3px ${dash.color.border.focus}33`,
+            boxShadow: `0 0 0 0px ${dash.color.border.focus}33`,
           },
 
           // error (MUI uses "error", our token name is "danger")
@@ -34,7 +37,7 @@ export function getMuiOutlinedInputOverrides(
             borderColor: dash.color.intent.danger,
           },
           '&.Mui-error.Mui-focused': {
-            boxShadow: `0 0 0 3px ${dash.color.intent.danger}33`,
+            boxShadow: `0 0 0 0px ${dash.color.intent.danger}33`,
           },
 
           // disabled (no token field: fallback to subtle)
