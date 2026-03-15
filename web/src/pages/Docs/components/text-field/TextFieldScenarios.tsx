@@ -6,6 +6,7 @@ import { FormIntegrationDemo } from './demos/FormIntegrationDemo';
 import { PredictiveDemo } from './demos/PredictiveDemo';
 
 interface Scenario {
+  id: string;
   title: string;
   subtitle: string;
   description: string;
@@ -24,6 +25,7 @@ export function TextFieldScenarios() {
 
   const scenarios: Scenario[] = [
     {
+      id: 'react-hook-form-integration',
       title: 'React Hook Form Integration',
       subtitle: 'Try it: Type in the fields and submit the form',
       description:
@@ -73,6 +75,7 @@ function RegistrationForm() {
         'Gradual adoption: Drop TextField into existing form architectures without rewriting validation logic or state management.',
     },
     {
+      id: 'predictive-form-behavior',
       title: 'Predictive Form Behavior',
       subtitle: 'Try it: Select a contact method and watch fields appear',
       description:
@@ -145,11 +148,12 @@ function ContactForm() {
 
       <Stack spacing={5}>
         {scenarios.map((scenario, index) => (
-          <Box key={index}>
+          <Box key={scenario.id}>
             <Stack spacing={3}>
               {/* Header */}
               <Box>
                 <Typography
+                  id={scenario.id}
                   variant="h3"
                   sx={{
                     fontSize: 20,
