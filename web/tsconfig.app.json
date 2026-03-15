@@ -37,13 +37,16 @@
 
   "references": [
     {
-      "path": "../libs/dashforge/theme-core/tsconfig.lib.json"
+      "path": "../libs/dashforge/forms/tsconfig.lib.json"
+    },
+    {
+      "path": "../libs/dashforge/ui/tsconfig.lib.json"
     },
     {
       "path": "../libs/dashforge/theme-mui/tsconfig.lib.json"
     },
     {
-      "path": "../libs/dashforge/ui/tsconfig.lib.json"
+      "path": "../libs/dashforge/theme-core/tsconfig.lib.json"
     }
   ]
 }
