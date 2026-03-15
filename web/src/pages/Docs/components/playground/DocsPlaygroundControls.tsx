@@ -17,29 +17,50 @@ export function DocsPlaygroundControls({
   return (
     <Box
       sx={{
-        p: 3,
-        borderRadius: 1,
-        bgcolor: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.8)',
+        height: '100%',
+        borderRadius: 2.5,
+        bgcolor: isDark ? 'rgba(17,24,39,0.60)' : 'rgba(255,255,255,0.90)',
         border: isDark
           ? '1px solid rgba(255,255,255,0.08)'
-          : '1px solid rgba(15,23,42,0.08)',
+          : '1px solid rgba(15,23,42,0.12)',
+        boxShadow: isDark
+          ? '0 4px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03) inset'
+          : '0 2px 12px rgba(15,23,42,0.08), 0 0 0 1px rgba(255,255,255,0.8) inset',
+        overflow: 'hidden',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          boxShadow: isDark
+            ? '0 6px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset'
+            : '0 4px 16px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.9) inset',
+        },
       }}
     >
-      <Stack spacing={2.5}>
+      <Box
+        sx={{
+          px: 3.5,
+          py: 3,
+          bgcolor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(248,250,252,0.50)',
+          borderBottom: isDark
+            ? '1px solid rgba(255,255,255,0.06)'
+            : '1px solid rgba(15,23,42,0.06)',
+        }}
+      >
         <Typography
           variant="overline"
           sx={{
             fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: 0.8,
+            fontWeight: 800,
+            letterSpacing: 1.3,
             textTransform: 'uppercase',
-            color: isDark ? 'rgba(255,255,255,0.50)' : 'rgba(15,23,42,0.50)',
+            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
           }}
         >
-          Controls
+          Configuration
         </Typography>
-        <Stack spacing={2}>{children}</Stack>
-      </Stack>
+      </Box>
+      <Box sx={{ p: { xs: 3, md: 3.5 } }}>
+        <Stack spacing={3}>{children}</Stack>
+      </Box>
     </Box>
   );
 }

@@ -13,6 +13,88 @@ export interface TextFieldPlaygroundState {
 }
 
 /**
+ * Preset variant definition for TextField playground
+ */
+export interface TextFieldPreset {
+  id: string;
+  label: string;
+  description: string;
+  state: TextFieldPlaygroundState;
+}
+
+/**
+ * Default state for TextField playground
+ * Centralized to ensure consistency between initial state and reset
+ */
+export const DEFAULT_TEXTFIELD_STATE: TextFieldPlaygroundState = {
+  label: 'Name',
+  placeholder: 'Enter your name',
+  helperText: 'Helper text',
+  disabled: false,
+  error: false,
+  fullWidth: false,
+};
+
+/**
+ * Preset variants for TextField playground
+ * Provides guided scenarios for common use cases
+ */
+export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
+  {
+    id: 'basic',
+    label: 'Basic',
+    description: 'Standard text field with label and helper text',
+    state: {
+      label: 'Name',
+      placeholder: 'Enter your name',
+      helperText: 'Helper text',
+      disabled: false,
+      error: false,
+      fullWidth: false,
+    },
+  },
+  {
+    id: 'disabled',
+    label: 'Disabled',
+    description: 'Non-interactive disabled state',
+    state: {
+      label: 'Disabled Field',
+      placeholder: 'Cannot edit',
+      helperText: 'This field is disabled',
+      disabled: true,
+      error: false,
+      fullWidth: false,
+    },
+  },
+  {
+    id: 'error',
+    label: 'Error',
+    description: 'Error state with validation message',
+    state: {
+      label: 'Email',
+      placeholder: 'you@example.com',
+      helperText: 'Please enter a valid email address',
+      disabled: false,
+      error: true,
+      fullWidth: false,
+    },
+  },
+  {
+    id: 'fullwidth',
+    label: 'Full Width',
+    description: 'Spans entire container width',
+    state: {
+      label: 'Description',
+      placeholder: 'Enter a description',
+      helperText: 'This field takes up the full width',
+      disabled: false,
+      error: false,
+      fullWidth: true,
+    },
+  },
+];
+
+/**
  * Generates clean JSX code for TextField with current prop values
  * Omits default values for cleaner output
  */
