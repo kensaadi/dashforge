@@ -3,17 +3,21 @@ import MuiTextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useDashTheme } from '@dashforge/theme-core';
+import { TextField } from '@dashforge/ui';
 import { DocsPlayground } from '../playground/DocsPlayground';
 import {
   generateTextFieldCode,
   DEFAULT_TEXTFIELD_STATE,
   TEXTFIELD_PRESETS,
   type TextFieldPlaygroundState,
+  type FieldLayout,
+  type TextFieldVariant,
 } from './textFieldPlayground.helpers';
 
 /**
@@ -43,6 +47,22 @@ export function TextFieldPlayground() {
       }));
       setActivePresetId('');
     };
+  };
+
+  const handleLayoutChange = (newLayout: FieldLayout) => {
+    setState((prev) => ({
+      ...prev,
+      layout: newLayout,
+    }));
+    setActivePresetId('');
+  };
+
+  const handleVariantChange = (newVariant: TextFieldVariant) => {
+    setState((prev) => ({
+      ...prev,
+      variant: newVariant,
+    }));
+    setActivePresetId('');
   };
 
   const handleReset = () => {
@@ -192,6 +212,178 @@ export function TextFieldPlayground() {
             size="small"
             fullWidth
           />
+        </Stack>
+      </Box>
+
+      {/* Divider */}
+      <Box
+        sx={{
+          height: 1,
+          bgcolor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+        }}
+      />
+
+      {/* Layout Control */}
+      <Box>
+        <Typography
+          variant="overline"
+          sx={{
+            display: 'block',
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: 1.2,
+            textTransform: 'uppercase',
+            color: isDark ? 'rgba(255,255,255,0.55)' : 'rgba(15,23,42,0.55)',
+            mb: 1.5,
+          }}
+        >
+          Field Layout
+        </Typography>
+        <ButtonGroup fullWidth size="small">
+          {(['stacked', 'inline'] as const).map((layout) => {
+            const isActive = state.layout === layout;
+            return (
+              <Button
+                key={layout}
+                onClick={() => handleLayoutChange(layout)}
+                sx={{
+                  py: 1,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: 0.3,
+                  textTransform: 'capitalize',
+                  color: isActive
+                    ? isDark
+                      ? 'rgba(139,92,246,0.95)'
+                      : 'rgba(109,40,217,0.95)'
+                    : isDark
+                    ? 'rgba(255,255,255,0.70)'
+                    : 'rgba(15,23,42,0.70)',
+                  bgcolor: isActive
+                    ? isDark
+                      ? 'rgba(139,92,246,0.15)'
+                      : 'rgba(139,92,246,0.10)'
+                    : isDark
+                    ? 'rgba(255,255,255,0.04)'
+                    : 'rgba(15,23,42,0.04)',
+                  border: isActive
+                    ? isDark
+                      ? '1px solid rgba(139,92,246,0.35) !important'
+                      : '1px solid rgba(139,92,246,0.25) !important'
+                    : isDark
+                    ? '1px solid rgba(255,255,255,0.08) !important'
+                    : '1px solid rgba(15,23,42,0.08) !important',
+                  '&:hover': {
+                    bgcolor: isActive
+                      ? isDark
+                        ? 'rgba(139,92,246,0.20)'
+                        : 'rgba(139,92,246,0.15)'
+                      : isDark
+                      ? 'rgba(255,255,255,0.08)'
+                      : 'rgba(15,23,42,0.08)',
+                  },
+                }}
+              >
+                {layout}
+              </Button>
+            );
+          })}
+        </ButtonGroup>
+      </Box>
+
+      {/* Variant Control */}
+      <Box>
+        <Typography
+          variant="overline"
+          sx={{
+            display: 'block',
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: 1.2,
+            textTransform: 'uppercase',
+            color: isDark ? 'rgba(255,255,255,0.55)' : 'rgba(15,23,42,0.55)',
+            mb: 1.5,
+          }}
+        >
+          MUI Variant
+        </Typography>
+        <ButtonGroup fullWidth size="small">
+          {(['outlined', 'filled', 'standard'] as const).map((variant) => {
+            const isActive = state.variant === variant;
+            return (
+              <Button
+                key={variant}
+                onClick={() => handleVariantChange(variant)}
+                sx={{
+                  py: 1,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: 0.3,
+                  textTransform: 'capitalize',
+                  color: isActive
+                    ? isDark
+                      ? 'rgba(139,92,246,0.95)'
+                      : 'rgba(109,40,217,0.95)'
+                    : isDark
+                    ? 'rgba(255,255,255,0.70)'
+                    : 'rgba(15,23,42,0.70)',
+                  bgcolor: isActive
+                    ? isDark
+                      ? 'rgba(139,92,246,0.15)'
+                      : 'rgba(139,92,246,0.10)'
+                    : isDark
+                    ? 'rgba(255,255,255,0.04)'
+                    : 'rgba(15,23,42,0.04)',
+                  border: isActive
+                    ? isDark
+                      ? '1px solid rgba(139,92,246,0.35) !important'
+                      : '1px solid rgba(139,92,246,0.25) !important'
+                    : isDark
+                    ? '1px solid rgba(255,255,255,0.08) !important'
+                    : '1px solid rgba(15,23,42,0.08) !important',
+                  '&:hover': {
+                    bgcolor: isActive
+                      ? isDark
+                        ? 'rgba(139,92,246,0.20)'
+                        : 'rgba(139,92,246,0.15)'
+                      : isDark
+                      ? 'rgba(255,255,255,0.08)'
+                      : 'rgba(15,23,42,0.08)',
+                  },
+                }}
+              >
+                {variant}
+              </Button>
+            );
+          })}
+        </ButtonGroup>
+      </Box>
+
+      {/* Divider */}
+      <Box
+        sx={{
+          height: 1,
+          bgcolor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+        }}
+      />
+
+      {/* State Switches */}
+      <Box>
+        <Typography
+          variant="overline"
+          sx={{
+            display: 'block',
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: 1.2,
+            textTransform: 'uppercase',
+            color: isDark ? 'rgba(255,255,255,0.55)' : 'rgba(15,23,42,0.55)',
+            mb: 1.5,
+          }}
+        >
+          States
+        </Typography>
+        <Stack spacing={2}>
           <FormControlLabel
             control={
               <Switch
@@ -256,13 +448,15 @@ export function TextFieldPlayground() {
   );
 
   const preview = (
-    <MuiTextField
+    <TextField
       label={state.label}
       placeholder={state.placeholder}
       helperText={state.helperText}
       disabled={state.disabled}
       error={state.error}
       fullWidth={state.fullWidth}
+      layout={state.layout}
+      variant={state.variant}
       name="fieldName"
     />
   );

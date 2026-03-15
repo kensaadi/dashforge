@@ -3,6 +3,9 @@
  * Generates JSX code snippets based on current prop values
  */
 
+export type FieldLayout = 'stacked' | 'inline';
+export type TextFieldVariant = 'outlined' | 'filled' | 'standard';
+
 export interface TextFieldPlaygroundState {
   label: string;
   placeholder: string;
@@ -10,6 +13,8 @@ export interface TextFieldPlaygroundState {
   disabled: boolean;
   error: boolean;
   fullWidth: boolean;
+  layout: FieldLayout;
+  variant: TextFieldVariant;
 }
 
 /**
@@ -33,6 +38,8 @@ export const DEFAULT_TEXTFIELD_STATE: TextFieldPlaygroundState = {
   disabled: false,
   error: false,
   fullWidth: false,
+  layout: 'stacked',
+  variant: 'outlined',
 };
 
 /**
@@ -51,6 +58,8 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: false,
       error: false,
       fullWidth: false,
+      layout: 'stacked',
+      variant: 'outlined',
     },
   },
   {
@@ -64,6 +73,8 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: true,
       error: false,
       fullWidth: false,
+      layout: 'stacked',
+      variant: 'outlined',
     },
   },
   {
@@ -77,6 +88,8 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: false,
       error: true,
       fullWidth: false,
+      layout: 'stacked',
+      variant: 'outlined',
     },
   },
   {
@@ -90,6 +103,8 @@ export const TEXTFIELD_PRESETS: TextFieldPreset[] = [
       disabled: false,
       error: false,
       fullWidth: true,
+      layout: 'stacked',
+      variant: 'outlined',
     },
   },
 ];
@@ -111,6 +126,16 @@ export function generateTextFieldCode(state: TextFieldPlaygroundState): string {
 
   if (state.helperText) {
     props.push(`helperText="${state.helperText}"`);
+  }
+
+  // Only include layout if not default
+  if (state.layout !== 'stacked') {
+    props.push(`layout="${state.layout}"`);
+  }
+
+  // Only include variant if not default
+  if (state.variant !== 'outlined') {
+    props.push(`variant="${state.variant}"`);
   }
 
   if (state.disabled) {
