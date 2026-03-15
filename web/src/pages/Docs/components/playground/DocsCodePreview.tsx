@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import { useDashTheme } from '@dashforge/theme-core';
+import { highlightCode, type SupportedLanguage } from '../../utils/shiki';
 import type { DocsCodePreviewProps } from './playground.types';
 
 /**
@@ -18,6 +19,31 @@ export function DocsCodePreview({
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
   const [copied, setCopied] = useState(false);
+  const [highlightedCode, setHighlightedCode] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function highlight() {
+      setIsLoading(true);
+      const html = await highlightCode(
+        code,
+        language as SupportedLanguage,
+        isDark
+      );
+      if (!cancelled) {
+        setHighlightedCode(html);
+        setIsLoading(false);
+      }
+    }
+
+    highlight();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [code, language, isDark]);
 
   const handleCopy = async () => {
     try {
@@ -160,40 +186,85 @@ export function DocsCodePreview({
           </Button>
         </Box>
       </Box>
-      <Box
-        component="pre"
-        sx={{
-          m: 0,
-          p: { xs: 3, md: 3.5 },
-          overflowX: 'auto',
-          fontSize: 14,
-          lineHeight: 1.8,
-          fontFamily:
-            '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, "Courier New", monospace',
-          fontWeight: 450,
-          color: isDark ? 'rgba(255,255,255,0.92)' : 'rgba(15,23,42,0.92)',
-          bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.50)',
-          WebkitFontSmoothing: 'antialiased',
-          MozOsxFontSmoothing: 'grayscale',
-          '&::-webkit-scrollbar': {
-            height: 8,
-          },
-          '&::-webkit-scrollbar-track': {
-            bgcolor: isDark ? 'rgba(0,0,0,0.20)' : 'rgba(15,23,42,0.05)',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            bgcolor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.20)',
-            borderRadius: 1,
-            '&:hover': {
-              bgcolor: isDark
-                ? 'rgba(255,255,255,0.25)'
-                : 'rgba(15,23,42,0.30)',
+      {isLoading ? (
+        <Box
+          component="pre"
+          sx={{
+            m: 0,
+            p: { xs: 3, md: 3.5 },
+            overflowX: 'auto',
+            fontSize: 14,
+            lineHeight: 1.8,
+            fontFamily:
+              '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, "Courier New", monospace',
+            fontWeight: 450,
+            color: isDark ? 'rgba(255,255,255,0.92)' : 'rgba(15,23,42,0.92)',
+            bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.50)',
+            WebkitFontSmoothing: 'antialiased',
+            MozOsxFontSmoothing: 'grayscale',
+            '&::-webkit-scrollbar': {
+              height: 8,
             },
-          },
-        }}
-      >
-        {code}
-      </Box>
+            '&::-webkit-scrollbar-track': {
+              bgcolor: isDark ? 'rgba(0,0,0,0.20)' : 'rgba(15,23,42,0.05)',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              bgcolor: isDark
+                ? 'rgba(255,255,255,0.15)'
+                : 'rgba(15,23,42,0.20)',
+              borderRadius: 1,
+              '&:hover': {
+                bgcolor: isDark
+                  ? 'rgba(255,255,255,0.25)'
+                  : 'rgba(15,23,42,0.30)',
+              },
+            },
+          }}
+        >
+          {code}
+        </Box>
+      ) : (
+        <Box
+          dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          sx={{
+            m: 0,
+            '& pre': {
+              m: 0,
+              p: { xs: 3, md: 3.5 },
+              overflowX: 'auto',
+              fontSize: 14,
+              lineHeight: 1.8,
+              fontFamily:
+                '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, "Courier New", monospace',
+              fontWeight: 450,
+              bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.50)',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              '&::-webkit-scrollbar': {
+                height: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                bgcolor: isDark ? 'rgba(0,0,0,0.20)' : 'rgba(15,23,42,0.05)',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                bgcolor: isDark
+                  ? 'rgba(255,255,255,0.15)'
+                  : 'rgba(15,23,42,0.20)',
+                borderRadius: 1,
+                '&:hover': {
+                  bgcolor: isDark
+                    ? 'rgba(255,255,255,0.25)'
+                    : 'rgba(15,23,42,0.30)',
+                },
+              },
+            },
+            '& code': {
+              fontFamily:
+                '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, "Courier New", monospace',
+            },
+          }}
+        />
+      )}
     </Box>
   );
 }

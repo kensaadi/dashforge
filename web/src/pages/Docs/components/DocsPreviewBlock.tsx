@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -7,6 +7,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useDashTheme } from '@dashforge/theme-core';
+import { highlightCode } from '../utils/shiki';
 
 interface DocsPreviewBlockProps {
   /**
@@ -43,6 +44,27 @@ export function DocsPreviewBlock({
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
   const [isCodeVisible, setIsCodeVisible] = useState(defaultExpanded);
+  const [highlightedCode, setHighlightedCode] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function highlight() {
+      setIsLoading(true);
+      const html = await highlightCode(code, 'tsx', isDark);
+      if (!cancelled) {
+        setHighlightedCode(html);
+        setIsLoading(false);
+      }
+    }
+
+    highlight();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [code, isDark]);
 
   const toggleCode = () => setIsCodeVisible((prev) => !prev);
 
@@ -174,35 +196,75 @@ export function DocsPreviewBlock({
             overflow: 'hidden',
           }}
         >
-          <Box
-            component="pre"
-            sx={{
-              m: 0,
-              p: 2.5,
-              fontSize: 12,
-              lineHeight: 1.6,
-              fontFamily:
-                '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
-              fontWeight: 450,
-              color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(15,23,42,0.85)',
-              overflowX: 'auto',
-              WebkitFontSmoothing: 'antialiased',
-              '&::-webkit-scrollbar': {
-                height: 6,
-              },
-              '&::-webkit-scrollbar-track': {
-                bgcolor: isDark ? 'rgba(0,0,0,0.20)' : 'rgba(15,23,42,0.05)',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                bgcolor: isDark
-                  ? 'rgba(255,255,255,0.15)'
-                  : 'rgba(15,23,42,0.20)',
-                borderRadius: 1,
-              },
-            }}
-          >
-            {code}
-          </Box>
+          {isLoading ? (
+            <Box
+              component="pre"
+              sx={{
+                m: 0,
+                p: 2.5,
+                fontSize: 12,
+                lineHeight: 1.6,
+                fontFamily:
+                  '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
+                fontWeight: 450,
+                color: isDark
+                  ? 'rgba(255,255,255,0.85)'
+                  : 'rgba(15,23,42,0.85)',
+                overflowX: 'auto',
+                WebkitFontSmoothing: 'antialiased',
+                '&::-webkit-scrollbar': {
+                  height: 6,
+                },
+                '&::-webkit-scrollbar-track': {
+                  bgcolor: isDark ? 'rgba(0,0,0,0.20)' : 'rgba(15,23,42,0.05)',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  bgcolor: isDark
+                    ? 'rgba(255,255,255,0.15)'
+                    : 'rgba(15,23,42,0.20)',
+                  borderRadius: 1,
+                },
+              }}
+            >
+              {code}
+            </Box>
+          ) : (
+            <Box
+              dangerouslySetInnerHTML={{ __html: highlightedCode }}
+              sx={{
+                m: 0,
+                '& pre': {
+                  m: 0,
+                  p: 2.5,
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                  fontFamily:
+                    '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
+                  fontWeight: 450,
+                  overflowX: 'auto',
+                  WebkitFontSmoothing: 'antialiased',
+                  '&::-webkit-scrollbar': {
+                    height: 6,
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    bgcolor: isDark
+                      ? 'rgba(0,0,0,0.20)'
+                      : 'rgba(15,23,42,0.05)',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    bgcolor: isDark
+                      ? 'rgba(255,255,255,0.15)'
+                      : 'rgba(15,23,42,0.20)',
+                    borderRadius: 1,
+                  },
+                },
+                '& code': {
+                  fontFamily:
+                    '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
+                },
+              }}
+            />
+          )}
         </Box>
       </Collapse>
     </Stack>
