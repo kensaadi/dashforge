@@ -51,6 +51,22 @@ export type ShadowScale = {
   lg: string;
 };
 
+export type FieldLayoutStackedConfig = {
+  labelGap: number;
+  helperGap: number;
+};
+
+export type FieldLayoutInlineConfig = {
+  labelWidth: number;
+  controlGap: number;
+  helperGap: number;
+};
+
+export type FieldLayoutConfig = {
+  stacked: FieldLayoutStackedConfig;
+  inline: FieldLayoutInlineConfig;
+};
+
 export interface DashforgeTheme {
   meta: {
     name: string;
@@ -76,4 +92,5 @@ export interface DashforgeTheme {
   spacing: {
     unit: number;
   };
+  fieldLayout: FieldLayoutConfig;
 }

@@ -63,6 +63,39 @@ export function TextFieldExamples() {
       component: <TextField label="Address" name="address" fullWidth />,
     },
     {
+      title: 'Inline Layout',
+      description: 'A text field with label on the left',
+      code: `<TextField
+  label="Email"
+  name="email"
+  layout="inline"
+  fullWidth
+/>`,
+      component: (
+        <TextField label="Email" name="email" layout="inline" fullWidth />
+      ),
+    },
+    {
+      title: 'Inline with Helper Text',
+      description: 'Inline layout with helper text below control',
+      code: `<TextField
+  label="Username"
+  name="username"
+  layout="inline"
+  helperText="Must be unique"
+  fullWidth
+/>`,
+      component: (
+        <TextField
+          label="Username"
+          name="username"
+          layout="inline"
+          helperText="Must be unique"
+          fullWidth
+        />
+      ),
+    },
+    {
       title: 'Multiline',
       description: 'A text field with multiple lines',
       code: `<TextField

@@ -1,11 +1,12 @@
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import type { Engine } from '@dashforge/ui-core';
+import type { FieldLayout } from '../_internal/FieldLayoutShell';
 
 /**
  * TextField props - extends MUI TextField but:
  * - Makes `name` required
  * - Removes deprecated MUI props (use slotProps instead)
- * - Adds Dashforge-specific props (rules, visibleWhen)
+ * - Adds Dashforge-specific props (rules, visibleWhen, layout)
  */
 export interface TextFieldProps
   extends Omit<
@@ -33,4 +34,11 @@ export interface TextFieldProps
    * If provided, field only renders when function returns true
    */
   visibleWhen?: (engine: Engine) => boolean;
+
+  /**
+   * Field layout mode
+   * - 'stacked': label above control (default)
+   * - 'inline': label to the left of control
+   */
+  layout?: FieldLayout;
 }

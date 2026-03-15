@@ -64,6 +64,18 @@ export const defaultLightTheme: DashforgeTheme = {
   spacing: {
     unit: 8,
   },
+
+  fieldLayout: {
+    stacked: {
+      labelGap: 8,
+      helperGap: 4,
+    },
+    inline: {
+      labelWidth: 120,
+      controlGap: 16,
+      helperGap: 4,
+    },
+  },
 };
 
 export const defaultDarkTheme: DashforgeTheme = {
@@ -129,5 +141,17 @@ export const defaultDarkTheme: DashforgeTheme = {
 
   spacing: {
     unit: 8,
+  },
+
+  fieldLayout: {
+    stacked: {
+      labelGap: 8,
+      helperGap: 4,
+    },
+    inline: {
+      labelWidth: 120,
+      controlGap: 16,
+      helperGap: 4,
+    },
   },
 };

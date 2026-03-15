@@ -1,9 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../../node_modules/.vite/libs/dashforge/ui',
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@dashforge/tokens': resolve(__dirname, '../tokens/src/index.ts'),
+      '@dashforge/theme-core': resolve(__dirname, '../theme-core/src/index.ts'),
+    },
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [],
