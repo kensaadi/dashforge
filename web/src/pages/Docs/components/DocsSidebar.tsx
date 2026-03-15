@@ -3,11 +3,76 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { docsSidebarTree, type DocsSidebarGroup } from './DocsSidebar.model';
+import {
+  docsSidebarTree,
+  type DocsSidebarGroup,
+  type DocsSidebarItem,
+} from './DocsSidebar.model';
 
 export function DocsSidebar() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
+
+  const renderItem = (item: DocsSidebarItem) => (
+    <Stack key={item.label} spacing={0.5}>
+      <Box
+        sx={{
+          px: 1.5,
+          py: 0.75,
+          borderRadius: 1,
+          cursor: item.path ? 'pointer' : 'default',
+          '&:hover': item.path
+            ? {
+                bgcolor: isDark
+                  ? 'rgba(255,255,255,0.05)'
+                  : 'rgba(15,23,42,0.05)',
+              }
+            : {},
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 14,
+            fontWeight: item.children ? 600 : 400,
+            color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.75)',
+          }}
+        >
+          {item.label}
+        </Typography>
+      </Box>
+      {item.children && (
+        <Stack spacing={0.5} sx={{ pl: 2 }}>
+          {item.children.map((child) => (
+            <Box
+              key={child.label}
+              sx={{
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
+                cursor: 'pointer',
+                '&:hover': {
+                  bgcolor: isDark
+                    ? 'rgba(255,255,255,0.05)'
+                    : 'rgba(15,23,42,0.05)',
+                },
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.65)'
+                    : 'rgba(15,23,42,0.65)',
+                }}
+              >
+                {child.label}
+              </Typography>
+            </Box>
+          ))}
+        </Stack>
+      )}
+    </Stack>
+  );
 
   return (
     <Box
@@ -62,35 +127,7 @@ export function DocsSidebar() {
                 Coming soon
               </Typography>
             ) : (
-              <Stack spacing={0.5}>
-                {group.items.map((item) => (
-                  <Box
-                    key={item.label}
-                    sx={{
-                      px: 1.5,
-                      py: 0.75,
-                      borderRadius: 1,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        bgcolor: isDark
-                          ? 'rgba(255,255,255,0.05)'
-                          : 'rgba(15,23,42,0.05)',
-                      },
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontSize: 14,
-                        color: isDark
-                          ? 'rgba(255,255,255,0.75)'
-                          : 'rgba(15,23,42,0.75)',
-                      }}
-                    >
-                      {item.label}
-                    </Typography>
-                  </Box>
-                ))}
-              </Stack>
+              <Stack spacing={0.5}>{group.items.map(renderItem)}</Stack>
             )}
           </Stack>
         ))}

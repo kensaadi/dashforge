@@ -42,15 +42,21 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
   },
   {
     title: 'UI Components',
-    items: [],
-  },
-  {
-    title: 'Form',
-    items: [],
-  },
-  {
-    title: 'Layout',
-    items: [],
+    items: [
+      {
+        label: 'Form',
+        children: [
+          {
+            label: 'TextField',
+            path: '/docs/components/text-field',
+          },
+        ],
+      },
+      {
+        label: 'Layout',
+        children: [],
+      },
+    ],
   },
   {
     title: 'Form System',

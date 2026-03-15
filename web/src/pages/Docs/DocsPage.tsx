@@ -11,6 +11,7 @@ import BrightnessLowIcon from '@mui/icons-material/BrightnessLow';
 
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { DocsLayout } from './components/DocsLayout';
+import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 
 export function DocsPage() {
   const dashTheme = useDashTheme();
@@ -113,7 +114,9 @@ export function DocsPage() {
       </Box>
 
       {/* ========================= DOCS LAYOUT ========================= */}
-      <DocsLayout />
+      <DocsLayout>
+        <TextFieldDocs />
+      </DocsLayout>
     </Box>
   );
 }
