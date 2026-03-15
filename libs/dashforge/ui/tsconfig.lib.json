@@ -45,6 +45,9 @@
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
   "references": [
     {
+      "path": "../tokens/tsconfig.lib.json"
+    },
+    {
       "path": "../theme-core/tsconfig.lib.json"
     },
     {

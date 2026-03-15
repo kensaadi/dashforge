@@ -29,6 +29,8 @@ interface DocsPreviewBlockProps {
    * Whether code is expanded by default
    */
   defaultExpanded?: boolean;
+
+  minHeight?: number;
 }
 
 /**
@@ -40,6 +42,7 @@ export function DocsPreviewBlock({
   code,
   badge = 'Live Preview',
   defaultExpanded = false,
+  minHeight = 100,
 }: DocsPreviewBlockProps) {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -88,6 +91,7 @@ export function DocsPreviewBlock({
             ? '0 4px 16px rgba(0,0,0,0.30), inset 0 1px 0 rgba(139,92,246,0.10)'
             : '0 2px 12px rgba(15,23,42,0.08), inset 0 1px 0 rgba(139,92,246,0.08)',
           overflow: 'hidden',
+          minHeight: minHeight,
         }}
       >
         {/* Badge */}

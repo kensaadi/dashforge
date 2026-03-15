@@ -16,6 +16,7 @@ import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'examples', label: 'Examples' },
+  { id: 'layout-variants', label: 'Layout Variants' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
   { id: 'predictive-form-behavior', label: 'Predictive Form Behavior' },

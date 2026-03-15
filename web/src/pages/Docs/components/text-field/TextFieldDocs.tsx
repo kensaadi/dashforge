@@ -4,11 +4,11 @@ import Divider from '@mui/material/Divider';
 import { useDashTheme } from '@dashforge/theme-core';
 import { TextFieldPlayground } from './TextFieldPlayground';
 import { TextFieldExamples } from './TextFieldExamples';
+import { TextFieldLayoutVariants } from './TextFieldLayoutVariants';
 import { TextFieldCapabilities } from './TextFieldCapabilities';
 import { TextFieldScenarios } from './TextFieldScenarios';
 import { TextFieldApi } from './TextFieldApi';
 import { TextFieldNotes } from './TextFieldNotes';
-import { TextFieldDebug } from './TextFieldDebug';
 
 /**
  * TextFieldDocs is the main documentation page for the TextField component
@@ -67,7 +67,7 @@ export function TextFieldDocs() {
 
       <Stack spacing={3}>
         <Typography
-          id="debug"
+          id="examples"
           variant="h2"
           sx={{
             fontSize: { xs: 24, md: 28 },
@@ -75,9 +75,9 @@ export function TextFieldDocs() {
             color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
           }}
         >
-          Debug Comparison
+          Examples
         </Typography>
-        <TextFieldDebug />
+        <TextFieldExamples />
       </Stack>
 
       <Divider
@@ -90,7 +90,7 @@ export function TextFieldDocs() {
 
       <Stack spacing={3}>
         <Typography
-          id="examples"
+          id="layout-variants"
           variant="h2"
           sx={{
             fontSize: { xs: 24, md: 28 },
@@ -98,9 +98,9 @@ export function TextFieldDocs() {
             color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
           }}
         >
-          Examples
+          Layout Variants
         </Typography>
-        <TextFieldExamples />
+        <TextFieldLayoutVariants />
       </Stack>
 
       <Divider
