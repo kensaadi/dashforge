@@ -52,5 +52,15 @@ export function getMuiOutlinedInputOverrides(
         },
       },
     },
+    // Special styling for Select inputs when open
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          '&:focus': {
+            backgroundColor: 'transparent',
+          },
+        },
+      },
+    },
   };
 }
