@@ -66,6 +66,7 @@ export function TextFieldDocs() {
 
       <Stack spacing={3}>
         <Typography
+          id="examples"
           variant="h2"
           sx={{
             fontSize: { xs: 24, md: 28 },
@@ -88,6 +89,7 @@ export function TextFieldDocs() {
 
       <Stack spacing={3}>
         <Typography
+          id="capabilities"
           variant="h2"
           sx={{
             fontSize: { xs: 24, md: 28 },
@@ -110,6 +112,7 @@ export function TextFieldDocs() {
 
       <Stack spacing={3}>
         <Typography
+          id="scenarios"
           variant="h2"
           sx={{
             fontSize: { xs: 24, md: 28 },
@@ -132,6 +135,7 @@ export function TextFieldDocs() {
 
       <Stack spacing={3}>
         <Typography
+          id="api"
           variant="h2"
           sx={{
             fontSize: { xs: 24, md: 28 },
@@ -154,6 +158,7 @@ export function TextFieldDocs() {
 
       <Stack spacing={3}>
         <Typography
+          id="notes"
           variant="h2"
           sx={{
             fontSize: { xs: 24, md: 28 },

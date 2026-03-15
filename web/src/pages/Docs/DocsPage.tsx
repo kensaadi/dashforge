@@ -11,7 +11,16 @@ import BrightnessLowIcon from '@mui/icons-material/BrightnessLow';
 
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { DocsLayout } from './components/DocsLayout';
+import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
+
+const textFieldTocItems: DocsTocItem[] = [
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'scenarios', label: 'Interactive Form Scenarios' },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Notes' },
+];
 
 export function DocsPage() {
   const dashTheme = useDashTheme();
@@ -114,7 +123,7 @@ export function DocsPage() {
       </Box>
 
       {/* ========================= DOCS LAYOUT ========================= */}
-      <DocsLayout>
+      <DocsLayout tocItems={textFieldTocItems}>
         <TextFieldDocs />
       </DocsLayout>
     </Box>
