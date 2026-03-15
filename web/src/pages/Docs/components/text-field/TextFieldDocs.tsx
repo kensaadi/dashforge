@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import { useDashTheme } from '@dashforge/theme-core';
+import { TextFieldPlayground } from './TextFieldPlayground';
 import { TextFieldExamples } from './TextFieldExamples';
 import { TextFieldApi } from './TextFieldApi';
 import { TextFieldNotes } from './TextFieldNotes';
@@ -42,6 +43,16 @@ export function TextFieldDocs() {
           predictable state management.
         </Typography>
       </Stack>
+
+      <Divider
+        sx={{
+          borderColor: isDark
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(15,23,42,0.08)',
+        }}
+      />
+
+      <TextFieldPlayground />
 
       <Divider
         sx={{
