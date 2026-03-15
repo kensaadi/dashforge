@@ -82,7 +82,7 @@ export function DocsSidebar() {
         maxWidth: { xs: '100%', md: 280 },
         height: { xs: 'auto', md: 'calc(100vh - 80px)' },
         position: { xs: 'relative', md: 'sticky' },
-        top: { xs: 0, md: 80 },
+        top: { xs: 0, md: 0 },
         overflowY: 'auto',
         borderRight: {
           xs: 'none',
@@ -91,10 +91,16 @@ export function DocsSidebar() {
             : '1px solid rgba(15,23,42,0.08)',
         },
         bgcolor: isDark ? 'rgba(11,18,32,0.4)' : 'rgba(255,255,255,0.4)',
-        p: { xs: 2, md: 3 },
+        pt: { xs: 2, md: 0 },
+        px: { xs: 2, md: 3 },
+        pb: { xs: 2, md: 3 },
       }}
     >
-      <Stack spacing={3}>
+      <Stack
+        spacing={3}
+        sx={{ pt: { xs: 0, md: 3 } }}
+        data-testid="docs-sidebar"
+      >
         {docsSidebarTree.map((group: DocsSidebarGroup) => (
           <Stack key={group.title} spacing={1.5}>
             <Typography
