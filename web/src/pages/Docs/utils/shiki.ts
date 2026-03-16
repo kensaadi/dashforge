@@ -7,7 +7,13 @@ const highlightCache = new Map<string, string>();
 /**
  * Supported languages for docs code highlighting
  */
-export type SupportedLanguage = 'tsx' | 'typescript' | 'jsx' | 'javascript';
+export type SupportedLanguage =
+  | 'tsx'
+  | 'typescript'
+  | 'jsx'
+  | 'javascript'
+  | 'bash'
+  | 'shell';
 
 /**
  * Initialize Shiki highlighter (lazy, singleton)
@@ -27,6 +33,7 @@ async function getHighlighter(): Promise<HighlighterCore> {
       import('shiki/langs/typescript.mjs'),
       import('shiki/langs/jsx.mjs'),
       import('shiki/langs/javascript.mjs'),
+      import('shiki/langs/bash.mjs'),
     ],
     loadWasm: getWasm,
   });
