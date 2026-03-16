@@ -141,24 +141,29 @@ function TocItem({ item, activeId, isDark, onClick, level }: TocItemProps) {
           borderRadius: 1,
           fontSize: 13,
           lineHeight: 1.5,
-          fontWeight: isActive ? 700 : 400,
+          fontWeight: isActive ? 800 : 400,
           color: isActive
             ? isDark
-              ? '#a78bfa'
-              : '#7c3aed'
+              ? '#c4b5fd'
+              : '#6d28d9'
             : isDark
             ? 'rgba(255,255,255,0.70)'
             : 'rgba(15,23,42,0.70)',
           bgcolor: isActive
             ? isDark
-              ? 'rgba(139,92,246,0.20)'
-              : 'rgba(139,92,246,0.18)'
+              ? 'rgba(139,92,246,0.30)'
+              : 'rgba(139,92,246,0.25)'
             : 'transparent',
           borderLeft: isActive
             ? isDark
-              ? '4px solid #a78bfa'
-              : '4px solid #7c3aed'
+              ? '4px solid #c4b5fd'
+              : '4px solid #6d28d9'
             : '4px solid transparent',
+          boxShadow: isActive
+            ? isDark
+              ? '0 0 12px rgba(139,92,246,0.25), inset 0 0 8px rgba(139,92,246,0.15)'
+              : '0 0 8px rgba(139,92,246,0.15), inset 0 0 6px rgba(139,92,246,0.10)'
+            : 'none',
           transition: 'all 0.15s ease',
           cursor: 'pointer',
           '&:hover': {

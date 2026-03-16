@@ -3,8 +3,6 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { TextField } from '@dashforge/ui';
-import { DocsPreviewBlock } from '../DocsPreviewBlock';
 import { TextFieldPlayground } from './TextFieldPlayground';
 import { TextFieldExamples } from './TextFieldExamples';
 import { TextFieldLayoutVariants } from './TextFieldLayoutVariants';
@@ -22,15 +20,16 @@ export function TextFieldDocs() {
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <Stack spacing={8}>
-      {/* Hero Section */}
-      <Stack spacing={2.5}>
+    <Stack spacing={10}>
+      {/* Hero Section - Compact */}
+      <Stack spacing={3}>
         <Typography
           variant="h1"
           sx={{
-            fontSize: { xs: 36, md: 48 },
+            fontSize: { xs: 40, md: 56 },
             fontWeight: 800,
-            letterSpacing: '-0.03em',
+            letterSpacing: '-0.04em',
+            lineHeight: 1.1,
             color: isDark ? '#ffffff' : '#0f172a',
             background: isDark
               ? 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)'
@@ -45,304 +44,217 @@ export function TextFieldDocs() {
         <Typography
           variant="body1"
           sx={{
-            fontSize: 18,
-            lineHeight: 1.7,
-            color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.75)',
-            maxWidth: 760,
+            fontSize: 19,
+            lineHeight: 1.6,
+            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            maxWidth: 680,
           }}
         >
-          TextField is an intelligent input component integrated with the
-          Dashforge form system. Built on top of Material-UI TextField, it
-          provides seamless form integration, automatic error handling, and
-          predictable state management.
+          An intelligent input component with seamless form integration,
+          automatic error handling, and predictable state management.
         </Typography>
       </Stack>
 
-      {/* Quick Start - Visually Prominent */}
+      {/* Quick Start - Ultra Compact Onboarding Card */}
       <Box
         id="quick-start"
         sx={{
-          p: { xs: 3, md: 4 },
-          borderRadius: 3,
-          background: isDark
-            ? 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(79,70,229,0.08) 100%)'
-            : 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(124,58,237,0.05) 100%)',
+          p: 3,
+          borderRadius: 2,
+          bgcolor: isDark ? 'rgba(139,92,246,0.06)' : 'rgba(139,92,246,0.04)',
           border: isDark
-            ? '2px solid rgba(139,92,246,0.30)'
-            : '2px solid rgba(139,92,246,0.25)',
-          boxShadow: isDark
-            ? '0 8px 32px rgba(139,92,246,0.15), inset 0 1px 0 rgba(255,255,255,0.08)'
-            : '0 4px 24px rgba(139,92,246,0.12), inset 0 1px 0 rgba(255,255,255,0.5)',
+            ? '1px solid rgba(139,92,246,0.20)'
+            : '1px solid rgba(139,92,246,0.15)',
           position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 4,
-            background: isDark
-              ? 'linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%)'
-              : 'linear-gradient(90deg, #7c3aed 0%, #6366f1 100%)',
-          },
         }}
       >
-        <Stack spacing={3}>
-          <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Stack spacing={2}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography
+              sx={{
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: 0.5,
+                textTransform: 'uppercase',
+                color: isDark ? '#a78bfa' : '#7c3aed',
+              }}
+            >
+              Quick Start
+            </Typography>
             <Box
               sx={{
-                px: 2,
-                py: 0.75,
-                borderRadius: 2,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
                 bgcolor: isDark
-                  ? 'rgba(139,92,246,0.20)'
-                  : 'rgba(139,92,246,0.15)',
+                  ? 'rgba(34,197,94,0.15)'
+                  : 'rgba(34,197,94,0.10)',
                 border: isDark
-                  ? '1px solid rgba(139,92,246,0.40)'
-                  : '1px solid rgba(139,92,246,0.30)',
+                  ? '1px solid rgba(34,197,94,0.30)'
+                  : '1px solid rgba(34,197,94,0.25)',
               }}
             >
               <Typography
                 sx={{
                   fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
-                  color: isDark ? '#c4b5fd' : '#7c3aed',
+                  fontWeight: 700,
+                  color: isDark ? '#86efac' : '#16a34a',
                 }}
               >
-                Start Here
+                Copy & Paste
               </Typography>
             </Box>
           </Stack>
 
-          <Box>
-            <Typography
-              variant="h2"
-              sx={{
-                fontSize: { xs: 24, md: 30 },
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: isDark ? '#ffffff' : '#0f172a',
-                mb: 1.5,
-              }}
-            >
-              Quick Start
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: 16,
-                lineHeight: 1.6,
-                color: isDark
-                  ? 'rgba(255,255,255,0.75)'
-                  : 'rgba(15,23,42,0.75)',
-                maxWidth: 680,
-              }}
-            >
-              Get started with a basic TextField in seconds. Import the
-              component and use it with or without a form.
-            </Typography>
-          </Box>
-
-          <DocsPreviewBlock
-            code={`import { TextField } from '@dashforge/ui';
-
-function MyForm() {
-  return (
-    <TextField 
-      label="Email" 
-      name="email"
-      helperText="We'll never share your email"
-    />
-  );
-}`}
+          <Box
+            component="pre"
+            sx={{
+              m: 0,
+              p: 2.5,
+              borderRadius: 1.5,
+              fontSize: 14,
+              lineHeight: 1.7,
+              fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
+              color: isDark ? '#e5e7eb' : '#1f2937',
+              bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.08)',
+              overflowX: 'auto',
+              '&::-webkit-scrollbar': {
+                height: 6,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                bgcolor: isDark
+                  ? 'rgba(255,255,255,0.15)'
+                  : 'rgba(15,23,42,0.20)',
+                borderRadius: 1,
+              },
+            }}
           >
-            <TextField
-              label="Email"
-              name="email"
-              helperText="We'll never share your email"
-            />
-          </DocsPreviewBlock>
+            {`import { TextField } from '@dashforge/ui';
+
+<TextField label="Email" name="email" />`}
+          </Box>
         </Stack>
       </Box>
 
-      {/* Examples Section */}
-      <Stack spacing={4} id="examples">
-        <Box
-          sx={{
-            pl: 3,
-            borderLeft: isDark
-              ? '4px solid rgba(139,92,246,0.30)'
-              : '4px solid rgba(139,92,246,0.25)',
-          }}
-        >
+      {/* Examples Section - Clean Demo List */}
+      <Stack spacing={5} id="examples">
+        <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: 26, md: 32 },
+              fontSize: { xs: 28, md: 36 },
               fontWeight: 800,
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
               color: isDark ? '#ffffff' : '#0f172a',
-              mb: 1.5,
+              mb: 2,
             }}
           >
             Examples
           </Typography>
           <Typography
-            variant="body2"
             sx={{
-              fontSize: 16,
+              fontSize: 17,
               lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-              maxWidth: 680,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Explore common TextField patterns including disabled states, error
-            handling, and full-width layouts.
+            Common TextField patterns and configurations
           </Typography>
         </Box>
         <TextFieldExamples />
       </Stack>
 
-      <Divider
-        sx={{
-          borderColor: isDark
-            ? 'rgba(255,255,255,0.10)'
-            : 'rgba(15,23,42,0.10)',
-          my: 2,
-        }}
-      />
-
-      {/* Layout Variants */}
-      <Stack spacing={4} id="layout-variants">
-        <Box
-          sx={{
-            pl: 3,
-            borderLeft: isDark
-              ? '4px solid rgba(59,130,246,0.30)'
-              : '4px solid rgba(59,130,246,0.25)',
-          }}
-        >
+      {/* Layout Variants - Side-by-Side Comparison */}
+      <Stack spacing={5} id="layout-variants">
+        <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: 26, md: 32 },
+              fontSize: { xs: 28, md: 36 },
               fontWeight: 800,
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
               color: isDark ? '#ffffff' : '#0f172a',
-              mb: 1.5,
+              mb: 2,
             }}
           >
             Layout Variants
           </Typography>
           <Typography
-            variant="body2"
             sx={{
-              fontSize: 16,
+              fontSize: 17,
               lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-              maxWidth: 680,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Choose between floating, stacked, and inline label layouts to match
-            your design system.
+            Floating, stacked, and inline label layouts
           </Typography>
         </Box>
         <TextFieldLayoutVariants />
       </Stack>
 
-      <Divider
-        sx={{
-          borderColor: isDark
-            ? 'rgba(255,255,255,0.10)'
-            : 'rgba(15,23,42,0.10)',
-          my: 2,
-        }}
-      />
-
-      {/* Interactive Playground - Contained */}
-      <Box
-        id="playground"
-        sx={{
-          p: { xs: 3, md: 4 },
-          borderRadius: 3,
-          bgcolor: isDark ? 'rgba(17,24,39,0.60)' : 'rgba(248,250,252,0.80)',
-          border: isDark
-            ? '1px solid rgba(255,255,255,0.08)'
-            : '1px solid rgba(15,23,42,0.08)',
-          boxShadow: isDark
-            ? '0 4px 24px rgba(0,0,0,0.20)'
-            : '0 2px 16px rgba(15,23,42,0.06)',
-        }}
-      >
-        <Stack spacing={3}>
-          <Box>
-            <Typography
-              variant="h2"
-              sx={{
-                fontSize: { xs: 24, md: 28 },
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: isDark ? '#ffffff' : '#0f172a',
-                mb: 1.5,
-              }}
-            >
-              Interactive Playground
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.6,
-                color: isDark
-                  ? 'rgba(255,255,255,0.65)'
-                  : 'rgba(15,23,42,0.65)',
-                maxWidth: 680,
-              }}
-            >
-              Experiment with all TextField props and configurations in
-              real-time.
-            </Typography>
-          </Box>
-          <TextFieldPlayground />
-        </Stack>
-      </Box>
-
-      {/* Dashforge Capabilities */}
-      <Stack spacing={4} id="capabilities">
-        <Box
-          sx={{
-            pl: 3,
-            borderLeft: isDark
-              ? '4px solid rgba(34,197,94,0.30)'
-              : '4px solid rgba(34,197,94,0.25)',
-          }}
-        >
+      {/* Interactive Playground */}
+      <Stack spacing={3.5} id="playground">
+        <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: 26, md: 32 },
+              fontSize: { xs: 28, md: 36 },
               fontWeight: 800,
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
               color: isDark ? '#ffffff' : '#0f172a',
-              mb: 1.5,
+              mb: 2,
+            }}
+          >
+            Interactive Playground
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+            }}
+          >
+            Experiment with props and see live results
+          </Typography>
+        </Box>
+
+        <TextFieldPlayground />
+      </Stack>
+
+      {/* Capabilities - Feature Grid */}
+      <Stack spacing={5} id="capabilities">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
             }}
           >
             Dashforge Capabilities
           </Typography>
           <Typography
-            variant="body2"
             sx={{
-              fontSize: 16,
+              fontSize: 17,
               lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-              maxWidth: 680,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Discover advanced features unique to Dashforge TextField including
-            automatic form integration and intelligent error handling.
+            Progressive adoption from controlled components to predictive forms
           </Typography>
         </Box>
         <TextFieldCapabilities />
@@ -351,45 +263,45 @@ function MyForm() {
       <Divider
         sx={{
           borderColor: isDark
-            ? 'rgba(255,255,255,0.10)'
-            : 'rgba(15,23,42,0.10)',
-          my: 2,
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(15,23,42,0.08)',
+          my: 4,
         }}
       />
 
-      {/* Interactive Scenarios */}
-      <Stack spacing={4} id="scenarios">
+      {/* Integration Scenarios - Practical Demos */}
+      <Stack spacing={5} id="scenarios">
         <Box
           sx={{
-            pl: 3,
-            borderLeft: isDark
-              ? '4px solid rgba(249,115,22,0.30)'
-              : '4px solid rgba(249,115,22,0.25)',
+            p: 3,
+            borderRadius: 2,
+            bgcolor: isDark ? 'rgba(59,130,246,0.06)' : 'rgba(59,130,246,0.04)',
+            border: isDark
+              ? '1px solid rgba(59,130,246,0.15)'
+              : '1px solid rgba(59,130,246,0.12)',
           }}
         >
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: 26, md: 32 },
+              fontSize: { xs: 28, md: 36 },
               fontWeight: 800,
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
               color: isDark ? '#ffffff' : '#0f172a',
-              mb: 1.5,
+              mb: 2,
             }}
           >
-            Interactive Form Scenarios
+            Form Integration
           </Typography>
           <Typography
-            variant="body2"
             sx={{
-              fontSize: 16,
+              fontSize: 17,
               lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-              maxWidth: 680,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            See TextField in action with React Hook Form integration and dynamic
-            field visibility.
+            Real-world scenarios with React Hook Form and dynamic visibility
           </Typography>
         </Box>
         <TextFieldScenarios />
@@ -398,44 +310,36 @@ function MyForm() {
       <Divider
         sx={{
           borderColor: isDark
-            ? 'rgba(255,255,255,0.10)'
-            : 'rgba(15,23,42,0.10)',
-          my: 2,
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(15,23,42,0.08)',
+          my: 4,
         }}
       />
 
-      {/* API Reference */}
-      <Stack spacing={4} id="api">
-        <Box
-          sx={{
-            pl: 3,
-            borderLeft: isDark
-              ? '4px solid rgba(236,72,153,0.30)'
-              : '4px solid rgba(236,72,153,0.25)',
-          }}
-        >
+      {/* API Reference - Dense Table */}
+      <Stack spacing={5} id="api">
+        <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: 26, md: 32 },
+              fontSize: { xs: 28, md: 36 },
               fontWeight: 800,
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
               color: isDark ? '#ffffff' : '#0f172a',
-              mb: 1.5,
+              mb: 2,
             }}
           >
-            API
+            API Reference
           </Typography>
           <Typography
-            variant="body2"
             sx={{
-              fontSize: 16,
+              fontSize: 17,
               lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-              maxWidth: 680,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Complete reference of TextField props, types, and behaviors.
+            Complete props and type definitions
           </Typography>
         </Box>
         <TextFieldApi />
@@ -444,44 +348,36 @@ function MyForm() {
       <Divider
         sx={{
           borderColor: isDark
-            ? 'rgba(255,255,255,0.10)'
-            : 'rgba(15,23,42,0.10)',
-          my: 2,
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(15,23,42,0.08)',
+          my: 4,
         }}
       />
 
-      {/* Implementation Notes */}
-      <Stack spacing={4} id="notes">
-        <Box
-          sx={{
-            pl: 3,
-            borderLeft: isDark
-              ? '4px solid rgba(168,85,247,0.30)'
-              : '4px solid rgba(168,85,247,0.25)',
-          }}
-        >
+      {/* Implementation Notes - Info Cards */}
+      <Stack spacing={5} id="notes">
+        <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: 26, md: 32 },
+              fontSize: { xs: 28, md: 36 },
               fontWeight: 800,
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
               color: isDark ? '#ffffff' : '#0f172a',
-              mb: 1.5,
+              mb: 2,
             }}
           >
             Implementation Notes
           </Typography>
           <Typography
-            variant="body2"
             sx={{
-              fontSize: 16,
+              fontSize: 17,
               lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-              maxWidth: 680,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Important technical details, best practices, and migration guidance.
+            Technical details and best practices
           </Typography>
         </Box>
         <TextFieldNotes />

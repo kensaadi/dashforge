@@ -463,13 +463,5 @@ export function TextFieldPlayground() {
 
   const code = generateTextFieldCode(state);
 
-  return (
-    <DocsPlayground
-      title="Live Playground"
-      description="Experiment with TextField properties and watch the component update in real-time. The generated code below reflects your current configuration."
-      controls={controls}
-      preview={preview}
-      code={code}
-    />
-  );
+  return <DocsPlayground controls={controls} preview={preview} code={code} />;
 }

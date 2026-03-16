@@ -54,8 +54,8 @@ export function DocsPlayground({
         },
       }}
     >
-      <Box sx={{ p: { xs: 4, md: 6 } }}>
-        <Stack spacing={{ xs: 4, md: 5 }}>
+      <Box sx={{ p: { xs: 3, md: 3.5 } }}>
+        <Stack spacing={{ xs: 3, md: 3.5 }}>
           {title && (
             <Box sx={{ maxWidth: 800 }}>
               <Box
@@ -102,13 +102,13 @@ export function DocsPlayground({
               <Typography
                 variant="h3"
                 sx={{
-                  fontSize: { xs: 26, md: 34 },
+                  fontSize: { xs: 22, md: 28 },
                   fontWeight: 800,
                   lineHeight: 1.2,
                   color: isDark
                     ? 'rgba(255,255,255,0.98)'
                     : 'rgba(15,23,42,0.98)',
-                  mb: description ? 2 : 0,
+                  mb: description ? 1.5 : 0,
                   letterSpacing: '-0.03em',
                   background: isDark
                     ? 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.85) 100%)'
@@ -124,11 +124,11 @@ export function DocsPlayground({
                 <Typography
                   variant="body1"
                   sx={{
-                    fontSize: { xs: 15, md: 16 },
-                    lineHeight: 1.75,
+                    fontSize: { xs: 14, md: 14.5 },
+                    lineHeight: 1.6,
                     color: isDark
-                      ? 'rgba(255,255,255,0.68)'
-                      : 'rgba(15,23,42,0.68)',
+                      ? 'rgba(255,255,255,0.62)'
+                      : 'rgba(15,23,42,0.62)',
                     maxWidth: 680,
                   }}
                 >
@@ -138,13 +138,13 @@ export function DocsPlayground({
             </Box>
           )}
 
-          <Grid container spacing={{ xs: 3, md: 4 }}>
+          <Grid container spacing={{ xs: 2.5, md: 3 }}>
             <Grid size={{ xs: 12, md: 5 }}>
               <DocsPlaygroundControls>{controls}</DocsPlaygroundControls>
             </Grid>
 
             <Grid size={{ xs: 12, md: 7 }}>
-              <Stack spacing={{ xs: 3, md: 4 }}>
+              <Stack spacing={{ xs: 2.5, md: 3 }}>
                 <DocsPlaygroundPreview>{preview}</DocsPlaygroundPreview>
                 <DocsCodePreview code={code} />
               </Stack>
