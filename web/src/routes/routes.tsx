@@ -15,6 +15,10 @@ const routes: RouteObject[] = [
     element: <DocsPage />,
   },
   {
+    path: '/docs/components/text-field',
+    element: <DocsPage />,
+  },
+  {
     path: '/components',
     element: <ComponentsPage />,
   },

@@ -1,3 +1,4 @@
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -12,67 +13,120 @@ import {
 export function DocsSidebar() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
+  const location = useLocation();
 
-  const renderItem = (item: DocsSidebarItem) => (
-    <Stack key={item.label} spacing={0.5}>
-      <Box
-        sx={{
-          px: 1.5,
-          py: 0.75,
-          borderRadius: 1,
-          cursor: item.path ? 'pointer' : 'default',
-          '&:hover': item.path
-            ? {
-                bgcolor: isDark
-                  ? 'rgba(255,255,255,0.05)'
-                  : 'rgba(15,23,42,0.05)',
-              }
-            : {},
-        }}
-      >
-        <Typography
+  const isActive = (path?: string) => {
+    if (!path) return false;
+    return location.pathname === path;
+  };
+
+  const renderItem = (item: DocsSidebarItem) => {
+    const hasActiveChild = item.children?.some((child) => isActive(child.path));
+    const isParentActive = isActive(item.path);
+
+    return (
+      <Stack key={item.label} spacing={0.5}>
+        <Box
+          component={item.path ? RouterLink : 'div'}
+          to={item.path}
           sx={{
-            fontSize: 14,
-            fontWeight: item.children ? 600 : 400,
-            color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.75)',
-          }}
-        >
-          {item.label}
-        </Typography>
-      </Box>
-      {item.children && (
-        <Stack spacing={0.5} sx={{ pl: 2 }}>
-          {item.children.map((child) => (
-            <Box
-              key={child.label}
-              sx={{
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1,
-                cursor: 'pointer',
-                '&:hover': {
+            px: 1.5,
+            py: 0.75,
+            borderRadius: 1,
+            cursor: item.path ? 'pointer' : 'default',
+            textDecoration: 'none',
+            display: 'block',
+            '&:hover': item.path
+              ? {
                   bgcolor: isDark
                     ? 'rgba(255,255,255,0.05)'
                     : 'rgba(15,23,42,0.05)',
-                },
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.65)'
-                    : 'rgba(15,23,42,0.65)',
-                }}
-              >
-                {child.label}
-              </Typography>
-            </Box>
-          ))}
-        </Stack>
-      )}
-    </Stack>
-  );
+                }
+              : {},
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 14,
+              fontWeight:
+                item.children || hasActiveChild || isParentActive ? 600 : 400,
+              color:
+                hasActiveChild || isParentActive
+                  ? isDark
+                    ? 'rgba(139,92,246,0.90)'
+                    : 'rgba(109,40,217,0.90)'
+                  : isDark
+                  ? 'rgba(255,255,255,0.75)'
+                  : 'rgba(15,23,42,0.75)',
+            }}
+          >
+            {item.label}
+          </Typography>
+        </Box>
+        {item.children && (
+          <Stack spacing={0.5} sx={{ pl: 2 }}>
+            {item.children.map((child) => {
+              const isChildActive = isActive(child.path);
+
+              return (
+                <Box
+                  key={child.label}
+                  component={child.path ? RouterLink : 'div'}
+                  to={child.path}
+                  sx={{
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: 1,
+                    cursor: child.path ? 'pointer' : 'default',
+                    textDecoration: 'none',
+                    display: 'block',
+                    position: 'relative',
+                    bgcolor: isChildActive
+                      ? isDark
+                        ? 'rgba(139,92,246,0.12)'
+                        : 'rgba(109,40,217,0.08)'
+                      : 'transparent',
+                    borderLeft: isChildActive
+                      ? `2px solid ${
+                          isDark
+                            ? 'rgba(139,92,246,0.70)'
+                            : 'rgba(109,40,217,0.70)'
+                        }`
+                      : '2px solid transparent',
+                    '&:hover': {
+                      bgcolor: isChildActive
+                        ? isDark
+                          ? 'rgba(139,92,246,0.15)'
+                          : 'rgba(109,40,217,0.12)'
+                        : isDark
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'rgba(15,23,42,0.05)',
+                    },
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      fontWeight: isChildActive ? 600 : 400,
+                      color: isChildActive
+                        ? isDark
+                          ? 'rgba(139,92,246,0.95)'
+                          : 'rgba(109,40,217,0.95)'
+                        : isDark
+                        ? 'rgba(255,255,255,0.65)'
+                        : 'rgba(15,23,42,0.65)',
+                    }}
+                  >
+                    {child.label}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Stack>
+        )}
+      </Stack>
+    );
+  };
 
   return (
     <Box
