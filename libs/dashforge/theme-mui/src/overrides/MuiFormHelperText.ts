@@ -4,6 +4,12 @@ import type { ThemeOptions } from '@mui/material/styles';
 export function getMuiFormHelperTextOverrides(
   dash: DashforgeTheme
 ): ThemeOptions['components'] {
+  // Disabled helper text should match disabled text affordance
+  const helperTextDisabled =
+    dash.meta.mode === 'light'
+      ? 'rgba(0, 0, 0, 0.38)' // MUI disabled text: clear non-interactive affordance
+      : 'rgba(255, 255, 255, 0.38)';
+
   return {
     MuiFormHelperText: {
       styleOverrides: {
@@ -18,7 +24,7 @@ export function getMuiFormHelperTextOverrides(
           },
 
           '&.Mui-disabled': {
-            color: dash.color.text.muted,
+            color: helperTextDisabled,
           },
         },
       },

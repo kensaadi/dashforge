@@ -57,6 +57,11 @@ export type FieldLayoutStackedConfig = {
 };
 
 export type FieldLayoutInlineConfig = {
+  /**
+   * @deprecated Not used. Inline labels are now content-based.
+   * Kept for backward compatibility only.
+   * Will be removed in v2.0.
+   */
   labelWidth: number;
   controlGap: number;
   helperGap: number;

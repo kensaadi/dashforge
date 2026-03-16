@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.83% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>11/24</span>
+                <span class='fraction'>0/24</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -268,7 +268,12 @@
 <a name='L203'></a><a href='#L203'>203</a>
 <a name='L204'></a><a href='#L204'>204</a>
 <a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -352,13 +357,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">50x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">50x</span>
-<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">50x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -413,6 +422,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -479,13 +489,15 @@ import FormHelperText from '@mui/material/FormHelperText';
 import type { ReactNode } from 'react';
 import type { DashforgeTheme } from '@dashforge/tokens';
 &nbsp;
-export type FieldLayout = 'stacked' | 'inline';
+export type FieldLayout = 'floating' | 'stacked' | 'inline';
+export type CustomFieldLayout = 'stacked' | 'inline';
 &nbsp;
 export interface FieldLayoutShellProps {
   /**
    * Layout mode: stacked (label above) or inline (label left)
+   * Note: 'floating' is not handled by this shell - it uses standard MUI behavior
    */
-  layout: FieldLayout;
+  layout: CustomFieldLayout;
 &nbsp;
   /**
    * Field label text
@@ -545,7 +557,7 @@ export interface FieldLayoutShellProps {
  *
  * Layout configuration is theme-aware via DashforgeTheme.fieldLayout
  */
-export function FieldLayoutShell(props: FieldLayoutShellProps) {
+export function <span class="fstat-no" title="function not covered" >FieldLayoutShell(p</span>rops: FieldLayoutShellProps) {
   const {
     layout,
     label,
@@ -557,18 +569,18 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
     children,
     fullWidth,
     theme,
-  } = props;
+  } = <span class="cstat-no" title="statement not covered" >props;</span>
 &nbsp;
   // Stacked layout: label above, control below, helper below control
-  <span class="missing-if-branch" title="else path not taken" >E</span>if (layout === 'stacked') {
-    const stackedConfig = theme.fieldLayout.stacked;
+<span class="cstat-no" title="statement not covered" >  if (layout === 'stacked') {</span>
+    const stackedConfig = <span class="cstat-no" title="statement not covered" >theme.fieldLayout.stacked;</span>
 &nbsp;
-    return (
+<span class="cstat-no" title="statement not covered" >    return (</span>
       &lt;Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          width: fullWidth ? <span class="branch-0 cbranch-no" title="branch not covered" >'100%' : '</span>auto',
+          width: fullWidth ? '100%' : 'auto',
         }}
       &gt;
         {label &amp;&amp; (
@@ -580,7 +592,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
             sx={{
               marginBottom: `${stackedConfig.labelGap}px`,
               color: disabled
-                ? <span class="branch-0 cbranch-no" title="branch not covered" >theme.color.text.muted</span>
+                ? theme.color.text.muted
                 : theme.color.text.primary,
               fontSize: theme.typography.scale.sm,
               fontWeight: 500,
@@ -593,7 +605,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
           &lt;/FormLabel&gt;
         )}
 &nbsp;
-        &lt;Box sx={{ width: fullWidth ? <span class="branch-0 cbranch-no" title="branch not covered" >'100%' : '</span>auto' }}&gt;{children}&lt;/Box&gt;
+        &lt;Box sx={{ width: fullWidth ? '100%' : 'auto' }}&gt;{children}&lt;/Box&gt;
 &nbsp;
         {helperText &amp;&amp; (
           &lt;FormHelperText
@@ -603,7 +615,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
               marginLeft: 0,
               color: error
                 ? theme.color.intent.danger
-                : <span class="branch-1 cbranch-no" title="branch not covered" >theme.color.text.secondary,</span>
+                : theme.color.text.secondary,
               fontSize: theme.typography.scale.xs,
             }}
           &gt;
@@ -614,7 +626,9 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
     );
   }
 &nbsp;
-  // Inline layout: label left, control right, helper below control area
+  // Inline layout: compact molecule [label][control]
+  // Label width is content-based, not fixed
+  // Control takes remaining horizontal space
   const inlineConfig = <span class="cstat-no" title="statement not covered" >theme.fieldLayout.inline;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
@@ -627,19 +641,20 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
       }}
     &gt;
       {label &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >        &lt;FormLabel</span>
+        &lt;FormLabel
           htmlFor={htmlFor}
           required={required}
           error={error}
           disabled={disabled}
           sx={{
-            width: `${inlineConfig.labelWidth}px`,
             flexShrink: 0,
             marginRight: `${inlineConfig.controlGap}px`,
             paddingTop: '8px',
             color: disabled ? theme.color.text.muted : theme.color.text.primary,
             fontSize: theme.typography.scale.sm,
             fontWeight: 500,
+            lineHeight: 1.5,
+            whiteSpace: 'nowrap',
             '&amp;.Mui-error': {
               color: theme.color.intent.danger,
             },
@@ -660,7 +675,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
         &lt;Box&gt;{children}&lt;/Box&gt;
 &nbsp;
         {helperText &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >          &lt;FormHelperText</span>
+          &lt;FormHelperText
             error={error}
             sx={{
               marginTop: `${inlineConfig.helperGap}px`,
@@ -685,7 +700,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-15T21:27:22.745Z
+                at 2026-03-16T08:16:33.587Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

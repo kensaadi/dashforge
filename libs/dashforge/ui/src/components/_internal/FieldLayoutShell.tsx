@@ -141,7 +141,9 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
     );
   }
 
-  // Inline layout: label left, control right, helper below control area
+  // Inline layout: compact molecule [label][control]
+  // Label width is content-based, not fixed
+  // Control takes remaining horizontal space
   const inlineConfig = theme.fieldLayout.inline;
 
   return (
@@ -160,13 +162,14 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
           error={error}
           disabled={disabled}
           sx={{
-            width: `${inlineConfig.labelWidth}px`,
             flexShrink: 0,
             marginRight: `${inlineConfig.controlGap}px`,
             paddingTop: '8px',
             color: disabled ? theme.color.text.muted : theme.color.text.primary,
             fontSize: theme.typography.scale.sm,
             fontWeight: 500,
+            lineHeight: 1.5,
+            whiteSpace: 'nowrap',
             '&.Mui-error': {
               color: theme.color.intent.danger,
             },

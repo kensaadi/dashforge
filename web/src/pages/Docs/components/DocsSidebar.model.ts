@@ -44,7 +44,7 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
     title: 'UI Components',
     items: [
       {
-        label: 'Form',
+        label: 'Input',
         children: [
           {
             label: 'TextField',
