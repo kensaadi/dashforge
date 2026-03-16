@@ -1,6 +1,7 @@
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -9,6 +10,7 @@ import BedtimeIcon from '@mui/icons-material/Bedtime';
 import BrightnessLowIcon from '@mui/icons-material/BrightnessLow';
 
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
+import { DOCS_VERSION } from '../../docs/docsVersion';
 import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
@@ -232,19 +234,44 @@ export function DocsPage() {
             ))}
           </Stack>
 
-          <IconButton
-            onClick={toggleThemeMode}
-            size="small"
-            sx={{
-              color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            {isDark ? (
-              <BrightnessLowIcon fontSize="small" />
-            ) : (
-              <BedtimeIcon fontSize="small" />
-            )}
-          </IconButton>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <IconButton
+              onClick={toggleThemeMode}
+              size="small"
+              sx={{
+                color: isDark
+                  ? 'rgba(255,255,255,0.75)'
+                  : 'rgba(15,23,42,0.70)',
+              }}
+            >
+              {isDark ? (
+                <BrightnessLowIcon fontSize="small" />
+              ) : (
+                <BedtimeIcon fontSize="small" />
+              )}
+            </IconButton>
+
+            <Chip
+              label={DOCS_VERSION}
+              size="small"
+              variant="outlined"
+              aria-label="Documentation version"
+              sx={{
+                height: 24,
+                fontWeight: 500,
+                fontSize: 12,
+                borderColor: isDark
+                  ? 'rgba(255,255,255,0.20)'
+                  : 'rgba(15,23,42,0.20)',
+                color: isDark
+                  ? 'rgba(255,255,255,0.75)'
+                  : 'rgba(15,23,42,0.75)',
+                '& .MuiChip-label': {
+                  px: 1.5,
+                },
+              }}
+            />
+          </Stack>
         </Box>
       </Box>
 
