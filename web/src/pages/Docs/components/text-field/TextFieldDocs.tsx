@@ -20,7 +20,7 @@ export function TextFieldDocs() {
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <Stack spacing={10}>
+    <Stack spacing={8}>
       {/* Hero Section - Compact */}
       <Stack spacing={3}>
         <Typography
@@ -144,7 +144,7 @@ export function TextFieldDocs() {
       </Box>
 
       {/* Examples Section - Clean Demo List */}
-      <Stack spacing={5} id="examples">
+      <Stack spacing={4} id="examples">
         <Box>
           <Typography
             variant="h2"
@@ -173,7 +173,7 @@ export function TextFieldDocs() {
       </Stack>
 
       {/* Layout Variants - Side-by-Side Comparison */}
-      <Stack spacing={5} id="layout-variants">
+      <Stack spacing={4} id="layout-variants">
         <Box>
           <Typography
             variant="h2"
@@ -232,7 +232,7 @@ export function TextFieldDocs() {
       </Stack>
 
       {/* Capabilities - Feature Grid */}
-      <Stack spacing={5} id="capabilities">
+      <Stack spacing={4} id="capabilities">
         <Box>
           <Typography
             variant="h2"
@@ -270,7 +270,7 @@ export function TextFieldDocs() {
       />
 
       {/* Integration Scenarios - Practical Demos */}
-      <Stack spacing={5} id="scenarios">
+      <Stack spacing={4} id="scenarios">
         <Box
           sx={{
             p: 3,
@@ -317,7 +317,7 @@ export function TextFieldDocs() {
       />
 
       {/* API Reference - Dense Table */}
-      <Stack spacing={5} id="api">
+      <Stack spacing={4} id="api">
         <Box>
           <Typography
             variant="h2"
@@ -355,7 +355,7 @@ export function TextFieldDocs() {
       />
 
       {/* Implementation Notes - Info Cards */}
-      <Stack spacing={5} id="notes">
+      <Stack spacing={4} id="notes">
         <Box>
           <Typography
             variant="h2"

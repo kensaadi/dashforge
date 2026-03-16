@@ -28,9 +28,10 @@ export function DocsContent({ children }: DocsContentProps) {
       }}
     >
       <Container
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{
           py: { xs: 4, md: 6 },
+          px: { xs: 3, md: 4, lg: 6 },
         }}
       >
         {children || (

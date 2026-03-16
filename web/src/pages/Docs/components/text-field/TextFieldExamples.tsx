@@ -117,7 +117,7 @@ export function TextFieldExamples() {
   ];
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={3.5}>
       {examples.map((example) => (
         <Box key={example.title}>
           <Stack spacing={2}>

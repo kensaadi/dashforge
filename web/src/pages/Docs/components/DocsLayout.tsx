@@ -27,6 +27,7 @@ export function DocsLayout({ children, tocItems }: DocsLayoutProps) {
       sx={{
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
+        gap: { xs: 0, lg: 2 },
         width: '100%',
         minHeight: '100vh',
       }}
