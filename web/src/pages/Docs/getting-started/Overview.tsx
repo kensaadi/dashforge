@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useDashTheme } from '@dashforge/theme-core';
 import { Link as RouterLink } from 'react-router-dom';
+import { CodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * Overview - Entry point for Getting Started section
@@ -496,37 +497,8 @@ export function Overview() {
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            p: 3,
-            borderRadius: 2,
-            bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
-          }}
-        >
-          <Box
-            component="pre"
-            sx={{
-              m: 0,
-              fontSize: 14,
-              lineHeight: 1.7,
-              fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-              color: isDark ? '#e5e7eb' : '#1f2937',
-              overflowX: 'auto',
-              '&::-webkit-scrollbar': {
-                height: 6,
-              },
-              '&::-webkit-scrollbar-thumb': {
-                bgcolor: isDark
-                  ? 'rgba(255,255,255,0.15)'
-                  : 'rgba(15,23,42,0.20)',
-                borderRadius: 1,
-              },
-            }}
-          >
-            {`import { DashForm } from '@dashforge/forms';
+        <CodeBlock
+          code={`import { DashForm } from '@dashforge/forms';
 import { TextField, Select } from '@dashforge/ui';
 
 function RegistrationForm() {
@@ -564,8 +536,8 @@ function RegistrationForm() {
 // Validation runs automatically.
 // Errors display when fields are touched or form is submitted.
 // No manual wiring required.`}
-          </Box>
-        </Box>
+          language="tsx"
+        />
       </Stack>
 
       {/* Next Steps */}
