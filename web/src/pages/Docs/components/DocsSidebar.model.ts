@@ -50,6 +50,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             label: 'TextField',
             path: '/docs/components/text-field',
           },
+          {
+            label: 'NumberField',
+            path: '/docs/components/number-field',
+          },
         ],
       },
       {

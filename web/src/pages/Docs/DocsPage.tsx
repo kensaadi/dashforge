@@ -1,4 +1,4 @@
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -13,6 +13,7 @@ import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
+import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -26,9 +27,32 @@ const textFieldTocItems: DocsTocItem[] = [
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
+const numberFieldTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'layout-variants', label: 'Layout Variants' },
+  { id: 'playground', label: 'Interactive Playground' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'simple-numeric-form', label: 'Simple Numeric Form' },
+  { id: 'min-max-validation', label: 'Min/Max Validation' },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
+  const location = useLocation();
+
+  // Determine which documentation to render based on the current path
+  const isNumberFieldDocs =
+    location.pathname === '/docs/components/number-field';
+  const tocItems = isNumberFieldDocs ? numberFieldTocItems : textFieldTocItems;
+  const docsContent = isNumberFieldDocs ? (
+    <NumberFieldDocs />
+  ) : (
+    <TextFieldDocs />
+  );
 
   return (
     <Box
@@ -127,9 +151,7 @@ export function DocsPage() {
       </Box>
 
       {/* ========================= DOCS LAYOUT ========================= */}
-      <DocsLayout tocItems={textFieldTocItems}>
-        <TextFieldDocs />
-      </DocsLayout>
+      <DocsLayout tocItems={tocItems}>{docsContent}</DocsLayout>
     </Box>
   );
 }
