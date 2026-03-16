@@ -14,13 +14,15 @@ interface Example {
 
 /**
  * NumberFieldExamples displays interactive NumberField examples
- * Each example shows both the rendered component and its code
+ * Standard examples are shown in a responsive 2-column grid
+ * Full Width example is shown separately to demonstrate layout behavior
  */
 export function NumberFieldExamples() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
 
-  const examples: Example[] = [
+  // Standard examples - displayed in a grid
+  const standardExamples: Example[] = [
     {
       title: 'Basic',
       description: 'A simple numeric input field',
@@ -28,8 +30,8 @@ export function NumberFieldExamples() {
       component: <NumberField label="Quantity" name="quantity" />,
     },
     {
-      title: 'Min / Max Boundaries',
-      description: 'Constrained numeric input with minimum and maximum values',
+      title: 'Min / Max',
+      description: 'Constrained numeric input with boundaries',
       code: `<NumberField
   label="Age"
   name="age"
@@ -52,15 +54,21 @@ export function NumberFieldExamples() {
       ),
     },
     {
-      title: 'Integer Only',
-      description: 'Restrict input to whole numbers',
+      title: 'Decimals',
+      description: 'Support for decimal values with precision',
       code: `<NumberField
-  label="Count"
-  name="count"
-  inputProps={{ step: 1 }}
+  label="Discount %"
+  name="discount"
+  helperText="0-100"
+  inputProps={{ min: 0, max: 100, step: 0.1 }}
 />`,
       component: (
-        <NumberField label="Count" name="count" inputProps={{ step: 1 }} />
+        <NumberField
+          label="Discount %"
+          name="discount"
+          helperText="0-100"
+          inputProps={{ min: 0, max: 100, step: 0.1 }}
+        />
       ),
     },
     {
@@ -94,74 +102,103 @@ export function NumberFieldExamples() {
         />
       ),
     },
-    {
-      title: 'Full Width',
-      description: 'A numeric field that spans the full width',
-      code: `<NumberField
+  ];
+
+  // Full width example - displayed separately
+  const fullWidthExample: Example = {
+    title: 'Full Width',
+    description: 'A numeric field that spans the full width of its container',
+    code: `<NumberField
   label="Revenue"
   name="revenue"
   fullWidth
 />`,
-      component: <NumberField label="Revenue" name="revenue" fullWidth />,
-    },
-    {
-      title: 'With Helper Text',
-      description: 'Numeric field with guidance text',
-      code: `<NumberField
-  label="Discount Percentage"
-  name="discount"
-  helperText="Enter value between 0 and 100"
-  inputProps={{ min: 0, max: 100 }}
-/>`,
-      component: (
-        <NumberField
-          label="Discount Percentage"
-          name="discount"
-          helperText="Enter value between 0 and 100"
-          inputProps={{ min: 0, max: 100 }}
-        />
-      ),
-    },
-  ];
+    component: <NumberField label="Revenue" name="revenue" fullWidth />,
+  };
 
   return (
-    <Stack spacing={3.5}>
-      {examples.map((example) => (
-        <Box key={example.title}>
-          <Stack spacing={2}>
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.90)'
-                    : 'rgba(15,23,42,0.90)',
-                  mb: 0.5,
-                }}
-              >
-                {example.title}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: 14,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.65)'
-                    : 'rgba(15,23,42,0.65)',
-                }}
-              >
-                {example.description}
-              </Typography>
-            </Box>
+    <Stack spacing={5}>
+      {/* Standard examples in a grid */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+          gap: { xs: 3.5, md: 4 },
+        }}
+      >
+        {standardExamples.map((example) => (
+          <Box key={example.title}>
+            <Stack spacing={2}>
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: isDark
+                      ? 'rgba(255,255,255,0.90)'
+                      : 'rgba(15,23,42,0.90)',
+                    mb: 0.5,
+                  }}
+                >
+                  {example.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: 13,
+                    color: isDark
+                      ? 'rgba(255,255,255,0.65)'
+                      : 'rgba(15,23,42,0.65)',
+                  }}
+                >
+                  {example.description}
+                </Typography>
+              </Box>
 
-            <DocsPreviewBlock code={example.code} badge="">
-              {example.component}
-            </DocsPreviewBlock>
-          </Stack>
-        </Box>
-      ))}
+              <DocsPreviewBlock code={example.code} badge="">
+                {example.component}
+              </DocsPreviewBlock>
+            </Stack>
+          </Box>
+        ))}
+      </Box>
+
+      {/* Full Width example - standalone */}
+      <Box>
+        <Stack spacing={2}>
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: isDark
+                  ? 'rgba(255,255,255,0.90)'
+                  : 'rgba(15,23,42,0.90)',
+                mb: 0.5,
+              }}
+            >
+              {fullWidthExample.title}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: 13,
+                color: isDark
+                  ? 'rgba(255,255,255,0.65)'
+                  : 'rgba(15,23,42,0.65)',
+              }}
+            >
+              {fullWidthExample.description}
+            </Typography>
+          </Box>
+
+          <DocsPreviewBlock code={fullWidthExample.code} badge="">
+            {fullWidthExample.component}
+          </DocsPreviewBlock>
+        </Stack>
+      </Box>
     </Stack>
   );
 }
