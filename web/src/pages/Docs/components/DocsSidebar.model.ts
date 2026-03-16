@@ -34,7 +34,28 @@ export interface DocsSidebarGroup {
 export const docsSidebarTree: DocsSidebarGroup[] = [
   {
     title: 'Getting Started',
-    items: [],
+    items: [
+      {
+        label: 'Overview',
+        path: '/docs/getting-started',
+      },
+      {
+        label: 'Installation',
+        path: '/docs/getting-started/installation',
+      },
+      {
+        label: 'Usage',
+        path: '/docs/getting-started/usage',
+      },
+      {
+        label: 'Project Structure',
+        path: '/docs/getting-started/project-structure',
+      },
+      {
+        label: 'Why Dashforge',
+        path: '/docs/getting-started/why-dashforge',
+      },
+    ],
   },
   {
     title: 'Core Concepts',

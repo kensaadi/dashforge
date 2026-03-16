@@ -15,6 +15,11 @@ import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
+import { Overview } from './getting-started/Overview';
+import { Installation } from './getting-started/Installation';
+import { Usage } from './getting-started/Usage';
+import { ProjectStructure } from './getting-started/ProjectStructure';
+import { WhyDashforge } from './getting-started/WhyDashforge';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -52,6 +57,46 @@ const selectTocItems: DocsTocItem[] = [
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
+const overviewTocItems: DocsTocItem[] = [
+  { id: 'what-is-dashforge', label: 'What is Dashforge?' },
+  { id: 'key-features', label: 'Key Features' },
+  { id: 'quick-example', label: 'Quick Example' },
+  { id: 'next-steps', label: 'Next Steps' },
+];
+
+const installationTocItems: DocsTocItem[] = [
+  { id: 'prerequisites', label: 'Prerequisites' },
+  { id: 'installation', label: 'Installation' },
+  { id: 'peer-dependencies', label: 'Peer Dependencies' },
+  { id: 'package-overview', label: 'Package Overview' },
+  { id: 'verification', label: 'Verification' },
+];
+
+const usageTocItems: DocsTocItem[] = [
+  { id: 'basic-setup', label: 'Basic Setup' },
+  { id: 'first-form', label: 'Your First Form' },
+  { id: 'form-components', label: 'Form Components' },
+  { id: 'validation', label: 'Validation' },
+  { id: 'conditional-fields', label: 'Conditional Fields' },
+  { id: 'form-submission', label: 'Form Submission' },
+];
+
+const projectStructureTocItems: DocsTocItem[] = [
+  { id: 'package-architecture', label: 'Package Architecture' },
+  { id: 'layer-separation', label: 'Layer Separation' },
+  { id: 'typical-project', label: 'Typical Project Structure' },
+  { id: 'import-patterns', label: 'Import Patterns' },
+  { id: 'file-organization', label: 'File Organization' },
+];
+
+const whyDashforgeTocItems: DocsTocItem[] = [
+  { id: 'the-problem', label: 'The Problem' },
+  { id: 'the-solution', label: 'The Solution' },
+  { id: 'key-benefits', label: 'Key Benefits' },
+  { id: 'when-to-use', label: 'When to Use Dashforge' },
+  { id: 'design-philosophy', label: 'Design Philosophy' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -61,17 +106,45 @@ export function DocsPage() {
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
   const isSelectDocs = location.pathname === '/docs/components/select';
+  const isOverview = location.pathname === '/docs/getting-started';
+  const isInstallation =
+    location.pathname === '/docs/getting-started/installation';
+  const isUsage = location.pathname === '/docs/getting-started/usage';
+  const isProjectStructure =
+    location.pathname === '/docs/getting-started/project-structure';
+  const isWhyDashforge =
+    location.pathname === '/docs/getting-started/why-dashforge';
 
   const tocItems = isNumberFieldDocs
     ? numberFieldTocItems
     : isSelectDocs
     ? selectTocItems
+    : isOverview
+    ? overviewTocItems
+    : isInstallation
+    ? installationTocItems
+    : isUsage
+    ? usageTocItems
+    : isProjectStructure
+    ? projectStructureTocItems
+    : isWhyDashforge
+    ? whyDashforgeTocItems
     : textFieldTocItems;
 
   const docsContent = isNumberFieldDocs ? (
     <NumberFieldDocs />
   ) : isSelectDocs ? (
     <SelectDocs />
+  ) : isOverview ? (
+    <Overview />
+  ) : isInstallation ? (
+    <Installation />
+  ) : isUsage ? (
+    <Usage />
+  ) : isProjectStructure ? (
+    <ProjectStructure />
+  ) : isWhyDashforge ? (
+    <WhyDashforge />
   ) : (
     <TextFieldDocs />
   );
