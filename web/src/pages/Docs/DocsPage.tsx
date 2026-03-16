@@ -1,7 +1,6 @@
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -175,78 +174,78 @@ export function DocsPage() {
             : '1px solid rgba(15,23,42,0.06)',
         }}
       >
-        <Container sx={{ py: 1.5 }}>
+        <Box
+          sx={{
+            px: { xs: 2, md: 3 },
+            py: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1.25}>
+            <Link component={RouterLink} to="/">
+              <img
+                src={isDark ? '/logo-light.png' : '/logo-dark.png'}
+                alt="Dashforge Logo"
+                width={110}
+              />
+            </Link>
+          </Stack>
+
           <Stack
             direction="row"
-            alignItems="center"
-            justifyContent="space-between"
+            spacing={3}
+            sx={{ display: { xs: 'none', md: 'flex' } }}
           >
-            <Stack direction="row" alignItems="center" spacing={1.25}>
-              <Link component={RouterLink} to="/">
-                <img
-                  src={isDark ? '/logo-light.png' : '/logo-dark.png'}
-                  alt="Dashforge Logo"
-                  width={110}
-                />
-              </Link>
-            </Stack>
-
-            <Stack
-              direction="row"
-              spacing={3}
-              sx={{ display: { xs: 'none', md: 'flex' } }}
-            >
-              {[
-                { label: 'Docs', to: '/docs' },
-                { label: 'Examples', to: '/examples' },
-                { label: 'Blog', to: '/blog' },
-                { label: 'Pricing', to: '/pricing' },
-              ].map((n) => (
-                <Link
-                  key={n.to}
-                  component={RouterLink}
-                  to={n.to}
-                  underline="none"
-                  sx={{
-                    fontSize: 14,
-                    fontWeight: n.to === '/docs' ? 600 : 400,
-                    color:
-                      n.to === '/docs'
-                        ? isDark
-                          ? 'rgba(255,255,255,0.95)'
-                          : 'rgba(15,23,42,0.95)'
-                        : isDark
-                        ? 'rgba(255,255,255,0.75)'
-                        : 'rgba(15,23,42,0.70)',
-                    '&:hover': {
-                      color: isDark
+            {[
+              { label: 'Docs', to: '/docs' },
+              { label: 'Examples', to: '/examples' },
+              { label: 'Blog', to: '/blog' },
+              { label: 'Pricing', to: '/pricing' },
+            ].map((n) => (
+              <Link
+                key={n.to}
+                component={RouterLink}
+                to={n.to}
+                underline="none"
+                sx={{
+                  fontSize: 14,
+                  fontWeight: n.to === '/docs' ? 600 : 400,
+                  color:
+                    n.to === '/docs'
+                      ? isDark
                         ? 'rgba(255,255,255,0.95)'
-                        : 'rgba(15,23,42,0.95)',
-                    },
-                  }}
-                >
-                  {n.label}
-                </Link>
-              ))}
-            </Stack>
-
-            <IconButton
-              onClick={toggleThemeMode}
-              size="small"
-              sx={{
-                color: isDark
-                  ? 'rgba(255,255,255,0.75)'
-                  : 'rgba(15,23,42,0.70)',
-              }}
-            >
-              {isDark ? (
-                <BrightnessLowIcon fontSize="small" />
-              ) : (
-                <BedtimeIcon fontSize="small" />
-              )}
-            </IconButton>
+                        : 'rgba(15,23,42,0.95)'
+                      : isDark
+                      ? 'rgba(255,255,255,0.75)'
+                      : 'rgba(15,23,42,0.70)',
+                  '&:hover': {
+                    color: isDark
+                      ? 'rgba(255,255,255,0.95)'
+                      : 'rgba(15,23,42,0.95)',
+                  },
+                }}
+              >
+                {n.label}
+              </Link>
+            ))}
           </Stack>
-        </Container>
+
+          <IconButton
+            onClick={toggleThemeMode}
+            size="small"
+            sx={{
+              color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            {isDark ? (
+              <BrightnessLowIcon fontSize="small" />
+            ) : (
+              <BedtimeIcon fontSize="small" />
+            )}
+          </IconButton>
+        </Box>
       </Box>
 
       {/* ========================= DOCS LAYOUT ========================= */}
