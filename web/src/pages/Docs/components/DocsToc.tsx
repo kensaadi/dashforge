@@ -28,8 +28,8 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
         });
       },
       {
-        rootMargin: '-80px 0px -80% 0px',
-        threshold: 0,
+        rootMargin: '-100px 0px -66% 0px',
+        threshold: [0, 0.25, 0.5, 0.75, 1.0],
       }
     );
 
@@ -48,7 +48,7 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
   const handleClick = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      const yOffset = -80;
+      const yOffset = -100;
       const y =
         element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
@@ -144,21 +144,21 @@ function TocItem({ item, activeId, isDark, onClick, level }: TocItemProps) {
           fontWeight: isActive ? 600 : 400,
           color: isActive
             ? isDark
-              ? 'rgba(139,92,246,0.95)'
-              : 'rgba(109,40,217,0.95)'
+              ? 'rgba(139,92,246,1.0)'
+              : 'rgba(109,40,217,1.0)'
             : isDark
             ? 'rgba(255,255,255,0.70)'
             : 'rgba(15,23,42,0.70)',
           bgcolor: isActive
             ? isDark
-              ? 'rgba(139,92,246,0.08)'
-              : 'rgba(139,92,246,0.05)'
+              ? 'rgba(139,92,246,0.15)'
+              : 'rgba(139,92,246,0.12)'
             : 'transparent',
           borderLeft: isActive
             ? isDark
-              ? '2px solid rgba(139,92,246,0.70)'
-              : '2px solid rgba(109,40,217,0.70)'
-            : '2px solid transparent',
+              ? '3px solid rgba(139,92,246,0.90)'
+              : '3px solid rgba(109,40,217,0.85)'
+            : '3px solid transparent',
           transition: 'all 0.15s ease',
           cursor: 'pointer',
           '&:hover': {

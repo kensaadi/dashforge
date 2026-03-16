@@ -15,13 +15,15 @@ import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 
 const textFieldTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'layout-variants', label: 'Layout Variants' },
+  { id: 'playground', label: 'Interactive Playground' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
   { id: 'predictive-form-behavior', label: 'Predictive Form Behavior' },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Notes' },
+  { id: 'notes', label: 'Implementation Notes' },
 ];
 
 export function DocsPage() {
