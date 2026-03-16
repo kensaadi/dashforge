@@ -26,6 +26,7 @@ export interface SelectProps<T extends string | number = string | number>
   options: SelectOption<T>[];
   visibleWhen?: (engine: Engine) => boolean;
   layout?: FieldLayout;
+  minWidth?: number;
 }
 
 /**
@@ -37,6 +38,7 @@ export interface SelectProps<T extends string | number = string | number>
  * - If used outside → behaves as plain MUI TextField select
  * - Supports reactive visibility via visibleWhen prop
  * - Auto binds error + helperText from form validation
+ * - Enforces minimum width (220px) unless fullWidth is enabled
  *
  * Error Display Gating (Form Closure v1):
  * - Errors show only when field is touched (after blur) OR form submitted
@@ -54,7 +56,18 @@ export interface SelectProps<T extends string | number = string | number>
 export function Select<T extends string | number = string | number>(
   props: SelectProps<T>
 ) {
-  const { name, rules, label, options, visibleWhen, layout, ...rest } = props;
+  const {
+    name,
+    rules,
+    label,
+    options,
+    visibleWhen,
+    layout,
+    fullWidth,
+    minWidth = 200,
+    sx,
+    ...rest
+  } = props;
 
   // Compose Select from TextField with select mode enabled
   // TextField handles all form integration, error binding, and gating
@@ -66,7 +79,14 @@ export function Select<T extends string | number = string | number>(
       label={label}
       visibleWhen={visibleWhen}
       layout={layout}
+      fullWidth={fullWidth}
       select
+      sx={{
+        // Apply minimum width only when fullWidth is not enabled
+        // Prevents Select from collapsing to icon width when empty
+        ...(!fullWidth && { minWidth: minWidth }),
+        ...sx,
+      }}
       slotProps={{
         ...rest.slotProps,
         select: {
