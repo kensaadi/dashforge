@@ -36,6 +36,18 @@ export default defineConfig(() => ({
         import.meta.dirname,
         '../libs/dashforge/forms/src/index.ts'
       ),
+      '@dashforge/theme-core': path.resolve(
+        import.meta.dirname,
+        '../libs/dashforge/theme-core/src/index.ts'
+      ),
+      '@dashforge/theme-mui': path.resolve(
+        import.meta.dirname,
+        '../libs/dashforge/theme-mui/src/index.ts'
+      ),
+      '@dashforge/tokens': path.resolve(
+        import.meta.dirname,
+        '../libs/dashforge/tokens/src/index.ts'
+      ),
     },
   },
   // Uncomment this if you are using workers.
