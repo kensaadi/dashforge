@@ -37,7 +37,7 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
     items: [
       {
         label: 'Overview',
-        path: '/docs/getting-started',
+        path: '/docs/getting-started/overview',
       },
       {
         label: 'Installation',

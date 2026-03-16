@@ -11,19 +11,7 @@ const routes: RouteObject[] = [
     element: <HomePage />,
   },
   {
-    path: '/docs',
-    element: <DocsPage />,
-  },
-  {
-    path: '/docs/components/text-field',
-    element: <DocsPage />,
-  },
-  {
-    path: '/docs/components/number-field',
-    element: <DocsPage />,
-  },
-  {
-    path: '/docs/components/select',
+    path: '/docs/*',
     element: <DocsPage />,
   },
   {

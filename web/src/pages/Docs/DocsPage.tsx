@@ -59,9 +59,11 @@ const selectTocItems: DocsTocItem[] = [
 
 const overviewTocItems: DocsTocItem[] = [
   { id: 'what-is-dashforge', label: 'What is Dashforge?' },
-  { id: 'key-features', label: 'Key Features' },
-  { id: 'quick-example', label: 'Quick Example' },
-  { id: 'next-steps', label: 'Next Steps' },
+  { id: 'what-you-get', label: 'What you get' },
+  { id: 'built-on-mui', label: 'Built on top of Material-UI' },
+  { id: 'core-building-blocks', label: 'Core building blocks' },
+  { id: 'quick-example', label: 'Quick example' },
+  { id: 'next-steps', label: 'Next steps' },
 ];
 
 const installationTocItems: DocsTocItem[] = [
@@ -106,7 +108,9 @@ export function DocsPage() {
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
   const isSelectDocs = location.pathname === '/docs/components/select';
-  const isOverview = location.pathname === '/docs/getting-started';
+  const isOverview =
+    location.pathname === '/docs/getting-started' ||
+    location.pathname === '/docs/getting-started/overview';
   const isInstallation =
     location.pathname === '/docs/getting-started/installation';
   const isUsage = location.pathname === '/docs/getting-started/usage';

@@ -3,45 +3,79 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useDashTheme } from '@dashforge/theme-core';
+import { Link as RouterLink } from 'react-router-dom';
 
 /**
- * Overview - Introduction page for Getting Started section
- * Explains what Dashforge is and its core value proposition
+ * Overview - Entry point for Getting Started section
+ * Explains what Dashforge is as a framework
  */
 export function Overview() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
 
-  const features = [
+  const benefits = [
     {
-      title: 'Intelligent Form Components',
+      title: 'MUI-Based Foundation',
       description:
-        'Built-in React Hook Form integration. Components self-register, errors display automatically, and validation follows familiar patterns.',
+        'Built on Material-UI. All components extend MUI primitives with additional capabilities while maintaining full API compatibility.',
     },
     {
-      title: 'Predictive Forms',
+      title: 'Consistent Component APIs',
       description:
-        'Dynamic field visibility based on form state. Build adaptive workflows where fields appear or disappear based on user input.',
+        'Unified interface patterns across all components. Same props, same behavior, same integration approach.',
     },
     {
-      title: 'Type-Safe by Default',
+      title: 'Layout System',
       description:
-        'Full TypeScript support throughout. Strong typing for form values, validation rules, and component props.',
+        'Standardized layout variants (standard, compact, dense) that work consistently across all form components.',
     },
     {
-      title: 'Built on MUI',
+      title: 'Form-Friendly Components',
       description:
-        'Extends Material-UI components with intelligent behavior while maintaining full compatibility with the MUI ecosystem.',
+        'Components self-register with React Hook Form, handle error display, and track touch state automatically.',
     },
     {
-      title: 'Progressive Adoption',
+      title: 'Predictive UI',
       description:
-        'Start with controlled components, adopt form integration when ready, enable predictive behavior when needed.',
+        'Built-in conditional visibility system. Fields show or hide based on form state without manual orchestration.',
     },
     {
-      title: 'Zero Configuration',
+      title: 'Type-Safe',
       description:
-        'Components work out of the box with sensible defaults. No boilerplate, no setup complexity.',
+        'Full TypeScript support throughout. Strong typing for form values, validation rules, and component contracts.',
+    },
+  ];
+
+  const buildingBlocks = [
+    {
+      title: 'Components',
+      description:
+        'Form inputs, selects, and controls that integrate with the form system automatically.',
+      path: '/docs/components/text-field',
+    },
+    {
+      title: 'Layout System',
+      description:
+        'Consistent layout variants and spacing patterns across all components.',
+      path: null, // Not implemented yet
+    },
+    {
+      title: 'Form System',
+      description:
+        'React Hook Form integration layer with automatic registration and validation.',
+      path: null, // Not implemented yet
+    },
+    {
+      title: 'Predictive UI',
+      description:
+        'Conditional field visibility based on form state using the visibleWhen pattern.',
+      path: null, // Not implemented yet
+    },
+    {
+      title: 'Theming',
+      description:
+        'MUI theme extension system with Dashforge-specific design tokens.',
+      path: null, // Not implemented yet
     },
   ];
 
@@ -65,7 +99,7 @@ export function Overview() {
             backgroundClip: 'text',
           }}
         >
-          Getting Started
+          Overview
         </Typography>
         <Typography
           variant="body1"
@@ -76,10 +110,10 @@ export function Overview() {
             maxWidth: 720,
           }}
         >
-          Dashforge is a React UI framework for building intelligent,
-          form-driven applications. It combines Material-UI's polished
-          components with automatic form integration, predictive behavior, and
-          type safety.
+          Dashforge is a React UI framework built on Material-UI for building
+          form-driven applications. It combines consistent component patterns,
+          automatic form integration, and predictive behavior into a unified
+          system.
         </Typography>
       </Stack>
 
@@ -106,7 +140,7 @@ export function Overview() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            A framework for building modern web applications
+            A framework for building form-heavy interfaces faster
           </Typography>
         </Box>
 
@@ -119,10 +153,10 @@ export function Overview() {
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             }}
           >
-            Dashforge eliminates the complexity of form state management by
-            making components intelligent. Instead of manually wiring up form
-            libraries, validation, and error handling, Dashforge components
-            handle it automatically.
+            Dashforge eliminates boilerplate in form-driven applications by
+            making components intelligent. Instead of manually connecting form
+            libraries, wiring validation logic, and orchestrating error display,
+            Dashforge components handle it automatically.
           </Typography>
 
           <Typography
@@ -133,9 +167,10 @@ export function Overview() {
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             }}
           >
-            Built on React Hook Form and Material-UI, Dashforge provides a
-            cohesive system where form components self-register, errors display
-            intelligently, and field visibility responds to application state.
+            The framework provides a cohesive component system where form fields
+            self-register, errors display intelligently based on touch and
+            submission state, and field visibility responds to application state
+            without manual orchestration.
           </Typography>
 
           <Typography
@@ -146,14 +181,14 @@ export function Overview() {
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             }}
           >
-            The result is dramatically less code, better type safety, and forms
-            that adapt to user behavior without manual orchestration.
+            The result is less code, better type safety, and predictable
+            behavior across complex forms.
           </Typography>
         </Stack>
       </Stack>
 
-      {/* Key Features Grid */}
-      <Stack spacing={4} id="key-features">
+      {/* What you get */}
+      <Stack spacing={4} id="what-you-get">
         <Box>
           <Typography
             variant="h2"
@@ -166,7 +201,7 @@ export function Overview() {
               mb: 2,
             }}
           >
-            Key Features
+            What you get
           </Typography>
           <Typography
             sx={{
@@ -175,13 +210,13 @@ export function Overview() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Everything you need to build intelligent forms
+            Main capabilities provided by the framework
           </Typography>
         </Box>
 
         <Grid container spacing={3}>
-          {features.map((feature) => (
-            <Grid size={{ xs: 12, md: 6 }} key={feature.title}>
+          {benefits.map((benefit) => (
+            <Grid size={{ xs: 12, md: 6 }} key={benefit.title}>
               <Box
                 sx={{
                   p: 3,
@@ -217,7 +252,7 @@ export function Overview() {
                         : 'rgba(15,23,42,0.90)',
                     }}
                   >
-                    {feature.title}
+                    {benefit.title}
                   </Typography>
                   <Typography
                     variant="body2"
@@ -229,7 +264,203 @@ export function Overview() {
                         : 'rgba(15,23,42,0.70)',
                     }}
                   >
-                    {feature.description}
+                    {benefit.description}
+                  </Typography>
+                </Stack>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      </Stack>
+
+      {/* Built on MUI */}
+      <Stack spacing={4} id="built-on-mui">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
+            }}
+          >
+            Built on top of Material-UI
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+            }}
+          >
+            Extends MUI rather than replacing it
+          </Typography>
+        </Box>
+
+        <Stack spacing={3}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            Dashforge is not a component library from scratch. It builds
+            directly on Material-UI, extending existing components with
+            additional patterns and conventions.
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            This means you get MUI's design system, accessibility features, and
+            component ecosystem while adding:
+          </Typography>
+
+          <Box
+            component="ul"
+            sx={{
+              m: 0,
+              pl: 3,
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              '& li': {
+                mb: 1,
+              },
+            }}
+          >
+            <li>
+              <strong>Opinionated component patterns</strong> — consistent APIs
+              across all form inputs
+            </li>
+            <li>
+              <strong>Stronger consistency</strong> — layout variants,
+              validation rules, and error handling work the same everywhere
+            </li>
+            <li>
+              <strong>Form integration</strong> — automatic React Hook Form
+              registration and state management
+            </li>
+            <li>
+              <strong>Predictive behavior</strong> — conditional field
+              visibility based on form state
+            </li>
+            <li>
+              <strong>Framework-level conventions</strong> — structured approach
+              to building complex forms
+            </li>
+          </Box>
+
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            All Dashforge components accept standard MUI props. You can use
+            MUI's theming system, sx prop, and component customization APIs
+            without any modifications.
+          </Typography>
+        </Stack>
+      </Stack>
+
+      {/* Core building blocks */}
+      <Stack spacing={4} id="core-building-blocks">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
+            }}
+          >
+            Core building blocks
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+            }}
+          >
+            Framework areas you'll work with
+          </Typography>
+        </Box>
+
+        <Grid container spacing={2.5}>
+          {buildingBlocks.map((block) => (
+            <Grid size={{ xs: 12, md: 6 }} key={block.title}>
+              <Box
+                component={block.path ? RouterLink : 'div'}
+                to={block.path || undefined}
+                sx={{
+                  display: 'block',
+                  p: 2.5,
+                  height: '100%',
+                  borderRadius: 1.5,
+                  bgcolor: isDark
+                    ? 'rgba(17,24,39,0.40)'
+                    : 'rgba(248,250,252,0.90)',
+                  border: isDark
+                    ? '1px solid rgba(255,255,255,0.08)'
+                    : '1px solid rgba(15,23,42,0.10)',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  cursor: block.path ? 'pointer' : 'default',
+                  ...(block.path && {
+                    '&:hover': {
+                      bgcolor: isDark
+                        ? 'rgba(17,24,39,0.55)'
+                        : 'rgba(255,255,255,1.0)',
+                      borderColor: isDark
+                        ? 'rgba(139,92,246,0.30)'
+                        : 'rgba(139,92,246,0.25)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }),
+                }}
+              >
+                <Stack spacing={1}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontSize: 17,
+                      fontWeight: 700,
+                      letterSpacing: '-0.01em',
+                      color: isDark
+                        ? 'rgba(255,255,255,0.90)'
+                        : 'rgba(15,23,42,0.90)',
+                    }}
+                  >
+                    {block.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: 15,
+                      lineHeight: 1.6,
+                      color: isDark
+                        ? 'rgba(255,255,255,0.65)'
+                        : 'rgba(15,23,42,0.65)',
+                    }}
+                  >
+                    {block.description}
                   </Typography>
                 </Stack>
               </Box>
@@ -252,7 +483,7 @@ export function Overview() {
               mb: 2,
             }}
           >
-            A Quick Example
+            Quick example
           </Typography>
           <Typography
             sx={{
@@ -261,7 +492,7 @@ export function Overview() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            See how simple form building becomes with Dashforge
+            A basic form with automatic validation and error handling
           </Typography>
         </Box>
 
@@ -329,8 +560,10 @@ function RegistrationForm() {
   );
 }
 
-// That's it! Components auto-register, errors display automatically,
-// validation works out of the box, and touched state is tracked.`}
+// Components self-register with the form.
+// Validation runs automatically.
+// Errors display when fields are touched or form is submitted.
+// No manual wiring required.`}
           </Box>
         </Box>
       </Stack>
@@ -349,7 +582,16 @@ function RegistrationForm() {
               mb: 2,
             }}
           >
-            Next Steps
+            Next steps
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+            }}
+          >
+            Recommended reading order
           </Typography>
         </Box>
 
@@ -357,24 +599,43 @@ function RegistrationForm() {
           {[
             {
               title: 'Installation',
-              description: 'Install Dashforge and its dependencies',
+              description: 'Install Dashforge packages and set up dependencies',
               link: '/docs/getting-started/installation',
             },
             {
               title: 'Usage',
-              description: 'Learn the basics of working with Dashforge',
+              description: 'Learn basic patterns and component usage',
               link: '/docs/getting-started/usage',
             },
             {
               title: 'Project Structure',
-              description: 'Understand how Dashforge projects are organized',
+              description: 'Understand package architecture and organization',
               link: '/docs/getting-started/project-structure',
             },
+            {
+              title: 'Why Dashforge',
+              description:
+                'See the problems Dashforge solves and design philosophy',
+              link: '/docs/getting-started/why-dashforge',
+            },
+            {
+              title: 'Components',
+              description: 'Explore available form components and their APIs',
+              link: '/docs/components/text-field',
+            },
           ].map((step) => (
-            <Grid size={{ xs: 12, md: 4 }} key={step.title}>
+            <Grid
+              size={{ xs: 12, sm: 6, md: 4 }}
+              key={step.title}
+              sx={{
+                ...(step.title === 'Components' && {
+                  display: { xs: 'none', md: 'block' },
+                }),
+              }}
+            >
               <Box
-                component="a"
-                href={step.link}
+                component={RouterLink}
+                to={step.link}
                 sx={{
                   display: 'block',
                   p: 2.5,
