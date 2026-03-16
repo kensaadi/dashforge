@@ -74,6 +74,7 @@ export function CodeBlock({
   const containerSx = {
     position: 'relative',
     borderRadius: 1,
+    overflow: 'hidden',
     bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.04)',
     border: isDark
       ? '1px solid rgba(255,255,255,0.08)'
