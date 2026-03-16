@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import CodeIcon from '@mui/icons-material/Code';
@@ -37,6 +36,12 @@ interface DocsPreviewBlockProps {
    * @default false
    */
   centerContent?: boolean;
+
+  /**
+   * Whether to use compact padding for denser layouts
+   * @default false
+   */
+  compact?: boolean;
 }
 
 /**
@@ -50,6 +55,7 @@ export function DocsPreviewBlock({
   defaultExpanded = false,
   minHeight = 100,
   centerContent = false,
+  compact = false,
 }: DocsPreviewBlockProps) {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -79,7 +85,13 @@ export function DocsPreviewBlock({
   const toggleCode = () => setIsCodeVisible((prev) => !prev);
 
   return (
-    <Stack spacing={0}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+      }}
+    >
       {/* Preview Container */}
       <Box
         sx={{
@@ -99,6 +111,7 @@ export function DocsPreviewBlock({
             : '0 2px 12px rgba(15,23,42,0.08), inset 0 1px 0 rgba(139,92,246,0.08)',
           overflow: 'hidden',
           minHeight: minHeight,
+          flexGrow: 1,
         }}
       >
         {/* Badge */}
@@ -148,7 +161,7 @@ export function DocsPreviewBlock({
             justifyContent: centerContent ? 'center' : undefined,
             minHeight: centerContent ? minHeight : undefined,
             px: { xs: 2, md: 3 },
-            py: { xs: 5, md: 5 },
+            py: compact ? { xs: 3, md: 3 } : { xs: 5, md: 5 },
           }}
         >
           {children}
@@ -294,6 +307,6 @@ export function DocsPreviewBlock({
           )}
         </Box>
       </Collapse>
-    </Stack>
+    </Box>
   );
 }

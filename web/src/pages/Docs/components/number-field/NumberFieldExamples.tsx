@@ -127,39 +127,59 @@ export function NumberFieldExamples() {
         }}
       >
         {standardExamples.map((example) => (
-          <Box key={example.title}>
-            <Stack spacing={2}>
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.90)'
-                      : 'rgba(15,23,42,0.90)',
-                    mb: 0.5,
-                  }}
-                >
-                  {example.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.65)'
-                      : 'rgba(15,23,42,0.65)',
-                  }}
-                >
-                  {example.description}
-                </Typography>
-              </Box>
+          <Box
+            key={example.title}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+            }}
+          >
+            {/* Header area - fixed */}
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.90)'
+                    : 'rgba(15,23,42,0.90)',
+                  mb: 0.5,
+                }}
+              >
+                {example.title}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: 13,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.65)'
+                    : 'rgba(15,23,42,0.65)',
+                }}
+              >
+                {example.description}
+              </Typography>
+            </Box>
 
-              <DocsPreviewBlock code={example.code} badge="">
+            {/* Preview + Footer area - grows to fill */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                flexGrow: 1,
+              }}
+            >
+              <DocsPreviewBlock
+                code={example.code}
+                badge=""
+                minHeight={120}
+                compact
+              >
                 {example.component}
               </DocsPreviewBlock>
-            </Stack>
+            </Box>
           </Box>
         ))}
       </Box>
