@@ -92,19 +92,33 @@ export function NumberField(
 
   // Plain mode: render without bridge integration
   if (!bridge) {
-    // Convert value to input string
-    const inputValue =
-      explicitValue == null
-        ? ''
-        : typeof explicitValue === 'number'
-        ? String(explicitValue)
-        : explicitValue;
+    // If explicit value is provided, use controlled mode
+    if (explicitValue !== undefined) {
+      const inputValue =
+        explicitValue == null
+          ? ''
+          : typeof explicitValue === 'number'
+          ? String(explicitValue)
+          : explicitValue;
 
+      return (
+        <TextField
+          name={name}
+          type="number"
+          value={inputValue}
+          onChange={explicitOnChange}
+          helperText={explicitHelperText}
+          error={explicitError}
+          {...muiProps}
+        />
+      );
+    }
+
+    // No explicit value: use uncontrolled mode (let MUI manage internal state)
     return (
       <TextField
         name={name}
         type="number"
-        value={inputValue}
         onChange={explicitOnChange}
         helperText={explicitHelperText}
         error={explicitError}
@@ -118,18 +132,33 @@ export function NumberField(
   // Register field with bridge (safe check for register function)
   if (!bridge.register) {
     // Fallback to plain mode if register is not available
-    const inputValue =
-      explicitValue == null
-        ? ''
-        : typeof explicitValue === 'number'
-        ? String(explicitValue)
-        : explicitValue;
+    // If explicit value is provided, use controlled mode
+    if (explicitValue !== undefined) {
+      const inputValue =
+        explicitValue == null
+          ? ''
+          : typeof explicitValue === 'number'
+          ? String(explicitValue)
+          : explicitValue;
 
+      return (
+        <TextField
+          name={name}
+          type="number"
+          value={inputValue}
+          onChange={explicitOnChange}
+          helperText={explicitHelperText}
+          error={explicitError}
+          {...muiProps}
+        />
+      );
+    }
+
+    // No explicit value: use uncontrolled mode
     return (
       <TextField
         name={name}
         type="number"
-        value={inputValue}
         onChange={explicitOnChange}
         helperText={explicitHelperText}
         error={explicitError}
