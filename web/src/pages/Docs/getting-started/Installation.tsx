@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 import { Link as RouterLink } from 'react-router-dom';
 import { CodeBlock } from '../components/shared/CodeBlock';
+import { InstallTabs } from '../components/shared/InstallTabs';
 
 /**
  * Installation - Guide for installing Dashforge and its dependencies
@@ -162,7 +163,7 @@ export function Installation() {
             manager:
           </Typography>
 
-          <CodeBlock code="pnpm add @dashforge/ui" language="bash" />
+          <InstallTabs packages={['@dashforge/ui']} />
 
           <Typography
             variant="body1"
@@ -218,9 +219,8 @@ export function Installation() {
             these peer dependencies:
           </Typography>
 
-          <CodeBlock
-            code="pnpm add @mui/material @emotion/react @emotion/styled"
-            language="bash"
+          <InstallTabs
+            packages={['@mui/material', '@emotion/react', '@emotion/styled']}
           />
 
           <Typography
@@ -330,9 +330,8 @@ export function Installation() {
             </Box>
           </Box>
 
-          <CodeBlock
-            code="pnpm add @dashforge/theme-core @dashforge/ui-core"
-            language="bash"
+          <InstallTabs
+            packages={['@dashforge/theme-core', '@dashforge/ui-core']}
           />
 
           <Typography
