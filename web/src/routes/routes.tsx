@@ -23,6 +23,10 @@ const routes: RouteObject[] = [
     element: <DocsPage />,
   },
   {
+    path: '/docs/components/select',
+    element: <DocsPage />,
+  },
+  {
     path: '/components',
     element: <ComponentsPage />,
   },

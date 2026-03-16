@@ -14,6 +14,7 @@ import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
+import { SelectDocs } from './components/select/SelectDocs';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -39,6 +40,18 @@ const numberFieldTocItems: DocsTocItem[] = [
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
+const selectTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'layout-variants', label: 'Layout Variants' },
+  { id: 'playground', label: 'Interactive Playground' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
+  { id: 'conditional-field-visibility', label: 'Conditional Field Visibility' },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -47,9 +60,18 @@ export function DocsPage() {
   // Determine which documentation to render based on the current path
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
-  const tocItems = isNumberFieldDocs ? numberFieldTocItems : textFieldTocItems;
+  const isSelectDocs = location.pathname === '/docs/components/select';
+
+  const tocItems = isNumberFieldDocs
+    ? numberFieldTocItems
+    : isSelectDocs
+    ? selectTocItems
+    : textFieldTocItems;
+
   const docsContent = isNumberFieldDocs ? (
     <NumberFieldDocs />
+  ) : isSelectDocs ? (
+    <SelectDocs />
   ) : (
     <TextFieldDocs />
   );

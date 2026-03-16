@@ -1,6 +1,7 @@
 import MenuItem from '@mui/material/MenuItem';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import type { Engine } from '@dashforge/ui-core';
+import type { FieldLayout } from '../_internal/FieldLayoutShell';
 import { TextField } from '../TextField/TextField';
 
 export interface SelectOption<T extends string | number = string | number> {
@@ -24,6 +25,7 @@ export interface SelectProps<T extends string | number = string | number>
   label?: string;
   options: SelectOption<T>[];
   visibleWhen?: (engine: Engine) => boolean;
+  layout?: FieldLayout;
 }
 
 /**
@@ -52,7 +54,7 @@ export interface SelectProps<T extends string | number = string | number>
 export function Select<T extends string | number = string | number>(
   props: SelectProps<T>
 ) {
-  const { name, rules, label, options, visibleWhen, ...rest } = props;
+  const { name, rules, label, options, visibleWhen, layout, ...rest } = props;
 
   // Compose Select from TextField with select mode enabled
   // TextField handles all form integration, error binding, and gating
@@ -63,6 +65,7 @@ export function Select<T extends string | number = string | number>(
       rules={rules}
       label={label}
       visibleWhen={visibleWhen}
+      layout={layout}
       select
       slotProps={{
         ...rest.slotProps,
