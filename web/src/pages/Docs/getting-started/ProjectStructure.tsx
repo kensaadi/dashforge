@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { CodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * ProjectStructure - Guide explaining Dashforge project organization
@@ -9,40 +10,6 @@ import { useDashTheme } from '@dashforge/theme-core';
 export function ProjectStructure() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
-
-  const CodeBlock = ({ children }: { children: string }) => (
-    <Box
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-        border: isDark
-          ? '1px solid rgba(255,255,255,0.08)'
-          : '1px solid rgba(15,23,42,0.08)',
-      }}
-    >
-      <Box
-        component="pre"
-        sx={{
-          m: 0,
-          fontSize: 14,
-          lineHeight: 1.7,
-          fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-          color: isDark ? '#e5e7eb' : '#1f2937',
-          overflowX: 'auto',
-          '&::-webkit-scrollbar': {
-            height: 6,
-          },
-          '&::-webkit-scrollbar-thumb': {
-            bgcolor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.20)',
-            borderRadius: 1,
-          },
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  );
 
   return (
     <Stack spacing={8}>
@@ -107,8 +74,8 @@ export function ProjectStructure() {
           </Typography>
         </Box>
 
-        <CodeBlock>
-          {`@dashforge/
+        <CodeBlock
+          code={`@dashforge/
 ├── forms/              # Form management system
 │   ├── DashForm        # Main form component
 │   └── Provider        # Form context provider
@@ -130,7 +97,8 @@ export function ProjectStructure() {
     ├── Engine          # Predictive form engine
     ├── Bridge          # Form integration contract
     └── Types           # Shared type definitions`}
-        </CodeBlock>
+          language="bash"
+        />
       </Stack>
 
       {/* Layer Separation */}
@@ -249,7 +217,7 @@ export function ProjectStructure() {
       </Stack>
 
       {/* Typical Project Structure */}
-      <Stack spacing={4} id="typical-structure">
+      <Stack spacing={4} id="typical-project">
         <Box>
           <Typography
             variant="h2"
@@ -275,8 +243,8 @@ export function ProjectStructure() {
           </Typography>
         </Box>
 
-        <CodeBlock>
-          {`my-dashforge-app/
+        <CodeBlock
+          code={`my-dashforge-app/
 ├── src/
 │   ├── App.tsx                 # Root component with providers
 │   ├── main.tsx                # Application entry point
@@ -307,7 +275,8 @@ export function ProjectStructure() {
 │
 ├── package.json
 └── tsconfig.json`}
-        </CodeBlock>
+          language="bash"
+        />
       </Stack>
 
       {/* Import Patterns */}
@@ -349,8 +318,8 @@ export function ProjectStructure() {
             Organize imports by layer for clarity:
           </Typography>
 
-          <CodeBlock>
-            {`// 1. React imports
+          <CodeBlock
+            code={`// 1. React imports
 import { useState, useEffect } from 'react';
 
 // 2. Third-party libraries
@@ -369,7 +338,8 @@ import Stack from '@mui/material/Stack';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../services/api';
 import type { User } from '../../types';`}
-          </CodeBlock>
+            language="typescript"
+          />
         </Stack>
       </Stack>
 
@@ -430,8 +400,8 @@ import type { User } from '../../types';`}
               Group related forms and components by feature:
             </Typography>
 
-            <CodeBlock>
-              {`features/
+            <CodeBlock
+              code={`features/
 ├── profile/
 │   ├── ProfileForm.tsx         # Main form component
 │   ├── ProfileForm.types.ts    # Form-specific types
@@ -443,7 +413,8 @@ import type { User } from '../../types';`}
     ├── AccountSettings.tsx      # Sub-form
     ├── PrivacySettings.tsx      # Sub-form
     └── NotificationSettings.tsx # Sub-form`}
-            </CodeBlock>
+              language="bash"
+            />
           </Box>
 
           <Box>
@@ -475,8 +446,8 @@ import type { User } from '../../types';`}
               Create reusable validation rules and form helpers:
             </Typography>
 
-            <CodeBlock>
-              {`utils/
+            <CodeBlock
+              code={`utils/
 ├── validation/
 │   ├── email.ts        # Email validation rules
 │   ├── password.ts     # Password validation rules
@@ -485,7 +456,8 @@ import type { User } from '../../types';`}
 └── forms/
     ├── submitHandlers.ts   # Reusable submission logic
     └── transforms.ts       # Data transformation utilities`}
-            </CodeBlock>
+              language="bash"
+            />
           </Box>
         </Stack>
       </Stack>

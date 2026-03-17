@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useDashTheme } from '@dashforge/theme-core';
+import { CodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * WhyDashforge - Explains the motivation and benefits of using Dashforge
@@ -10,65 +11,6 @@ import { useDashTheme } from '@dashforge/theme-core';
 export function WhyDashforge() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
-
-  const CodeBlock = ({
-    children,
-    label,
-  }: {
-    children: string;
-    label?: string;
-  }) => (
-    <Box
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-        border: isDark
-          ? '1px solid rgba(255,255,255,0.08)'
-          : '1px solid rgba(15,23,42,0.08)',
-        position: 'relative',
-      }}
-    >
-      {label && (
-        <Typography
-          sx={{
-            position: 'absolute',
-            top: 12,
-            right: 12,
-            fontSize: 11,
-            fontWeight: 600,
-            px: 1.5,
-            py: 0.5,
-            borderRadius: 1,
-            bgcolor: isDark ? 'rgba(139,92,246,0.15)' : 'rgba(139,92,246,0.10)',
-            color: isDark ? 'rgba(139,92,246,0.90)' : 'rgba(109,40,217,0.90)',
-          }}
-        >
-          {label}
-        </Typography>
-      )}
-      <Box
-        component="pre"
-        sx={{
-          m: 0,
-          fontSize: 14,
-          lineHeight: 1.7,
-          fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-          color: isDark ? '#e5e7eb' : '#1f2937',
-          overflowX: 'auto',
-          '&::-webkit-scrollbar': {
-            height: 6,
-          },
-          '&::-webkit-scrollbar-thumb': {
-            bgcolor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.20)',
-            borderRadius: 1,
-          },
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  );
 
   return (
     <Stack spacing={8}>
@@ -146,8 +88,8 @@ export function WhyDashforge() {
           boilerplate multiplies across every form in your application.
         </Typography>
 
-        <CodeBlock label="Traditional Approach">
-          {`// Traditional form with React Hook Form
+        <CodeBlock
+          code={`// Traditional form with React Hook Form
 import { useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 
@@ -194,7 +136,31 @@ function LoginForm() {
 // - Repetitive error handling logic
 // - Touched state tracking boilerplate
 // - Easy to forget a prop or make a mistake`}
-        </CodeBlock>
+          language="tsx"
+          header={
+            <Typography
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                fontSize: 11,
+                fontWeight: 600,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
+                bgcolor: isDark
+                  ? 'rgba(139,92,246,0.15)'
+                  : 'rgba(139,92,246,0.10)',
+                color: isDark
+                  ? 'rgba(139,92,246,0.90)'
+                  : 'rgba(109,40,217,0.90)',
+                zIndex: 1,
+              }}
+            >
+              Traditional Approach
+            </Typography>
+          }
+        />
       </Stack>
 
       {/* The Solution */}
@@ -238,8 +204,8 @@ function LoginForm() {
           disappears.
         </Typography>
 
-        <CodeBlock label="Dashforge Approach">
-          {`// Same form with Dashforge
+        <CodeBlock
+          code={`// Same form with Dashforge
 import { DashForm } from '@dashforge/forms';
 import { TextField } from '@dashforge/ui';
 
@@ -285,7 +251,31 @@ function LoginForm() {
 // - Errors display automatically
 // - Touched state handled internally
 // - Clean, declarative code`}
-        </CodeBlock>
+          language="tsx"
+          header={
+            <Typography
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                fontSize: 11,
+                fontWeight: 600,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
+                bgcolor: isDark
+                  ? 'rgba(139,92,246,0.15)'
+                  : 'rgba(139,92,246,0.10)',
+                color: isDark
+                  ? 'rgba(139,92,246,0.90)'
+                  : 'rgba(109,40,217,0.90)',
+                zIndex: 1,
+              }}
+            >
+              Dashforge Approach
+            </Typography>
+          }
+        />
       </Stack>
 
       {/* Key Benefits */}

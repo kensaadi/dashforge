@@ -19,13 +19,48 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
     const allIds = getAllIds(items);
     if (allIds.length === 0) return;
 
+    // Track which sections are currently intersecting
+    const intersectingIds = new Set<string>();
+
+    /**
+     * Check if user has scrolled to bottom of page
+     * Returns true when within 50px of the bottom
+     */
+    const isNearBottom = (): boolean => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const clientHeight = window.innerHeight;
+      return scrollHeight - scrollTop - clientHeight < 50;
+    };
+
+    /**
+     * Update active section based on intersection state and scroll position
+     */
+    const updateActiveSection = () => {
+      // Special case: if user is at the bottom of the page, activate the last section
+      if (isNearBottom() && allIds.length > 0) {
+        setActiveId(allIds[allIds.length - 1]);
+        return;
+      }
+
+      // Normal case: find the topmost intersecting section
+      const topmost = allIds.find((id) => intersectingIds.has(id));
+      if (topmost) {
+        setActiveId(topmost);
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+            intersectingIds.add(entry.target.id);
+          } else {
+            intersectingIds.delete(entry.target.id);
           }
         });
+
+        updateActiveSection();
       },
       {
         rootMargin: '-100px 0px -66% 0px',
@@ -40,8 +75,16 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
       }
     });
 
+    // Also listen to scroll events to handle bottom-of-page detection
+    const handleScroll = () => {
+      updateActiveSection();
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     return () => {
       observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [items]);
 

@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { CodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * Usage - Guide for basic usage of Dashforge components and patterns
@@ -9,65 +10,6 @@ import { useDashTheme } from '@dashforge/theme-core';
 export function Usage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
-
-  const CodeBlock = ({
-    children,
-    label,
-  }: {
-    children: string;
-    label?: string;
-  }) => (
-    <Box
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-        border: isDark
-          ? '1px solid rgba(255,255,255,0.08)'
-          : '1px solid rgba(15,23,42,0.08)',
-        position: 'relative',
-      }}
-    >
-      {label && (
-        <Typography
-          sx={{
-            position: 'absolute',
-            top: 12,
-            right: 12,
-            fontSize: 11,
-            fontWeight: 600,
-            px: 1.5,
-            py: 0.5,
-            borderRadius: 1,
-            bgcolor: isDark ? 'rgba(139,92,246,0.15)' : 'rgba(139,92,246,0.10)',
-            color: isDark ? 'rgba(139,92,246,0.90)' : 'rgba(109,40,217,0.90)',
-          }}
-        >
-          {label}
-        </Typography>
-      )}
-      <Box
-        component="pre"
-        sx={{
-          m: 0,
-          fontSize: 14,
-          lineHeight: 1.7,
-          fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-          color: isDark ? '#e5e7eb' : '#1f2937',
-          overflowX: 'auto',
-          '&::-webkit-scrollbar': {
-            height: 6,
-          },
-          '&::-webkit-scrollbar-thumb': {
-            bgcolor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.20)',
-            borderRadius: 1,
-          },
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  );
 
   return (
     <Stack spacing={8}>
@@ -163,8 +105,8 @@ export function Usage() {
               behavior:
             </Typography>
 
-            <CodeBlock label="App.tsx">
-              {`import { DashThemeProvider } from '@dashforge/theme-core';
+            <CodeBlock
+              code={`import { DashThemeProvider } from '@dashforge/theme-core';
 import { MuiThemeAdapter } from '@dashforge/theme-mui';
 
 function App() {
@@ -178,7 +120,8 @@ function App() {
 }
 
 export default App;`}
-            </CodeBlock>
+              language="tsx"
+            />
           </Box>
 
           <Box>
@@ -210,8 +153,8 @@ export default App;`}
               Use DashForm to create a form with automatic state management:
             </Typography>
 
-            <CodeBlock label="LoginForm.tsx">
-              {`import { DashForm } from '@dashforge/forms';
+            <CodeBlock
+              code={`import { DashForm } from '@dashforge/forms';
 import { TextField } from '@dashforge/ui';
 
 function LoginForm() {
@@ -255,7 +198,8 @@ function LoginForm() {
     </DashForm>
   );
 }`}
-            </CodeBlock>
+              language="tsx"
+            />
           </Box>
         </Stack>
       </Stack>
@@ -288,18 +232,19 @@ function LoginForm() {
         </Box>
 
         <Stack spacing={3}>
-          <CodeBlock label="TextField">
-            {`<TextField
+          <CodeBlock
+            code={`<TextField
   name="firstName"
   label="First Name"
   placeholder="Enter your first name"
   helperText="This will be displayed on your profile"
   rules={{ required: 'First name is required' }}
 />`}
-          </CodeBlock>
+            language="tsx"
+          />
 
-          <CodeBlock label="NumberField">
-            {`<NumberField
+          <CodeBlock
+            code={`<NumberField
   name="age"
   label="Age"
   min={18}
@@ -309,10 +254,11 @@ function LoginForm() {
     min: { value: 18, message: 'Must be 18 or older' },
   }}
 />`}
-          </CodeBlock>
+            language="tsx"
+          />
 
-          <CodeBlock label="Select">
-            {`<Select
+          <CodeBlock
+            code={`<Select
   name="country"
   label="Country"
   options={[
@@ -322,7 +268,8 @@ function LoginForm() {
   ]}
   rules={{ required: 'Please select a country' }}
 />`}
-          </CodeBlock>
+            language="tsx"
+          />
         </Stack>
       </Stack>
 
@@ -366,8 +313,8 @@ function LoginForm() {
             include:
           </Typography>
 
-          <CodeBlock label="Built-in Rules">
-            {`<TextField
+          <CodeBlock
+            code={`<TextField
   name="username"
   label="Username"
   rules={{
@@ -386,10 +333,11 @@ function LoginForm() {
     },
   }}
 />`}
-          </CodeBlock>
+            language="tsx"
+          />
 
-          <CodeBlock label="Custom Validation">
-            {`<TextField
+          <CodeBlock
+            code={`<TextField
   name="password"
   label="Password"
   type="password"
@@ -405,7 +353,8 @@ function LoginForm() {
     },
   }}
 />`}
-          </CodeBlock>
+            language="tsx"
+          />
         </Stack>
       </Stack>
 
@@ -448,8 +397,8 @@ function LoginForm() {
             Use the <code>visibleWhen</code> prop to create dynamic forms:
           </Typography>
 
-          <CodeBlock>
-            {`<DashForm defaultValues={{ contactMethod: '', email: '', phone: '' }}>
+          <CodeBlock
+            code={`<DashForm defaultValues={{ contactMethod: '', email: '', phone: '' }}>
   <Select
     name="contactMethod"
     label="Preferred Contact Method"
@@ -481,7 +430,8 @@ function LoginForm() {
     }}
   />
 </DashForm>`}
-          </CodeBlock>
+            language="tsx"
+          />
         </Stack>
       </Stack>
 
@@ -513,8 +463,8 @@ function LoginForm() {
         </Box>
 
         <Stack spacing={3}>
-          <CodeBlock label="Basic Submission">
-            {`function RegistrationForm() {
+          <CodeBlock
+            code={`function RegistrationForm() {
   const handleSubmit = (data) => {
     console.log('Submitted data:', data);
     // Send to API
@@ -531,10 +481,11 @@ function LoginForm() {
     </DashForm>
   );
 }`}
-          </CodeBlock>
+            language="tsx"
+          />
 
-          <CodeBlock label="Async Submission">
-            {`function RegistrationForm() {
+          <CodeBlock
+            code={`function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (data) => {
@@ -569,7 +520,8 @@ function LoginForm() {
     </DashForm>
   );
 }`}
-          </CodeBlock>
+            language="tsx"
+          />
         </Stack>
       </Stack>
 

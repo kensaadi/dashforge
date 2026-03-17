@@ -77,11 +77,11 @@ const installationTocItems: DocsTocItem[] = [
 
 const usageTocItems: DocsTocItem[] = [
   { id: 'basic-setup', label: 'Basic Setup' },
-  { id: 'first-form', label: 'Your First Form' },
   { id: 'form-components', label: 'Form Components' },
   { id: 'validation', label: 'Validation' },
   { id: 'conditional-fields', label: 'Conditional Fields' },
   { id: 'form-submission', label: 'Form Submission' },
+  { id: 'next-steps', label: 'Next Steps' },
 ];
 
 const projectStructureTocItems: DocsTocItem[] = [
@@ -90,6 +90,7 @@ const projectStructureTocItems: DocsTocItem[] = [
   { id: 'typical-project', label: 'Typical Project Structure' },
   { id: 'import-patterns', label: 'Import Patterns' },
   { id: 'file-organization', label: 'File Organization' },
+  { id: 'best-practices', label: 'Best Practices' },
 ];
 
 const whyDashforgeTocItems: DocsTocItem[] = [
@@ -98,6 +99,7 @@ const whyDashforgeTocItems: DocsTocItem[] = [
   { id: 'key-benefits', label: 'Key Benefits' },
   { id: 'when-to-use', label: 'When to Use Dashforge' },
   { id: 'design-philosophy', label: 'Design Philosophy' },
+  { id: 'get-started', label: 'Get Started' },
 ];
 
 export function DocsPage() {
