@@ -54,24 +54,26 @@ export function SelectCapabilities() {
 </DashForm>`,
     },
     {
-      title: 'Predictive Ready',
-      status: 'Architectural Direction',
+      title: 'Reactive V2',
+      status: 'Available Now',
       statusColor: isDark ? 'rgba(139,92,246,0.90)' : 'rgba(109,40,217,0.95)',
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'Select is architecturally positioned to participate in rule-driven workflows. Supports reactive visibility and is designed for future orchestration capabilities.',
+        'Load options dynamically based on form state or external data. Select supports runtime-driven options through Reactive V2, enabling conditional data loading, dependent dropdowns, and async option fetching. Options can be any shape—use mapper functions to adapt.',
       points: [
-        'Reactive visibility with visibleWhen prop',
-        'Built to support field-to-field dependencies',
-        'Aligned with Dashforge predictive form vision',
+        'Runtime options via optionsFromFieldData',
+        'Generic option shapes with mapper functions',
+        'Conditional visibility with visibleWhen',
       ],
       code: `<Select
-  name="state"
-  label="State"
-  options={states}
-  visibleWhen={(values) => 
-    values.country === 'US'
+  name="city"
+  label="City"
+  optionsFromFieldData="city"
+  getOptionValue={(opt) => opt.id}
+  getOptionLabel={(opt) => opt.name}
+  visibleWhen={(engine) =>
+    engine.getNode('country')?.value !== ''
   }
 />`,
     },
@@ -91,7 +93,7 @@ export function SelectCapabilities() {
         >
           Select is designed for progressive adoption. Use it as a simple
           controlled component, integrate it with React Hook Form, or leverage
-          Dashforge-native predictive capabilities. Choose the level that fits
+          Reactive V2 for runtime-driven options. Choose the level that fits
           your team's workflow.
         </Typography>
       </Box>

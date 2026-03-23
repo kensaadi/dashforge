@@ -8,6 +8,7 @@ import { resolveValidationState } from './textField.validation';
 import {
   createSelectIntegration,
   isNativeSelectMode,
+  sanitizeSelectDisplayValue,
 } from './textField.select';
 import { FieldLayoutShell } from '../_internal/FieldLayoutShell';
 
@@ -53,6 +54,7 @@ export function TextField(props: TextFieldProps) {
     error: userError,
     disabled,
     fullWidth,
+    __selectAvailableValues,
     ...rest
   } = props;
 
@@ -87,13 +89,38 @@ export function TextField(props: TextFieldProps) {
   // Generate unique ID for label association
   const fieldId = `dashforge-field-${name}`;
 
+  // Step 05c/05d: Sanitize display value for standalone select mode
+  // If in select mode with available values, apply same sanitization as bridge mode
+  // This includes controlled (with value prop) and uncontrolled (without value prop) cases
+  const sanitizedRest = { ...rest };
+  if (rest.select && __selectAvailableValues !== undefined) {
+    // Sanitize value if present (controlled mode)
+    if ('value' in rest) {
+      sanitizedRest.value = sanitizeSelectDisplayValue(
+        rest.value,
+        __selectAvailableValues
+      );
+    }
+    // Sanitize defaultValue if present (uncontrolled mode - Step 05d)
+    else if ('defaultValue' in rest) {
+      sanitizedRest.defaultValue = sanitizeSelectDisplayValue(
+        rest.defaultValue,
+        __selectAvailableValues
+      );
+    }
+    // No value/defaultValue: sanitize to empty string (plain mode - Step 05d)
+    else {
+      sanitizedRest.value = '';
+    }
+  }
+
   // Standalone mode: no form integration
   if (!bridge || typeof bridge.register !== 'function') {
     // Floating layout: use standard MUI TextField with internal label
     if (layout === 'floating') {
       return (
         <MuiTextField
-          {...rest}
+          {...sanitizedRest}
           id={fieldId}
           name={name}
           label={label}
@@ -109,7 +136,7 @@ export function TextField(props: TextFieldProps) {
     // Custom layouts (stacked/inline): use external shell
     const control = (
       <MuiTextField
-        {...rest}
+        {...sanitizedRest}
         id={fieldId}
         name={name}
         label={undefined}
@@ -148,7 +175,8 @@ export function TextField(props: TextFieldProps) {
       bridge,
       registration,
       rest.slotProps,
-      isNativeSelectMode(rest.slotProps)
+      isNativeSelectMode(rest.slotProps),
+      __selectAvailableValues
     );
 
     // Floating layout: use standard MUI TextField with internal label

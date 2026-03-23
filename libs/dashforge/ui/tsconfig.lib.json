@@ -51,6 +51,9 @@
       "path": "../theme-core/tsconfig.lib.json"
     },
     {
+      "path": "../forms/tsconfig.lib.json"
+    },
+    {
       "path": "../ui-core/tsconfig.lib.json"
     }
   ]

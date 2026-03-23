@@ -50,8 +50,10 @@ export function TextFieldDocs() {
             maxWidth: 680,
           }}
         >
-          An intelligent input component with seamless form integration,
-          automatic error handling, and predictable state management.
+          An intelligent input component built on MUI TextField. Supports
+          standalone usage, seamless DashForm integration with automatic field
+          binding, validation error gating, and reactive visibility. The
+          foundation for composed field behaviors.
         </Typography>
       </Stack>
 

@@ -5,6 +5,7 @@ import { useDashTheme } from '@dashforge/theme-core';
 import { DocsPreviewBlock } from '../DocsPreviewBlock';
 import { SelectFormIntegrationDemo } from './demos/SelectFormIntegrationDemo';
 import { SelectConditionalDemo } from './demos/SelectConditionalDemo';
+import { SelectRuntimeDependentDemo } from './demos/SelectRuntimeDependentDemo';
 
 interface Scenario {
   id: string;
@@ -137,6 +138,96 @@ function ShippingForm() {
 // - Type-safe predicates: Full TypeScript support`,
       whyItMatters:
         'Move beyond static forms: Build adaptive workflows where field visibility responds to Select changes. The component handles reactivity—you define the rules.',
+    },
+    {
+      id: 'runtime-dependent-dropdowns',
+      title: 'Runtime-Driven Dependent Dropdowns',
+      subtitle: 'Try it: Select a country and watch cities load dynamically',
+      description:
+        'Select supports dependent dropdowns through runtime options (Reactive V2). When one field changes, reactions can load new options for dependent fields. This example shows country/city selection with async option loading, loading states, and generic option shapes. Notice how changing countries demonstrates unresolved value behavior—the display clears but the form value remains unchanged.',
+      demo: <SelectRuntimeDependentDemo />,
+      code: `import { DashForm } from '@dashforge/forms';
+import { Select } from '@dashforge/ui';
+
+interface City {
+  cityId: string;
+  cityName: string;
+  countryCode: string;
+}
+
+const MOCK_CITIES: City[] = [
+  { cityId: 'nyc', cityName: 'New York', countryCode: 'us' },
+  { cityId: 'tor', cityName: 'Toronto', countryCode: 'ca' },
+  { cityId: 'lon', cityName: 'London', countryCode: 'uk' },
+  // ...more cities
+];
+
+function LocationForm() {
+  return (
+    <DashForm
+      defaultValues={{ country: '', city: '' }}
+      reactions={[
+        {
+          id: 'load-cities',
+          watch: ['country'],
+          when: (ctx) => ctx.getValue('country') !== '',
+          run: async (ctx) => {
+            const country = ctx.getValue<string>('country');
+            
+            // Set loading state
+            ctx.setRuntime('city', { 
+              status: 'loading',
+              data: null 
+            });
+            
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Filter cities by country
+            const cities = MOCK_CITIES.filter(
+              c => c.countryCode === country
+            );
+            
+            // Update runtime with options
+            ctx.setRuntime('city', {
+              status: 'ready',
+              data: { options: cities }
+            });
+          }
+        }
+      ]}
+    >
+      <Select
+        name="country"
+        label="Country"
+        options={[
+          { value: 'us', label: 'United States' },
+          { value: 'ca', label: 'Canada' },
+          { value: 'uk', label: 'United Kingdom' },
+        ]}
+      />
+
+      <Select
+        name="city"
+        label="City"
+        optionsFromFieldData="city"
+        getOptionValue={(opt: City) => opt.cityId}
+        getOptionLabel={(opt: City) => opt.cityName}
+        visibleWhen={(engine) =>
+          engine.getNode('country')?.value !== ''
+        }
+      />
+    </DashForm>
+  );
+}
+
+// Reactive V2 enables:
+// - Runtime-driven options via optionsFromFieldData
+// - Generic option shapes via mapper functions
+// - Loading states automatically handled
+// - No automatic value reset (business data responsibility)`,
+      whyItMatters:
+        'Build complex forms with dependent data loading. The framework handles reactivity, loading states, and data flow—you define the dependencies. Unresolved values (when switching countries) display empty but maintain form integrity.',
     },
   ];
 

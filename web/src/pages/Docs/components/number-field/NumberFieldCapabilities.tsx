@@ -51,25 +51,25 @@ export function NumberFieldCapabilities() {
 />`,
     },
     {
-      title: 'Predictable Form Behavior',
-      status: 'Form-Connected',
+      title: 'Reactive Visibility',
+      status: 'Available Now',
       statusColor: isDark ? 'rgba(139,92,246,0.90)' : 'rgba(109,40,217,0.95)',
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'Works seamlessly with DashForm and React Hook Form. Automatic type coercion, validation, and error display following form closure rules.',
+        'NumberField handles numeric input with built-in parsing and validation. Additionally supports conditional rendering through visibleWhen for dynamic form flows. Component-level visibility controlled by engine-driven predicates. Built on Reactive V2 architecture.',
       points: [
-        'Automatic numeric type handling in forms',
-        'Reactive visibility with visibleWhen prop',
-        'Consistent error gating (touched + submitCount)',
+        'Primary: Numeric type handling (number | null, never NaN)',
+        'Conditional rendering via visibleWhen prop',
+        'Engine provides state, component decides rendering',
       ],
-      code: `<DashForm>
-  <NumberField 
-    name="price"
-    label="Price"
-    rules={{ required: true }}
-  />
-</DashForm>`,
+      code: `<NumberField
+  name="quantity"
+  label="Quantity"
+  visibleWhen={(engine) => 
+    engine.getNode('orderType')?.value === 'bulk'
+  }
+/>`,
     },
   ];
 

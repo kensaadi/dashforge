@@ -1,5 +1,6 @@
 import type { Engine } from '@dashforge/ui-core';
 import type { FieldValues, UseFormReturn, FieldPath } from 'react-hook-form';
+import type { ReactionDefinition } from '../reactions/reaction.types';
 
 /**
  * Interface for the adapter that bridges React Hook Form with the Dashforge Engine.
@@ -130,6 +131,14 @@ export interface DashFormConfig<
    * @default 'onChange'
    */
   mode?: 'onChange' | 'onBlur' | 'onSubmit' | 'onTouched' | 'all';
+
+  /**
+   * Reaction definitions for declarative side effects.
+   * Reactions execute when watched fields change.
+   *
+   * @default undefined
+   */
+  reactions?: ReactionDefinition<TFieldValues>[];
 }
 
 /**

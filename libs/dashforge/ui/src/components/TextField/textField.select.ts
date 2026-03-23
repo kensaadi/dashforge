@@ -54,6 +54,41 @@ function extractValueFromEvent(event: unknown): unknown {
 }
 
 /**
+ * Sanitizes display value to prevent MUI "out-of-range" warnings (Step 05b/05c).
+ * 
+ * If the value doesn't match any available option, returns empty string for display.
+ * The actual value source (RHF or controlled prop) remains unchanged.
+ * 
+ * This is a display-layer fix only - no data mutation occurs.
+ * 
+ * @param rawValue - The actual value (from RHF or controlled prop)
+ * @param availableValues - List of valid option values
+ * @returns Sanitized value safe for MUI display
+ */
+export function sanitizeSelectDisplayValue(
+  rawValue: unknown,
+  availableValues?: (string | number)[]
+): unknown {
+  // No sanitization if no available values provided
+  if (availableValues === undefined) {
+    return rawValue;
+  }
+
+  // Empty/null values pass through (they're valid for "no selection")
+  if (rawValue === '' || rawValue == null) {
+    return rawValue;
+  }
+
+  // If value not in available options, display empty (prevents MUI warning)
+  if (!availableValues.includes(rawValue as string | number)) {
+    return '';
+  }
+
+  // Value is resolved - pass through
+  return rawValue;
+}
+
+/**
  * Hook to integrate MUI Select with DashForm bridge
  *
  * Handles:
@@ -61,16 +96,28 @@ function extractValueFromEvent(event: unknown): unknown {
  * - onChange wrapping (MUI SelectChangeEvent → bridge event)
  * - Touch tracking (onBlur for native, onClose for MUI Select)
  * - Proper event shape for form validation
+ * - Display value sanitization (Step 05b: MUI out-of-range warning fix)
+ *
+ * Display Value Sanitization (Reactive V2 Policy Compliance):
+ * - If RHF value doesn't match any available option → pass empty string to MUI
+ * - RHF value remains unchanged (no automatic reset)
+ * - Prevents MUI "out-of-range value" warning in console
+ * - Only affects display layer, not form data integrity
  */
 export function createSelectIntegration(
   name: string,
   bridge: DashFormBridge,
   registration: FieldRegistration,
   userSlotProps: MuiTextFieldProps['slotProps'],
-  isNativeSelect: boolean
+  isNativeSelect: boolean,
+  availableValues?: (string | number)[]
 ): SelectIntegrationProps {
   // Get current value from bridge for controlled component
-  const value = bridge.getValue?.(name) ?? '';
+  const rawValue = bridge.getValue?.(name) ?? '';
+
+  // Display value sanitization (Step 05b):
+  // Use shared helper to sanitize display value
+  const displayValue = sanitizeSelectDisplayValue(rawValue, availableValues);
 
   // Wrap onChange to provide correct event shape
   const handleChange = async (event: unknown) => {
@@ -123,7 +170,7 @@ export function createSelectIntegration(
     : (userSlotProps?.select as { onClose?: unknown } | undefined)?.onClose;
 
   return {
-    value,
+    value: displayValue,
     onChange: handleChange as MuiTextFieldProps['onChange'],
     onBlur: handleBlur as MuiTextFieldProps['onBlur'],
     inputRef: registration.ref,

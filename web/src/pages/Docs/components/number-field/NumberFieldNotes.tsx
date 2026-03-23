@@ -27,9 +27,9 @@ export function NumberFieldNotes() {
         'The step prop (via inputProps.step) controls increment/decrement buttons and arrow key behavior. Use step="0.1" for decimals or step="5" for larger increments.',
     },
     {
-      title: 'Form Compatibility',
+      title: 'DashForm Integration',
       content:
-        'When used inside DashForm, NumberField automatically integrates with React Hook Form through the DashFormBridge. It handles value binding, type conversion, validation, and error display without explicit prop passing.',
+        'When used inside DashForm, NumberField automatically integrates through DashFormBridge. It handles automatic field binding, numeric type conversion (string → number | null), and validation from form context. Errors are displayed when the field has been touched or after form submission. Explicit props override form-provided values.',
     },
     {
       title: 'Min/Max Validation',

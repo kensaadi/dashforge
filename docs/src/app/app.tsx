@@ -37,6 +37,7 @@ import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 // import { EngineStressPlayground } from './playground/engine-stress';
 import { FormStressPage } from '../pages/form-stress';
 import { VisibilityStressForm } from './playground/stress';
+import { ReactionV2 } from '../pages/reactions-v2';
 
 function ThemeSmokeGallery() {
   const muiTheme = useTheme();
@@ -394,6 +395,10 @@ function TopNav() {
           Visibility Stress
         </Button>
 
+        <Button color="inherit" component={Link} to="/reactions-v2">
+          Reactive V2
+        </Button>
+
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 
         {/* mantiene toggle theme mode */}
@@ -420,6 +425,7 @@ export default function App() {
         */}
         <Route path="/form-stress" element={<FormStressPage />} />
         <Route path="/visibility-stress" element={<VisibilityStressForm />} />
+        <Route path="/reactions-v2" element={<ReactionV2 />} />
       </Routes>
     </Box>
   );

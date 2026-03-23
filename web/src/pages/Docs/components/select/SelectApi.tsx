@@ -23,7 +23,35 @@ const props: PropDefinition[] = [
   {
     name: 'options',
     type: 'SelectOption[]',
-    description: 'Array of options with value and label (required)',
+    description:
+      'Array of static options with value and label. When optionsFromFieldData is provided, runtime options take precedence over static options for rendering.',
+  },
+  {
+    name: 'optionsFromFieldData',
+    type: 'string',
+    description:
+      'Runtime field name to load options from. When provided, options are loaded from the field runtime state (Reactive V2) instead of the static options prop. Enables async/reactive option loading through reactions.',
+  },
+  {
+    name: 'getOptionValue',
+    type: '(option: T) => string | number',
+    defaultValue: '(opt) => opt.value',
+    description:
+      'Extracts the value from each option object. Use when option shape differs from the default {value, label} structure. Required when using generic option shapes with optionsFromFieldData.',
+  },
+  {
+    name: 'getOptionLabel',
+    type: '(option: T) => string',
+    defaultValue: '(opt) => opt.label',
+    description:
+      'Extracts the display label from each option object. Use when option shape differs from the default {value, label} structure. Required when using generic option shapes with optionsFromFieldData.',
+  },
+  {
+    name: 'getOptionDisabled',
+    type: '(option: T) => boolean',
+    defaultValue: '(opt) => false',
+    description:
+      'Determines if an option should be disabled. Optional mapper function that works with both static options and runtime options.',
   },
   {
     name: 'label',
@@ -88,8 +116,9 @@ const props: PropDefinition[] = [
   },
   {
     name: 'visibleWhen',
-    type: '(engine) => boolean',
-    description: 'Conditional visibility function for reactive forms',
+    type: '(engine: Engine) => boolean',
+    description:
+      'Conditional visibility predicate. When false, component renders null. Receives engine instance with access to all field state via getNode(name). Re-evaluates on dependency changes.',
   },
 ];
 

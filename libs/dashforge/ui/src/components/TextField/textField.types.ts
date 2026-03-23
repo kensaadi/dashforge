@@ -42,4 +42,12 @@ export interface TextFieldProps
    * - 'inline': external label to the left of control
    */
   layout?: FieldLayout;
+
+  /**
+   * Internal prop: Available option values for Select mode (Step 05b).
+   * Used to sanitize display value and prevent MUI out-of-range warnings.
+   * Only used internally by Select component.
+   * @internal
+   */
+  __selectAvailableValues?: (string | number)[];
 }

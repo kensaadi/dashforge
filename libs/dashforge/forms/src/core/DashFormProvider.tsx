@@ -1,4 +1,4 @@
-import { createContext, useMemo } from 'react';
+import { createContext, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type {
   FieldValues,
@@ -15,6 +15,9 @@ import type {
 } from '@dashforge/ui-core';
 import type { DashFormContextValue, DashFormProviderProps } from './form.types';
 import { FormEngineAdapter } from './FormEngineAdapter';
+import { createRuntimeStore } from '../runtime/createRuntimeStore';
+import type { FieldRuntimeState } from '../runtime/runtime.types';
+import { createReactionRegistry } from '../reactions/createReactionRegistry';
 
 /**
  * Helper to safely traverse an object by dot path.
@@ -92,6 +95,7 @@ export function DashFormProvider<
   defaultValues,
   debug = false,
   mode = 'onChange',
+  reactions,
 }: DashFormProviderProps<TFieldValues>) {
   // Create or use provided Engine instance
   // Memoized to prevent re-creation on every render
@@ -155,11 +159,81 @@ export function DashFormProvider<
     return adapterInstance;
   }, [engine, rhf, debug]);
 
+  // NEW: Create runtime store (PROVIDER OWNS IT)
+  // Memoized to maintain stable reference across renders
+  const runtimeStore = useMemo(() => {
+    const store = createRuntimeStore({ debug });
+
+    if (debug) {
+      console.log('[DashFormProvider] Created RuntimeStore', store);
+    }
+
+    return store;
+  }, [debug]);
+
+  // NEW: Create reaction registry (PROVIDER OWNS IT)
+  // Registry created once per unique reactions array
+  // registerReactions() called once during creation
+  const reactionRegistry = useMemo(() => {
+    if (!reactions || reactions.length === 0) {
+      if (debug) {
+        console.log('[DashFormProvider] No reactions to register');
+      }
+      return null;
+    }
+
+    const registry = createReactionRegistry<TFieldValues>({
+      debug,
+      // Inject dependencies for testability
+      getValue: (name: string) => {
+        // VALUE SEMANTICS: Engine first (if node exists), RHF fallback (always available)
+        // This decouples reactions from component mount lifecycle
+        const node = engine.getNode(name);
+        if (node) return node.value;
+        return rhf.getValues(name as FieldPath<TFieldValues>);
+      },
+      getFieldRuntime: (name: string) => runtimeStore.getFieldRuntime(name),
+      setFieldRuntime: <TData = unknown>(
+        name: string,
+        patch: Partial<FieldRuntimeState<TData>>
+      ) => runtimeStore.setFieldRuntime(name, patch),
+    });
+
+    // Register all reactions ONCE (v4 - one-shot registration)
+    // Duplicate IDs will throw error here (fail-fast)
+    registry.registerReactions(reactions);
+
+    if (debug) {
+      console.log('[DashFormProvider] Created ReactionRegistry', {
+        reactionCount: reactions.length,
+        note:
+          'Reactions registered once, initial evaluation will run in useEffect (Strict Mode safe)',
+      });
+    }
+
+    return registry;
+  }, [reactions, debug, engine, rhf, runtimeStore]);
+
   // Build bridge value for public DashFormContext (minimal API)
   // Used by ui components to detect and integrate with form
   const bridgeValue = useMemo<DashFormBridge>(
     () => ({
       engine,
+
+      // NEW: Expose CONTROLLED runtime APIs (NOT raw store)
+      // Read API (safe for UI consumption)
+      getFieldRuntime: (name: string) => runtimeStore.getFieldRuntime(name),
+
+      // Write API (orchestration only - NOT for UI)
+      setFieldRuntime: <TData = unknown>(
+        name: string,
+        patch: Partial<import('../runtime/runtime.types').FieldRuntimeState<TData>>
+      ) => runtimeStore.setFieldRuntime(name, patch),
+
+      // Subscribe API (wrapped by useFieldRuntime)
+      subscribeFieldRuntime: (name: string, listener: () => void) =>
+        runtimeStore.subscribeFieldRuntime(name, listener),
+
       register: (name: string, rules?: unknown) => {
         const fieldName = name as FieldPath<TFieldValues>;
 
@@ -255,6 +329,7 @@ export function DashFormProvider<
     }),
     [
       engine,
+      runtimeStore,
       rhf,
       adapter,
       debug,
@@ -278,6 +353,77 @@ export function DashFormProvider<
     }),
     [engine, rhf, adapter, debug]
   );
+
+  // NEW: Initial evaluation cycle (Strict Mode safe - v3)
+  // TIMING: Runs after mount, when RHF defaultValues available
+  // VALUES: Available via Engine (if registered) or RHF (always available)
+  // PROTECTION: Registry flag prevents double execution in Strict Mode
+  useEffect(() => {
+    if (!reactionRegistry) return;
+
+    // CRITICAL: Check completion flag (Strict Mode re-entry protection - v3)
+    if (reactionRegistry.hasInitialEvaluationCompleted()) {
+      if (debug) {
+        console.log(
+          '[DashFormProvider] Initial evaluation already completed (Strict Mode re-entry), skipping'
+        );
+      }
+      return;
+    }
+
+    if (debug) {
+      console.log('[DashFormProvider] Running initial evaluation cycle', {
+        timing: 'useEffect after mount',
+        valueSource: 'Engine (if node exists) or RHF (always available)',
+        guarantee: 'RHF defaultValues available immediately',
+        note:
+          'Value-driven, not mount-driven - decoupled from UI lifecycle',
+        protection: 'Registry flag prevents double execution',
+      });
+    }
+
+    // Execute initial evaluation ONCE per registry instance
+    // Values available via:
+    // - Engine nodes (if fields mounted and registered)
+    // - RHF defaultValues (always available, fallback)
+    // Flag prevents re-execution in Strict Mode
+    reactionRegistry.evaluateAll();
+
+    if (debug) {
+      console.log(
+        '[DashFormProvider] Initial evaluation triggered (async reactions may still be executing)'
+      );
+    }
+  }, [reactionRegistry, debug]);
+
+  // NEW: Subscribe to adapter value sync for incremental evaluation
+  useEffect(() => {
+    if (!reactionRegistry) return;
+
+    if (debug) {
+      console.log(
+        '[DashFormProvider] Subscribing to adapter for reaction evaluation'
+      );
+    }
+
+    const unsubscribe = adapter.addOnValueSyncListener((fieldName) => {
+      if (debug) {
+        console.log('[DashFormProvider] Field synced, evaluating reactions', {
+          fieldName,
+        });
+      }
+
+      // v4: O(1) watch index lookup + O(1) per reaction via reactionById map
+      reactionRegistry.evaluateForField(fieldName);
+    });
+
+    return () => {
+      if (debug) {
+        console.log('[DashFormProvider] Unsubscribing from adapter');
+      }
+      unsubscribe();
+    };
+  }, [reactionRegistry, adapter, debug]);
 
   // Wrap with dual contexts:
   // - DashFormContext provides minimal bridge API for ui components

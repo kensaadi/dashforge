@@ -27,6 +27,7 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
   private rhfMethods: UseFormReturn<TFieldValues>;
   private debug: boolean;
   private registeredFields: Set<string>;
+  private onValueSyncCallbacks: ((fieldName: string) => void)[] = [];
 
   /**
    * Creates a new FormEngineAdapter instance.
@@ -123,6 +124,10 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
    * - Updates Engine node with new value
    * - Unidirectional: RHF → Engine only
    *
+   * **Phase 2 (Reactive V2):**
+   * - Notifies value sync listeners after engine update
+   * - Used by reaction system for incremental evaluation
+   *
    * @param name - Field name
    * @param value - Value to sync to engine
    */
@@ -146,6 +151,11 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
     }
 
     this.engine.updateNode(fieldName, { value });
+
+    // NEW: Notify listeners (for reaction evaluation)
+    for (const callback of this.onValueSyncCallbacks) {
+      callback(fieldName);
+    }
   }
 
   /**
@@ -178,5 +188,38 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
    */
   getRegisteredFields(): string[] {
     return Array.from(this.registeredFields);
+  }
+
+  /**
+   * Add listener for value sync events.
+   * Called after syncValueToEngine updates engine node.
+   * Used by reaction system for incremental evaluation.
+   *
+   * @param callback - Function called with changed field name
+   * @returns Unsubscribe function
+   *
+   * @internal
+   */
+  addOnValueSyncListener(callback: (fieldName: string) => void): () => void {
+    this.onValueSyncCallbacks.push(callback);
+
+    if (this.debug) {
+      console.log('[FormEngineAdapter] Value sync listener added', {
+        totalListeners: this.onValueSyncCallbacks.length,
+      });
+    }
+
+    return () => {
+      const index = this.onValueSyncCallbacks.indexOf(callback);
+      if (index > -1) {
+        this.onValueSyncCallbacks.splice(index, 1);
+
+        if (this.debug) {
+          console.log('[FormEngineAdapter] Value sync listener removed', {
+            totalListeners: this.onValueSyncCallbacks.length,
+          });
+        }
+      }
+    };
   }
 }

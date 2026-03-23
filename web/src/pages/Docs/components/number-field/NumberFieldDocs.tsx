@@ -50,10 +50,12 @@ export function NumberFieldDocs() {
             maxWidth: 680,
           }}
         >
-          A specialized input component designed for numeric values. Provides
-          built-in handling for min/max constraints, step increments, and
-          numeric validation while preserving the same layout and behavior
-          system used across Dashforge form inputs.
+          A specialized numeric input component built on MUI TextField.
+          Provides built-in parsing (controlled value is number | null, never
+          NaN), min/max constraints, and step increments. Supports standalone
+          usage and seamless DashForm integration with automatic field binding
+          and validation. Includes reactive visibility for conditional
+          rendering.
         </Typography>
       </Stack>
 

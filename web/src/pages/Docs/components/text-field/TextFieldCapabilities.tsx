@@ -52,23 +52,23 @@ export function TextFieldCapabilities() {
 </DashForm>`,
     },
     {
-      title: 'Predictive Ready',
-      status: 'Architectural Direction',
+      title: 'Reactive Visibility',
+      status: 'Available Now',
       statusColor: isDark ? 'rgba(139,92,246,0.90)' : 'rgba(109,40,217,0.95)',
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'TextField is architecturally positioned to participate in rule-driven workflows. Supports reactive visibility and is designed for future orchestration capabilities.',
+        'TextField supports conditional rendering through the visibleWhen prop. Component-level visibility controlled by engine-driven predicates. Enables field-to-field dependencies and dynamic form flows without manual state orchestration. Built on Reactive V2 architecture.',
       points: [
-        'Reactive visibility with visibleWhen prop',
-        'Built to support field-to-field dependencies',
-        'Aligned with Dashforge predictive form vision',
+        'Conditional rendering via visibleWhen',
+        'Engine-driven predicates with access to all field state',
+        'Component decides rendering, engine provides state',
       ],
       code: `<TextField
   name="other"
   label="Other"
-  visibleWhen={(values) => 
-    values.category === 'other'
+  visibleWhen={(engine) => 
+    engine.getNode('category')?.value === 'other'
   }
 />`,
     },

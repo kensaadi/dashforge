@@ -17,9 +17,9 @@ export function TextFieldNotes() {
         'TextField is built on top of Material-UI TextField component, inheriting all its styling and behavior capabilities.',
     },
     {
-      title: 'Form Integration',
+      title: 'DashForm Integration',
       content:
-        'When used inside DashForm, TextField automatically integrates with React Hook Form through the DashFormBridge. It handles value binding, validation, and error display without explicit prop passing.',
+        'When used inside DashForm, TextField automatically binds to the form through the DashFormBridge. The component self-registers on mount, binding value, onChange, and onBlur handlers automatically. Validation errors from form context display as helperText. No explicit prop passing required—integration is seamless.',
     },
     {
       title: 'Standalone Usage',
@@ -32,14 +32,19 @@ export function TextFieldNotes() {
         'Errors are displayed only when the field is touched (after blur) OR when the form has been submitted. This prevents showing validation errors while the user is still typing.',
     },
     {
-      title: 'Predictive Forms',
+      title: 'Reactive Visibility',
       content:
-        'TextField supports reactive visibility through the visibleWhen prop, enabling dynamic form behavior based on other field values or application state.',
+        'TextField supports conditional rendering through the visibleWhen prop (part of Reactive V2 architecture). This is a component-level decision powered by engine-driven predicates. The engine provides access to all field state via getNode(name), and the component re-evaluates visibility on dependency changes. When visibleWhen returns false, the component renders null.',
     },
     {
       title: 'Type Safety',
       content:
         'All TextField components are fully typed with TypeScript, providing autocompletion and type checking in your IDE.',
+    },
+    {
+      title: 'Foundation for Composed Behaviors',
+      content:
+        'TextField serves as the architectural foundation for composed field behaviors. For example, passing the select prop to TextField enables native select dropdown behavior, which is how the Select component is implemented. This composition pattern maintains consistency across field types while enabling specialized functionality.',
     },
   ];
 

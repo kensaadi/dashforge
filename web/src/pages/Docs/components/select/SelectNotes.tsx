@@ -51,6 +51,21 @@ export function SelectNotes() {
       content:
         'Select is fully typed with TypeScript generics, supporting both string and number option values. The component provides autocompletion for options and type checking throughout.',
     },
+    {
+      title: 'Runtime Options & Generic Shapes',
+      content:
+        'Select supports runtime-driven options via the optionsFromFieldData prop (Reactive V2). Options can be any shape—use getOptionValue, getOptionLabel, and optionally getOptionDisabled to map your data structure. This enables async loading, dependent dropdowns, and integration with any data source without forcing a specific option format.',
+    },
+    {
+      title: 'Unresolved Value Behavior',
+      content:
+        'If a field value does not match any loaded option, the Select displays empty while the form value remains unchanged. No automatic reset or reconciliation occurs—this is a business data responsibility, not a UI responsibility. The component does not auto-fix or auto-reset values. In development mode, a console warning is emitted (never in production).',
+    },
+    {
+      title: 'Loading State Display',
+      content:
+        'During runtime loading (idle/loading/error states), the Select display is sanitized to empty if the current value does not match available options. This prevents MUI out-of-range warnings. The underlying form value remains unchanged throughout the loading lifecycle. The field may be disabled during loading.',
+    },
   ];
 
   return (

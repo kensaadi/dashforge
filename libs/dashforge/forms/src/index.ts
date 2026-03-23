@@ -74,6 +74,52 @@ export { useDashRegister } from './hooks/useDashRegister';
  */
 export type { UseDashRegisterResult } from './hooks/useDashRegister';
 
+/**
+ * Hook to subscribe to runtime state for a field (Reactive V2).
+ * Provides read-only access to loading status, errors, and fetched data.
+ */
+export { useFieldRuntime } from './hooks/useFieldRuntime';
+
+// ============================================================================
+// RUNTIME (Reactive V2)
+// ============================================================================
+
+/**
+ * Runtime store types and utilities.
+ */
+export type {
+  FieldFetchStatus,
+  FieldRuntimeState,
+  SelectFieldRuntimeData,
+  RuntimeStoreConfig,
+  RuntimeStoreState,
+} from './runtime/runtime.types';
+
+export type { RuntimeStore } from './runtime/createRuntimeStore';
+export { createRuntimeStore, DEFAULT_FIELD_RUNTIME } from './runtime/createRuntimeStore';
+
+// ============================================================================
+// REACTIONS (Reactive V2)
+// ============================================================================
+
+/**
+ * Reaction system types and utilities.
+ * Defines declarative side effects that execute when watched fields change.
+ */
+export type {
+  ReactionDefinition,
+  ReactionWhenContext,
+  ReactionRunContext,
+  ReactionRegistryConfig,
+} from './reactions/reaction.types';
+
+/**
+ * Reaction registry (advanced/internal use).
+ * Typical users only need ReactionDefinition type.
+ */
+export type { ReactionRegistry } from './reactions/createReactionRegistry';
+export { createReactionRegistry } from './reactions/createReactionRegistry';
+
 // ============================================================================
 // COMPONENTS
 // ============================================================================

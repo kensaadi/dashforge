@@ -201,7 +201,7 @@ export function NumberFieldScenarios() {
       title: 'Simple Numeric Form',
       subtitle: 'Try it: Enter numbers and submit the form',
       description:
-        'NumberField integrates seamlessly with DashForm for basic numeric input. It automatically handles type conversion, stores values as number | null, and displays validation errors after blur.',
+        'NumberField integrates seamlessly with DashForm through automatic field binding. It handles numeric type conversion (string → number | null) and validation from form context. Errors are displayed when the field has been touched or after form submission.',
       demo: <SimpleNumericFormDemo />,
       code: `import { DashForm } from '@dashforge/forms';
 import { NumberField } from '@dashforge/ui';
@@ -234,7 +234,7 @@ function ProductForm() {
 // NumberField automatically:
 // - Converts input to number type
 // - Stores null for empty values (never NaN)
-// - Displays validation errors when touched
+// - Displays validation errors when touched or after submission
 // - Tracks dirty/touched state`,
       whyItMatters:
         'Type-safe numeric input: No manual string-to-number conversion, no NaN edge cases, no custom validation for numeric types.',

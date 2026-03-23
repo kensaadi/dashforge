@@ -332,3 +332,14 @@ It only:
 - exposes runtime state
 
 Everything else is outside its responsibility.
+
+### Display Behavior During Loading
+
+During runtime loading/idle/error states:
+
+- Select display value MUST be sanitized to empty if it does not match available options
+- This prevents MUI out-of-range warnings
+- The underlying form value MUST remain unchanged
+- The field may be disabled during loading
+
+This is a display-layer behavior only and does NOT imply value reset or reconciliation

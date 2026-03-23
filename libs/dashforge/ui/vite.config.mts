@@ -10,6 +10,7 @@ export default defineConfig(() => ({
     alias: {
       '@dashforge/tokens': resolve(__dirname, '../tokens/src/index.ts'),
       '@dashforge/theme-core': resolve(__dirname, '../theme-core/src/index.ts'),
+      '@dashforge/forms': resolve(__dirname, '../forms/src/index.ts'),
     },
   },
   // Uncomment this if you are using workers.

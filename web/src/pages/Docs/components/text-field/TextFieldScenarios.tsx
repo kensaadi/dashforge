@@ -76,11 +76,11 @@ function RegistrationForm() {
         'Gradual adoption: Drop TextField into existing form architectures without rewriting validation logic or state management.',
     },
     {
-      id: 'predictive-form-behavior',
-      title: 'Predictive Form Behavior',
+      id: 'reactive-conditional-visibility',
+      title: 'Reactive Conditional Visibility',
       subtitle: 'Try it: Select a contact method and watch fields appear',
       description:
-        'TextField supports reactive visibility through the visibleWhen prop. Fields conditionally render based on other field values, enabling dynamic form flows without manual state orchestration. Select "Email" or "Phone" to see conditional fields appear instantly.',
+        'TextField supports conditional rendering through the visibleWhen prop. Fields render based on engine state—components query field values and make rendering decisions. Select "Email" or "Phone" to see conditional fields appear instantly without manual state orchestration. This is part of Dashforge Reactive V2 architecture.',
       demo: <PredictiveDemo />,
       code: `import { DashForm } from '@dashforge/forms';
 import { TextField, Select } from '@dashforge/ui';
@@ -97,7 +97,7 @@ function ContactForm() {
         ]}
       />
 
-      {/* Email field: visible only when email is selected */}
+      {/* Email field: renders only when email is selected */}
       <TextField
         name="email"
         label="Email Address"
@@ -108,7 +108,7 @@ function ContactForm() {
         }}
       />
 
-      {/* Phone field: visible only when phone is selected */}
+      {/* Phone field: renders only when phone is selected */}
       <TextField
         name="phone"
         label="Phone Number"
@@ -124,10 +124,10 @@ function ContactForm() {
 
 // The Engine API provides:
 // - getNode(name): Access any field's state
-// - Reactive updates: Components re-render on dependency changes
-// - Type-safe predicates: Full TypeScript support`,
+// - Component re-renders on dependency changes
+// - Component makes rendering decision (engine provides state)`,
       whyItMatters:
-        'Move beyond static forms: Build adaptive workflows where field visibility responds to user input. The component handles reactivity—you define the rules.',
+        'Build adaptive forms where field visibility responds to user input. The component handles conditional rendering—you define the predicate. No manual state orchestration required.',
     },
   ];
 
