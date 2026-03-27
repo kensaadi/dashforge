@@ -38,6 +38,7 @@ import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { FormStressPage } from '../pages/form-stress';
 import { VisibilityStressForm } from './playground/stress';
 import { ReactionV2 } from '../pages/reactions-v2';
+import { AutocompleteStressPage } from '../pages/autocomplete-stress';
 
 function ThemeSmokeGallery() {
   const muiTheme = useTheme();
@@ -399,6 +400,10 @@ function TopNav() {
           Reactive V2
         </Button>
 
+        <Button color="inherit" component={Link} to="/autocomplete-stress">
+          Autocomplete
+        </Button>
+
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 
         {/* mantiene toggle theme mode */}
@@ -426,6 +431,10 @@ export default function App() {
         <Route path="/form-stress" element={<FormStressPage />} />
         <Route path="/visibility-stress" element={<VisibilityStressForm />} />
         <Route path="/reactions-v2" element={<ReactionV2 />} />
+        <Route
+          path="/autocomplete-stress"
+          element={<AutocompleteStressPage />}
+        />
       </Routes>
     </Box>
   );

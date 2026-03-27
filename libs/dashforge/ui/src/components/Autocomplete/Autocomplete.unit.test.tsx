@@ -448,4 +448,257 @@ describe('Autocomplete', () => {
       expect(screen.getByLabelText('Country')).toBeInTheDocument();
     });
   });
+
+  describe('Intent E: Generic option support', () => {
+    interface Product {
+      id: number;
+      name: string;
+      discontinued: boolean;
+    }
+
+    const products: Product[] = [
+      { id: 1, name: 'Widget', discontinued: false },
+      { id: 2, name: 'Gadget', discontinued: false },
+      { id: 3, name: 'Doohickey', discontinued: true },
+    ];
+
+    it('accepts generic options with custom mappers (plain mode)', () => {
+      render(
+        <Autocomplete<number, Product>
+          name="product"
+          label="Product"
+          options={products}
+          getOptionValue={(opt) => opt.id}
+          getOptionLabel={(opt) => opt.name}
+          getOptionDisabled={(opt) => opt.discontinued}
+        />
+      );
+
+      const input = screen.getByLabelText('Product');
+      expect(input).toBeInTheDocument();
+    });
+
+    it('displays custom label for selected generic option', () => {
+      render(
+        <Autocomplete<number, Product>
+          name="product"
+          label="Product"
+          options={products}
+          getOptionValue={(opt) => opt.id}
+          getOptionLabel={(opt) => opt.name}
+          value={1}
+        />
+      );
+
+      const input = screen.getByLabelText('Product') as HTMLInputElement;
+      expect(input.value).toBe('Widget');
+    });
+
+    it('onChange receives mapped value (number type)', async () => {
+      const user = userEvent.setup();
+      let capturedValue: number | null | undefined;
+
+      render(
+        <Autocomplete<number, Product>
+          name="product"
+          label="Product"
+          options={products}
+          getOptionValue={(opt) => opt.id}
+          getOptionLabel={(opt) => opt.name}
+          onChange={(value: number | null) => {
+            capturedValue = value;
+          }}
+        />
+      );
+
+      const input = screen.getByLabelText('Product');
+      await user.click(input);
+
+      const gadgetOption = await screen.findByText('Gadget');
+      await user.click(gadgetOption);
+
+      await waitFor(() => {
+        expect(capturedValue).toBe(2);
+      });
+    });
+
+    it('disabled options are not selectable', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <Autocomplete<number, Product>
+          name="product"
+          label="Product"
+          options={products}
+          getOptionValue={(opt) => opt.id}
+          getOptionLabel={(opt) => opt.name}
+          getOptionDisabled={(opt) => opt.discontinued}
+        />
+      );
+
+      const input = screen.getByLabelText('Product');
+      await user.click(input);
+
+      // Find the disabled option (Doohickey has discontinued: true)
+      // Use getAllByRole to find the specific option element directly
+      const options = screen.getAllByRole('option');
+      const doohickeyOption = options.find((opt) =>
+        opt.textContent?.includes('Doohickey')
+      );
+
+      expect(doohickeyOption).toBeDefined();
+
+      // Verify it has aria-disabled="true" (our custom renderOption adds this)
+      expect(doohickeyOption).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('filters out null/undefined options during normalization', async () => {
+      const user = userEvent.setup();
+      const optionsWithNulls: Array<Product | null | undefined> = [
+        { id: 1, name: 'Widget', discontinued: false },
+        null,
+        { id: 2, name: 'Gadget', discontinued: false },
+        undefined,
+      ];
+
+      render(
+        <Autocomplete<number, Product | null | undefined>
+          name="product"
+          label="Product"
+          options={optionsWithNulls}
+          getOptionValue={(opt) => opt!.id}
+          getOptionLabel={(opt) => opt!.name}
+        />
+      );
+
+      const input = screen.getByLabelText('Product');
+      await user.click(input);
+
+      // Should only see 2 options
+      expect(screen.getByText('Widget')).toBeInTheDocument();
+      expect(screen.getByText('Gadget')).toBeInTheDocument();
+      expect(screen.queryByText('null')).not.toBeInTheDocument();
+    });
+
+    it('uses default label mapper (String coercion) when getOptionLabel not provided', () => {
+      const simpleOptions = [42, 99, 123];
+
+      render(
+        <Autocomplete<number, number>
+          name="number"
+          label="Number"
+          options={simpleOptions}
+          getOptionValue={(opt) => opt}
+          value={42}
+        />
+      );
+
+      const input = screen.getByLabelText('Number') as HTMLInputElement;
+      expect(input.value).toBe('42');
+    });
+
+    it('uses default value mapper (identity) when getOptionValue not provided', async () => {
+      const user = userEvent.setup();
+      let capturedValue: string | null | undefined;
+
+      render(
+        <Autocomplete
+          name="country"
+          label="Country"
+          options={['USA', 'Canada', 'Mexico']}
+          onChange={(value: string | null) => {
+            capturedValue = value;
+          }}
+        />
+      );
+
+      const input = screen.getByLabelText('Country');
+      await user.click(input);
+
+      const canadaOption = await screen.findByText('Canada');
+      await user.click(canadaOption);
+
+      await waitFor(() => {
+        expect(capturedValue).toBe('Canada');
+      });
+    });
+
+    it('binds to bridge value with generic type (bound mode)', () => {
+      renderWithBridge(
+        <Autocomplete<number, Product>
+          name="product"
+          label="Product"
+          options={products}
+          getOptionValue={(opt) => opt.id}
+          getOptionLabel={(opt) => opt.name}
+        />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { product: 2 },
+          },
+        }
+      );
+
+      const input = screen.getByLabelText('Product') as HTMLInputElement;
+      expect(input.value).toBe('Gadget');
+    });
+
+    it('updates bridge value with mapped generic value', async () => {
+      const user = userEvent.setup();
+
+      const { state } = renderWithBridge(
+        <Autocomplete<number, Product>
+          name="product"
+          label="Product"
+          options={products}
+          getOptionValue={(opt) => opt.id}
+          getOptionLabel={(opt) => opt.name}
+        />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { product: null },
+          },
+        }
+      );
+
+      const input = screen.getByLabelText('Product');
+      await user.click(input);
+
+      const widgetOption = await screen.findByText('Widget');
+      await user.click(widgetOption);
+
+      await waitFor(() => {
+        expect(state?.values.product).toBe(1);
+      });
+    });
+
+    // Phase 2: Display Sanitization (deferred per architecture plan)
+    it('handles unresolved numeric value as null (display sanitization)', () => {
+      renderWithBridge(
+        <Autocomplete<number, Product>
+          name="product"
+          label="Product"
+          options={products}
+          getOptionValue={(opt) => opt.id}
+          getOptionLabel={(opt) => opt.name}
+        />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { product: 999 }, // Unresolved numeric value
+          },
+        }
+      );
+
+      const input = screen.getByLabelText('Product') as HTMLInputElement;
+      // Should sanitize to empty string for unresolved numeric value (static mode)
+      expect(input.value).toBe('');
+    });
+
+    // Note: Runtime mode sanitization tests require runtime mocking support
+    // Future test: 'sanitizes unresolved string value in runtime mode'
+    // - Set optionsFromFieldData=true
+    // - Mock runtime.status='ready' with options
+    // - Set string value not in options
+    // - Expect input.value to be '' (sanitized)
+  });
 });

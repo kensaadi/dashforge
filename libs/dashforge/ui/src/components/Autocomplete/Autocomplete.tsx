@@ -1,18 +1,92 @@
 import MuiAutocomplete from '@mui/material/Autocomplete';
 import type { AutocompleteProps as MuiAutocompleteProps } from '@mui/material/Autocomplete';
 import MuiTextField from '@mui/material/TextField';
-import { useContext } from 'react';
+import { useContext, useMemo, useState, useEffect } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type {
   DashFormBridge,
   FieldRegistration,
   Engine,
 } from '@dashforge/ui-core';
+import { useFieldRuntime } from '@dashforge/forms';
+
+// Module-level deduplication for unresolved value warnings (Phase 2)
+// Tracks warned field:value combinations per bridge instance
+// WeakMap ensures automatic cleanup when bridge is garbage collected
+const warnedUnresolvedValues = new WeakMap<
+  DashFormBridge,
+  Set<string> // "fieldName:value" keys
+>();
+
+/**
+ * Emit development-only warning for unresolved values.
+ * Deduplicated per bridge instance and field:value combination.
+ * Effect-safe (called from useEffect, not render).
+ *
+ * Policy: reaction-v2.md Section 3.3
+ * - Dev-only (never in production)
+ * - Deduplicated (no console spam)
+ * - Only when runtime is ready and value doesn't match
+ * - Called from useEffect (not during render)
+ */
+function warnUnresolvedValue(
+  bridge: DashFormBridge,
+  fieldName: string,
+  fieldValue: unknown,
+  availableValues: (string | number)[]
+): void {
+  // GUARD: Production mode (compile-time eliminated)
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+
+  // GUARD: Deduplication
+  const key = `${fieldName}:${String(fieldValue)}`;
+  let warned = warnedUnresolvedValues.get(bridge);
+
+  if (!warned) {
+    warned = new Set();
+    warnedUnresolvedValues.set(bridge, warned);
+  }
+
+  if (warned.has(key)) {
+    return; // Already warned
+  }
+
+  warned.add(key);
+
+  // Emit developer warning
+  const optionsDisplay =
+    availableValues.length > 0
+      ? availableValues.join(', ')
+      : '(empty - no options loaded)';
+
+  console.warn(
+    `[Dashforge Autocomplete] Unresolved value for field "${fieldName}".\n` +
+      `Current value "${String(
+        fieldValue
+      )}" does not match any loaded option.\n` +
+      `The form value remains unchanged (no automatic reset).\n` +
+      `Available options: ${optionsDisplay}`
+  );
+}
 
 export interface AutocompleteOption {
   value: string;
   label: React.ReactNode;
   disabled?: boolean;
+}
+
+/**
+ * Internal normalized option structure.
+ * Stores mapped value/label/disabled along with raw option for renderOption customization.
+ * @internal
+ */
+interface NormalizedOption<TValue extends string | number> {
+  value: TValue;
+  label: string;
+  disabled: boolean;
+  raw: unknown; // Original option for renderOption customization
 }
 
 // Type-safe props: extends MUI Autocomplete props but with simplified API
@@ -38,23 +112,40 @@ type PassthroughProps = Partial<
     | 'onBlur'
     | 'onInputChange'
     | 'name'
+    | 'getOptionLabel'
+    | 'getOptionDisabled'
   >
 >;
 
-export interface AutocompleteProps extends PassthroughProps {
+export interface AutocompleteProps<
+  TValue extends string | number = string,
+  TOption = AutocompleteOption
+> extends PassthroughProps {
   name: string;
-  options: AutocompleteOption[];
+  options: TOption[];
   rules?: unknown;
   visibleWhen?: (engine: Engine) => boolean;
   label?: React.ReactNode;
   helperText?: React.ReactNode;
   error?: boolean;
-  // Controlled storage value (string|null), explicit overrides bridge value
-  value?: string | null;
-  // Simplified callback: receives string | null
-  onChange?: (value: string | null) => void;
+  // Controlled storage value (TValue|null), explicit overrides bridge value
+  value?: TValue | null;
+  // Simplified callback: receives TValue | null
+  onChange?: (value: TValue | null) => void;
   // Allow user to provide onBlur (will be called after our blur handling)
   onBlur?: (event: React.FocusEvent<HTMLDivElement>) => void;
+
+  // Mapper functions for generic option support
+  getOptionValue?: (option: TOption) => TValue;
+  getOptionLabel?: (option: TOption) => string;
+  getOptionDisabled?: (option: TOption) => boolean;
+
+  // Phase 2: Runtime integration
+  /**
+   * When true, load options from field runtime data instead of static options prop.
+   * Requires DashFormContext. Runtime data shape: { options: TOption[] }
+   */
+  optionsFromFieldData?: boolean;
 }
 
 /**
@@ -66,11 +157,11 @@ export interface AutocompleteProps extends PassthroughProps {
  * - If used outside → behaves as plain controlled Autocomplete
  * - Supports reactive visibility via visibleWhen prop
  * - Auto binds error + helperText from form validation
- * - Stores string | null (NEVER object) in bridge
+ * - Stores TValue | null (string or number) in bridge
  *
  * Storage Policy:
- * - Selecting an option stores option.value (string)
- * - Free typing stores the typed string
+ * - Selecting an option stores mapped option.value (TValue)
+ * - Free typing stores the typed string (cast to TValue if applicable)
  * - Clearing stores null
  *
  * Error Display Gating (Form Closure v1):
@@ -86,7 +177,10 @@ export interface AutocompleteProps extends PassthroughProps {
  *
  * It only depends on the bridge contract from @dashforge/ui-core.
  */
-export function Autocomplete(props: AutocompleteProps) {
+export function Autocomplete<
+  TValue extends string | number = string,
+  TOption = AutocompleteOption
+>(props: AutocompleteProps<TValue, TOption>) {
   const {
     name,
     rules,
@@ -98,12 +192,23 @@ export function Autocomplete(props: AutocompleteProps) {
     value: explicitValue,
     onChange: explicitOnChange,
     onBlur: userOnBlur,
+    getOptionValue,
+    getOptionLabel,
+    getOptionDisabled,
+    optionsFromFieldData,
     ...rest
   } = props;
 
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
   const engine = bridge?.engine;
+
+  // Phase 2: Runtime integration (unconditional hook call)
+  // Hook must be called unconditionally (React rules)
+  interface AutocompleteFieldRuntimeData {
+    options: TOption[];
+  }
+  const runtime = useFieldRuntime<AutocompleteFieldRuntimeData>(name);
 
   // Subscribe to form state changes by accessing version strings
   // This ensures Autocomplete re-renders when validation errors or touched state changes
@@ -113,6 +218,96 @@ export function Autocomplete(props: AutocompleteProps) {
   void bridge?.dirtyVersion;
   void bridge?.submitCount;
   void bridge?.valuesVersion;
+
+  // Phase 2: Dev warnings for invalid prop combinations
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+
+    // ERROR: optionsFromFieldData without DashForm
+    if (optionsFromFieldData && !bridge) {
+      console.error(
+        `[Dashforge Autocomplete] Field "${name}" has optionsFromFieldData=true but is not inside DashFormProvider.\n` +
+          `Runtime options require DashFormContext. Either:\n` +
+          `1. Wrap component in <DashFormProvider>\n` +
+          `2. Remove optionsFromFieldData prop and use static options`
+      );
+    }
+
+    // WARN: optionsFromFieldData + options prop together
+    if (optionsFromFieldData && options && options.length > 0) {
+      console.warn(
+        `[Dashforge Autocomplete] Field "${name}" has both optionsFromFieldData=true and static options prop.\n` +
+          `Runtime options take precedence. Static options will be ignored.\n` +
+          `Remove the options prop to avoid confusion.`
+      );
+    }
+
+    // ERROR: value prop in DashForm mode
+    if (bridge && explicitValue !== undefined) {
+      console.error(
+        `[Dashforge Autocomplete] Field "${name}" is in DashForm mode but has explicit value prop.\n` +
+          `In DashForm mode, value is controlled by the form (react-hook-form).\n` +
+          `Remove the value prop. Use form.setValue() or defaultValues instead.`
+      );
+    }
+  }, [optionsFromFieldData, bridge, name, options, explicitValue]);
+
+  // Default mappers (with correction: String(option ?? ''))
+  const defaultGetValue = (opt: TOption): TValue => {
+    // For backward compatibility: if opt has a 'value' property, use it
+    if (opt && typeof opt === 'object' && 'value' in opt) {
+      return (opt as any).value as TValue;
+    }
+    // Otherwise treat opt itself as TValue (for primitive arrays)
+    return opt as unknown as TValue;
+  };
+  const defaultGetLabel = (opt: TOption): string => {
+    // For backward compatibility: if opt has a 'label' property, use it
+    if (opt && typeof opt === 'object' && 'label' in opt) {
+      return String((opt as any).label ?? '');
+    }
+    // Otherwise convert opt itself to string
+    return String(opt ?? '');
+  };
+  const defaultGetDisabled = (_opt: TOption): boolean => false;
+
+  const actualGetValue = getOptionValue ?? defaultGetValue;
+  const actualGetLabel = getOptionLabel ?? defaultGetLabel;
+  const actualGetDisabled = getOptionDisabled ?? defaultGetDisabled;
+
+  // Phase 2: Resolve options source (runtime vs static)
+  const rawRuntimeOptions =
+    optionsFromFieldData &&
+    runtime?.data?.options &&
+    Array.isArray(runtime.data.options)
+      ? runtime.data.options
+      : [];
+
+  const sourceOptions = optionsFromFieldData
+    ? rawRuntimeOptions
+    : options || [];
+
+  // Normalization pipeline: map → filter pattern
+  // useMemo to ensure stable option references across renders
+  const normalizedOptions: NormalizedOption<TValue>[] = useMemo(
+    () =>
+      sourceOptions
+        .map((opt): NormalizedOption<TValue> | null => {
+          if (opt == null) return null;
+          try {
+            return {
+              value: actualGetValue(opt),
+              label: actualGetLabel(opt),
+              disabled: actualGetDisabled(opt),
+              raw: opt,
+            };
+          } catch {
+            return null;
+          }
+        })
+        .filter((opt): opt is NormalizedOption<TValue> => opt !== null),
+    [sourceOptions, actualGetValue, actualGetLabel, actualGetDisabled]
+  );
 
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
@@ -162,42 +357,125 @@ export function Autocomplete(props: AutocompleteProps) {
         : undefined;
 
     // Resolve final value (explicit prop overrides bridge value)
-    const resolvedValue =
-      explicitValue !== undefined ? explicitValue : autoValue;
+    const resolvedValue: TValue | null =
+      explicitValue !== undefined
+        ? explicitValue
+        : (autoValue as TValue | null);
 
-    // Find matching option for the resolved value (if it exists)
+    // Phase 2: Loading state
+    const isLoading = optionsFromFieldData && runtime?.status === 'loading';
+
+    // Find matching normalized option for the resolved value
     const matchingOption =
-      options.find((opt) => opt.value === resolvedValue) || null;
+      normalizedOptions.find((opt) => opt.value === resolvedValue) || null;
 
-    // In freeSolo mode, the value prop can be either an option object OR a string
-    // If we have a matching option, use it; otherwise use the string value directly
-    const valueForAutocomplete: AutocompleteOption | string | null =
-      matchingOption || resolvedValue;
+    // Phase 2: Display sanitization for unresolved values
+    // Rule: IF optionsFromFieldData=true AND runtime.status='ready':
+    //   - IF value matches normalizedOptions → show option
+    //   - ELSE → sanitize to null (display empty string)
+    // ELSE (static mode):
+    //   - preserve freeSolo behavior: sanitize numeric, show string
+    const isRuntimeMode = optionsFromFieldData && runtime?.status === 'ready';
+    const isValueResolved =
+      matchingOption !== null || resolvedValue === null || resolvedValue === '';
+
+    let shouldSanitize: boolean;
+    if (isRuntimeMode) {
+      // Runtime mode: sanitize ALL unresolved values (type-independent)
+      shouldSanitize = !isValueResolved;
+    } else {
+      // Static mode: preserve freeSolo behavior (only sanitize numeric)
+      shouldSanitize = !isValueResolved && typeof resolvedValue === 'number';
+    }
+
+    const displayInputValue = shouldSanitize ? null : resolvedValue;
+
+    // For MUI Autocomplete value prop:
+    // - In freeSolo mode with objects, pass the option object if it matches
+    // - Otherwise pass null and let freeSolo handle the typed text
+    const valueForAutocomplete: NormalizedOption<TValue> | null =
+      matchingOption;
+
+    // Control inputValue to display the correct text in the input field
+    // This is critical for freeSolo mode with object options
+    // Phase 2: Use displayInputValue for sanitization
+    const computedInputValue = matchingOption
+      ? matchingOption.label
+      : displayInputValue != null
+      ? String(displayInputValue)
+      : '';
+
+    const [inputValue, setInputValue] = useState(computedInputValue);
+
+    // Sync inputValue when resolvedValue or matchingOption changes
+    useEffect(() => {
+      setInputValue(computedInputValue);
+    }, [computedInputValue]);
+
+    // Phase 2: Unresolved value detection
+    // Only warn in dev mode, only when runtime is ready, deduplicate warnings
+    const unresolvedDetection = useMemo(() => {
+      if (!optionsFromFieldData || runtime?.status !== 'ready' || !bridge) {
+        return null;
+      }
+
+      const currentValue = bridge.getValue?.(name);
+      if (currentValue == null || currentValue === '') return null;
+
+      const isResolved = normalizedOptions.some(
+        (opt) => opt.value === currentValue
+      );
+      if (isResolved) return null;
+
+      return {
+        fieldName: name,
+        fieldValue: currentValue,
+        availableValues: normalizedOptions.map((opt) => opt.value),
+      };
+    }, [
+      optionsFromFieldData,
+      runtime?.status,
+      bridge,
+      name,
+      normalizedOptions,
+    ]);
+
+    // Phase 2: Emit unresolved value warning (effect-safe)
+    useEffect(() => {
+      if (!unresolvedDetection || !bridge) return;
+
+      warnUnresolvedValue(
+        bridge,
+        unresolvedDetection.fieldName,
+        unresolvedDetection.fieldValue,
+        unresolvedDetection.availableValues
+      );
+    }, [unresolvedDetection, bridge]);
 
     // Wrap onChange to update both registration and bridge
     const handleChange = async (
       _event: unknown,
-      newValue: AutocompleteOption | string | null
+      newValue: NormalizedOption<TValue> | TValue | null
     ) => {
-      // Extract string value from newValue
-      let stringValue: string | null = null;
+      // Extract TValue from newValue
+      let mappedValue: TValue | null = null;
       if (newValue === null) {
-        stringValue = null;
-      } else if (typeof newValue === 'string') {
-        // freeSolo typed text
-        stringValue = newValue;
+        mappedValue = null;
+      } else if (typeof newValue === 'string' || typeof newValue === 'number') {
+        // freeSolo typed text (cast to TValue)
+        mappedValue = newValue as TValue;
       } else if (
         newValue &&
         typeof newValue === 'object' &&
         'value' in newValue
       ) {
-        // Selected option
-        stringValue = String(newValue.value);
+        // Selected normalized option
+        mappedValue = newValue.value;
       }
 
       // Create a properly structured synthetic event for registration
       const syntheticEvent = {
-        target: { name, value: stringValue },
+        target: { name, value: mappedValue },
         type: 'change',
       };
 
@@ -208,28 +486,27 @@ export function Autocomplete(props: AutocompleteProps) {
 
       // 2. Then bridge.setValue to ensure value is updated
       if (bridge.setValue) {
-        bridge.setValue(name, stringValue);
+        bridge.setValue(name, mappedValue);
       }
 
       // 3. Finally call user's onChange if provided
       if (explicitOnChange) {
-        explicitOnChange(stringValue);
+        explicitOnChange(mappedValue);
       }
     };
 
     // Handle input change (for freeSolo typing)
-    // We track the input changes but don't commit until blur
+    // Update inputValue state to allow typing while preserving value sync
     const handleInputChange = (
       _event: unknown,
-      _newInputValue: string,
+      newInputValue: string,
       reason: string
     ) => {
-      // Don't trigger changes on 'reset' - that's MUI internal
-      if (reason === 'reset') {
-        return;
+      // Update inputValue state for all reasons except 'reset'
+      // MUI uses 'reset' for internal state management
+      if (reason !== 'reset') {
+        setInputValue(newInputValue);
       }
-      // For freeSolo typing, we let MUI manage the inputValue internally
-      // and commit the value on blur
     };
 
     // Wrap onBlur to mark as touched AND commit freeSolo value
@@ -244,8 +521,8 @@ export function Autocomplete(props: AutocompleteProps) {
         // Get current bridge value
         const currentBridgeValue = bridge.getValue?.(name) ?? null;
 
-        // Normalize typed value: empty string => null
-        const valueToSet = typedValue === '' ? null : typedValue;
+        // Normalize typed value: empty string => null, otherwise cast to TValue
+        const valueToSet = typedValue === '' ? null : (typedValue as TValue);
 
         // If the typed value is different from current value, update it
         if (valueToSet !== currentBridgeValue) {
@@ -290,49 +567,40 @@ export function Autocomplete(props: AutocompleteProps) {
     };
 
     return (
-      <MuiAutocomplete<AutocompleteOption | string, false, false, true>
-        freeSolo
-        value={valueForAutocomplete}
+      <MuiAutocomplete<NormalizedOption<TValue>, false, false, true>
         {...(rest as any)}
-        options={options}
-        getOptionLabel={(option: AutocompleteOption | string) => {
-          // option can be AutocompleteOption or string (freeSolo)
+        freeSolo
+        disabled={rest.disabled || isLoading}
+        value={valueForAutocomplete}
+        inputValue={inputValue}
+        options={normalizedOptions}
+        getOptionLabel={(option: NormalizedOption<TValue> | string) => {
+          // In freeSolo mode, option can be from options array OR a typed string
           if (typeof option === 'string') {
             return option;
           }
-          // option is AutocompleteOption
-          // label could be ReactNode, convert to string
-          if (typeof option.label === 'string') {
-            return option.label;
-          }
-          // For non-string labels, return the value
-          return option.value;
+          // option is NormalizedOption
+          return option.label;
+        }}
+        renderOption={(props, option: NormalizedOption<TValue>) => {
+          // MUI v7: Explicitly add aria-disabled for accessibility
+          // Note: Props AFTER spread override props FROM spread
+          return (
+            <li {...props} aria-disabled={option.disabled ? 'true' : 'false'}>
+              {option.label}
+            </li>
+          );
         }}
         isOptionEqualToValue={(
-          option: AutocompleteOption | string,
-          value: AutocompleteOption | string
+          option: NormalizedOption<TValue>,
+          value: NormalizedOption<TValue>
         ) => {
-          // HARDENING C: Handle both string and option object comparisons
-          // If value is a string (freeSolo), compare with option.value
-          if (typeof value === 'string') {
-            if (typeof option === 'string') {
-              return option === value;
-            }
-            // option is object, value is string
-            return option.value === value;
-          }
-          // Both are objects
-          if (typeof option === 'object' && typeof value === 'object') {
-            return option.value === value.value;
-          }
-          return false;
+          // Compare by value field
+          return option.value === value.value;
         }}
-        getOptionDisabled={(option: AutocompleteOption | string) => {
-          // HARDENING D: Support disabled options
-          if (typeof option === 'object' && 'disabled' in option) {
-            return Boolean(option.disabled);
-          }
-          return false;
+        getOptionDisabled={(option: NormalizedOption<TValue>) => {
+          // Support disabled options from normalized structure
+          return option.disabled;
         }}
         onChange={handleChange}
         onInputChange={handleInputChange}
@@ -355,38 +623,56 @@ export function Autocomplete(props: AutocompleteProps) {
   // In plain mode, we don't control inputValue - let MUI manage it for freeSolo
 
   // For plain mode, use explicit value if provided, else null
-  const plainValue = explicitValue ?? null;
+  const plainValue: TValue | null = explicitValue ?? null;
 
-  // Find matching option for the plain value
+  // Find matching normalized option for the plain value
   const plainMatchingOption =
-    options.find((opt) => opt.value === plainValue) || null;
+    normalizedOptions.find((opt) => opt.value === plainValue) || null;
 
-  // In freeSolo mode, the value can be an option object OR a string
-  const plainValueForAutocomplete: AutocompleteOption | string | null =
-    plainMatchingOption || plainValue;
+  // For MUI Autocomplete value prop:
+  // - In freeSolo mode with objects, pass the option object if it matches
+  // - Otherwise pass null and let freeSolo handle the typed text
+  const plainValueForAutocomplete: NormalizedOption<TValue> | null =
+    plainMatchingOption;
+
+  // Control inputValue to display the correct text in the input field
+  const plainComputedInputValue = plainMatchingOption
+    ? plainMatchingOption.label
+    : plainValue != null
+    ? String(plainValue)
+    : '';
+
+  const [plainInputValue, setPlainInputValue] = useState(
+    plainComputedInputValue
+  );
+
+  // Sync inputValue when plainValue or plainMatchingOption changes
+  useEffect(() => {
+    setPlainInputValue(plainComputedInputValue);
+  }, [plainComputedInputValue]);
 
   // Plain mode onChange handler
   const handlePlainChange = (
     _event: unknown,
-    newValue: AutocompleteOption | string | null
+    newValue: NormalizedOption<TValue> | TValue | null
   ) => {
-    // Extract string value
-    let stringValue: string | null = null;
+    // Extract TValue
+    let mappedValue: TValue | null = null;
     if (newValue === null) {
-      stringValue = null;
-    } else if (typeof newValue === 'string') {
-      stringValue = newValue;
+      mappedValue = null;
+    } else if (typeof newValue === 'string' || typeof newValue === 'number') {
+      mappedValue = newValue as TValue;
     } else if (
       newValue &&
       typeof newValue === 'object' &&
       'value' in newValue
     ) {
-      stringValue = String(newValue.value);
+      mappedValue = newValue.value;
     }
 
     // Call user's onChange if provided
     if (explicitOnChange) {
-      explicitOnChange(stringValue);
+      explicitOnChange(mappedValue);
     }
   };
 
@@ -398,8 +684,8 @@ export function Autocomplete(props: AutocompleteProps) {
     if (inputElement) {
       const typedValue = inputElement.value;
 
-      // Normalize typed value: empty string => null
-      const valueToSet = typedValue === '' ? null : typedValue;
+      // Normalize typed value: empty string => null, otherwise cast to TValue
+      const valueToSet = typedValue === '' ? null : (typedValue as TValue);
 
       // If the typed value is different from current value, call onChange
       if (valueToSet !== plainValue) {
@@ -415,43 +701,52 @@ export function Autocomplete(props: AutocompleteProps) {
     }
   };
 
+  // Handle plain input change
+  const handlePlainInputChange = (
+    _event: unknown,
+    newInputValue: string,
+    reason: string
+  ) => {
+    // Update inputValue state for all reasons except 'reset'
+    if (reason !== 'reset') {
+      setPlainInputValue(newInputValue);
+    }
+  };
+
   return (
-    <MuiAutocomplete<AutocompleteOption | string, false, false, true>
+    <MuiAutocomplete<NormalizedOption<TValue>, false, false, true>
+      {...(rest as any)}
       freeSolo
       value={plainValueForAutocomplete}
-      {...(rest as any)}
-      options={options}
-      getOptionLabel={(option: AutocompleteOption | string) => {
+      inputValue={plainInputValue}
+      onInputChange={handlePlainInputChange}
+      options={normalizedOptions}
+      getOptionLabel={(option: NormalizedOption<TValue> | string) => {
+        // In freeSolo mode, option can be from options array OR a typed string
         if (typeof option === 'string') {
           return option;
         }
-        if (typeof option.label === 'string') {
-          return option.label;
-        }
-        return option.value;
+        return option.label;
+      }}
+      renderOption={(props, option: NormalizedOption<TValue>) => {
+        // MUI v7: Explicitly add aria-disabled for accessibility
+        // Note: Props AFTER spread override props FROM spread
+        return (
+          <li {...props} aria-disabled={option.disabled ? 'true' : 'false'}>
+            {option.label}
+          </li>
+        );
       }}
       isOptionEqualToValue={(
-        option: AutocompleteOption | string,
-        value: AutocompleteOption | string
+        option: NormalizedOption<TValue>,
+        value: NormalizedOption<TValue>
       ) => {
-        // HARDENING C: Handle both string and option object comparisons
-        if (typeof value === 'string') {
-          if (typeof option === 'string') {
-            return option === value;
-          }
-          return option.value === value;
-        }
-        if (typeof option === 'object' && typeof value === 'object') {
-          return option.value === value.value;
-        }
-        return false;
+        // Compare by value field
+        return option.value === value.value;
       }}
-      getOptionDisabled={(option: AutocompleteOption | string) => {
-        // HARDENING D: Support disabled options
-        if (typeof option === 'object' && 'disabled' in option) {
-          return Boolean(option.disabled);
-        }
-        return false;
+      getOptionDisabled={(option: NormalizedOption<TValue>) => {
+        // Support disabled options from normalized structure
+        return option.disabled;
       }}
       onChange={handlePlainChange}
       onBlur={handlePlainBlur}
