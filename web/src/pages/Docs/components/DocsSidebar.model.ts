@@ -89,6 +89,15 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
         label: 'Layout',
         children: [],
       },
+      {
+        label: 'Utilities',
+        children: [
+          {
+            label: 'ConfirmDialog',
+            path: '/docs/components/confirm-dialog',
+          },
+        ],
+      },
     ],
   },
   {

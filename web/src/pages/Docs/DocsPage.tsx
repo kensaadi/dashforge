@@ -17,6 +17,7 @@ import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
 import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
+import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
 import { Overview } from './getting-started/Overview';
 import { Installation } from './getting-started/Installation';
 import { Usage } from './getting-started/Usage';
@@ -66,6 +67,15 @@ const autocompleteTocItems: DocsTocItem[] = [
   { id: 'playground', label: 'Playground' },
   { id: 'capabilities', label: 'Capabilities' },
   { id: 'scenarios', label: 'Scenarios' },
+  { id: 'api', label: 'API Reference' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const confirmDialogTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'result', label: 'Understanding the Result' },
+  { id: 'scenarios', label: 'Integration Scenarios' },
   { id: 'api', label: 'API Reference' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
@@ -125,6 +135,8 @@ export function DocsPage() {
   const isSelectDocs = location.pathname === '/docs/components/select';
   const isAutocompleteDocs =
     location.pathname === '/docs/components/autocomplete';
+  const isConfirmDialogDocs =
+    location.pathname === '/docs/components/confirm-dialog';
   const isOverview =
     location.pathname === '/docs/getting-started' ||
     location.pathname === '/docs/getting-started/overview';
@@ -142,6 +154,8 @@ export function DocsPage() {
     ? selectTocItems
     : isAutocompleteDocs
     ? autocompleteTocItems
+    : isConfirmDialogDocs
+    ? confirmDialogTocItems
     : isOverview
     ? overviewTocItems
     : isInstallation
@@ -160,6 +174,8 @@ export function DocsPage() {
     <SelectDocs />
   ) : isAutocompleteDocs ? (
     <AutocompleteDocs />
+  ) : isConfirmDialogDocs ? (
+    <ConfirmDialogDocs />
   ) : isOverview ? (
     <Overview />
   ) : isInstallation ? (

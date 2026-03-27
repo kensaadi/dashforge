@@ -5,7 +5,11 @@ export { TextField } from './components/TextField/TextField';
 export type { TextFieldProps } from './components/TextField/textField.types';
 
 export { Select } from './components/Select/Select';
-export type { SelectProps, SelectOption, SelectFieldRuntimeData } from './components/Select/Select';
+export type {
+  SelectProps,
+  SelectOption,
+  SelectFieldRuntimeData,
+} from './components/Select/Select';
 
 export { Checkbox } from './components/Checkbox/Checkbox';
 export type { CheckboxProps } from './components/Checkbox/Checkbox';
@@ -60,3 +64,10 @@ export type { TopBarProps } from './components/TopBar/types';
 
 export { Animate } from './components/Animate/Animate';
 export type { AnimateProps } from './components/Animate/Animate';
+
+export { ConfirmDialogProvider } from './components/ConfirmDialog/ConfirmDialogProvider';
+export { useConfirm } from './components/ConfirmDialog/useConfirm';
+export type {
+  ConfirmOptions,
+  ConfirmResult,
+} from './components/ConfirmDialog/types';

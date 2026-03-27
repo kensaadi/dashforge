@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { DashforgeThemeProvider } from '@dashforge/theme-mui';
+import { ConfirmDialogProvider } from '@dashforge/ui';
 import * as ReactDOM from 'react-dom/client';
 import App from './app/app';
 
@@ -10,7 +11,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <DashforgeThemeProvider>
-      <App />
+      <ConfirmDialogProvider>
+        <App />
+      </ConfirmDialogProvider>
     </DashforgeThemeProvider>
   </StrictMode>
 );
