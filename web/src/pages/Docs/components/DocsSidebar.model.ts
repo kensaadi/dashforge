@@ -79,6 +79,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             label: 'Select',
             path: '/docs/components/select',
           },
+          {
+            label: 'Autocomplete',
+            path: '/docs/components/autocomplete',
+          },
         ],
       },
       {

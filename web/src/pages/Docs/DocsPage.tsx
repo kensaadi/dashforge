@@ -16,6 +16,7 @@ import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
+import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
 import { Overview } from './getting-started/Overview';
 import { Installation } from './getting-started/Installation';
 import { Usage } from './getting-started/Usage';
@@ -55,6 +56,17 @@ const selectTocItems: DocsTocItem[] = [
   { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
   { id: 'conditional-field-visibility', label: 'Conditional Field Visibility' },
   { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const autocompleteTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'layout-variants', label: 'Layout Variants' },
+  { id: 'playground', label: 'Playground' },
+  { id: 'capabilities', label: 'Capabilities' },
+  { id: 'scenarios', label: 'Scenarios' },
+  { id: 'api', label: 'API Reference' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
@@ -111,6 +123,8 @@ export function DocsPage() {
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
   const isSelectDocs = location.pathname === '/docs/components/select';
+  const isAutocompleteDocs =
+    location.pathname === '/docs/components/autocomplete';
   const isOverview =
     location.pathname === '/docs/getting-started' ||
     location.pathname === '/docs/getting-started/overview';
@@ -126,6 +140,8 @@ export function DocsPage() {
     ? numberFieldTocItems
     : isSelectDocs
     ? selectTocItems
+    : isAutocompleteDocs
+    ? autocompleteTocItems
     : isOverview
     ? overviewTocItems
     : isInstallation
@@ -142,6 +158,8 @@ export function DocsPage() {
     <NumberFieldDocs />
   ) : isSelectDocs ? (
     <SelectDocs />
+  ) : isAutocompleteDocs ? (
+    <AutocompleteDocs />
   ) : isOverview ? (
     <Overview />
   ) : isInstallation ? (
