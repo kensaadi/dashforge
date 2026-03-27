@@ -110,7 +110,12 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
   },
   {
     title: 'Theme System',
-    items: [],
+    items: [
+      {
+        label: 'Design Tokens',
+        path: '/docs/theme-system/design-tokens',
+      },
+    ],
   },
   {
     title: 'Architecture',

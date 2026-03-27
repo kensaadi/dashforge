@@ -24,6 +24,7 @@ import { Installation } from './getting-started/Installation';
 import { Usage } from './getting-started/Usage';
 import { ProjectStructure } from './getting-started/ProjectStructure';
 import { WhyDashforge } from './getting-started/WhyDashforge';
+import { DesignTokensDocs } from './theme-system/design-tokens/DesignTokensDocs';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -133,6 +134,19 @@ const whyDashforgeTocItems: DocsTocItem[] = [
   { id: 'get-started', label: 'Get Started' },
 ];
 
+const designTokensTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'live-examples', label: 'Live Examples' },
+  { id: 'why', label: 'Why This Matters' },
+  { id: 'mental-model', label: 'Mental Model' },
+  { id: 'token-structure', label: 'Token Structure' },
+  { id: 'semantic-intents', label: 'Semantic Intents' },
+  { id: 'theme-adapter', label: 'Theme Adapter' },
+  { id: 'scenarios', label: 'Customization Scenarios' },
+  { id: 'api', label: 'API Reference' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -157,6 +171,8 @@ export function DocsPage() {
     location.pathname === '/docs/getting-started/project-structure';
   const isWhyDashforge =
     location.pathname === '/docs/getting-started/why-dashforge';
+  const isDesignTokens =
+    location.pathname === '/docs/theme-system/design-tokens';
 
   const tocItems = isNumberFieldDocs
     ? numberFieldTocItems
@@ -178,6 +194,8 @@ export function DocsPage() {
     ? projectStructureTocItems
     : isWhyDashforge
     ? whyDashforgeTocItems
+    : isDesignTokens
+    ? designTokensTocItems
     : textFieldTocItems;
 
   const docsContent = isNumberFieldDocs ? (
@@ -200,6 +218,8 @@ export function DocsPage() {
     <ProjectStructure />
   ) : isWhyDashforge ? (
     <WhyDashforge />
+  ) : isDesignTokens ? (
+    <DesignTokensDocs />
   ) : (
     <TextFieldDocs />
   );
