@@ -4,10 +4,21 @@ import type { ThemeOptions } from '@mui/material/styles';
 export function getMuiAlertOverrides(
   dash: DashforgeTheme
 ): ThemeOptions['components'] {
-  const iconColor = (c: string) => ({
+  // Fallback: info → primary if info is not defined (backward compatibility)
+  const infoColor = dash.color.intent.info ?? dash.color.intent.primary;
+
+  // Helper for standard variant (neutral background, only icon colored)
+  const standardStyle = (iconColor: string) => ({
     backgroundColor: dash.color.surface.overlay,
     color: dash.color.text.primary,
-    '& .MuiAlert-icon': { color: c },
+    '& .MuiAlert-icon': { color: iconColor },
+  });
+
+  // Helper for filled variant (colored background, inverse text)
+  const filledStyle = (bgColor: string) => ({
+    backgroundColor: bgColor,
+    color: dash.color.text.inverse,
+    '& .MuiAlert-icon': { color: dash.color.text.inverse },
   });
 
   return {
@@ -15,15 +26,18 @@ export function getMuiAlertOverrides(
       styleOverrides: {
         root: {
           borderRadius: dash.radius.md,
-          backgroundColor: dash.color.surface.overlay,
-          color: dash.color.text.primary,
           backgroundImage: 'none',
         },
 
-        standardSuccess: iconColor(dash.color.intent.success),
-        standardWarning: iconColor(dash.color.intent.warning),
-        standardError: iconColor(dash.color.intent.danger),
-        standardInfo: iconColor(dash.color.intent.primary),
+        standardSuccess: standardStyle(dash.color.intent.success),
+        standardWarning: standardStyle(dash.color.intent.warning),
+        standardError: standardStyle(dash.color.intent.danger),
+        standardInfo: standardStyle(infoColor),
+
+        filledSuccess: filledStyle(dash.color.intent.success),
+        filledWarning: filledStyle(dash.color.intent.warning),
+        filledError: filledStyle(dash.color.intent.danger),
+        filledInfo: filledStyle(infoColor),
       },
     },
   };

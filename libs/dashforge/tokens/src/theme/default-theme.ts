@@ -14,6 +14,7 @@ export const defaultLightTheme: DashforgeTheme = {
       success: '#15803D',
       warning: '#B45309',
       danger: '#DC2626',
+      info: '#0EA5E9',
     },
     surface: {
       canvas: '#FFFFFF',
@@ -92,6 +93,7 @@ export const defaultDarkTheme: DashforgeTheme = {
       success: '#22C55E',
       warning: '#F59E0B',
       danger: '#EF4444',
+      info: '#38BDF8',
     },
     surface: {
       canvas: '#0B1220',

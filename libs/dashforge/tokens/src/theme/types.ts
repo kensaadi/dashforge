@@ -4,6 +4,7 @@ export type ColorIntent = {
   success: string;
   warning: string;
   danger: string;
+  info: string;
 };
 
 export type ColorSurface = {

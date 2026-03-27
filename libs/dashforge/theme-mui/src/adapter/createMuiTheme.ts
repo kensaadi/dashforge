@@ -46,6 +46,7 @@ export function createMuiThemeFromDashTheme(dash: DashforgeTheme) {
     success: { main: dash.color.intent.success },
     warning: { main: dash.color.intent.warning },
     error: { main: dash.color.intent.danger },
+    info: { main: dash.color.intent.info ?? dash.color.intent.primary },
 
     background: {
       default: dash.color.surface.canvas,
