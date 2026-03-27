@@ -18,6 +18,7 @@ import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
 import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
 import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
+import { SnackbarDocs } from './components/snackbar/SnackbarDocs';
 import { Overview } from './getting-started/Overview';
 import { Installation } from './getting-started/Installation';
 import { Usage } from './getting-started/Usage';
@@ -80,6 +81,14 @@ const confirmDialogTocItems: DocsTocItem[] = [
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
+const snackbarTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'scenarios', label: 'Integration Scenarios' },
+  { id: 'api', label: 'API Reference' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
 const overviewTocItems: DocsTocItem[] = [
   { id: 'what-is-dashforge', label: 'What is Dashforge?' },
   { id: 'what-you-get', label: 'What you get' },
@@ -137,6 +146,7 @@ export function DocsPage() {
     location.pathname === '/docs/components/autocomplete';
   const isConfirmDialogDocs =
     location.pathname === '/docs/components/confirm-dialog';
+  const isSnackbarDocs = location.pathname === '/docs/components/snackbar';
   const isOverview =
     location.pathname === '/docs/getting-started' ||
     location.pathname === '/docs/getting-started/overview';
@@ -156,6 +166,8 @@ export function DocsPage() {
     ? autocompleteTocItems
     : isConfirmDialogDocs
     ? confirmDialogTocItems
+    : isSnackbarDocs
+    ? snackbarTocItems
     : isOverview
     ? overviewTocItems
     : isInstallation
@@ -176,6 +188,8 @@ export function DocsPage() {
     <AutocompleteDocs />
   ) : isConfirmDialogDocs ? (
     <ConfirmDialogDocs />
+  ) : isSnackbarDocs ? (
+    <SnackbarDocs />
   ) : isOverview ? (
     <Overview />
   ) : isInstallation ? (
