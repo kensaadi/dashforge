@@ -27,6 +27,12 @@ export function getMuiAlertOverrides(
         root: {
           borderRadius: dash.radius.md,
           backgroundImage: 'none',
+          // Remove hover background effect from close button (IconButton inside Alert)
+          '& .MuiIconButton-root': {
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
+          },
         },
 
         standardSuccess: standardStyle(dash.color.intent.success),
