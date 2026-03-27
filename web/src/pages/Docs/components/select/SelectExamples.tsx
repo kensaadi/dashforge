@@ -42,8 +42,7 @@ export function SelectExamples() {
           name="country"
           value={country}
           onChange={(event) => {
-            const { value, label } = event.target;
-            console.log('event', event);
+            const { value } = event.target;
             setCountry(value);
           }}
           options={[

@@ -1,12 +1,19 @@
+import type { ThemeOptions } from '@mui/material/styles';
+
 type ComponentFragment = {
   defaultProps?: Record<string, unknown>;
   styleOverrides?: Record<string, unknown>;
   [key: string]: unknown; // allow other keys (e.g. variants)
 };
 
-export function mergeComponents<T extends Record<string, ComponentFragment>>(
-  ...parts: Array<Partial<T> | undefined>
-): T {
+/**
+ * Merges multiple MUI component override objects into one.
+ * Accepts ThemeOptions['components'] which is compatible with MUI's Components<T> type.
+ * Deep merges defaultProps and styleOverrides for each component.
+ */
+export function mergeComponents(
+  ...parts: Array<ThemeOptions['components'] | undefined>
+): ThemeOptions['components'] {
   const out: Record<string, ComponentFragment> = {};
   const empty: ComponentFragment = {};
 
@@ -35,5 +42,5 @@ export function mergeComponents<T extends Record<string, ComponentFragment>>(
     }
   }
 
-  return out as T;
+  return out;
 }
