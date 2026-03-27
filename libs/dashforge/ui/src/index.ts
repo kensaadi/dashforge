@@ -71,3 +71,11 @@ export type {
   ConfirmOptions,
   ConfirmResult,
 } from './components/ConfirmDialog/types';
+
+export { SnackbarProvider } from './components/Snackbar/SnackbarProvider';
+export { useSnackbar } from './components/Snackbar/useSnackbar';
+export type {
+  SnackbarOptions,
+  SnackbarVariant,
+  SnackbarAPI,
+} from './components/Snackbar/types';
