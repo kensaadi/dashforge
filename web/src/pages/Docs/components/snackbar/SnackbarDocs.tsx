@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsHeroSection, DocsSection } from '../shared';
 import { SnackbarQuickStart } from './SnackbarQuickStart';
 import { SnackbarExamples } from './SnackbarExamples';
 import { SnackbarScenarios } from './SnackbarScenarios';
@@ -18,39 +19,14 @@ export function SnackbarDocs() {
 
   return (
     <Stack spacing={8}>
-      {/* Hero Section - Compact */}
+      {/* Hero Section */}
       <Stack spacing={3}>
-        <Typography
-          variant="h1"
-          sx={{
-            fontSize: { xs: 40, md: 56 },
-            fontWeight: 800,
-            letterSpacing: '-0.04em',
-            lineHeight: 1.1,
-            color: isDark ? '#ffffff' : '#0f172a',
-            background: isDark
-              ? 'linear-gradient(135deg, #ffffff 0%, #fbbf24 100%)'
-              : 'linear-gradient(135deg, #0f172a 0%, #f59e0b 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          Snackbar
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            fontSize: 19,
-            lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            maxWidth: 680,
-          }}
-        >
-          Fire-and-forget notifications with zero boilerplate. Show success,
-          error, and info messages instantly with automatic queue management and
-          dismiss.
-        </Typography>
+        <DocsHeroSection
+          title="Snackbar"
+          description="Fire-and-forget notifications with zero boilerplate. Show success, error, and info messages instantly with automatic queue management and dismiss."
+          themeColor="amber"
+        />
+        {/* Snackbar-specific badge - Imperative Pattern */}
         <Box
           sx={{
             display: 'inline-flex',
@@ -77,149 +53,49 @@ export function SnackbarDocs() {
       </Stack>
 
       {/* Quick Start Section */}
-      <Stack spacing={4} id="quick-start">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Quick Start
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Set up the provider and start showing notifications
-          </Typography>
-        </Box>
+      <DocsSection
+        id="quick-start"
+        title="Quick Start"
+        description="Set up the provider and start showing notifications"
+      >
         <SnackbarQuickStart />
-      </Stack>
+      </DocsSection>
 
       {/* Examples Section */}
-      <Stack spacing={4} id="examples">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Examples
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Interactive demos showing common usage patterns
-          </Typography>
-        </Box>
+      <DocsSection
+        id="examples"
+        title="Examples"
+        description="Interactive demos showing common usage patterns"
+      >
         <SnackbarExamples />
-      </Stack>
+      </DocsSection>
 
       {/* Scenarios Section */}
-      <Stack spacing={4} id="scenarios">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Real-World Scenarios
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Common use cases and implementation patterns
-          </Typography>
-        </Box>
+      <DocsSection
+        id="scenarios"
+        title="Real-World Scenarios"
+        description="Common use cases and implementation patterns"
+      >
         <SnackbarScenarios />
-      </Stack>
+      </DocsSection>
 
       {/* API Reference Section */}
-      <Stack spacing={4} id="api">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            API Reference
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Complete API documentation
-          </Typography>
-        </Box>
+      <DocsSection
+        id="api"
+        title="API Reference"
+        description="Complete API documentation"
+      >
         <SnackbarApi />
-      </Stack>
+      </DocsSection>
 
       {/* Implementation Notes Section */}
-      <Stack spacing={4} id="notes">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Implementation Notes
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Important details about behavior and best practices
-          </Typography>
-        </Box>
+      <DocsSection
+        id="notes"
+        title="Implementation Notes"
+        description="Important details about behavior and best practices"
+      >
         <SnackbarNotes />
-      </Stack>
+      </DocsSection>
     </Stack>
   );
 }
