@@ -5,6 +5,7 @@ import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import BedtimeIcon from '@mui/icons-material/Bedtime';
 import BrightnessLowIcon from '@mui/icons-material/BrightnessLow';
@@ -403,12 +404,29 @@ export function DocsPage() {
           }}
         >
           <Stack direction="row" alignItems="center" spacing={1.25}>
-            <Link component={RouterLink} to="/">
-              <img
-                src={isDark ? '/logo-light.png' : '/logo-dark.png'}
-                alt="Dashforge Logo"
-                width={110}
-              />
+            <Link underline="none" component={RouterLink} to="/">
+              <Typography
+                variant="h4"
+                component="div"
+                sx={{
+                  fontSize: { xs: 28, md: 36 },
+                  fontWeight: 800,
+                  letterSpacing: '-0.04em',
+                  lineHeight: 1.1,
+                  color: isDark ? '#ffffff' : '#0f172a',
+                  background: isDark
+                    ? 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)'
+                    : 'linear-gradient(135deg, #0f172a 0%, #6d28d9 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  textShadow: isDark
+                    ? '0 0 20px rgba(167,139,250,0.20)'
+                    : '0 1px 2px rgba(0,0,0,0.05)',
+                }}
+              >
+                Dashforge-UI
+              </Typography>
             </Link>
           </Stack>
 
