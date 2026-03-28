@@ -83,6 +83,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             label: 'Autocomplete',
             path: '/docs/components/autocomplete',
           },
+          {
+            label: 'Checkbox',
+            path: '/docs/components/checkbox',
+          },
         ],
       },
       {

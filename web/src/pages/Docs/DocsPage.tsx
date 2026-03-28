@@ -17,6 +17,7 @@ import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
 import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
+import { CheckboxDocs } from './components/checkbox/CheckboxDocs';
 import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
 import { SnackbarDocs } from './components/snackbar/SnackbarDocs';
 import { Overview } from './getting-started/Overview';
@@ -65,6 +66,19 @@ const selectTocItems: DocsTocItem[] = [
   { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
   { id: 'conditional-field-visibility', label: 'Conditional Field Visibility' },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const checkboxTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
+  {
+    id: 'reactive-conditional-visibility',
+    label: 'Reactive Conditional Visibility',
+  },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
@@ -229,6 +243,7 @@ export function DocsPage() {
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
   const isSelectDocs = location.pathname === '/docs/components/select';
+  const isCheckboxDocs = location.pathname === '/docs/components/checkbox';
   const isAutocompleteDocs =
     location.pathname === '/docs/components/autocomplete';
   const isConfirmDialogDocs =
@@ -263,6 +278,8 @@ export function DocsPage() {
     ? numberFieldTocItems
     : isSelectDocs
     ? selectTocItems
+    : isCheckboxDocs
+    ? checkboxTocItems
     : isAutocompleteDocs
     ? autocompleteTocItems
     : isConfirmDialogDocs
@@ -301,6 +318,8 @@ export function DocsPage() {
     <NumberFieldDocs />
   ) : isSelectDocs ? (
     <SelectDocs />
+  ) : isCheckboxDocs ? (
+    <CheckboxDocs />
   ) : isAutocompleteDocs ? (
     <AutocompleteDocs />
   ) : isConfirmDialogDocs ? (
