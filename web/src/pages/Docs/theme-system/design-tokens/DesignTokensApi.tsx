@@ -2,6 +2,10 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { ColorIntentPreview } from './ColorIntentPreview';
+import { SurfaceTokensPreview } from './SurfaceTokensPreview';
+import { TextTokensPreview } from './TextTokensPreview';
+import { RadiusScalePreview } from './RadiusScalePreview';
 
 /**
  * API Reference section - Complete token documentation
@@ -48,12 +52,10 @@ export function DesignTokensApi() {
     {
       title: 'Radius Scale',
       tokens: [
-        { name: 'xs', description: '2px - Subtle rounding' },
         { name: 'sm', description: '4px - Small components' },
         { name: 'md', description: '8px - Default rounding' },
         { name: 'lg', description: '12px - Cards, panels' },
-        { name: 'xl', description: '16px - Large containers' },
-        { name: 'full', description: '9999px - Pills, avatars' },
+        { name: 'pill', description: '999px - Pills, avatars' },
       ],
     },
   ];
@@ -129,113 +131,461 @@ export function DesignTokensApi() {
         </Typography>
       </Box>
 
-      {/* Token Tables */}
-      {tokenTables.map((table) => (
-        <Box key={table.title}>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 600,
-              mb: 2,
-              color: isDark ? 'rgba(255,255,255,0.90)' : 'rgba(15,23,42,0.90)',
-            }}
-          >
-            {table.title}
-          </Typography>
+      {/* Color Intent Tokens */}
+      <Box>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            mb: 1,
+            color: isDark ? 'rgba(255,255,255,0.90)' : 'rgba(15,23,42,0.90)',
+          }}
+        >
+          Color Intent Tokens
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            mb: 2.5,
+            color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+          }}
+        >
+          Semantic colors that communicate intent and meaning across your UI.
+        </Typography>
+
+        <ColorIntentPreview />
+
+        {/* Reference Table */}
+        <Box
+          sx={{
+            borderRadius: 1.5,
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+          }}
+        >
           <Box
             sx={{
-              borderRadius: 1.5,
-              border: '1px solid',
+              display: 'grid',
+              gridTemplateColumns: '200px 1fr',
+              bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+              borderBottom: '1px solid',
               borderColor: 'divider',
-              overflow: 'hidden',
             }}
           >
-            {/* Table Header */}
-            <Box
+            <Typography
+              variant="caption"
               sx={{
-                display: 'grid',
-                gridTemplateColumns: '200px 1fr',
-                bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                borderBottom: '1px solid',
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+              }}
+            >
+              Token
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+                borderLeft: '1px solid',
                 borderColor: 'divider',
               }}
             >
+              Description
+            </Typography>
+          </Box>
+          {tokenTables[0].tokens.map((token, index) => (
+            <Box
+              key={token.name}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '200px 1fr',
+                borderBottom:
+                  index < tokenTables[0].tokens.length - 1
+                    ? '1px solid'
+                    : 'none',
+                borderColor: 'divider',
+                '&:hover': {
+                  bgcolor: isDark
+                    ? 'rgba(255,255,255,0.02)'
+                    : 'rgba(0,0,0,0.01)',
+                },
+              }}
+            >
               <Typography
-                variant="caption"
+                variant="body2"
                 sx={{
                   p: 1.5,
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  color: isDark
-                    ? 'rgba(255,255,255,0.7)'
-                    : 'rgba(15,23,42,0.7)',
+                  fontFamily: 'Fira Code, monospace',
+                  fontWeight: 600,
+                  color: isDark ? '#a78bfa' : '#7c3aed',
                 }}
               >
-                Token
+                {token.name}
               </Typography>
               <Typography
-                variant="caption"
+                variant="body2"
                 sx={{
                   p: 1.5,
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
                   color: isDark
-                    ? 'rgba(255,255,255,0.7)'
-                    : 'rgba(15,23,42,0.7)',
+                    ? 'rgba(255,255,255,0.75)'
+                    : 'rgba(15,23,42,0.75)',
                   borderLeft: '1px solid',
                   borderColor: 'divider',
                 }}
               >
-                Description
+                {token.description}
               </Typography>
             </Box>
+          ))}
+        </Box>
+      </Box>
 
-            {/* Table Rows */}
-            {table.tokens.map((token, index) => (
-              <Box
-                key={token.name}
+      {/* Surface Tokens */}
+      <Box>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            mb: 1,
+            color: isDark ? 'rgba(255,255,255,0.90)' : 'rgba(15,23,42,0.90)',
+          }}
+        >
+          Surface Tokens
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            mb: 2.5,
+            color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+          }}
+        >
+          Background colors for surfaces at different elevation levels.
+        </Typography>
+
+        <SurfaceTokensPreview />
+
+        {/* Reference Table */}
+        <Box
+          sx={{
+            borderRadius: 1.5,
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '200px 1fr',
+              bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+              }}
+            >
+              Token
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+                borderLeft: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              Description
+            </Typography>
+          </Box>
+          {tokenTables[1].tokens.map((token, index) => (
+            <Box
+              key={token.name}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '200px 1fr',
+                borderBottom:
+                  index < tokenTables[1].tokens.length - 1
+                    ? '1px solid'
+                    : 'none',
+                borderColor: 'divider',
+                '&:hover': {
+                  bgcolor: isDark
+                    ? 'rgba(255,255,255,0.02)'
+                    : 'rgba(0,0,0,0.01)',
+                },
+              }}
+            >
+              <Typography
+                variant="body2"
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '200px 1fr',
-                  borderBottom:
-                    index < table.tokens.length - 1 ? '1px solid' : 'none',
-                  borderColor: 'divider',
-                  '&:hover': {
-                    bgcolor: isDark
-                      ? 'rgba(255,255,255,0.02)'
-                      : 'rgba(0,0,0,0.01)',
-                  },
+                  p: 1.5,
+                  fontFamily: 'Fira Code, monospace',
+                  fontWeight: 600,
+                  color: isDark ? '#a78bfa' : '#7c3aed',
                 }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    p: 1.5,
-                    fontFamily: 'Fira Code, monospace',
-                    fontWeight: 600,
-                    color: isDark ? '#a78bfa' : '#7c3aed',
-                  }}
-                >
-                  {token.name}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    p: 1.5,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.75)'
-                      : 'rgba(15,23,42,0.75)',
-                    borderLeft: '1px solid',
-                    borderColor: 'divider',
-                  }}
-                >
-                  {token.description}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
+                {token.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  p: 1.5,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.75)'
+                    : 'rgba(15,23,42,0.75)',
+                  borderLeft: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                {token.description}
+              </Typography>
+            </Box>
+          ))}
         </Box>
-      ))}
+      </Box>
+
+      {/* Text Tokens */}
+      <Box>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            mb: 1,
+            color: isDark ? 'rgba(255,255,255,0.90)' : 'rgba(15,23,42,0.90)',
+          }}
+        >
+          Text Tokens
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            mb: 2.5,
+            color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+          }}
+        >
+          Text colors for different hierarchy and prominence levels.
+        </Typography>
+
+        <TextTokensPreview />
+
+        {/* Reference Table */}
+        <Box
+          sx={{
+            borderRadius: 1.5,
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '200px 1fr',
+              bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+              }}
+            >
+              Token
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+                borderLeft: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              Description
+            </Typography>
+          </Box>
+          {tokenTables[2].tokens.map((token, index) => (
+            <Box
+              key={token.name}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '200px 1fr',
+                borderBottom:
+                  index < tokenTables[2].tokens.length - 1
+                    ? '1px solid'
+                    : 'none',
+                borderColor: 'divider',
+                '&:hover': {
+                  bgcolor: isDark
+                    ? 'rgba(255,255,255,0.02)'
+                    : 'rgba(0,0,0,0.01)',
+                },
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  p: 1.5,
+                  fontFamily: 'Fira Code, monospace',
+                  fontWeight: 600,
+                  color: isDark ? '#a78bfa' : '#7c3aed',
+                }}
+              >
+                {token.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  p: 1.5,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.75)'
+                    : 'rgba(15,23,42,0.75)',
+                  borderLeft: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                {token.description}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
+      {/* Radius Scale */}
+      <Box>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            mb: 1,
+            color: isDark ? 'rgba(255,255,255,0.90)' : 'rgba(15,23,42,0.90)',
+          }}
+        >
+          Radius Scale
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            mb: 2.5,
+            color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+          }}
+        >
+          Border radius values for consistent rounded corners across components.
+        </Typography>
+
+        <RadiusScalePreview />
+
+        {/* Reference Table */}
+        <Box
+          sx={{
+            borderRadius: 1.5,
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '200px 1fr',
+              bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+              }}
+            >
+              Token
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                p: 1.5,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)',
+                borderLeft: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              Description
+            </Typography>
+          </Box>
+          {tokenTables[3].tokens.map((token, index) => (
+            <Box
+              key={token.name}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '200px 1fr',
+                borderBottom:
+                  index < tokenTables[3].tokens.length - 1
+                    ? '1px solid'
+                    : 'none',
+                borderColor: 'divider',
+                '&:hover': {
+                  bgcolor: isDark
+                    ? 'rgba(255,255,255,0.02)'
+                    : 'rgba(0,0,0,0.01)',
+                },
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  p: 1.5,
+                  fontFamily: 'Fira Code, monospace',
+                  fontWeight: 600,
+                  color: isDark ? '#a78bfa' : '#7c3aed',
+                }}
+              >
+                {token.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  p: 1.5,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.75)'
+                    : 'rgba(15,23,42,0.75)',
+                  borderLeft: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                {token.description}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
 
       {/* Full Type Reference */}
       <Box>
