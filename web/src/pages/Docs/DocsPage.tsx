@@ -22,6 +22,7 @@ import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
 import { CheckboxDocs } from './components/checkbox/CheckboxDocs';
 import { RadioGroupDocs } from './components/radio-group/RadioGroupDocs';
 import { SwitchDocs } from './components/switch/SwitchDocs';
+import { DateTimePickerDocs } from './components/date-time-picker/DateTimePickerDocs';
 import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
 import { SnackbarDocs } from './components/snackbar/SnackbarDocs';
 import { Overview } from './getting-started/Overview';
@@ -110,6 +111,19 @@ const switchTocItems: DocsTocItem[] = [
 ];
 
 const textareaTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
+  {
+    id: 'reactive-conditional-visibility',
+    label: 'Reactive Conditional Visibility',
+  },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const dateTimePickerTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
@@ -286,6 +300,8 @@ export function DocsPage() {
   const isCheckboxDocs = location.pathname === '/docs/components/checkbox';
   const isRadioGroupDocs = location.pathname === '/docs/components/radio-group';
   const isSwitchDocs = location.pathname === '/docs/components/switch';
+  const isDateTimePickerDocs =
+    location.pathname === '/docs/components/date-time-picker';
   const isAutocompleteDocs =
     location.pathname === '/docs/components/autocomplete';
   const isConfirmDialogDocs =
@@ -328,6 +344,8 @@ export function DocsPage() {
     ? radioGroupTocItems
     : isSwitchDocs
     ? switchTocItems
+    : isDateTimePickerDocs
+    ? dateTimePickerTocItems
     : isAutocompleteDocs
     ? autocompleteTocItems
     : isConfirmDialogDocs
@@ -374,6 +392,8 @@ export function DocsPage() {
     <RadioGroupDocs />
   ) : isSwitchDocs ? (
     <SwitchDocs />
+  ) : isDateTimePickerDocs ? (
+    <DateTimePickerDocs />
   ) : isAutocompleteDocs ? (
     <AutocompleteDocs />
   ) : isConfirmDialogDocs ? (

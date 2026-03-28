@@ -99,6 +99,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             label: 'Switch',
             path: '/docs/components/switch',
           },
+          {
+            label: 'DateTimePicker',
+            path: '/docs/components/date-time-picker',
+          },
         ],
       },
       {
