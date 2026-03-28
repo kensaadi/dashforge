@@ -1,8 +1,8 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsHeroSection, DocsSection, DocsDivider } from '../shared';
 import { TextFieldPlayground } from './TextFieldPlayground';
 import { TextFieldExamples } from './TextFieldExamples';
 import { TextFieldLayoutVariants } from './TextFieldLayoutVariants';
@@ -21,41 +21,12 @@ export function TextFieldDocs() {
 
   return (
     <Stack spacing={8}>
-      {/* Hero Section - Compact */}
-      <Stack spacing={3}>
-        <Typography
-          variant="h1"
-          sx={{
-            fontSize: { xs: 40, md: 56 },
-            fontWeight: 800,
-            letterSpacing: '-0.04em',
-            lineHeight: 1.1,
-            color: isDark ? '#ffffff' : '#0f172a',
-            background: isDark
-              ? 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)'
-              : 'linear-gradient(135deg, #0f172a 0%, #7c3aed 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          TextField
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            fontSize: 19,
-            lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            maxWidth: 680,
-          }}
-        >
-          An intelligent input component built on MUI TextField. Supports
-          standalone usage, seamless DashForm integration with automatic field
-          binding, validation error gating, and reactive visibility. The
-          foundation for composed field behaviors.
-        </Typography>
-      </Stack>
+      {/* Hero Section */}
+      <DocsHeroSection
+        title="TextField"
+        description="An intelligent input component built on MUI TextField. Supports standalone usage, seamless DashForm integration with automatic field binding, validation error gating, and reactive visibility. The foundation for composed field behaviors."
+        themeColor="purple"
+      />
 
       {/* Quick Start - Ultra Compact Onboarding Card */}
       <Box
@@ -145,63 +116,23 @@ export function TextFieldDocs() {
         </Stack>
       </Box>
 
-      {/* Examples Section - Clean Demo List */}
-      <Stack spacing={4} id="examples">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Examples
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Common TextField patterns and configurations
-          </Typography>
-        </Box>
+      {/* Examples Section */}
+      <DocsSection
+        id="examples"
+        title="Examples"
+        description="Common TextField patterns and configurations"
+      >
         <TextFieldExamples />
-      </Stack>
+      </DocsSection>
 
-      {/* Layout Variants - Side-by-Side Comparison */}
-      <Stack spacing={4} id="layout-variants">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Layout Variants
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Floating, stacked, and inline label layouts
-          </Typography>
-        </Box>
+      {/* Layout Variants */}
+      <DocsSection
+        id="layout-variants"
+        title="Layout Variants"
+        description="Floating, stacked, and inline label layouts"
+      >
         <TextFieldLayoutVariants />
-      </Stack>
+      </DocsSection>
 
       {/* Interactive Playground */}
       <Stack spacing={3.5} id="playground">
@@ -233,43 +164,16 @@ export function TextFieldDocs() {
         <TextFieldPlayground />
       </Stack>
 
-      {/* Capabilities - Feature Grid */}
-      <Stack spacing={4} id="capabilities">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Dashforge Capabilities
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Progressive adoption from controlled components to predictive forms
-          </Typography>
-        </Box>
+      {/* Capabilities */}
+      <DocsSection
+        id="capabilities"
+        title="Dashforge Capabilities"
+        description="Progressive adoption from controlled components to predictive forms"
+      >
         <TextFieldCapabilities />
-      </Stack>
+      </DocsSection>
 
-      <Divider
-        sx={{
-          borderColor: isDark
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(15,23,42,0.08)',
-          my: 4,
-        }}
-      />
+      <DocsDivider />
 
       {/* Integration Scenarios - Practical Demos */}
       <Stack spacing={4} id="scenarios">
@@ -309,81 +213,27 @@ export function TextFieldDocs() {
         <TextFieldScenarios />
       </Stack>
 
-      <Divider
-        sx={{
-          borderColor: isDark
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(15,23,42,0.08)',
-          my: 4,
-        }}
-      />
+      <DocsDivider />
 
-      {/* API Reference - Dense Table */}
-      <Stack spacing={4} id="api">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            API Reference
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Complete props and type definitions
-          </Typography>
-        </Box>
+      {/* API Reference */}
+      <DocsSection
+        id="api"
+        title="API Reference"
+        description="Complete props and type definitions"
+      >
         <TextFieldApi />
-      </Stack>
+      </DocsSection>
 
-      <Divider
-        sx={{
-          borderColor: isDark
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(15,23,42,0.08)',
-          my: 4,
-        }}
-      />
+      <DocsDivider />
 
-      {/* Implementation Notes - Info Cards */}
-      <Stack spacing={4} id="notes">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Implementation Notes
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Technical details and best practices
-          </Typography>
-        </Box>
+      {/* Implementation Notes */}
+      <DocsSection
+        id="notes"
+        title="Implementation Notes"
+        description="Technical details and best practices"
+      >
         <TextFieldNotes />
-      </Stack>
+      </DocsSection>
     </Stack>
   );
 }
