@@ -18,6 +18,7 @@ import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
 import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
 import { CheckboxDocs } from './components/checkbox/CheckboxDocs';
+import { RadioGroupDocs } from './components/radio-group/RadioGroupDocs';
 import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
 import { SnackbarDocs } from './components/snackbar/SnackbarDocs';
 import { Overview } from './getting-started/Overview';
@@ -79,6 +80,15 @@ const checkboxTocItems: DocsTocItem[] = [
     id: 'reactive-conditional-visibility',
     label: 'Reactive Conditional Visibility',
   },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const radioGroupTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'scenarios', label: 'Form Integration Scenarios' },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
@@ -244,6 +254,7 @@ export function DocsPage() {
     location.pathname === '/docs/components/number-field';
   const isSelectDocs = location.pathname === '/docs/components/select';
   const isCheckboxDocs = location.pathname === '/docs/components/checkbox';
+  const isRadioGroupDocs = location.pathname === '/docs/components/radio-group';
   const isAutocompleteDocs =
     location.pathname === '/docs/components/autocomplete';
   const isConfirmDialogDocs =
@@ -280,6 +291,8 @@ export function DocsPage() {
     ? selectTocItems
     : isCheckboxDocs
     ? checkboxTocItems
+    : isRadioGroupDocs
+    ? radioGroupTocItems
     : isAutocompleteDocs
     ? autocompleteTocItems
     : isConfirmDialogDocs
@@ -320,6 +333,8 @@ export function DocsPage() {
     <SelectDocs />
   ) : isCheckboxDocs ? (
     <CheckboxDocs />
+  ) : isRadioGroupDocs ? (
+    <RadioGroupDocs />
   ) : isAutocompleteDocs ? (
     <AutocompleteDocs />
   ) : isConfirmDialogDocs ? (

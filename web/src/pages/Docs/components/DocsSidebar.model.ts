@@ -87,6 +87,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             label: 'Checkbox',
             path: '/docs/components/checkbox',
           },
+          {
+            label: 'RadioGroup',
+            path: '/docs/components/radio-group',
+          },
         ],
       },
       {
