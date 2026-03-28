@@ -72,6 +72,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             path: '/docs/components/text-field',
           },
           {
+            label: 'Textarea',
+            path: '/docs/components/textarea',
+          },
+          {
             label: 'NumberField',
             path: '/docs/components/number-field',
           },

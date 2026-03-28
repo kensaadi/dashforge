@@ -232,12 +232,34 @@ importers:
       '@dashforge/ui-core':
         specifier: workspace:*
         version: link:../ui-core
-      react:
-        specifier: ^18.0.0
-        version: 18.3.1
       react-hook-form:
         specifier: ^7.71.1
-        version: 7.71.1(react@18.3.1)
+        version: 7.71.1(react@19.2.4)
+    devDependencies:
+      '@dashforge/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@testing-library/user-event':
+        specifier: ^14.5.2
+        version: 14.6.1(@testing-library/dom@10.4.0)
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.2.14)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   libs/dashforge/theme-core:
     dependencies:
@@ -318,14 +340,14 @@ importers:
   libs/dashforge/ui-core:
     dependencies:
       react:
-        specifier: ^18.0.0
-        version: 18.3.1
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.2.4
       tslib:
         specifier: ^2.0.0
         version: 2.8.1
       valtio:
         specifier: 2.3.0
-        version: 2.3.0(@types/react@19.2.14)(react@18.3.1)
+        version: 2.3.0(@types/react@19.2.14)(react@19.2.4)
 
   web:
     dependencies:
@@ -5957,10 +5979,6 @@ packages:
     peerDependencies:
       react: '>=16.6.0'
       react-dom: '>=16.6.0'
-
-  react@18.3.1:
-    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
-    engines: {node: '>=0.10.0'}
 
   react@19.2.4:
     resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
@@ -13653,10 +13671,6 @@ snapshots:
       react: 19.2.4
       scheduler: 0.27.0
 
-  react-hook-form@7.71.1(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-
   react-hook-form@7.71.1(react@19.2.4):
     dependencies:
       react: 19.2.4
@@ -13691,10 +13705,6 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-
-  react@18.3.1:
-    dependencies:
-      loose-envify: 1.4.0
 
   react@19.2.4: {}
 
@@ -14598,13 +14608,6 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
-
-  valtio@2.3.0(@types/react@19.2.14)(react@18.3.1):
-    dependencies:
-      proxy-compare: 3.0.1
-    optionalDependencies:
-      '@types/react': 19.2.14
-      react: 18.3.1
 
   valtio@2.3.0(@types/react@19.2.14)(react@19.2.4):
     dependencies:

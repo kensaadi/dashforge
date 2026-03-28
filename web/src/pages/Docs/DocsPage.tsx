@@ -15,6 +15,7 @@ import { DOCS_VERSION } from '../../docs/docsVersion';
 import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
+import { TextareaDocs } from './components/textarea/TextareaDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
 import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
@@ -96,6 +97,19 @@ const radioGroupTocItems: DocsTocItem[] = [
 ];
 
 const switchTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
+  {
+    id: 'reactive-conditional-visibility',
+    label: 'Reactive Conditional Visibility',
+  },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const textareaTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
@@ -267,6 +281,7 @@ export function DocsPage() {
   // Determine which documentation to render based on the current path
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
+  const isTextareaDocs = location.pathname === '/docs/components/textarea';
   const isSelectDocs = location.pathname === '/docs/components/select';
   const isCheckboxDocs = location.pathname === '/docs/components/checkbox';
   const isRadioGroupDocs = location.pathname === '/docs/components/radio-group';
@@ -303,6 +318,8 @@ export function DocsPage() {
 
   const tocItems = isNumberFieldDocs
     ? numberFieldTocItems
+    : isTextareaDocs
+    ? textareaTocItems
     : isSelectDocs
     ? selectTocItems
     : isCheckboxDocs
@@ -347,6 +364,8 @@ export function DocsPage() {
 
   const docsContent = isNumberFieldDocs ? (
     <NumberFieldDocs />
+  ) : isTextareaDocs ? (
+    <TextareaDocs />
   ) : isSelectDocs ? (
     <SelectDocs />
   ) : isCheckboxDocs ? (
