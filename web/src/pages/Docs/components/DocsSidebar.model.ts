@@ -91,6 +91,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             label: 'RadioGroup',
             path: '/docs/components/radio-group',
           },
+          {
+            label: 'Switch',
+            path: '/docs/components/switch',
+          },
         ],
       },
       {
