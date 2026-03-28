@@ -1,17 +1,43 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
 import { useDashTheme } from '@dashforge/theme-core';
+import {
+  DocsTable,
+  DocsTableHead,
+  DocsTableBody,
+  DocsTableCell,
+  DocsTableHeaderCell,
+} from '../shared';
 
 /**
  * API Reference section for ConfirmDialog
  * Documents Provider, Hook, Options, and Result types
+ *
+ * ============================================================
+ * LOCAL EXCEPTION: DO NOT MIGRATE TO DocsApiTable
+ * ============================================================
+ *
+ * This component uses a COMPLEX HYBRID API documentation pattern:
+ * - Multiple tables: Provider props, Hook API, Options, Result types
+ * - 5-column schema: Prop | Type | Required | Default | Description
+ * - Color-coded required fields with custom rendering
+ * - Mixed imperative and declarative API documentation
+ *
+ * Justification for keeping local:
+ * 1. Multi-table structure: 4 separate API tables
+ * 2. Extended schema: 5 columns vs standard 4 columns
+ * 3. Custom rendering: Color-coded required fields
+ * 4. Extraction criteria failure: structurally incompatible with standard
+ * 5. Creating DocsApiTable5Column would violate anti-variant policy
+ *
+ * DECISION: Permanent local exception (hardened 2026-03-28)
+ *
+ * See: .opencode/policies/docs-architecture.policies.md
+ * See: .opencode/reports/docs-api-table-hardening-report.md
+ * ============================================================
  */
 export function ConfirmDialogApi() {
   const dashTheme = useDashTheme();
@@ -26,7 +52,6 @@ export function ConfirmDialogApi() {
           sx={{
             fontSize: 18,
             fontWeight: 700,
-            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
             mb: 2,
           }}
         >
@@ -37,107 +62,32 @@ export function ConfirmDialogApi() {
           sx={{
             fontSize: 14,
             lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             mb: 2,
           }}
         >
           Context provider that enables useConfirm() hook. Wrap your app root or
           a subtree where you need confirmation dialogs.
         </Typography>
-        <TableContainer
-          sx={{
-            borderRadius: 1.5,
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
-            bgcolor: isDark ? 'rgba(17,24,39,0.40)' : 'rgba(248,250,252,0.90)',
-          }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Prop
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Type
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Description
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  children
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  ReactNode
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  App content to wrap
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <DocsTable>
+          <DocsTableHead>
+            <TableRow>
+              <DocsTableHeaderCell>Prop</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Type</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Description</DocsTableHeaderCell>
+            </TableRow>
+          </DocsTableHead>
+          <DocsTableBody>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                children
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                ReactNode
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>App content to wrap</DocsTableCell>
+            </TableRow>
+          </DocsTableBody>
+        </DocsTable>
       </Box>
 
       {/* useConfirm Hook */}
@@ -147,7 +97,6 @@ export function ConfirmDialogApi() {
           sx={{
             fontSize: 18,
             fontWeight: 700,
-            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
             mb: 2,
           }}
         >
@@ -158,7 +107,6 @@ export function ConfirmDialogApi() {
           sx={{
             fontSize: 14,
             lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             mb: 2,
           }}
         >
@@ -169,10 +117,6 @@ export function ConfirmDialogApi() {
           sx={{
             p: 2.5,
             borderRadius: 1.5,
-            bgcolor: isDark ? 'rgba(17,24,39,0.40)' : 'rgba(248,250,252,0.90)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
           }}
         >
           <Stack spacing={1.5}>
@@ -181,9 +125,6 @@ export function ConfirmDialogApi() {
                 sx={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.60)'
-                    : 'rgba(15,23,42,0.60)',
                   mb: 0.5,
                 }}
               >
@@ -193,9 +134,6 @@ export function ConfirmDialogApi() {
                 sx={{
                   fontSize: 13,
                   fontFamily: 'monospace',
-                  color: isDark
-                    ? 'rgba(255,255,255,0.85)'
-                    : 'rgba(15,23,42,0.85)',
                 }}
               >
                 {'(options: ConfirmOptions) => Promise<ConfirmResult>'}
@@ -205,9 +143,6 @@ export function ConfirmDialogApi() {
               variant="body2"
               sx={{
                 fontSize: 13,
-                color: isDark
-                  ? 'rgba(255,255,255,0.70)'
-                  : 'rgba(15,23,42,0.70)',
               }}
             >
               Imperative function that opens a confirmation dialog and returns a
@@ -224,485 +159,145 @@ export function ConfirmDialogApi() {
           sx={{
             fontSize: 18,
             fontWeight: 700,
-            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
             mb: 2,
           }}
         >
           ConfirmOptions
         </Typography>
-        <TableContainer
-          sx={{
-            borderRadius: 1.5,
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
-            bgcolor: isDark ? 'rgba(17,24,39,0.40)' : 'rgba(248,250,252,0.90)',
-          }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Prop
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Type
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Required
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Default
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Description
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  title
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  string
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark ? '#86efac' : '#16a34a',
-                    fontWeight: 600,
-                  }}
-                >
-                  Yes
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  -
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  Dialog title
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  description
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  string | ReactNode
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  No
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  -
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  Dialog body content
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  confirmText
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  string
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  No
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  'Confirm'
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  Confirm button label
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  cancelText
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  string
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  No
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  'Cancel'
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  Cancel button label
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  confirmButtonProps
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  ButtonProps
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  No
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  -
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  Confirm button customization (color, variant, icon)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  cancelButtonProps
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  ButtonProps
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  No
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  -
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  Cancel button customization
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.85)'
-                      : 'rgba(15,23,42,0.85)',
-                  }}
-                >
-                  dialogProps
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  DialogProps
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  No
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    fontFamily: 'monospace',
-                    color: isDark
-                      ? 'rgba(255,255,255,0.50)'
-                      : 'rgba(15,23,42,0.50)',
-                  }}
-                >
-                  -
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontSize: 13,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.70)'
-                      : 'rgba(15,23,42,0.70)',
-                  }}
-                >
-                  MUI Dialog props (limited subset: maxWidth, fullWidth,
-                  fullScreen)
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <DocsTable>
+          <DocsTableHead>
+            <TableRow>
+              <DocsTableHeaderCell>Prop</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Type</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Required</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Default</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Description</DocsTableHeaderCell>
+            </TableRow>
+          </DocsTableHead>
+          <DocsTableBody>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                title
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                string
+              </DocsTableCell>
+              <TableCell
+                sx={{
+                  fontSize: 13,
+                  color: isDark ? '#86efac' : '#16a34a',
+                  fontWeight: 600,
+                  borderBottom: isDark
+                    ? '1px solid rgba(255,255,255,0.05)'
+                    : '1px solid rgba(15,23,42,0.05)',
+                }}
+              >
+                Yes
+              </TableCell>
+              <DocsTableCell mono fontSize={13} deemphasize>
+                -
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>Dialog title</DocsTableCell>
+            </TableRow>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                description
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                string | ReactNode
+              </DocsTableCell>
+              <DocsTableCell fontSize={13} deemphasize>
+                No
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13} deemphasize>
+                -
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>Dialog body content</DocsTableCell>
+            </TableRow>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                confirmText
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                string
+              </DocsTableCell>
+              <DocsTableCell fontSize={13} deemphasize>
+                No
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                'Confirm'
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>Confirm button label</DocsTableCell>
+            </TableRow>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                cancelText
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                string
+              </DocsTableCell>
+              <DocsTableCell fontSize={13} deemphasize>
+                No
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                'Cancel'
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>Cancel button label</DocsTableCell>
+            </TableRow>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                confirmButtonProps
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                ButtonProps
+              </DocsTableCell>
+              <DocsTableCell fontSize={13} deemphasize>
+                No
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13} deemphasize>
+                -
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>
+                Confirm button customization (color, variant, icon)
+              </DocsTableCell>
+            </TableRow>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                cancelButtonProps
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                ButtonProps
+              </DocsTableCell>
+              <DocsTableCell fontSize={13} deemphasize>
+                No
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13} deemphasize>
+                -
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>
+                Cancel button customization
+              </DocsTableCell>
+            </TableRow>
+            <TableRow>
+              <DocsTableCell mono fontSize={13}>
+                dialogProps
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13}>
+                DialogProps
+              </DocsTableCell>
+              <DocsTableCell fontSize={13} deemphasize>
+                No
+              </DocsTableCell>
+              <DocsTableCell mono fontSize={13} deemphasize>
+                -
+              </DocsTableCell>
+              <DocsTableCell fontSize={13}>
+                MUI Dialog props (limited subset: maxWidth, fullWidth,
+                fullScreen)
+              </DocsTableCell>
+            </TableRow>
+          </DocsTableBody>
+        </DocsTable>
       </Box>
 
       {/* ConfirmResult */}
@@ -712,7 +307,6 @@ export function ConfirmDialogApi() {
           sx={{
             fontSize: 18,
             fontWeight: 700,
-            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
             mb: 2,
           }}
         >
@@ -723,7 +317,6 @@ export function ConfirmDialogApi() {
           sx={{
             fontSize: 14,
             lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             mb: 2,
           }}
         >
@@ -739,11 +332,6 @@ export function ConfirmDialogApi() {
             fontSize: 13,
             lineHeight: 1.6,
             fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-            color: isDark ? '#e5e7eb' : '#1f2937',
-            bgcolor: isDark ? 'rgba(17,24,39,0.40)' : 'rgba(248,250,252,0.90)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
             overflowX: 'auto',
           }}
         >

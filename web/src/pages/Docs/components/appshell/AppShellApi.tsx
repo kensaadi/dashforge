@@ -1,22 +1,40 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { useDashTheme } from '@dashforge/theme-core';
+import {
+  DocsTable,
+  DocsTableHead,
+  DocsTableBody,
+  DocsTableCell,
+  DocsTableHeaderCell,
+} from '../shared';
 
 /**
  * API Reference section for AppShell
  * Documents AppShell component props
+ *
+ * ============================================================
+ * LOCAL EXCEPTION: DO NOT MIGRATE TO DocsApiTable
+ * ============================================================
+ *
+ * This component uses a STRUCTURALLY DIFFERENT table schema:
+ * - Columns: Prop | Type | **Required** | Description
+ * - Standard DocsApiTable uses: Prop | Type | **Default** | Description
+ *
+ * Justification for keeping local:
+ * 1. Column schema difference: "Required" (Yes/No) vs "Default" (value)
+ * 2. Data structure mismatch: requires `required: boolean` field
+ * 3. Extraction criteria failure: zero variability requirement fails
+ * 4. Creating DocsApiTableRequired violates anti-variant policy
+ *
+ * DECISION: Permanent local exception (hardened 2026-03-28)
+ *
+ * See: .opencode/policies/docs-architecture.policies.md
+ * See: .opencode/reports/docs-api-table-hardening-report.md
+ * ============================================================
  */
 export function AppShellApi() {
-  const dashTheme = useDashTheme();
-  const isDark = dashTheme.meta.mode === 'dark';
-
   const props = [
     {
       name: 'items',
@@ -130,132 +148,37 @@ export function AppShellApi() {
           sx={{
             fontSize: 18,
             fontWeight: 700,
-            color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
             mb: 2,
           }}
         >
           AppShell Props
         </Typography>
-        <TableContainer
-          sx={{
-            borderRadius: 1.5,
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
-            bgcolor: isDark ? 'rgba(17,24,39,0.40)' : 'rgba(248,250,252,0.90)',
-          }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Prop
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Type
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Required
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: isDark
-                      ? 'rgba(255,255,255,0.80)'
-                      : 'rgba(15,23,42,0.80)',
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.02)',
-                  }}
-                >
-                  Description
-                </TableCell>
+        <DocsTable>
+          <DocsTableHead>
+            <TableRow>
+              <DocsTableHeaderCell>Prop</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Type</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Required</DocsTableHeaderCell>
+              <DocsTableHeaderCell>Description</DocsTableHeaderCell>
+            </TableRow>
+          </DocsTableHead>
+          <DocsTableBody>
+            {props.map((prop) => (
+              <TableRow key={prop.name}>
+                <DocsTableCell mono fontSize={13}>
+                  {prop.name}
+                </DocsTableCell>
+                <DocsTableCell mono fontSize={12}>
+                  {prop.type}
+                </DocsTableCell>
+                <DocsTableCell fontSize={13}>
+                  {prop.required ? 'Yes' : 'No'}
+                </DocsTableCell>
+                <DocsTableCell fontSize={13}>{prop.description}</DocsTableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.map((prop) => (
-                <TableRow key={prop.name}>
-                  <TableCell
-                    sx={{
-                      fontSize: 13,
-                      fontFamily: 'monospace',
-                      color: isDark
-                        ? 'rgba(255,255,255,0.85)'
-                        : 'rgba(15,23,42,0.85)',
-                    }}
-                  >
-                    {prop.name}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontSize: 12,
-                      fontFamily: 'monospace',
-                      color: isDark
-                        ? 'rgba(255,255,255,0.70)'
-                        : 'rgba(15,23,42,0.70)',
-                    }}
-                  >
-                    {prop.type}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontSize: 13,
-                      color: isDark
-                        ? 'rgba(255,255,255,0.70)'
-                        : 'rgba(15,23,42,0.70)',
-                    }}
-                  >
-                    {prop.required ? 'Yes' : 'No'}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontSize: 13,
-                      color: isDark
-                        ? 'rgba(255,255,255,0.70)'
-                        : 'rgba(15,23,42,0.70)',
-                    }}
-                  >
-                    {prop.description}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            ))}
+          </DocsTableBody>
+        </DocsTable>
       </Box>
     </Stack>
   );
