@@ -121,6 +121,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
             label: 'Breadcrumbs',
             path: '/docs/components/breadcrumbs',
           },
+          {
+            label: 'TopBar',
+            path: '/docs/components/top-bar',
+          },
         ],
       },
       {

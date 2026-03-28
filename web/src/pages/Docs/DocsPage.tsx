@@ -24,6 +24,7 @@ import { RadioGroupDocs } from './components/radio-group/RadioGroupDocs';
 import { SwitchDocs } from './components/switch/SwitchDocs';
 import { DateTimePickerDocs } from './components/date-time-picker/DateTimePickerDocs';
 import { BreadcrumbsDocs } from './components/breadcrumbs/BreadcrumbsDocs';
+import { TopBarDocs } from './components/top-bar/TopBarDocs';
 import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
 import { SnackbarDocs } from './components/snackbar/SnackbarDocs';
 import { Overview } from './getting-started/Overview';
@@ -142,6 +143,15 @@ const breadcrumbsTocItems: DocsTocItem[] = [
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'scenarios', label: 'Navigation Scenarios' },
+  { id: 'api', label: 'API Reference' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const topBarTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'scenarios', label: 'Layout Composition' },
   { id: 'api', label: 'API Reference' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
@@ -314,6 +324,7 @@ export function DocsPage() {
     location.pathname === '/docs/components/date-time-picker';
   const isBreadcrumbsDocs =
     location.pathname === '/docs/components/breadcrumbs';
+  const isTopBarDocs = location.pathname === '/docs/components/top-bar';
   const isAutocompleteDocs =
     location.pathname === '/docs/components/autocomplete';
   const isConfirmDialogDocs =
@@ -360,6 +371,8 @@ export function DocsPage() {
     ? dateTimePickerTocItems
     : isBreadcrumbsDocs
     ? breadcrumbsTocItems
+    : isTopBarDocs
+    ? topBarTocItems
     : isAutocompleteDocs
     ? autocompleteTocItems
     : isConfirmDialogDocs
@@ -410,6 +423,8 @@ export function DocsPage() {
     <DateTimePickerDocs />
   ) : isBreadcrumbsDocs ? (
     <BreadcrumbsDocs />
+  ) : isTopBarDocs ? (
+    <TopBarDocs />
   ) : isAutocompleteDocs ? (
     <AutocompleteDocs />
   ) : isConfirmDialogDocs ? (
