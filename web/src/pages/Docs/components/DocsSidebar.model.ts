@@ -115,6 +115,15 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
         ],
       },
       {
+        label: 'Navigation',
+        children: [
+          {
+            label: 'Breadcrumbs',
+            path: '/docs/components/breadcrumbs',
+          },
+        ],
+      },
+      {
         label: 'Utilities',
         children: [
           {

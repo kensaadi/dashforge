@@ -23,6 +23,7 @@ import { CheckboxDocs } from './components/checkbox/CheckboxDocs';
 import { RadioGroupDocs } from './components/radio-group/RadioGroupDocs';
 import { SwitchDocs } from './components/switch/SwitchDocs';
 import { DateTimePickerDocs } from './components/date-time-picker/DateTimePickerDocs';
+import { BreadcrumbsDocs } from './components/breadcrumbs/BreadcrumbsDocs';
 import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
 import { SnackbarDocs } from './components/snackbar/SnackbarDocs';
 import { Overview } from './getting-started/Overview';
@@ -133,6 +134,15 @@ const dateTimePickerTocItems: DocsTocItem[] = [
     label: 'Reactive Conditional Visibility',
   },
   { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const breadcrumbsTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'scenarios', label: 'Navigation Scenarios' },
+  { id: 'api', label: 'API Reference' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
@@ -302,6 +312,8 @@ export function DocsPage() {
   const isSwitchDocs = location.pathname === '/docs/components/switch';
   const isDateTimePickerDocs =
     location.pathname === '/docs/components/date-time-picker';
+  const isBreadcrumbsDocs =
+    location.pathname === '/docs/components/breadcrumbs';
   const isAutocompleteDocs =
     location.pathname === '/docs/components/autocomplete';
   const isConfirmDialogDocs =
@@ -346,6 +358,8 @@ export function DocsPage() {
     ? switchTocItems
     : isDateTimePickerDocs
     ? dateTimePickerTocItems
+    : isBreadcrumbsDocs
+    ? breadcrumbsTocItems
     : isAutocompleteDocs
     ? autocompleteTocItems
     : isConfirmDialogDocs
@@ -394,6 +408,8 @@ export function DocsPage() {
     <SwitchDocs />
   ) : isDateTimePickerDocs ? (
     <DateTimePickerDocs />
+  ) : isBreadcrumbsDocs ? (
+    <BreadcrumbsDocs />
   ) : isAutocompleteDocs ? (
     <AutocompleteDocs />
   ) : isConfirmDialogDocs ? (
