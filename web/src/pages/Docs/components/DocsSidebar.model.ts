@@ -87,7 +87,12 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
       },
       {
         label: 'Layout',
-        children: [],
+        children: [
+          {
+            label: 'AppShell',
+            path: '/docs/components/appshell',
+          },
+        ],
       },
       {
         label: 'Utilities',

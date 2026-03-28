@@ -25,6 +25,7 @@ import { Usage } from './getting-started/Usage';
 import { ProjectStructure } from './getting-started/ProjectStructure';
 import { WhyDashforge } from './getting-started/WhyDashforge';
 import { DesignTokensDocs } from './theme-system/design-tokens/DesignTokensDocs';
+import { AppShellDocs } from './components/appshell/AppShellDocs';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -147,6 +148,14 @@ const designTokensTocItems: DocsTocItem[] = [
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
+const appShellTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'scenarios', label: 'Real-World Scenarios' },
+  { id: 'api', label: 'API Reference' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -173,6 +182,7 @@ export function DocsPage() {
     location.pathname === '/docs/getting-started/why-dashforge';
   const isDesignTokens =
     location.pathname === '/docs/theme-system/design-tokens';
+  const isAppShellDocs = location.pathname === '/docs/components/appshell';
 
   const tocItems = isNumberFieldDocs
     ? numberFieldTocItems
@@ -184,6 +194,8 @@ export function DocsPage() {
     ? confirmDialogTocItems
     : isSnackbarDocs
     ? snackbarTocItems
+    : isAppShellDocs
+    ? appShellTocItems
     : isOverview
     ? overviewTocItems
     : isInstallation
@@ -208,6 +220,8 @@ export function DocsPage() {
     <ConfirmDialogDocs />
   ) : isSnackbarDocs ? (
     <SnackbarDocs />
+  ) : isAppShellDocs ? (
+    <AppShellDocs />
   ) : isOverview ? (
     <Overview />
   ) : isInstallation ? (

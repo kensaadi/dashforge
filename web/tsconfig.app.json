@@ -37,6 +37,9 @@
 
   "references": [
     {
+      "path": "../libs/dashforge/tokens/tsconfig.lib.json"
+    },
+    {
       "path": "../libs/dashforge/forms/tsconfig.lib.json"
     },
     {
