@@ -26,6 +26,12 @@ import { ProjectStructure } from './getting-started/ProjectStructure';
 import { WhyDashforge } from './getting-started/WhyDashforge';
 import { DesignTokensDocs } from './theme-system/design-tokens/DesignTokensDocs';
 import { AppShellDocs } from './components/appshell/AppShellDocs';
+import { FormSystemOverview } from './form-system/FormSystemOverview';
+import { FormSystemQuickStart } from './form-system/FormSystemQuickStart';
+import { FormSystemReactions } from './form-system/FormSystemReactions';
+import { FormSystemDynamicForms } from './form-system/FormSystemDynamicForms';
+import { FormSystemPatterns } from './form-system/FormSystemPatterns';
+import { FormSystemApi } from './form-system/FormSystemApi';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -156,6 +162,64 @@ const appShellTocItems: DocsTocItem[] = [
   { id: 'notes', label: 'Implementation Notes' },
 ];
 
+const formSystemOverviewTocItems: DocsTocItem[] = [
+  { id: 'what-is-form-system', label: 'What is the Form System?' },
+  { id: 'the-problem', label: 'The Problem' },
+  { id: 'core-features', label: 'Core Features' },
+  { id: 'why-not-plain-rhf', label: 'Why Not Plain React Hook Form?' },
+  { id: 'how-it-works', label: 'How It Works' },
+  { id: 'relationship-to-components', label: 'Relationship to Components' },
+  { id: 'next-steps', label: 'Next Steps' },
+];
+
+const formSystemQuickStartTocItems: DocsTocItem[] = [
+  { id: 'setup', label: 'Setup' },
+  { id: 'complete-example', label: 'Complete Example' },
+  { id: 'key-concepts', label: 'Key Concepts' },
+  { id: 'next-steps', label: 'Next Steps' },
+];
+
+const formSystemReactionsTocItems: DocsTocItem[] = [
+  { id: 'what-are-reactions', label: 'What Are Reactions?' },
+  { id: 'before-after', label: 'Before/After Comparison' },
+  { id: 'execution-model', label: 'Execution Model' },
+  { id: 'common-patterns', label: 'Common Patterns' },
+  { id: 'stale-response-protection', label: 'Stale Response Protection' },
+  { id: 'reaction-api', label: 'Reaction Definition API' },
+  { id: 'run-context-api', label: 'Run Context API' },
+  { id: 'best-practices', label: 'Best Practices' },
+];
+
+const formSystemDynamicFormsTocItems: DocsTocItem[] = [
+  { id: 'what-are-dynamic-forms', label: 'What Are Dynamic Forms?' },
+  { id: 'conditional-visibility', label: 'Conditional Visibility' },
+  { id: 'runtime-options', label: 'Runtime Options' },
+  { id: 'chained-dependencies', label: 'Chained Dependencies' },
+  { id: 'calculated-values', label: 'Calculated Values' },
+  { id: 'conditional-validation', label: 'Conditional Validation' },
+  { id: 'real-world-example', label: 'Real-World Example' },
+  { id: 'best-practices', label: 'Best Practices' },
+];
+
+const formSystemPatternsTocItems: DocsTocItem[] = [
+  { id: 'organize-reactions', label: 'Organize Reactions' },
+  { id: 'separate-concerns', label: 'Separate Concerns' },
+  { id: 'avoid-deep-dependencies', label: 'Avoid Deep Dependencies' },
+  { id: 'error-handling', label: 'Error Handling' },
+  { id: 'testing', label: 'Testing Strategy' },
+  { id: 'performance', label: 'Performance Considerations' },
+  { id: 'golden-rules', label: 'Golden Rules' },
+];
+
+const formSystemApiTocItems: DocsTocItem[] = [
+  { id: 'dashform', label: 'DashForm' },
+  { id: 'reaction-definition', label: 'ReactionDefinition' },
+  { id: 'run-context', label: 'RunContext' },
+  { id: 'field-runtime-state', label: 'FieldRuntimeState' },
+  { id: 'visible-when', label: 'visibleWhen' },
+  { id: 'options-from-field-data', label: 'optionsFromFieldData' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -183,6 +247,17 @@ export function DocsPage() {
   const isDesignTokens =
     location.pathname === '/docs/theme-system/design-tokens';
   const isAppShellDocs = location.pathname === '/docs/components/appshell';
+  const isFormSystemOverview =
+    location.pathname === '/docs/form-system/overview';
+  const isFormSystemQuickStart =
+    location.pathname === '/docs/form-system/quick-start';
+  const isFormSystemReactions =
+    location.pathname === '/docs/form-system/reactions';
+  const isFormSystemDynamicForms =
+    location.pathname === '/docs/form-system/dynamic-forms';
+  const isFormSystemPatterns =
+    location.pathname === '/docs/form-system/patterns';
+  const isFormSystemApi = location.pathname === '/docs/form-system/api';
 
   const tocItems = isNumberFieldDocs
     ? numberFieldTocItems
@@ -208,6 +283,18 @@ export function DocsPage() {
     ? whyDashforgeTocItems
     : isDesignTokens
     ? designTokensTocItems
+    : isFormSystemOverview
+    ? formSystemOverviewTocItems
+    : isFormSystemQuickStart
+    ? formSystemQuickStartTocItems
+    : isFormSystemReactions
+    ? formSystemReactionsTocItems
+    : isFormSystemDynamicForms
+    ? formSystemDynamicFormsTocItems
+    : isFormSystemPatterns
+    ? formSystemPatternsTocItems
+    : isFormSystemApi
+    ? formSystemApiTocItems
     : textFieldTocItems;
 
   const docsContent = isNumberFieldDocs ? (
@@ -234,6 +321,18 @@ export function DocsPage() {
     <WhyDashforge />
   ) : isDesignTokens ? (
     <DesignTokensDocs />
+  ) : isFormSystemOverview ? (
+    <FormSystemOverview />
+  ) : isFormSystemQuickStart ? (
+    <FormSystemQuickStart />
+  ) : isFormSystemReactions ? (
+    <FormSystemReactions />
+  ) : isFormSystemDynamicForms ? (
+    <FormSystemDynamicForms />
+  ) : isFormSystemPatterns ? (
+    <FormSystemPatterns />
+  ) : isFormSystemApi ? (
+    <FormSystemApi />
   ) : (
     <TextFieldDocs />
   );

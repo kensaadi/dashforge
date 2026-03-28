@@ -111,7 +111,32 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
   },
   {
     title: 'Form System',
-    items: [],
+    items: [
+      {
+        label: 'Overview',
+        path: '/docs/form-system/overview',
+      },
+      {
+        label: 'Quick Start',
+        path: '/docs/form-system/quick-start',
+      },
+      {
+        label: 'Reactions',
+        path: '/docs/form-system/reactions',
+      },
+      {
+        label: 'Dynamic Forms',
+        path: '/docs/form-system/dynamic-forms',
+      },
+      {
+        label: 'Patterns',
+        path: '/docs/form-system/patterns',
+      },
+      {
+        label: 'API Reference',
+        path: '/docs/form-system/api',
+      },
+    ],
   },
   {
     title: 'Theme System',
