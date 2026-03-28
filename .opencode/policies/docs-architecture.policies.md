@@ -218,11 +218,20 @@ These sections MUST remain in component files:
    - **Decision**: Keep inline with custom styles
 
 4. **Implementation Notes**
+
    - Significant styling variations across components
    - TextField: numbered cards with purple badges
    - Snackbar: numbered cards with amber badges + highlight variant
    - AppShell: simple blue boxes without numbers
    - **Decision**: Keep in `*Notes.tsx` files, never extract
+
+5. **Capabilities Cards**
+   - Must follow the refined pattern from Checkbox
+   - Each card: Title, Badge, Short description (max 2–3 lines), 3 bullet points (4–5 words each), Code block
+   - Cards must be balanced summary surfaces, NOT mini documentation pages
+   - Grid layout must use `minmax(0, 1fr)` to prevent overflow
+   - Responsive breakpoints: `md` (2 columns), `xl` (3 columns)
+   - **Decision**: Keep in `*Capabilities.tsx` files, never extract card structure
 
 ### Always Shared (Extract When Stable)
 
@@ -343,6 +352,144 @@ export function ComponentDocs() {
 4. **Custom sections**: Write inline with full control
 5. **Dividers**: Use `DocsDivider` for all section breaks
 6. **Callouts**: Use `DocsCalloutBox` for info/success/warning/error
+
+---
+
+## Capabilities Card Pattern (Input Components)
+
+### Overview
+
+Input component capability sections (TextField, NumberField, Select, Autocomplete, Checkbox, etc.) MUST follow a consistent card-based pattern. This pattern was refined in 2026-03-28 to ensure visual balance, content density consistency, and proper responsive behavior.
+
+### Mandatory Structure
+
+Each capabilities section MUST contain:
+
+1. **Section Introduction** (Box wrapper)
+
+   - 1 paragraph (max 3 sentences)
+   - Typography with consistent sizing
+   - Max-width constraint (720px)
+
+2. **Card Grid** (CSS Grid layout)
+
+   - Grid template columns: `xs: '1fr', md: 'repeat(2, minmax(0, 1fr))', xl: 'repeat(3, minmax(0, 1fr))'`
+   - Gap: `{ xs: 3, md: 3 }`
+   - CRITICAL: Use `minmax(0, 1fr)` to prevent horizontal overflow
+
+3. **Individual Cards** (3 cards per component)
+   - Padding: `{ xs: 3, md: 3.5 }`
+   - Border radius: `2.5`
+   - Consistent background, border, shadow, hover state
+
+### Card Content Structure
+
+Each card MUST follow this exact structure:
+
+```tsx
+<Stack spacing={2.5}>
+  {/* 1. Header */}
+  <Box>
+    <Typography variant="h3" sx={{fontSize: 18, fontWeight: 700, ...}}>
+      {title}
+    </Typography>
+    <Box sx={{/* Badge styling */}}>
+      <Typography sx={{fontSize: 10, fontWeight: 700, textTransform: 'uppercase', ...}}>
+        {status}
+      </Typography>
+    </Box>
+  </Box>
+
+  {/* 2. Description */}
+  <Typography variant="body2" sx={{fontSize: 14, lineHeight: 1.7, ...}}>
+    {description}
+  </Typography>
+
+  {/* 3. Bullet Points */}
+  <Stack spacing={1}>
+    {points.map(point => (
+      <Box sx={{display: 'flex', alignItems: 'flex-start', gap: 1.5}}>
+        <Box sx={{/* Bullet dot styling */}} />
+        <Typography variant="body2" sx={{fontSize: 13, lineHeight: 1.6, ...}}>
+          {point}
+        </Typography>
+      </Box>
+    ))}
+  </Stack>
+
+  {/* 4. Code Example */}
+  <DocsCodeBlock code={code} language="tsx" />
+</Stack>
+```
+
+### Content Density Rules
+
+**Description (Field 1)**:
+
+- Max 2–3 sentences
+- Max ~120 characters (~20-25 words)
+- Focus on practical use case
+- No marketing phrases ("Built on...", "Powered by...")
+- No technical jargon ("manual state orchestration", "architectural")
+
+**Bullet Points (Field 2)**:
+
+- Exactly 3 bullet points per card
+- Each bullet: 4–5 words maximum
+- Scannable, concise, actionable
+- No redundant explanations
+
+**Code Example (Field 3)**:
+
+- Minimal, realistic example
+- Max 8-10 lines
+- Component name + essential props only
+
+### Visual Balance Requirements
+
+All three cards MUST have similar heights:
+
+- No card should be >10% taller than others
+- Achieved through consistent content density
+- Not through artificial padding or truncation
+
+### Forbidden Patterns
+
+**DO NOT**:
+
+- Turn cards into mini documentation pages
+- Include verbose technical explanations
+- Add more than 3 bullet points
+- Use bullet points longer than 5 words
+- Add architectural claims ("Built on Reactive V2 architecture")
+- Duplicate information between description and bullets
+- Use different grid layouts (`repeat(3, 1fr)` is FORBIDDEN - causes overflow)
+
+### Quality Standard
+
+**Reference Implementation**: CheckboxCapabilities.tsx (refined 2026-03-28)
+
+All input capability sections MUST match Checkbox in:
+
+- Content weight
+- Readability
+- Practicality
+- Visual rhythm
+- Relative card height balance
+
+### Acceptance Criteria
+
+Before merging capability sections:
+
+- [ ] Grid uses `minmax(0, 1fr)` pattern
+- [ ] Breakpoints: `md` (2 cols), `xl` (3 cols)
+- [ ] No horizontal overflow at any breakpoint
+- [ ] Each card has exactly 3 bullet points
+- [ ] Descriptions are 2–3 sentences max
+- [ ] Bullet points are 4–5 words max
+- [ ] All cards have similar heights (±10%)
+- [ ] No marketing phrases or jargon
+- [ ] Code examples are minimal and realistic
 
 ---
 
@@ -605,6 +752,21 @@ This policy may be modified ONLY by:
 ---
 
 ## Version History
+
+### v1.1 (2026-03-28)
+
+**Capabilities Card Pattern Codification**
+
+- Added "Capabilities Card Pattern (Input Components)" section
+- Defined mandatory structure for capability sections
+- Established content density rules (2-3 sentence descriptions, 3 bullets max, 4-5 words per bullet)
+- Documented visual balance requirements (cards must have similar heights)
+- Codified grid layout pattern (`minmax(0, 1fr)` to prevent overflow)
+- Established responsive breakpoints (`md` for 2 columns, `xl` for 3 columns)
+- Refined TextField, NumberField, Select, Autocomplete, Checkbox capability sections
+- Reference implementation: CheckboxCapabilities.tsx
+
+**Status**: ENFORCED
 
 ### v1.0 (2026-03-28)
 

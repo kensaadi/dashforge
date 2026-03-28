@@ -61,10 +61,10 @@ export function SelectCapabilities() {
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'Load options dynamically based on form state or external data. Select supports runtime-driven options through Reactive V2, enabling conditional data loading, dependent dropdowns, and async option fetching. Options can be any shape—use mapper functions to adapt.',
+        'Select can load options dynamically from form state or external data. Supports conditional visibility and runtime-driven option loading.',
       points: [
         'Runtime options via optionsFromFieldData',
-        'Generic option shapes with mapper functions',
+        'Mapper functions for custom shapes',
         'Conditional visibility with visibleWhen',
       ],
       code: `<Select
@@ -102,7 +102,11 @@ export function SelectCapabilities() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, minmax(0, 1fr))',
+            xl: 'repeat(3, minmax(0, 1fr))',
+          },
           gap: { xs: 3, md: 3 },
         }}
       >

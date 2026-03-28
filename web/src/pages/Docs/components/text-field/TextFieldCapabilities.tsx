@@ -59,11 +59,11 @@ export function TextFieldCapabilities() {
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'TextField supports conditional rendering through the visibleWhen prop. Component-level visibility controlled by engine-driven predicates. Enables field-to-field dependencies and dynamic form flows without manual state orchestration. Built on Reactive V2 architecture.',
+        'TextField can participate in engine-driven visibility rules through visibleWhen. Use it when text input depends on other form state.',
       points: [
         'Conditional rendering via visibleWhen',
-        'Engine-driven predicates with access to all field state',
-        'Component decides rendering, engine provides state',
+        'Engine evaluates the predicate',
+        'Useful for dependent text fields',
       ],
       code: `<TextField
   name="other"
@@ -97,7 +97,11 @@ export function TextFieldCapabilities() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, minmax(0, 1fr))',
+            xl: 'repeat(3, minmax(0, 1fr))',
+          },
           gap: { xs: 3, md: 3 },
         }}
       >

@@ -58,11 +58,11 @@ export function NumberFieldCapabilities() {
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'NumberField handles numeric input with built-in parsing and validation. Additionally supports conditional rendering through visibleWhen for dynamic form flows. Component-level visibility controlled by engine-driven predicates. Built on Reactive V2 architecture.',
+        'NumberField can participate in engine-driven visibility rules through visibleWhen. Use it when numeric input depends on other form state.',
       points: [
-        'Primary: Numeric type handling (number | null, never NaN)',
-        'Conditional rendering via visibleWhen prop',
-        'Engine provides state, component decides rendering',
+        'Conditional rendering via visibleWhen',
+        'Engine evaluates the predicate',
+        'Useful for dependent numeric fields',
       ],
       code: `<NumberField
   name="quantity"
@@ -95,7 +95,11 @@ export function NumberFieldCapabilities() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, minmax(0, 1fr))',
+            xl: 'repeat(3, minmax(0, 1fr))',
+          },
           gap: { xs: 3, md: 3 },
         }}
       >
