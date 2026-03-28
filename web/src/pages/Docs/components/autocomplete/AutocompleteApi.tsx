@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 import { DocsApiTable, type ApiPropDefinition } from '../shared';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 
 /**
  * AutocompleteApi documents the component's API surface
@@ -131,26 +132,13 @@ export function AutocompleteApi() {
         >
           Generic Type Signature
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            p: 2,
-            bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.03)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(0,0,0,0.08)',
-            borderRadius: 1,
-            overflow: 'auto',
-            fontSize: 13,
-            fontFamily: 'monospace',
-            color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(15,23,42,0.85)',
-          }}
-        >
-          {`function Autocomplete<
+        <DocsCodeBlock
+          code={`function Autocomplete<
   TValue extends string | number = string,
   TOption = AutocompleteOption
 >(props: AutocompleteProps<TValue, TOption>): JSX.Element`}
-        </Box>
+          language="typescript"
+        />
       </Box>
 
       <Box>
@@ -165,22 +153,8 @@ export function AutocompleteApi() {
         >
           Generic Usage Example
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            p: 2,
-            bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.03)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(0,0,0,0.08)',
-            borderRadius: 1,
-            overflow: 'auto',
-            fontSize: 13,
-            fontFamily: 'monospace',
-            color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(15,23,42,0.85)',
-          }}
-        >
-          {`interface Country {
+        <DocsCodeBlock
+          code={`interface Country {
   code: string;
   name: string;
   disabled?: boolean;
@@ -194,7 +168,8 @@ export function AutocompleteApi() {
   getOptionValue={(option) => option.code}
   getOptionDisabled={(option) => option.disabled ?? false}
 />`}
-        </Box>
+          language="tsx"
+        />
       </Box>
     </Stack>
   );

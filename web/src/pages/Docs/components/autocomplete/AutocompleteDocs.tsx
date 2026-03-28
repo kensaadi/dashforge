@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 import { AutocompleteExamples } from './AutocompleteExamples';
 import { AutocompleteLayoutVariants } from './AutocompleteLayoutVariants';
 import { AutocompletePlayground } from './AutocompletePlayground';
@@ -109,31 +110,16 @@ export function AutocompleteDocs() {
             </Box>
           </Stack>
 
-          <Box
-            component="pre"
-            sx={{
-              m: 0,
-              p: 2.5,
-              borderRadius: 1.5,
-              fontSize: 14,
-              lineHeight: 1.7,
-              fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-              color: isDark ? '#e5e7eb' : '#1f2937',
-              bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-              border: isDark
-                ? '1px solid rgba(255,255,255,0.08)'
-                : '1px solid rgba(15,23,42,0.08)',
-              overflowX: 'auto',
-            }}
-          >
-            {`import { Autocomplete } from '@dashforge/ui';
+          <DocsCodeBlock
+            code={`import { Autocomplete } from '@dashforge/ui';
 
 <Autocomplete 
   name="country"
   label="Country"
   options={['USA', 'Canada', 'Mexico']}
 />`}
-          </Box>
+            language="tsx"
+          />
         </Stack>
       </Box>
 

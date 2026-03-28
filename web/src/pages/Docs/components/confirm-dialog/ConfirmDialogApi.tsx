@@ -11,6 +11,7 @@ import {
   DocsTableCell,
   DocsTableHeaderCell,
 } from '../shared';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 
 /**
  * API Reference section for ConfirmDialog
@@ -323,19 +324,8 @@ export function ConfirmDialogApi() {
           Discriminated union that distinguishes between user actions and system
           behavior.
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            m: 0,
-            p: 2.5,
-            borderRadius: 1.5,
-            fontSize: 13,
-            lineHeight: 1.6,
-            fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-            overflowX: 'auto',
-          }}
-        >
-          {`type ConfirmResult =
+        <DocsCodeBlock
+          code={`type ConfirmResult =
   | { status: 'confirmed' }
   | {
       status: 'cancelled';
@@ -345,7 +335,8 @@ export function ConfirmDialogApi() {
       status: 'blocked';
       reason: 'reentrant-call';
     };`}
-        </Box>
+          language="typescript"
+        />
       </Box>
     </Stack>
   );

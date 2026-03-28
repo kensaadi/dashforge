@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 
 /**
  * Result section for ConfirmDialog
@@ -67,31 +68,16 @@ export function ConfirmDialogResult() {
             </Typography>
           </Box>
 
-          <Box
-            component="pre"
-            sx={{
-              m: 0,
-              p: 2,
-              borderRadius: 1.5,
-              fontSize: 13,
-              lineHeight: 1.6,
-              fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-              color: isDark ? '#e5e7eb' : '#1f2937',
-              bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-              border: isDark
-                ? '1px solid rgba(255,255,255,0.08)'
-                : '1px solid rgba(15,23,42,0.08)',
-              overflowX: 'auto',
-            }}
-          >
-            {`const result = await confirm({ title: 'Delete?' });
+          <DocsCodeBlock
+            code={`const result = await confirm({ title: 'Delete?' });
 
 if (result.status === 'confirmed') {
   // User confirmed - proceed
   await performAction();
 }
 // Everything else = abort (simple!)`}
-          </Box>
+            language="tsx"
+          />
         </Stack>
       </Box>
 
@@ -293,29 +279,14 @@ if (result.status === 'confirmed') {
           >
             Advanced: Track cancellation reasons
           </Typography>
-          <Box
-            component="pre"
-            sx={{
-              m: 0,
-              p: 2,
-              borderRadius: 1,
-              fontSize: 12,
-              lineHeight: 1.5,
-              fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-              color: isDark ? '#e5e7eb' : '#1f2937',
-              bgcolor: isDark ? 'rgba(0,0,0,0.20)' : 'rgba(255,255,255,0.50)',
-              border: isDark
-                ? '1px solid rgba(255,255,255,0.05)'
-                : '1px solid rgba(15,23,42,0.05)',
-              overflowX: 'auto',
-            }}
-          >
-            {`if (result.status === 'cancelled') {
+          <DocsCodeBlock
+            code={`if (result.status === 'cancelled') {
   analytics.track('dialog_cancelled', {
     reason: result.reason // 'cancel-button', 'backdrop', 'escape-key'
   });
 }`}
-          </Box>
+            language="tsx"
+          />
         </Stack>
       </Box>
     </Stack>

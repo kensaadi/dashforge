@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 
 /**
  * Quick Start section for ConfirmDialog
@@ -77,29 +78,14 @@ export function ConfirmDialogQuickStart() {
             >
               Step 1: Wrap your app with the provider
             </Typography>
-            <Box
-              component="pre"
-              sx={{
-                m: 0,
-                p: 2,
-                borderRadius: 1.5,
-                fontSize: 13,
-                lineHeight: 1.6,
-                fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-                color: isDark ? '#e5e7eb' : '#1f2937',
-                bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-                border: isDark
-                  ? '1px solid rgba(255,255,255,0.08)'
-                  : '1px solid rgba(15,23,42,0.08)',
-                overflowX: 'auto',
-              }}
-            >
-              {`import { ConfirmDialogProvider } from '@dashforge/ui';
+            <DocsCodeBlock
+              code={`import { ConfirmDialogProvider } from '@dashforge/ui';
 
 <ConfirmDialogProvider>
   <App />
 </ConfirmDialogProvider>`}
-            </Box>
+              language="tsx"
+            />
           </Box>
 
           <Box>
@@ -115,24 +101,8 @@ export function ConfirmDialogQuickStart() {
             >
               Step 2: Use the hook in your components
             </Typography>
-            <Box
-              component="pre"
-              sx={{
-                m: 0,
-                p: 2,
-                borderRadius: 1.5,
-                fontSize: 13,
-                lineHeight: 1.6,
-                fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-                color: isDark ? '#e5e7eb' : '#1f2937',
-                bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-                border: isDark
-                  ? '1px solid rgba(255,255,255,0.08)'
-                  : '1px solid rgba(15,23,42,0.08)',
-                overflowX: 'auto',
-              }}
-            >
-              {`import { useConfirm } from '@dashforge/ui';
+            <DocsCodeBlock
+              code={`import { useConfirm } from '@dashforge/ui';
 
 const confirm = useConfirm();
 
@@ -146,7 +116,8 @@ const handleDelete = async () => {
     await deleteUser();
   }
 };`}
-            </Box>
+              language="tsx"
+            />
           </Box>
         </Stack>
       </Stack>

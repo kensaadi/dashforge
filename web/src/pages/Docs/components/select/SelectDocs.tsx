@@ -10,6 +10,7 @@ import { SelectCapabilities } from './SelectCapabilities';
 import { SelectScenarios } from './SelectScenarios';
 import { SelectApi } from './SelectApi';
 import { SelectNotes } from './SelectNotes';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 
 /**
  * SelectDocs is the main documentation page for the Select component
@@ -110,33 +111,8 @@ export function SelectDocs() {
             </Box>
           </Stack>
 
-          <Box
-            component="pre"
-            sx={{
-              m: 0,
-              p: 2.5,
-              borderRadius: 1.5,
-              fontSize: 14,
-              lineHeight: 1.7,
-              fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-              color: isDark ? '#e5e7eb' : '#1f2937',
-              bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-              border: isDark
-                ? '1px solid rgba(255,255,255,0.08)'
-                : '1px solid rgba(15,23,42,0.08)',
-              overflowX: 'auto',
-              '&::-webkit-scrollbar': {
-                height: 6,
-              },
-              '&::-webkit-scrollbar-thumb': {
-                bgcolor: isDark
-                  ? 'rgba(255,255,255,0.15)'
-                  : 'rgba(15,23,42,0.20)',
-                borderRadius: 1,
-              },
-            }}
-          >
-            {`import { Select } from '@dashforge/ui';
+          <DocsCodeBlock
+            code={`import { Select } from '@dashforge/ui';
 
 <Select 
   label="Country" 
@@ -146,9 +122,12 @@ export function SelectDocs() {
     { value: 'uk', label: 'United Kingdom' }
   ]}
 />`}
-          </Box>
+            language="tsx"
+          />
         </Stack>
       </Box>
+
+      {/* Examples Section - Clean Demo List */}
 
       {/* Examples Section - Clean Demo List */}
       <Stack spacing={4} id="examples">

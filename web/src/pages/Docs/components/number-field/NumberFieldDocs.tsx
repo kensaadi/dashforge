@@ -10,6 +10,7 @@ import { NumberFieldCapabilities } from './NumberFieldCapabilities';
 import { NumberFieldScenarios } from './NumberFieldScenarios';
 import { NumberFieldApi } from './NumberFieldApi';
 import { NumberFieldNotes } from './NumberFieldNotes';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 
 /**
  * NumberFieldDocs is the main documentation page for the NumberField component
@@ -50,12 +51,11 @@ export function NumberFieldDocs() {
             maxWidth: 680,
           }}
         >
-          A specialized numeric input component built on MUI TextField.
-          Provides built-in parsing (controlled value is number | null, never
-          NaN), min/max constraints, and step increments. Supports standalone
-          usage and seamless DashForm integration with automatic field binding
-          and validation. Includes reactive visibility for conditional
-          rendering.
+          A specialized numeric input component built on MUI TextField. Provides
+          built-in parsing (controlled value is number | null, never NaN),
+          min/max constraints, and step increments. Supports standalone usage
+          and seamless DashForm integration with automatic field binding and
+          validation. Includes reactive visibility for conditional rendering.
         </Typography>
       </Stack>
 
@@ -114,36 +114,12 @@ export function NumberFieldDocs() {
             </Box>
           </Stack>
 
-          <Box
-            component="pre"
-            sx={{
-              m: 0,
-              p: 2.5,
-              borderRadius: 1.5,
-              fontSize: 14,
-              lineHeight: 1.7,
-              fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-              color: isDark ? '#e5e7eb' : '#1f2937',
-              bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-              border: isDark
-                ? '1px solid rgba(255,255,255,0.08)'
-                : '1px solid rgba(15,23,42,0.08)',
-              overflowX: 'auto',
-              '&::-webkit-scrollbar': {
-                height: 6,
-              },
-              '&::-webkit-scrollbar-thumb': {
-                bgcolor: isDark
-                  ? 'rgba(255,255,255,0.15)'
-                  : 'rgba(15,23,42,0.20)',
-                borderRadius: 1,
-              },
-            }}
-          >
-            {`import { NumberField } from '@dashforge/ui';
+          <DocsCodeBlock
+            code={`import { NumberField } from '@dashforge/ui';
 
-<NumberField label="Amount" name="amount" />`}
-          </Box>
+<NumberField label="Price" name="price" />`}
+            language="tsx"
+          />
         </Stack>
       </Box>
 

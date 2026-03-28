@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../shared/CodeBlock';
 
 /**
  * NumberFieldCapabilities documents the design philosophy
@@ -217,46 +218,7 @@ export function NumberFieldCapabilities() {
               </Stack>
 
               {/* Code Example */}
-              <Box
-                component="pre"
-                sx={{
-                  m: 0,
-                  p: 2,
-                  borderRadius: 1.5,
-                  fontSize: 12,
-                  lineHeight: 1.6,
-                  fontFamily:
-                    '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
-                  fontWeight: 450,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.85)'
-                    : 'rgba(15,23,42,0.85)',
-                  bgcolor: isDark
-                    ? 'rgba(0,0,0,0.30)'
-                    : 'rgba(248,250,252,0.80)',
-                  border: isDark
-                    ? '1px solid rgba(255,255,255,0.06)'
-                    : '1px solid rgba(15,23,42,0.08)',
-                  overflowX: 'auto',
-                  WebkitFontSmoothing: 'antialiased',
-                  '&::-webkit-scrollbar': {
-                    height: 6,
-                  },
-                  '&::-webkit-scrollbar-track': {
-                    bgcolor: isDark
-                      ? 'rgba(0,0,0,0.20)'
-                      : 'rgba(15,23,42,0.05)',
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    bgcolor: isDark
-                      ? 'rgba(255,255,255,0.15)'
-                      : 'rgba(15,23,42,0.20)',
-                    borderRadius: 1,
-                  },
-                }}
-              >
-                {capability.code}
-              </Box>
+              <DocsCodeBlock code={capability.code} language="tsx" />
             </Stack>
           </Box>
         ))}
