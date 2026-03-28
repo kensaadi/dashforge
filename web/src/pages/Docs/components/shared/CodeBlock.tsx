@@ -6,7 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useDashTheme } from '@dashforge/theme-core';
 import { highlightCode, type SupportedLanguage } from '../../utils/shiki';
 
-interface CodeBlockProps {
+interface DocsCodeBlockProps {
   /**
    * Code to display
    */
@@ -26,16 +26,16 @@ interface CodeBlockProps {
 }
 
 /**
- * CodeBlock component with Shiki syntax highlighting
+ * DocsCodeBlock component with Shiki syntax highlighting
  * Falls back to plain text during loading
  * Optionally supports copy button and header
  */
-export function CodeBlock({
+export function DocsCodeBlock({
   code,
   language = 'tsx',
   showCopy = false,
   header,
-}: CodeBlockProps) {
+}: DocsCodeBlockProps) {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
   const [highlightedCode, setHighlightedCode] = useState<string>('');

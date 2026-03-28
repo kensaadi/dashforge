@@ -2,7 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { CodeBlock } from '../components/shared/CodeBlock';
+import { DocsCodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * Usage - Guide for basic usage of Dashforge components and patterns
@@ -105,7 +105,7 @@ export function Usage() {
               behavior:
             </Typography>
 
-            <CodeBlock
+            <DocsCodeBlock
               code={`import { DashThemeProvider } from '@dashforge/theme-core';
 import { MuiThemeAdapter } from '@dashforge/theme-mui';
 
@@ -153,7 +153,7 @@ export default App;`}
               Use DashForm to create a form with automatic state management:
             </Typography>
 
-            <CodeBlock
+            <DocsCodeBlock
               code={`import { DashForm } from '@dashforge/forms';
 import { TextField } from '@dashforge/ui';
 
@@ -232,7 +232,7 @@ function LoginForm() {
         </Box>
 
         <Stack spacing={3}>
-          <CodeBlock
+          <DocsCodeBlock
             code={`<TextField
   name="firstName"
   label="First Name"
@@ -243,7 +243,7 @@ function LoginForm() {
             language="tsx"
           />
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`<NumberField
   name="age"
   label="Age"
@@ -257,7 +257,7 @@ function LoginForm() {
             language="tsx"
           />
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`<Select
   name="country"
   label="Country"
@@ -313,7 +313,7 @@ function LoginForm() {
             include:
           </Typography>
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`<TextField
   name="username"
   label="Username"
@@ -336,7 +336,7 @@ function LoginForm() {
             language="tsx"
           />
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`<TextField
   name="password"
   label="Password"
@@ -397,7 +397,7 @@ function LoginForm() {
             Use the <code>visibleWhen</code> prop to create dynamic forms:
           </Typography>
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`<DashForm defaultValues={{ contactMethod: '', email: '', phone: '' }}>
   <Select
     name="contactMethod"
@@ -463,7 +463,7 @@ function LoginForm() {
         </Box>
 
         <Stack spacing={3}>
-          <CodeBlock
+          <DocsCodeBlock
             code={`function RegistrationForm() {
   const handleSubmit = (data) => {
     console.log('Submitted data:', data);
@@ -484,7 +484,7 @@ function LoginForm() {
             language="tsx"
           />
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 

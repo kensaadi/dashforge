@@ -6,6 +6,7 @@ import { ColorIntentPreview } from './ColorIntentPreview';
 import { SurfaceTokensPreview } from './SurfaceTokensPreview';
 import { TextTokensPreview } from './TextTokensPreview';
 import { RadiusScalePreview } from './RadiusScalePreview';
+import { DocsCodeBlock } from '../../components/shared/CodeBlock';
 
 /**
  * API Reference section - Complete token documentation
@@ -611,27 +612,8 @@ export function DesignTokensApi() {
         </Typography>
 
         {/* DashforgeTheme Interface */}
-        <Box
-          component="pre"
-          sx={{
-            p: 2.5,
-            borderRadius: 1.5,
-            bgcolor: isDark ? '#1e1e1e' : '#f8f8f8',
-            border: '1px solid',
-            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-            overflow: 'auto',
-            fontSize: 13,
-            lineHeight: 1.6,
-            fontFamily: 'Fira Code, monospace',
-          }}
-        >
-          <code
-            style={{
-              color: isDark ? '#d4d4d4' : '#24292e',
-              display: 'block',
-            }}
-          >
-            {`export interface DashforgeTheme {
+        <DocsCodeBlock
+          code={`export interface DashforgeTheme {
   meta: {
     name: string;
     version: string;
@@ -718,8 +700,8 @@ export interface ShadowScale {
   lg: string;
   xl: string;
 }`}
-          </code>
-        </Box>
+          language="typescript"
+        />
       </Box>
 
       {/* Usage Example */}
@@ -734,29 +716,8 @@ export interface ShadowScale {
         >
           Type-Safe Customization
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            p: 2.5,
-            borderRadius: 1.5,
-            bgcolor: isDark ? '#1e1e1e' : '#f8f8f8',
-            border: '1px solid',
-            borderColor: isDark
-              ? 'rgba(139,92,246,0.3)'
-              : 'rgba(139,92,246,0.2)',
-            overflow: 'auto',
-            fontSize: 14,
-            lineHeight: 1.6,
-            fontFamily: 'Fira Code, monospace',
-          }}
-        >
-          <code
-            style={{
-              color: isDark ? '#d4d4d4' : '#24292e',
-              display: 'block',
-            }}
-          >
-            {`import { createDashTheme } from './theme/createDashTheme';
+        <DocsCodeBlock
+          code={`import { createDashTheme } from './theme/createDashTheme';
 import type { DashforgeTheme } from '@dashforge/tokens';
 
 // Partial overrides with type safety
@@ -780,8 +741,8 @@ const customTheme = createDashTheme({
 
 // Full theme is type-safe
 const theme: DashforgeTheme = customTheme;`}
-          </code>
-        </Box>
+          language="typescript"
+        />
       </Box>
 
       {/* Bottom Note */}

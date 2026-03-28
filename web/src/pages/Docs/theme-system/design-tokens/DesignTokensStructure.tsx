@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../../components/shared/CodeBlock';
 
 /**
  * Token Structure section - Explains the token hierarchy and decision guidance
@@ -82,27 +83,8 @@ export function DesignTokensStructure() {
         >
           Token Hierarchy
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            p: 2.5,
-            borderRadius: 1.5,
-            bgcolor: isDark ? '#1e1e1e' : '#f8f8f8',
-            border: '1px solid',
-            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-            overflow: 'auto',
-            fontSize: 14,
-            lineHeight: 1.6,
-            fontFamily: 'Fira Code, monospace',
-          }}
-        >
-          <code
-            style={{
-              color: isDark ? '#d4d4d4' : '#24292e',
-              display: 'block',
-            }}
-          >
-            {`DashforgeTheme
+        <DocsCodeBlock
+          code={`DashforgeTheme
 ├── color
 │   ├── intent          // Semantic colors (primary, success, etc.)
 │   ├── surface         // Background layers (canvas, elevated, overlay)
@@ -117,8 +99,8 @@ export function DesignTokensStructure() {
 │   └── scale           // Border radius (xs, sm, md, lg, xl, full)
 └── shadow
     └── scale           // Elevation shadows (sm, md, lg, xl)`}
-          </code>
-        </Box>
+          language="tsx"
+        />
       </Box>
 
       {/* WARNING: Don't overuse primary */}
@@ -245,20 +227,8 @@ export function DesignTokensStructure() {
               >
                 ❌ Wrong
               </Typography>
-              <Box
-                component="pre"
-                sx={{
-                  p: 2,
-                  borderRadius: 1,
-                  bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  fontFamily: 'Fira Code, monospace',
-                  overflow: 'auto',
-                }}
-              >
-                <code style={{ color: isDark ? '#d4d4d4' : '#24292e' }}>
-                  {`// Everything is primary
+              <DocsCodeBlock
+                code={`// Everything is primary
 <Button color="primary">
   Save
 </Button>
@@ -270,8 +240,8 @@ export function DesignTokensStructure() {
 </Alert>
 
 // No semantic hierarchy`}
-                </code>
-              </Box>
+                language="tsx"
+              />
             </Box>
           </Grid>
 
@@ -301,20 +271,8 @@ export function DesignTokensStructure() {
               >
                 ✅ Correct
               </Typography>
-              <Box
-                component="pre"
-                sx={{
-                  p: 2,
-                  borderRadius: 1,
-                  bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  fontFamily: 'Fira Code, monospace',
-                  overflow: 'auto',
-                }}
-              >
-                <code style={{ color: isDark ? '#d4d4d4' : '#24292e' }}>
-                  {`// Semantic intent
+              <DocsCodeBlock
+                code={`// Semantic intent
 <Button color="primary">
   Save
 </Button>
@@ -326,8 +284,8 @@ export function DesignTokensStructure() {
 </Alert>
 
 // Clear visual hierarchy`}
-                </code>
-              </Box>
+                language="tsx"
+              />
             </Box>
           </Grid>
         </Grid>

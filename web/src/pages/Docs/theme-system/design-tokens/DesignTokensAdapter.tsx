@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../../components/shared/CodeBlock';
 
 /**
  * Theme Adapter section - Explains how to properly integrate with MUI
@@ -119,27 +120,8 @@ export function DesignTokensAdapter() {
         >
           ❌ Wrong: Bypassing Dashforge
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            p: 2.5,
-            borderRadius: 1.5,
-            bgcolor: isDark ? '#1e1e1e' : '#f8f8f8',
-            border: '1px solid',
-            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-            overflow: 'auto',
-            fontSize: 14,
-            lineHeight: 1.6,
-            fontFamily: 'Fira Code, monospace',
-          }}
-        >
-          <code
-            style={{
-              color: isDark ? '#d4d4d4' : '#24292e',
-              display: 'block',
-            }}
-          >
-            {`import { createTheme } from '@mui/material/styles';
+        <DocsCodeBlock
+          code={`import { createTheme } from '@mui/material/styles';
 
 // ❌ DO NOT DO THIS
 const myTheme = createTheme({
@@ -151,8 +133,8 @@ const myTheme = createTheme({
 });
 
 // You just broke semantic consistency`}
-          </code>
-        </Box>
+          language="typescript"
+        />
       </Box>
 
       {/* CORRECT Example */}
@@ -167,29 +149,8 @@ const myTheme = createTheme({
         >
           ✅ Correct: Using Dashforge Adapter
         </Typography>
-        <Box
-          component="pre"
-          sx={{
-            p: 2.5,
-            borderRadius: 1.5,
-            bgcolor: isDark ? '#1e1e1e' : '#f8f8f8',
-            border: '1px solid',
-            borderColor: isDark
-              ? 'rgba(139,92,246,0.3)'
-              : 'rgba(139,92,246,0.2)',
-            overflow: 'auto',
-            fontSize: 14,
-            lineHeight: 1.6,
-            fontFamily: 'Fira Code, monospace',
-          }}
-        >
-          <code
-            style={{
-              color: isDark ? '#d4d4d4' : '#24292e',
-              display: 'block',
-            }}
-          >
-            {`import { createDashTheme } from './theme/createDashTheme';
+        <DocsCodeBlock
+          code={`import { createDashTheme } from './theme/createDashTheme';
 import { createMuiThemeFromDashTheme } from '@dashforge/theme-mui';
 
 // ✅ DO THIS
@@ -204,8 +165,8 @@ const dashTheme = createDashTheme({
 const muiTheme = createMuiThemeFromDashTheme(dashTheme);
 
 // Semantic meaning preserved, MUI integration automatic`}
-          </code>
-        </Box>
+          language="typescript"
+        />
       </Box>
 
       {/* Architecture Explanation */}

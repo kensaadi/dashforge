@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 import { Link as RouterLink } from 'react-router-dom';
-import { CodeBlock } from '../components/shared/CodeBlock';
+import { DocsCodeBlock } from '../components/shared/CodeBlock';
 import { InstallTabs } from '../components/shared/InstallTabs';
 
 /**
@@ -387,7 +387,7 @@ export function Installation() {
             Create a minimal component to verify the installation:
           </Typography>
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`import { TextField } from '@dashforge/ui'
 
 function Example() {

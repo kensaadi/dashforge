@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useDashTheme } from '@dashforge/theme-core';
-import { CodeBlock } from '../components/shared/CodeBlock';
+import { DocsCodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * WhyDashforge - Explains the motivation and benefits of using Dashforge
@@ -88,7 +88,7 @@ export function WhyDashforge() {
           boilerplate multiplies across every form in your application.
         </Typography>
 
-        <CodeBlock
+        <DocsCodeBlock
           code={`// Traditional form with React Hook Form
 import { useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
@@ -204,7 +204,7 @@ function LoginForm() {
           disappears.
         </Typography>
 
-        <CodeBlock
+        <DocsCodeBlock
           code={`// Same form with Dashforge
 import { DashForm } from '@dashforge/forms';
 import { TextField } from '@dashforge/ui';

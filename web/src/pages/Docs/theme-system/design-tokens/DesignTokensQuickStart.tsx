@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../../components/shared/CodeBlock';
 
 /**
  * Quick Start section - minimal token override example
@@ -62,33 +63,8 @@ export function DesignTokensQuickStart() {
           </Box>
         </Stack>
 
-        <Box
-          component="pre"
-          sx={{
-            m: 0,
-            p: 2.5,
-            borderRadius: 1.5,
-            fontSize: 14,
-            lineHeight: 1.7,
-            fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-            color: isDark ? '#e5e7eb' : '#1f2937',
-            bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
-            overflowX: 'auto',
-            '&::-webkit-scrollbar': {
-              height: 6,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              bgcolor: isDark
-                ? 'rgba(255,255,255,0.15)'
-                : 'rgba(15,23,42,0.20)',
-              borderRadius: 1,
-            },
-          }}
-        >
-          {`import { createDashTheme } from './createDashTheme';
+        <DocsCodeBlock
+          code={`import { createDashTheme } from './createDashTheme';
 import { createMuiThemeFromDashTheme } from '@dashforge/theme-mui';
 
 const myTheme = createDashTheme({
@@ -101,7 +77,8 @@ const myTheme = createDashTheme({
 });
 
 const muiTheme = createMuiThemeFromDashTheme(myTheme);`}
-        </Box>
+          language="tsx"
+        />
 
         <Typography
           sx={{

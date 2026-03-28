@@ -2,6 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../../components/shared/CodeBlock';
 
 /**
  * Mental Model section - Teaching correct semantic thinking
@@ -183,33 +184,8 @@ export function DesignTokensMentalModel() {
           Example: WRONG vs CORRECT
         </Typography>
 
-        <Box
-          component="pre"
-          sx={{
-            m: 0,
-            p: 2.5,
-            borderRadius: 1.5,
-            fontSize: 13,
-            lineHeight: 1.7,
-            fontFamily: '"Fira Code", "SF Mono", Menlo, monospace',
-            color: isDark ? '#e5e7eb' : '#1f2937',
-            bgcolor: isDark ? 'rgba(0,0,0,0.30)' : 'rgba(248,250,252,0.80)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(15,23,42,0.08)',
-            overflowX: 'auto',
-            '&::-webkit-scrollbar': {
-              height: 6,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              bgcolor: isDark
-                ? 'rgba(255,255,255,0.15)'
-                : 'rgba(15,23,42,0.20)',
-              borderRadius: 1,
-            },
-          }}
-        >
-          {`// ❌ WRONG: Treating tokens like colors
+        <DocsCodeBlock
+          code={`// ❌ WRONG: Treating tokens like colors
 <Button sx={{ bgcolor: '#7c3aed' }}>Click</Button>
 
 // ✅ CORRECT: Using semantic intent
@@ -217,7 +193,8 @@ const theme = createDashTheme({
   color: { intent: { primary: '#7c3aed' } }
 });
 <Button color="primary">Click</Button>`}
-        </Box>
+          language="tsx"
+        />
       </Stack>
     </Stack>
   );

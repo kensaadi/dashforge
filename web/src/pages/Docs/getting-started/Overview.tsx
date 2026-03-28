@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useDashTheme } from '@dashforge/theme-core';
 import { Link as RouterLink } from 'react-router-dom';
-import { CodeBlock } from '../components/shared/CodeBlock';
+import { DocsCodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * Overview - Entry point for Getting Started section
@@ -497,7 +497,7 @@ export function Overview() {
           </Typography>
         </Box>
 
-        <CodeBlock
+        <DocsCodeBlock
           code={`import { DashForm } from '@dashforge/forms';
 import { TextField, Select } from '@dashforge/ui';
 

@@ -2,7 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { CodeBlock } from '../components/shared/CodeBlock';
+import { DocsCodeBlock } from '../components/shared/CodeBlock';
 
 /**
  * ProjectStructure - Guide explaining Dashforge project organization
@@ -74,7 +74,7 @@ export function ProjectStructure() {
           </Typography>
         </Box>
 
-        <CodeBlock
+        <DocsCodeBlock
           code={`@dashforge/
 ├── forms/              # Form management system
 │   ├── DashForm        # Main form component
@@ -243,7 +243,7 @@ export function ProjectStructure() {
           </Typography>
         </Box>
 
-        <CodeBlock
+        <DocsCodeBlock
           code={`my-dashforge-app/
 ├── src/
 │   ├── App.tsx                 # Root component with providers
@@ -318,7 +318,7 @@ export function ProjectStructure() {
             Organize imports by layer for clarity:
           </Typography>
 
-          <CodeBlock
+          <DocsCodeBlock
             code={`// 1. React imports
 import { useState, useEffect } from 'react';
 
@@ -400,7 +400,7 @@ import type { User } from '../../types';`}
               Group related forms and components by feature:
             </Typography>
 
-            <CodeBlock
+            <DocsCodeBlock
               code={`features/
 ├── profile/
 │   ├── ProfileForm.tsx         # Main form component
@@ -446,7 +446,7 @@ import type { User } from '../../types';`}
               Create reusable validation rules and form helpers:
             </Typography>
 
-            <CodeBlock
+            <DocsCodeBlock
               code={`utils/
 ├── validation/
 │   ├── email.ts        # Email validation rules

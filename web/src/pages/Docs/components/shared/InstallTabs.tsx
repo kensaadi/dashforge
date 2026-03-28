@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { useDashTheme } from '@dashforge/theme-core';
-import { CodeBlock } from './CodeBlock';
+import { DocsCodeBlock } from './CodeBlock';
 
 type PackageManager = 'pnpm' | 'npm' | 'yarn' | 'bun';
 
@@ -17,7 +17,7 @@ interface InstallTabsProps {
 
 /**
  * InstallTabs - Package manager tabs wrapper for install commands
- * Uses the shared CodeBlock component underneath
+ * Uses the shared DocsCodeBlock component underneath
  */
 export function InstallTabs({ packages }: InstallTabsProps) {
   const [selectedPM, setSelectedPM] = useState<PackageManager>('pnpm');
@@ -127,7 +127,7 @@ export function InstallTabs({ packages }: InstallTabsProps) {
         />
       </Tabs>
       <Box sx={{ p: 0, '& > div': { border: 'none', borderRadius: 0 } }}>
-        <CodeBlock code={commands[selectedPM]} language="bash" showCopy />
+        <DocsCodeBlock code={commands[selectedPM]} language="bash" showCopy />
       </Box>
     </Box>
   );
