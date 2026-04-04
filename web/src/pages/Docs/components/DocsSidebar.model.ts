@@ -172,6 +172,27 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
     ],
   },
   {
+    title: 'Access Control',
+    items: [
+      {
+        label: 'Overview',
+        path: '/docs/access-control/overview',
+      },
+      {
+        label: 'Quick Start',
+        path: '/docs/access-control/quick-start',
+      },
+      {
+        label: 'Core Concepts',
+        path: '/docs/access-control/core-concepts',
+      },
+      {
+        label: 'Playground',
+        path: '/docs/access-control/playground',
+      },
+    ],
+  },
+  {
     title: 'Theme System',
     items: [
       {

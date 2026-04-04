@@ -40,6 +40,10 @@ import { FormSystemReactions } from './form-system/FormSystemReactions';
 import { FormSystemDynamicForms } from './form-system/FormSystemDynamicForms';
 import { FormSystemPatterns } from './form-system/FormSystemPatterns';
 import { FormSystemApi } from './form-system/FormSystemApi';
+import { AccessControlOverview } from './access-control/overview/AccessControlOverview';
+import { AccessControlQuickStart } from './access-control/quick-start/AccessControlQuickStart';
+import { AccessControlCoreConcepts } from './access-control/core-concepts/AccessControlCoreConcepts';
+import { AccessControlPlayground } from './access-control/playground/AccessControlPlayground';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -307,6 +311,38 @@ const formSystemApiTocItems: DocsTocItem[] = [
   { id: 'options-from-field-data', label: 'optionsFromFieldData' },
 ];
 
+const accessControlOverviewTocItems: DocsTocItem[] = [
+  { id: 'what-is-rbac', label: 'What is Access Control?' },
+  { id: 'the-problem', label: 'The Problem' },
+  { id: 'core-features', label: 'Core Features' },
+  { id: 'architecture', label: 'Architecture' },
+  { id: 'when-to-use', label: 'When to Use RBAC' },
+  { id: 'next-steps', label: 'Next Steps' },
+];
+
+const accessControlQuickStartTocItems: DocsTocItem[] = [
+  { id: 'setup', label: 'Setup' },
+  { id: 'complete-example', label: 'Complete Example' },
+  { id: 'key-concepts', label: 'Key Concepts' },
+  { id: 'next-steps', label: 'Next Steps' },
+];
+
+const accessControlCoreConceptsTocItems: DocsTocItem[] = [
+  { id: 'subjects', label: 'Subjects' },
+  { id: 'permissions', label: 'Permissions' },
+  { id: 'roles', label: 'Roles' },
+  { id: 'policies', label: 'Policies' },
+  { id: 'conditions', label: 'Conditions' },
+  { id: 'effect-precedence', label: 'Allow vs Deny Precedence' },
+  { id: 'wildcards', label: 'Wildcard Support' },
+  { id: 'best-practices', label: 'Best Practices' },
+];
+
+const accessControlPlaygroundTocItems: DocsTocItem[] = [
+  { id: 'playground', label: 'Interactive Playground' },
+  { id: 'how-it-works', label: 'How It Works' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -354,6 +390,14 @@ export function DocsPage() {
   const isFormSystemPatterns =
     location.pathname === '/docs/form-system/patterns';
   const isFormSystemApi = location.pathname === '/docs/form-system/api';
+  const isAccessControlOverview =
+    location.pathname === '/docs/access-control/overview';
+  const isAccessControlQuickStart =
+    location.pathname === '/docs/access-control/quick-start';
+  const isAccessControlCoreConcepts =
+    location.pathname === '/docs/access-control/core-concepts';
+  const isAccessControlPlayground =
+    location.pathname === '/docs/access-control/playground';
 
   const tocItems = isNumberFieldDocs
     ? numberFieldTocItems
@@ -405,6 +449,14 @@ export function DocsPage() {
     ? formSystemPatternsTocItems
     : isFormSystemApi
     ? formSystemApiTocItems
+    : isAccessControlOverview
+    ? accessControlOverviewTocItems
+    : isAccessControlQuickStart
+    ? accessControlQuickStartTocItems
+    : isAccessControlCoreConcepts
+    ? accessControlCoreConceptsTocItems
+    : isAccessControlPlayground
+    ? accessControlPlaygroundTocItems
     : textFieldTocItems;
 
   const docsContent = isNumberFieldDocs ? (
@@ -457,6 +509,14 @@ export function DocsPage() {
     <FormSystemPatterns />
   ) : isFormSystemApi ? (
     <FormSystemApi />
+  ) : isAccessControlOverview ? (
+    <AccessControlOverview />
+  ) : isAccessControlQuickStart ? (
+    <AccessControlQuickStart />
+  ) : isAccessControlCoreConcepts ? (
+    <AccessControlCoreConcepts />
+  ) : isAccessControlPlayground ? (
+    <AccessControlPlayground />
   ) : (
     <TextFieldDocs />
   );

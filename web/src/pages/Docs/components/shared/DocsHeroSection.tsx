@@ -2,7 +2,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useDashTheme } from '@dashforge/theme-core';
 
-type ThemeColor = 'purple' | 'blue' | 'amber' | 'green' | 'red';
+type ThemeColor = 'purple' | 'blue' | 'amber' | 'orange' | 'green' | 'red';
 
 interface ColorGradient {
   dark: string;
@@ -21,6 +21,10 @@ const gradients: Record<ThemeColor, ColorGradient> = {
   amber: {
     dark: 'linear-gradient(135deg, #ffffff 0%, #fbbf24 100%)',
     light: 'linear-gradient(135deg, #0f172a 0%, #f59e0b 100%)',
+  },
+  orange: {
+    dark: 'linear-gradient(135deg, #ffffff 0%, #fb923c 100%)',
+    light: 'linear-gradient(135deg, #0f172a 0%, #f97316 100%)',
   },
   green: {
     dark: 'linear-gradient(135deg, #ffffff 0%, #4ade80 100%)',

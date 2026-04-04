@@ -43,6 +43,9 @@
       "path": "../libs/dashforge/forms/tsconfig.lib.json"
     },
     {
+      "path": "../libs/dashforge/rbac/tsconfig.lib.json"
+    },
+    {
       "path": "../libs/dashforge/ui/tsconfig.lib.json"
     },
     {
