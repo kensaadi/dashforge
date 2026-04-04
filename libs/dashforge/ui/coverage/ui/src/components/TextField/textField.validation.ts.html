@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for SnackbarHost.tsx</title>
+    <title>Code coverage report for ui/src/components/TextField/textField.validation.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="prettify.css" />
-    <link rel="stylesheet" href="base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(sort-arrow-sprite.png);
+            background-image: url(../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="index.html">All files</a> SnackbarHost.tsx</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">ui/src/components/TextField</a> textField.validation.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/6</span>
+                <span class='fraction'>7/7</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">86.66% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>13/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/5</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/6</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -107,7 +107,8 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -123,11 +124,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">185x</span>
-<span class="cline-any cline-yes">230x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">185x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -139,61 +135,68 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">193x</span>
+<span class="cline-any cline-yes">44x</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import Box from '@mui/material/Box';
-import type { SnackbarQueueItem } from './types';
-import { SnackbarItem } from './SnackbarItem';
+<span class="cline-any cline-yes">44x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import type { DashFormBridge } from '@dashforge/ui-core';
 &nbsp;
-interface SnackbarHostProps {
-  queue: SnackbarQueueItem[];
-  onExited: (id: string) =&gt; void;
-  onClose: (id: string) =&gt; void;
+/**
+ * Resolved validation state for a field
+ */
+export interface ValidationState {
+  error: boolean;
+  helperText: React.ReactNode;
 }
 &nbsp;
 /**
- * SnackbarHost renders the stack of visible and exiting snackbars
- * Internal component - NOT exported
+ * Resolves error and helperText for a field based on:
+ * - Explicit props (highest priority)
+ * - Form validation state (gated by touched/submit)
+ * - Error gating rules (Form Closure v1)
+ *
+ * Error Display Gating:
+ * - Errors show only when field is touched (after blur) OR form submitted
+ * - Prevents error spam while typing before user interaction
  */
-export function SnackbarHost({ queue, onExited, onClose }: SnackbarHostProps) {
-  // Render only visible and exiting items
-  const renderingItems = queue.filter(
-    (item) =&gt; item.status === 'visible' || item.status === 'exiting'
-  );
+export function resolveValidationState(
+  name: string,
+  bridge: DashFormBridge,
+  explicitError: boolean | undefined,
+  explicitHelperText: React.ReactNode | undefined
+): ValidationState {
+  // Get auto error from form validation
+  const autoErr = bridge.getError?.(name) ?? null;
 &nbsp;
-  return (
-    &lt;Box
-      sx={{
-        position: 'fixed',
-        top: 24,
-        right: 24,
-        zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1,
-        pointerEvents: 'none',
-      }}
-    &gt;
-      {renderingItems.map((item) =&gt; (
-        &lt;SnackbarItem
-          key={item.id}
-          item={item}
-          onClose={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >o</span>nClose(item.id)}</span>
-          onExited={() =&gt; onExited(item.id)}
-        /&gt;
-      ))}
-    &lt;/Box&gt;
-  );
+  // Get touched state and submit count for error gating
+  const autoTouched = bridge.isTouched?.(name) ?? <span class="branch-1 cbranch-no" title="branch not covered" >false;</span>
+  const submitCount = bridge.submitCount ?? <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
+&nbsp;
+  // Gate error display: only show if field touched OR form submitted
+  const allowAutoError = autoTouched || submitCount &gt; 0;
+&nbsp;
+  // Compute resolved props with precedence:
+  // 1. Explicit props override auto values (explicit wins)
+  // 2. Auto values from form validation (gated by touched/submit)
+  const error = explicitError ?? (Boolean(autoErr) &amp;&amp; allowAutoError);
+  const helperText =
+    explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined);
+&nbsp;
+  return { error, helperText };
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -202,16 +205,16 @@ export function SnackbarHost({ queue, onExited, onClose }: SnackbarHostProps) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-27T17:55:04.183Z
+                at 2026-04-04T19:42:36.541Z
             </div>
-        <script src="prettify.js"></script>
+        <script src="../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="sorter.js"></script>
-        <script src="block-navigation.js"></script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
     </body>
 </html>
     

@@ -55,6 +55,9 @@
     },
     {
       "path": "../ui-core/tsconfig.lib.json"
+    },
+    {
+      "path": "../rbac/tsconfig.lib.json"
     }
   ]
 }

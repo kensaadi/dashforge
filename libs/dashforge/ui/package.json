@@ -15,6 +15,7 @@
     }
   },
   "peerDependencies": {
+    "@dashforge/rbac": "workspace:*",
     "@dashforge/ui-core": "workspace:*",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",

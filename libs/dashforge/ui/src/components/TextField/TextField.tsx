@@ -11,6 +11,7 @@ import {
   sanitizeSelectDisplayValue,
 } from './textField.select';
 import { FieldLayoutShell } from '../_internal/FieldLayoutShell';
+import { useAccessState } from '../../hooks/useAccessState';
 
 /**
  * Intelligent TextField component.
@@ -55,6 +56,7 @@ export function TextField(props: TextFieldProps) {
     disabled,
     fullWidth,
     __selectAvailableValues,
+    access,
     ...rest
   } = props;
 
@@ -75,10 +77,47 @@ export function TextField(props: TextFieldProps) {
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
 
-  // Early return for visibility
+  // RBAC access state (hook always called unconditionally)
+  const accessState = useAccessState(access);
+
+  // Early return for visibleWhen
   if (!isVisible) {
     return null;
   }
+
+  // Early return for RBAC visibility
+  if (!accessState.visible) {
+    return null;
+  }
+
+  // Compute effective disabled state (OR logic: any source can disable)
+  // Special case: readonly + select mode → use disabled instead
+  const effectiveDisabled =
+    Boolean(disabled) ||
+    accessState.disabled ||
+    (accessState.readonly && Boolean(rest.select));
+
+  // Compute effective readonly state (OR logic, only for non-select mode)
+  // Check if slotProps.input.readOnly is already set
+  const existingReadOnly =
+    rest.slotProps?.input &&
+    typeof rest.slotProps.input === 'object' &&
+    'readOnly' in rest.slotProps.input
+      ? rest.slotProps.input.readOnly
+      : false;
+  const shouldApplyReadonly =
+    !rest.select && (existingReadOnly || accessState.readonly);
+
+  // Merge readonly into slotProps (preserving existing slotProps)
+  const mergedSlotProps = shouldApplyReadonly
+    ? {
+        ...rest.slotProps,
+        input: {
+          ...(rest.slotProps?.input || {}),
+          readOnly: true,
+        },
+      }
+    : rest.slotProps;
 
   // Resolve validation state (may come from bridge or explicit props)
   const validation =
@@ -127,8 +166,9 @@ export function TextField(props: TextFieldProps) {
           helperText={validation.helperText}
           required={required}
           error={validation.error}
-          disabled={disabled}
+          disabled={effectiveDisabled}
           fullWidth={fullWidth}
+          slotProps={mergedSlotProps}
         />
       );
     }
@@ -143,8 +183,9 @@ export function TextField(props: TextFieldProps) {
         helperText={undefined}
         required={required}
         error={validation.error}
-        disabled={disabled}
+        disabled={effectiveDisabled}
         fullWidth={fullWidth}
+        slotProps={mergedSlotProps}
       />
     );
 
@@ -155,7 +196,7 @@ export function TextField(props: TextFieldProps) {
         required={required}
         helperText={validation.helperText}
         error={validation.error}
-        disabled={disabled}
+        disabled={effectiveDisabled}
         htmlFor={fieldId}
         fullWidth={fullWidth}
         theme={dashTheme}
@@ -191,7 +232,7 @@ export function TextField(props: TextFieldProps) {
           required={required}
           value={selectProps.value}
           error={validation.error}
-          disabled={disabled}
+          disabled={effectiveDisabled}
           fullWidth={fullWidth}
           onChange={selectProps.onChange}
           onBlur={selectProps.onBlur}
@@ -212,7 +253,7 @@ export function TextField(props: TextFieldProps) {
         required={required}
         value={selectProps.value}
         error={validation.error}
-        disabled={disabled}
+        disabled={effectiveDisabled}
         fullWidth={fullWidth}
         onChange={selectProps.onChange}
         onBlur={selectProps.onBlur}
@@ -228,7 +269,7 @@ export function TextField(props: TextFieldProps) {
         required={required}
         helperText={validation.helperText}
         error={validation.error}
-        disabled={disabled}
+        disabled={effectiveDisabled}
         htmlFor={fieldId}
         fullWidth={fullWidth}
         theme={dashTheme}
@@ -239,6 +280,9 @@ export function TextField(props: TextFieldProps) {
   }
 
   // Standard TextField mode
+  // Get value from bridge for controlled mode
+  const fieldValue = bridge.getValue?.(name) ?? '';
+
   // Floating layout: use standard MUI TextField with internal label
   if (layout === 'floating') {
     return (
@@ -250,9 +294,11 @@ export function TextField(props: TextFieldProps) {
         label={label}
         helperText={validation.helperText}
         required={required}
+        value={fieldValue}
         error={validation.error}
-        disabled={disabled}
+        disabled={effectiveDisabled}
         fullWidth={fullWidth}
+        slotProps={mergedSlotProps}
       />
     );
   }
@@ -267,9 +313,11 @@ export function TextField(props: TextFieldProps) {
       label={undefined}
       helperText={undefined}
       required={required}
+      value={fieldValue}
       error={validation.error}
-      disabled={disabled}
+      disabled={effectiveDisabled}
       fullWidth={fullWidth}
+      slotProps={mergedSlotProps}
     />
   );
 
@@ -280,7 +328,7 @@ export function TextField(props: TextFieldProps) {
       required={required}
       helperText={validation.helperText}
       error={validation.error}
-      disabled={disabled}
+      disabled={effectiveDisabled}
       htmlFor={fieldId}
       fullWidth={fullWidth}
       theme={dashTheme}

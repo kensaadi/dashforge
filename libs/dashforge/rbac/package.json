@@ -1,6 +1,15 @@
 {
   "name": "@dashforge/rbac",
   "version": "1.0.0",
-  "type": "commonjs",
-  "private": true
+  "type": "module",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "@org/source": "./src/index.ts",
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  }
 }

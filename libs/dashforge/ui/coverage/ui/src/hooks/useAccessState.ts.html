@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for SnackbarItem.tsx</title>
+    <title>Code coverage report for ui/src/hooks/useAccessState.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="prettify.css" />
-    <link rel="stylesheet" href="base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(sort-arrow-sprite.png);
+            background-image: url(../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="index.html">All files</a> SnackbarItem.tsx</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">ui/src/hooks</a> useAccessState.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>3/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
@@ -129,35 +129,22 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">193x</span>
-<span class="cline-any cline-yes">193x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">193x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -195,71 +182,114 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import Snackbar from '@mui/material/Snackbar';
-import SnackbarContent from '@mui/material/SnackbarContent';
-import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
-import Slide from '@mui/material/Slide';
-import type { SnackbarQueueItem } from './types';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">73x</span>
+<span class="cline-any cline-yes">51x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useMemo } from 'react';
+import { useRbac, resolveAccessState } from '@dashforge/rbac';
+import type { AccessRequirement, AccessState } from '@dashforge/rbac';
 &nbsp;
-interface SnackbarItemProps {
-  item: SnackbarQueueItem;
-  onClose: () =&gt; void;
-  onExited: () =&gt; void;
-}
+// Default full access state (used when no access requirement or no RbacProvider)
+const DEFAULT_ACCESS_STATE: AccessState = {
+  visible: true,
+  disabled: false,
+  readonly: false,
+  granted: true,
+};
 &nbsp;
 /**
- * SnackbarItem renders a single snackbar with transitions
- * Internal component - NOT exported
+ * Hook to resolve RBAC access state for a UI component.
+ *
+ * This hook evaluates the provided AccessRequirement against the current
+ * RBAC context and returns the resolved access state (visible/disabled/readonly).
+ *
+ * **Safe Fallback Behavior**:
+ * - If `access` is undefined: Returns default full access state
+ * - If `access` is defined but no RbacProvider exists: Returns default full access state
+ *   with a development warning (fails safe to allow graceful degradation)
+ *
+ * **Memoization**:
+ * - Returns stable object reference when access decision doesn't change
+ * - Prevents unnecessary re-renders in consuming components
+ *
+ * @param access - Optional access requirement specification
+ * @returns AccessState with visible, disabled, readonly, and granted flags
+ *
+ * @example
+ * ```tsx
+ * function MyComponent({ access }: { access?: AccessRequirement }) {
+ *   const accessState = useAccessState(access);
+ *
+ *   if (!accessState.visible) return null;
+ *
+ *   return (
+ *     &lt;input
+ *       disabled={accessState.disabled}
+ *       readOnly={accessState.readonly}
+ *     /&gt;
+ *   );
+ * }
+ * ```
  */
-export function SnackbarItem({ item, onClose, onExited }: SnackbarItemProps) {
-  const isOpen = item.status === 'visible';
-  const isDefault = item.variant === 'default';
+export function useAccessState(
+  access: AccessRequirement | undefined
+): AccessState {
+  // If no access requirement, return default full access (no RBAC evaluation needed)
+  if (!access) {
+    return DEFAULT_ACCESS_STATE;
+  }
 &nbsp;
-  return (
-    &lt;Snackbar
-      open={isOpen}
-      TransitionComponent={Slide}
-      slotProps={{
-        transition: {
-          direction: 'left',
-          onExited,
-        },
-      }}
-      sx={{ position: 'static', pointerEvents: 'auto' }}
-    &gt;
-      {isDefault ? (
-        &lt;SnackbarContent
-          message={item.message}
-          action={
-            &lt;&gt;
-              {item.options.action}
-              {!item.options.preventDismiss &amp;&amp; (
-                &lt;IconButton
-                  size="small"
-                  aria-label="close"
-                  color="inherit"
-                  onClick={onClose}
-                  sx={{ ml: 1 }}
-                &gt;
-                  ×
-                &lt;/IconButton&gt;
-              )}
-            &lt;/&gt;
-          }
-        /&gt;
-      ) : (
-        &lt;Alert
-          severity={item.variant as 'success' | 'error' | 'warning' | 'info'}
-          onClose={item.options.preventDismiss ? undefined : onClose}
-          action={item.options.action}
-          variant="filled"
-        &gt;
-          {item.message}
-        &lt;/Alert&gt;
-      )}
-    &lt;/Snackbar&gt;
-  );
+  // Attempt to use RBAC context
+  let rbac;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    rbac = useRbac();
+  } catch (error) {
+    // No RbacProvider found - fail safe to full access
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        '[useAccessState] No RbacProvider found but access requirement was provided. ' +
+          'Defaulting to full access. Wrap your component tree with &lt;RbacProvider&gt; to enable RBAC. ' +
+          `Resource: ${access.resource}, Action: ${access.action}`
+      );
+    }
+    return DEFAULT_ACCESS_STATE;
+  }
+&nbsp;
+  // Resolve to UI access state using memoization
+  // This prevents creating new objects when access requirement doesn't change
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useMemo(() =&gt; resolveAccessState(access, rbac.can), [access, rbac]);
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -268,16 +298,16 @@ export function SnackbarItem({ item, onClose, onExited }: SnackbarItemProps) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-27T17:55:04.183Z
+                at 2026-04-04T19:42:36.541Z
             </div>
-        <script src="prettify.js"></script>
+        <script src="../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="sorter.js"></script>
-        <script src="block-navigation.js"></script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
     </body>
 </html>
     
