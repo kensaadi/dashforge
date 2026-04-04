@@ -1,0 +1,41 @@
+{
+  "name": "@dashforge/rbac",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/dashforge/rbac/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/dashforge/rbac",
+        "main": "libs/dashforge/rbac/src/index.ts",
+        "tsConfig": "libs/dashforge/rbac/tsconfig.lib.json",
+        "assets": ["libs/dashforge/rbac/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "config": "libs/dashforge/rbac/vite.config.mts",
+        "passWithNoTests": false,
+        "reportsDirectory": "libs/dashforge/rbac/coverage"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/dashforge/rbac/**/*.ts"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/dashforge/rbac/tsconfig.lib.json"
+      }
+    }
+  },
+  "tags": ["type:library", "scope:dashforge"]
+}
