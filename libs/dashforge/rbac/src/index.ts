@@ -6,6 +6,7 @@
  * @packageDocumentation
  */
 
+// Core exports
 export { RbacEngine, createRbacEngine } from './core/rbac-engine';
 
 export {
@@ -26,3 +27,27 @@ export type {
   ConditionContext,
   ConditionFunction,
 } from './core/types';
+
+// React layer exports (re-export from react/index)
+export { RbacProvider } from './react/RbacProvider';
+export { useRbac } from './react/useRbac';
+export { useCan } from './react/useCan';
+export { Can } from './react/Can';
+
+// Dashforge integration layer exports (re-export from dashforge/index)
+export type {
+  UnauthorizedBehavior,
+  AccessRequirement,
+  AccessState,
+  NavigationItem,
+  ActionItem,
+  AccessGuardConfig,
+  AccessGuardProps,
+} from './dashforge/types';
+
+export {
+  resolveAccessState,
+  filterNavigationItems,
+  filterActions,
+  createAccessGuard,
+} from './dashforge/index';
