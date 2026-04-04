@@ -30,7 +30,7 @@ describe('NumberField', () => {
             name="age"
             label="Age"
             value={value}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const raw = e.target.value;
               const parsed = raw === '' ? null : Number(raw);
               setValue(Number.isFinite(parsed) ? parsed : null);

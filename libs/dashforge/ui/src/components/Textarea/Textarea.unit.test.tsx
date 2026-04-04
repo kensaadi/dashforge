@@ -33,7 +33,7 @@ describe('Textarea', () => {
             name="description"
             label="Description"
             value={value}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
               const newValue = e.target.value;
               setValue(newValue);
               values.push(newValue);

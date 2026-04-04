@@ -47,7 +47,7 @@ describe('Select', () => {
           name="country"
           label="Country"
           options={testOptions}
-          onChange={(e) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             selectedValue = (e.target as HTMLInputElement).value;
           }}
         />

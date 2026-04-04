@@ -98,7 +98,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       await userEvent.click(select);
       await waitFor(() => {
         expect(getByRole('option', { name: 'New York' })).toBeInTheDocument();
-        expect(getByRole('option', { name: 'San Francisco' })).toBeInTheDocument();
+        expect(
+          getByRole('option', { name: 'San Francisco' })
+        ).toBeInTheDocument();
       });
     });
 
@@ -119,9 +121,11 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       const select = getByLabelText('City');
       // MUI Select shows disabled via aria-disabled and CSS classes
       expect(select).toHaveAttribute('aria-disabled', 'true');
-      
+
       // The actual input element should be disabled
-      const input = container.querySelector('input[name="city"]') as HTMLInputElement;
+      const input = container.querySelector(
+        'input[name="city"]'
+      ) as HTMLInputElement;
       expect(input).toBeDisabled();
     });
 
@@ -186,7 +190,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       // Open select again to verify new options
       await userEvent.click(select);
       await waitFor(() => {
-        expect(getByRole('option', { name: 'Los Angeles' })).toBeInTheDocument();
+        expect(
+          getByRole('option', { name: 'Los Angeles' })
+        ).toBeInTheDocument();
         expect(getByRole('option', { name: 'Chicago' })).toBeInTheDocument();
       });
     });
@@ -226,9 +232,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
           name="item"
           label="Item"
           optionsFromFieldData
-          getOptionValue={(opt) => (opt as CustomOption).id}
-          getOptionLabel={(opt) => (opt as CustomOption).name}
-          getOptionDisabled={(opt) => !(opt as CustomOption).active}
+          getOptionValue={(opt: unknown) => (opt as CustomOption).id}
+          getOptionLabel={(opt: unknown) => (opt as CustomOption).name}
+          getOptionDisabled={(opt: unknown) => !(opt as CustomOption).active}
         />,
         {
           initialRuntime: {
@@ -289,7 +295,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       await userEvent.click(select);
       await waitFor(() => {
         expect(getByRole('option', { name: 'New York' })).toBeInTheDocument();
-        expect(getByRole('option', { name: 'San Francisco' })).toBeInTheDocument();
+        expect(
+          getByRole('option', { name: 'San Francisco' })
+        ).toBeInTheDocument();
       });
     });
 
@@ -299,7 +307,7 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
           name="item"
           label="Item"
           optionsFromFieldData
-          getOptionValue={(opt) => {
+          getOptionValue={(opt: unknown) => {
             // Return undefined for invalid options (soft failure)
             if (typeof opt === 'object' && opt !== null && 'id' in opt) {
               return (opt as { id: number }).id;
@@ -336,7 +344,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       await userEvent.click(select);
       await waitFor(() => {
         expect(getByRole('option', { name: 'Valid Item' })).toBeInTheDocument();
-        expect(getByRole('option', { name: 'Another Valid Item' })).toBeInTheDocument();
+        expect(
+          getByRole('option', { name: 'Another Valid Item' })
+        ).toBeInTheDocument();
       });
 
       // Verify invalid option is NOT rendered
@@ -368,7 +378,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       );
 
       // MUI Select stores value in hidden input
-      const hiddenInput = container.querySelector('input[name="city"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="city"]'
+      ) as HTMLInputElement;
       expect(hiddenInput?.value).toBe('nyc');
 
       // Update runtime with new options (that don't include 'nyc')
@@ -412,7 +424,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       );
 
       // Display value should be empty (Step 05b: MUI warning suppression)
-      const hiddenInput = container.querySelector('input[name="city"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="city"]'
+      ) as HTMLInputElement;
       expect(hiddenInput?.value).toBe('');
 
       // Form value should remain unchanged (policy: no automatic reset)
@@ -499,9 +513,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       const hiddenInput = container.querySelector(
         'input[name="city"]'
       ) as HTMLInputElement;
-      
+
       expect(hiddenInput?.value).toBe('');
-      
+
       // UI shows no selection (MUI default for unresolved)
       // This is implicit - no exception thrown, component renders
     });
@@ -518,9 +532,7 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
               status: 'ready',
               error: null,
               data: {
-                options: [
-                  { value: 'nyc', label: 'New York' },
-                ],
+                options: [{ value: 'nyc', label: 'New York' }],
               },
             },
           },
@@ -534,8 +546,10 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
     it('should emit warning in development mode for unresolved value', async () => {
       // Set development mode
       process.env.NODE_ENV = 'development';
-      
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
       renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
@@ -581,8 +595,10 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
     it('should NOT emit warning in production mode', async () => {
       // Set production mode
       process.env.NODE_ENV = 'production';
-      
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
       renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
@@ -612,7 +628,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
     });
 
     it('should NOT emit warning when runtime is loading', async () => {
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
       renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
@@ -633,7 +651,7 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       // Wait to ensure effect would have run if conditions were met
       await waitFor(() => {
         // No Dashforge warning during loading (MUI warnings are OK)
-        const dashforgeWarnings = consoleWarnSpy.mock.calls.filter(call =>
+        const dashforgeWarnings = consoleWarnSpy.mock.calls.filter((call) =>
           call[0]?.includes('[Dashforge Select]')
         );
         expect(dashforgeWarnings).toHaveLength(0);
@@ -643,7 +661,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
     });
 
     it('should NOT emit warning when value is null or undefined', async () => {
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
       renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
@@ -675,8 +695,10 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
     it('should emit warning when options are empty (valid scenario)', async () => {
       // NEW TEST: Empty options array is a valid warning scenario
       process.env.NODE_ENV = 'development';
-      
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
       renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
@@ -714,7 +736,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
     });
 
     it('should deduplicate warnings for same field and value', async () => {
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
       const { rerender } = renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
@@ -736,22 +760,20 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
 
       // First render: warning emitted (in effect)
       await waitFor(() => {
-        const dashforgeWarnings = consoleWarnSpy.mock.calls.filter(call =>
+        const dashforgeWarnings = consoleWarnSpy.mock.calls.filter((call) =>
           call[0]?.includes('[Dashforge Select]')
         );
         expect(dashforgeWarnings).toHaveLength(1);
       });
 
       // Force re-render (same props, same value)
-      rerender(
-        <Select name="city" label="City" optionsFromFieldData />
-      );
+      rerender(<Select name="city" label="City" optionsFromFieldData />);
 
       // Wait for effect to potentially run again
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Still only 1 Dashforge warning (deduplicated)
-      const dashforgeWarnings = consoleWarnSpy.mock.calls.filter(call =>
+      const dashforgeWarnings = consoleWarnSpy.mock.calls.filter((call) =>
         call[0]?.includes('[Dashforge Select]')
       );
       expect(dashforgeWarnings).toHaveLength(1);
@@ -760,7 +782,9 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
     });
 
     it('should continue to work normally for resolved values', async () => {
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
       const { container } = renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,

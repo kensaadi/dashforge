@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, type RenderResult } from '@testing-library/react';
 import { RbacProvider } from '@dashforge/rbac';
 import type { RbacPolicy, Subject } from '@dashforge/rbac';
 import type { ReactElement } from 'react';
@@ -80,7 +80,7 @@ export function renderWithRbac(
     policy?: RbacPolicy;
     subject?: Subject;
   }
-) {
+): RenderResult {
   const policy = options?.policy ?? FULL_ACCESS_POLICY;
   const subject = options?.subject ?? adminSubject;
 

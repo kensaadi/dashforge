@@ -30,7 +30,7 @@ describe('Checkbox', () => {
             name="terms"
             label="Accept terms"
             checked={checked}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const newChecked = (e.target as HTMLInputElement).checked;
               setChecked(newChecked);
               checkedValues.push(newChecked);

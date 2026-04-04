@@ -191,8 +191,10 @@ describe('useAccessState', () => {
                 resource: 'document',
                 action: 'update',
                 effect: 'allow',
-                condition: ({ subject, resourceData }) =>
-                  resourceData?.ownerId === subject.id,
+                condition: ({ subject, resourceData }) => {
+                  const data = resourceData as { ownerId?: string } | undefined;
+                  return data?.ownerId === subject.id;
+                },
               },
             ],
           },

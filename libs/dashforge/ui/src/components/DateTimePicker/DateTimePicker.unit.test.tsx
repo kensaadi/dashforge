@@ -65,7 +65,7 @@ describe('DateTimePicker', () => {
             label="Appointment"
             mode="datetime"
             value={value}
-            onChange={(iso) => {
+            onChange={(iso: string | null) => {
               setValue(iso);
               values.push(iso);
             }}
@@ -104,7 +104,7 @@ describe('DateTimePicker', () => {
             label="Birth Date"
             mode="date"
             value={value}
-            onChange={(iso) => {
+            onChange={(iso: string | null) => {
               setValue(iso);
               values.push(iso);
             }}
@@ -141,7 +141,7 @@ describe('DateTimePicker', () => {
             label="Meeting Time"
             mode="time"
             value={value}
-            onChange={(iso) => {
+            onChange={(iso: string | null) => {
               setValue(iso);
               values.push(iso);
             }}
@@ -180,7 +180,7 @@ describe('DateTimePicker', () => {
             label="Appointment"
             mode="datetime"
             value={value}
-            onChange={(iso) => {
+            onChange={(iso: string | null) => {
               setValue(iso);
               values.push(iso);
             }}

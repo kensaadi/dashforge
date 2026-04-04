@@ -36,7 +36,7 @@ describe('TextField', () => {
             name="username"
             label="Username"
             value={value}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const newValue = (e.target as HTMLInputElement).value;
               setValue(newValue);
               values.push(newValue);

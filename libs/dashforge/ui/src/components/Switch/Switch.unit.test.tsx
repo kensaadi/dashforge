@@ -30,7 +30,7 @@ describe('Switch', () => {
             name="notifications"
             label="Enable notifications"
             checked={checked}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const newChecked = (e.target as HTMLInputElement).checked;
               setChecked(newChecked);
               checkedValues.push(newChecked);

@@ -8,12 +8,12 @@ import { renderWithBridge, renderWithRuntime } from '../../test-utils';
 
 /**
  * Focused tests for Step 05b: MUI out-of-range warning fix.
- * 
+ *
  * Tests verify that when a field value doesn't match any available option:
  * 1. The visual display is empty (no MUI warning)
  * 2. The RHF value remains unchanged (no automatic reset)
  * 3. Resolved values still render normally
- * 
+ *
  * Policy: reaction-v2.md Section 3.2
  * - UI displays no selected value
  * - Form value remains unchanged
@@ -41,7 +41,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(state?.values.item).toBe('option-2');
 
       // Display shows the value (find hidden input by name)
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('option-2');
     });
@@ -60,7 +62,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(state?.values.item).toBe('deleted-option');
 
       // Display value should be empty (prevents MUI warning)
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('');
     });
@@ -77,7 +81,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
 
       expect(state?.values.item).toBe('');
 
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('');
     });
@@ -94,7 +100,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
 
       expect(state?.values.item).toBeNull();
 
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('');
     });
@@ -122,7 +130,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(state?.values.item).toBe('option-2');
 
       // Display shows the value
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('option-2');
     });
@@ -148,7 +158,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(state?.values.item).toBe('deleted-option');
 
       // Display value should be empty (prevents MUI warning)
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('');
     });
@@ -175,7 +187,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
         </DashForm>
       );
 
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       // Step 05d: Value is now sanitized to empty during loading (prevents MUI warnings)
       expect(hiddenInput.value).toBe('');
@@ -202,7 +216,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(state?.values.item).toBe('some-value');
 
       // Display empty (unresolved)
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('');
     });
@@ -227,8 +243,8 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
           name="item"
           label="Item"
           options={customOptions as unknown as SelectOption<number>[]}
-          getOptionValue={(opt) => (opt as CustomOption).id}
-          getOptionLabel={(opt) => (opt as CustomOption).name}
+          getOptionValue={(opt: unknown) => (opt as CustomOption).id}
+          getOptionLabel={(opt: unknown) => (opt as CustomOption).name}
         />,
         {
           mockBridgeOptions: {
@@ -239,7 +255,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
 
       expect(state?.values.item).toBe(2);
 
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('2');
     });
@@ -250,8 +268,8 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
           name="item"
           label="Item"
           options={customOptions as unknown as SelectOption<number>[]}
-          getOptionValue={(opt) => (opt as CustomOption).id}
-          getOptionLabel={(opt) => (opt as CustomOption).name}
+          getOptionValue={(opt: unknown) => (opt as CustomOption).id}
+          getOptionLabel={(opt: unknown) => (opt as CustomOption).name}
         />,
         {
           mockBridgeOptions: {
@@ -264,7 +282,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(state?.values.item).toBe(999);
 
       // Display empty
-      const hiddenInput = container.querySelector('input[name="item"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[name="item"]'
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeTruthy();
       expect(hiddenInput.value).toBe('');
     });
@@ -273,7 +293,9 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
   describe('MUI warning suppression verification', () => {
     it('does not emit MUI warning for unresolved value', () => {
       // Spy on console.error to catch MUI warnings
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       renderWithBridge(
         <Select name="item" label="Item" options={testOptions} />,
@@ -286,10 +308,11 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
 
       // Check that no MUI "out-of-range" warning was emitted
       const muiWarnings = consoleErrorSpy.mock.calls.filter((call) =>
-        call.some((arg) =>
-          String(arg).includes('out of range') ||
-          String(arg).includes('out-of-range') ||
-          String(arg).includes('not a valid value')
+        call.some(
+          (arg) =>
+            String(arg).includes('out of range') ||
+            String(arg).includes('out-of-range') ||
+            String(arg).includes('not a valid value')
         )
       );
 

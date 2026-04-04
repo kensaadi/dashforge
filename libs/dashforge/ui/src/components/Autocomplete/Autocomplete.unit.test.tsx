@@ -468,9 +468,9 @@ describe('Autocomplete', () => {
           name="product"
           label="Product"
           options={products}
-          getOptionValue={(opt) => opt.id}
-          getOptionLabel={(opt) => opt.name}
-          getOptionDisabled={(opt) => opt.discontinued}
+          getOptionValue={(opt: Product) => opt.id}
+          getOptionLabel={(opt: Product) => opt.name}
+          getOptionDisabled={(opt: Product) => opt.discontinued}
         />
       );
 
@@ -484,9 +484,9 @@ describe('Autocomplete', () => {
           name="product"
           label="Product"
           options={products}
-          getOptionValue={(opt) => opt.id}
-          getOptionLabel={(opt) => opt.name}
-          value={1}
+          getOptionValue={(opt: Product) => opt.id}
+          getOptionLabel={(opt: Product) => opt.name}
+          getOptionDisabled={(opt: Product) => opt.discontinued}
         />
       );
 
@@ -503,8 +503,8 @@ describe('Autocomplete', () => {
           name="product"
           label="Product"
           options={products}
-          getOptionValue={(opt) => opt.id}
-          getOptionLabel={(opt) => opt.name}
+          getOptionValue={(opt: Product) => opt.id}
+          getOptionLabel={(opt: Product) => opt.name}
           onChange={(value: number | null) => {
             capturedValue = value;
           }}
@@ -530,9 +530,9 @@ describe('Autocomplete', () => {
           name="product"
           label="Product"
           options={products}
-          getOptionValue={(opt) => opt.id}
-          getOptionLabel={(opt) => opt.name}
-          getOptionDisabled={(opt) => opt.discontinued}
+          getOptionValue={(opt: Product) => opt.id}
+          getOptionLabel={(opt: Product) => opt.name}
+          getOptionDisabled={(opt: Product) => opt.discontinued}
         />
       );
 
@@ -629,8 +629,8 @@ describe('Autocomplete', () => {
           name="product"
           label="Product"
           options={products}
-          getOptionValue={(opt) => opt.id}
-          getOptionLabel={(opt) => opt.name}
+          getOptionValue={(opt: Product) => opt.id}
+          getOptionLabel={(opt: Product) => opt.name}
         />,
         {
           mockBridgeOptions: {
@@ -651,8 +651,8 @@ describe('Autocomplete', () => {
           name="product"
           label="Product"
           options={products}
-          getOptionValue={(opt) => opt.id}
-          getOptionLabel={(opt) => opt.name}
+          getOptionValue={(opt: Product) => opt.id}
+          getOptionLabel={(opt: Product) => opt.name}
         />,
         {
           mockBridgeOptions: {
@@ -679,8 +679,8 @@ describe('Autocomplete', () => {
           name="product"
           label="Product"
           options={products}
-          getOptionValue={(opt) => opt.id}
-          getOptionLabel={(opt) => opt.name}
+          getOptionValue={(opt: Product) => opt.id}
+          getOptionLabel={(opt: Product) => opt.name}
         />,
         {
           mockBridgeOptions: {
