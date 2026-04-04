@@ -47,8 +47,8 @@ const textFieldTocItems: DocsTocItem[] = [
   { id: 'layout-variants', label: 'Layout Variants' },
   { id: 'playground', label: 'Interactive Playground' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
-  { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
-  { id: 'predictive-form-behavior', label: 'Predictive Form Behavior' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
+  { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
