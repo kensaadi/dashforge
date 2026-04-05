@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
+import { DocsCodeBlock } from '../../Docs/components/shared/CodeBlock';
 
 export function HeroHome() {
   const dashTheme = useDashTheme();
@@ -148,7 +149,7 @@ export function HeroHome() {
                   }}
                 >
                   {[
-                    'React 18+',
+                    'React 19',
                     'React Hook Form',
                     'Material-UI v7',
                     'TypeScript',
@@ -231,6 +232,97 @@ export function HeroHome() {
                         </Typography>
                       ))}
                     </Stack>
+                  </Stack>
+                </CardContent>
+              </Card>
+
+              {/* Minimal Code Proof */}
+              <Card
+                elevation={0}
+                sx={{
+                  mt: 2,
+                  borderRadius: 2,
+                  border: isDark
+                    ? '1px solid rgba(59,130,246,0.18)'
+                    : '1px solid rgba(37,99,235,0.12)',
+                  background: isDark
+                    ? 'linear-gradient(180deg,rgba(59,130,246,0.10),rgba(255,255,255,0.03))'
+                    : 'linear-gradient(180deg,rgba(37,99,235,0.04),rgba(255,255,255,0.92))',
+                  boxShadow: isDark
+                    ? '0 30px 80px rgba(0,0,0,0.25)'
+                    : '0 18px 50px rgba(15,23,42,0.10)',
+                }}
+              >
+                <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
+                  <Stack spacing={1.5}>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        fontWeight: 950,
+                        letterSpacing: 0.2,
+                        color: isDark
+                          ? 'rgba(96,165,250,0.90)'
+                          : 'rgba(37,99,235,0.90)',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      Real Code Example
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        '& pre': {
+                          margin: 0,
+                          fontSize: '13px !important',
+                          lineHeight: '1.6 !important',
+                        },
+                      }}
+                    >
+                      <DocsCodeBlock
+                        code={`<DashForm onSubmit={handleSubmit}>
+  <TextField
+    name="email"
+    label="Email Address"
+    rules={{ required: true }}
+  />
+  
+  <TextField
+    name="reason"
+    label="Why are you contacting us?"
+    visibleWhen={(engine) => 
+      engine.getNode('email')?.value !== ''
+    }
+  />
+  
+  <Button
+    type="submit"
+    access={{
+      resource: 'contact',
+      action: 'submit',
+      onUnauthorized: 'disable'
+    }}
+  >
+    Send Message
+  </Button>
+</DashForm>`}
+                        language="tsx"
+                        showCopy={false}
+                      />
+                    </Box>
+
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        lineHeight: 1.6,
+                        color: isDark
+                          ? 'rgba(255,255,255,0.58)'
+                          : 'rgba(15,23,42,0.56)',
+                        fontStyle: 'italic',
+                      }}
+                    >
+                      Conditional visibility and RBAC — no manual state
+                      management.
+                    </Typography>
                   </Stack>
                 </CardContent>
               </Card>

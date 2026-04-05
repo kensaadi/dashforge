@@ -108,7 +108,7 @@ export function Installation() {
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             }}
           >
-            <strong>React 18+</strong>
+            <strong>React 19</strong>
           </Box>
           <Box
             component="li"

@@ -177,19 +177,19 @@ export function HomePage() {
               {
                 title: 'Conditional Logic Made Simple',
                 description:
-                  'Show/hide fields, enable/disable sections, and compute values based on rules — without manual useEffect dependencies.',
+                  'Show/hide fields and sections based on rules. No manual useEffect dependencies.',
                 icon: <SchemaIcon fontSize="small" />,
               },
               {
                 title: 'Built-in RBAC',
                 description:
-                  'Control field visibility and editability with declarative access rules. No scattered permission checks.',
+                  'Control field visibility and editability with access rules. No scattered permission checks.',
                 icon: <AutoFixHighIcon fontSize="small" />,
               },
               {
                 title: 'Reactive Form State',
                 description:
-                  'Field dependencies update automatically. Changes propagate through your form instantly and predictably.',
+                  'Field dependencies update automatically. Changes propagate instantly and predictably.',
                 icon: <InsightsIcon fontSize="small" />,
               },
             ].map((f) => (
@@ -206,10 +206,12 @@ export function HomePage() {
                       background: isDark
                         ? 'linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))'
                         : 'linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.82))',
+                      display: 'flex',
+                      flexDirection: 'column',
                     }}
                   >
-                    <CardContent>
-                      <Stack spacing={1}>
+                    <CardContent sx={{ flex: 1, display: 'flex' }}>
+                      <Stack spacing={1} sx={{ flex: 1 }}>
                         <Stack
                           direction="row"
                           spacing={1.25}

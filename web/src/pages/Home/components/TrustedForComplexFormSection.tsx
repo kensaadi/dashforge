@@ -15,7 +15,7 @@ type TrustItem = {
 
 const ITEMS: TrustItem[] = [
   { label: 'TypeScript-first' },
-  { label: 'React 18+' },
+  { label: 'React 19' },
   { label: 'MUI v7 integration' },
   { label: 'Open-source core' },
 ];
@@ -46,7 +46,7 @@ export function TrustedForComplexFormsSection() {
     <Stack spacing={2}>
       <SectionHeader
         title="Production-ready components"
-        subtitle="Built with TypeScript, React 18, and Material-UI. Comprehensive docs and real-world examples included."
+        subtitle="Built with TypeScript, React 19, and Material-UI. Comprehensive docs and real-world examples included."
         maxWidth={680}
       />
       <Box
