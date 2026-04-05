@@ -63,17 +63,27 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
         label: 'Usage',
         path: '/docs/getting-started/usage',
       },
-      {
-        type: 'link',
-        label: 'Project Structure',
-        path: '/docs/getting-started/project-structure',
-      },
     ],
   },
-  {
-    title: 'Core Concepts',
-    items: [],
-  },
+  /**
+   * Core Concepts group - Temporarily hidden until content is ready
+   *
+   * This group is preserved for future use when the mental model is stable
+   * and deeper conceptual explanations are needed.
+   *
+   * To re-enable: uncomment this block and add it back to the array above.
+   *
+   * Potential future content:
+   * - Form-aware components (how registration works)
+   * - Predictive engine (how reactivity works)
+   * - Bridge contract (how components integrate)
+   * - Form closure (error display logic)
+   * - Conditional rendering (visibleWhen mechanics)
+   */
+  // {
+  //   title: 'Core Concepts',
+  //   items: [],
+  // },
   {
     title: 'UI Components',
     items: [
@@ -261,6 +271,12 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
   },
   {
     title: 'Architecture',
-    items: [],
+    items: [
+      {
+        type: 'link',
+        label: 'Project Structure',
+        path: '/docs/getting-started/project-structure',
+      },
+    ],
   },
 ];
