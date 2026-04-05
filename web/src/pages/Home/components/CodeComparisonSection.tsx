@@ -17,8 +17,12 @@ const RHF_CODE = `function SupportForm() {
       <Controller
         name="category"
         control={control}
-        render={({ field }) => (
-          <Select {...field}>
+        rules={{ required: 'Category is required' }}
+        render={({ field, fieldState }) => (
+          <Select
+            {...field}
+            error={!!fieldState.error}
+          >
             <MenuItem value="bug">Bug</MenuItem>
             <MenuItem value="feature">Feature</MenuItem>
             <MenuItem value="billing">Billing</MenuItem>
@@ -27,9 +31,23 @@ const RHF_CODE = `function SupportForm() {
       />
 
       {category === 'bug' && (
-        <TextField
+        <Controller
           name="details"
-          label="Bug Details"
+          control={control}
+          rules={{
+            validate: (value) =>
+              value?.trim()
+                ? true
+                : 'Details required for bugs'
+          }}
+          render={({ field, fieldState }) => (
+            <TextField
+              {...field}
+              label="Bug Details"
+              error={!!fieldState.error}
+              helperText={fieldState.error?.message}
+            />
+          )}
         />
       )}
     </form>
@@ -47,6 +65,7 @@ const DASHFORGE_CODE = `function SupportForm() {
           { value: 'feature', label: 'Feature' },
           { value: 'billing', label: 'Billing' },
         ]}
+        rules={{ required: 'Category is required' }}
       />
 
       <TextField
@@ -55,6 +74,12 @@ const DASHFORGE_CODE = `function SupportForm() {
         visibleWhen={(engine) =>
           engine.getNode('category')?.value === 'bug'
         }
+        rules={{
+          validate: (value, form) =>
+            value?.trim()
+              ? true
+              : 'Details required for bugs'
+        }}
       />
     </DashForm>
   );
@@ -137,7 +162,7 @@ export function CodeComparisonSection() {
                     fontStyle: 'italic',
                   }}
                 >
-                  Requires Controller, watch(), and conditional rendering
+                  Manual error wiring, watch(), conditional rendering
                 </Typography>
               </Stack>
             </CardContent>
@@ -211,7 +236,7 @@ export function CodeComparisonSection() {
                     fontStyle: 'italic',
                   }}
                 >
-                  Declarative visibility rule — no manual wiring
+                  Validation and errors handled automatically
                 </Typography>
               </Stack>
             </CardContent>
