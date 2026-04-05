@@ -3,6 +3,8 @@ import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextFiel
 import { useContext } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { FieldRegistration, Engine } from '@dashforge/ui-core';
+import type { AccessRequirement } from '@dashforge/rbac';
+import { useAccessState } from '../../hooks/useAccessState';
 
 export interface NumberFieldProps
   extends Omit<MuiTextFieldProps, 'name' | 'type' | 'value' | 'onChange'> {
@@ -11,6 +13,30 @@ export interface NumberFieldProps
   visibleWhen?: ((engine: Engine) => boolean) | undefined;
   value?: number | string | null;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+
+  /**
+   * RBAC access requirement for this field.
+   *
+   * When provided, the field's visibility, disabled state, and readonly state
+   * are controlled by RBAC permissions.
+   *
+   * Access state is resolved using the RBAC system and combined with
+   * explicit props using OR logic for disabled and readonly states.
+   *
+   * @example
+   * ```tsx
+   * <NumberField
+   *   name="salary"
+   *   label="Salary"
+   *   access={{
+   *     resource: 'employee.salary',
+   *     action: 'update',
+   *     onUnauthorized: 'readonly'
+   *   }}
+   * />
+   * ```
+   */
+  access?: AccessRequirement;
 }
 
 /**
@@ -38,6 +64,7 @@ export interface NumberFieldProps
  * - Visibility control via visibleWhen predicate
  * - Touch tracking on blur
  * - Immediate UI updates (no delayed state)
+ * - RBAC access control via access prop
  *
  * @example
  * ```tsx
@@ -68,6 +95,8 @@ export function NumberField(
     visibleWhen,
     value: explicitValue,
     onChange: explicitOnChange,
+    access,
+    disabled,
     ...muiProps
   } = props;
 
@@ -86,9 +115,43 @@ export function NumberField(
 
   // Evaluate visibility predicate
   const isVisible = useEngineVisibility(engine, visibleWhen);
+
+  // RBAC access state (hook always called unconditionally)
+  const accessState = useAccessState(access);
+
+  // Early return for visibleWhen
   if (!isVisible) {
     return null;
   }
+
+  // Early return for RBAC visibility
+  if (!accessState.visible) {
+    return null;
+  }
+
+  // Compute effective disabled state (OR logic: any source can disable)
+  const effectiveDisabled = Boolean(disabled) || accessState.disabled;
+
+  // Compute effective readonly state (OR logic)
+  // Check if slotProps.input.readOnly is already set
+  const existingReadOnly =
+    muiProps.slotProps?.input &&
+    typeof muiProps.slotProps.input === 'object' &&
+    'readOnly' in muiProps.slotProps.input
+      ? muiProps.slotProps.input.readOnly
+      : false;
+  const shouldApplyReadonly = existingReadOnly || accessState.readonly;
+
+  // Merge readonly into slotProps (preserving existing slotProps)
+  const mergedSlotProps = shouldApplyReadonly
+    ? {
+        ...muiProps.slotProps,
+        input: {
+          ...(muiProps.slotProps?.input || {}),
+          readOnly: true,
+        },
+      }
+    : muiProps.slotProps;
 
   // Plain mode: render without bridge integration
   if (!bridge) {
@@ -109,7 +172,9 @@ export function NumberField(
           onChange={explicitOnChange}
           helperText={explicitHelperText}
           error={explicitError}
+          disabled={effectiveDisabled}
           {...muiProps}
+          slotProps={mergedSlotProps}
         />
       );
     }
@@ -122,7 +187,9 @@ export function NumberField(
         onChange={explicitOnChange}
         helperText={explicitHelperText}
         error={explicitError}
+        disabled={effectiveDisabled}
         {...muiProps}
+        slotProps={mergedSlotProps}
       />
     );
   }
@@ -149,7 +216,9 @@ export function NumberField(
           onChange={explicitOnChange}
           helperText={explicitHelperText}
           error={explicitError}
+          disabled={effectiveDisabled}
           {...muiProps}
+          slotProps={mergedSlotProps}
         />
       );
     }
@@ -162,7 +231,9 @@ export function NumberField(
         onChange={explicitOnChange}
         helperText={explicitHelperText}
         error={explicitError}
+        disabled={effectiveDisabled}
         {...muiProps}
+        slotProps={mergedSlotProps}
       />
     );
   }
@@ -301,7 +372,9 @@ export function NumberField(
       onBlur={handleBlur}
       helperText={resolvedHelperText}
       error={resolvedError}
+      disabled={effectiveDisabled}
       {...muiProps}
+      slotProps={mergedSlotProps}
     />
   );
 }

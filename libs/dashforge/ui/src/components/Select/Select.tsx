@@ -4,6 +4,7 @@ import { useMemo, useEffect, useContext } from 'react';
 import { useFieldRuntime } from '@dashforge/forms';
 import { DashFormContext } from '@dashforge/ui-core';
 import type { Engine, DashFormBridge } from '@dashforge/ui-core';
+import type { AccessRequirement } from '@dashforge/rbac';
 import type { FieldLayout } from '../_internal/FieldLayoutShell';
 import { TextField } from '../TextField/TextField';
 
@@ -19,7 +20,7 @@ const warnedUnresolvedValues = new WeakMap<
  * Emit development-only warning for unresolved values.
  * Deduplicated per bridge instance and field:value combination.
  * Effect-safe (called from useEffect, not render).
- * 
+ *
  * Policy: reaction-v2.md Section 3.3
  * - Dev-only (never in production)
  * - Deduplicated (no console spam)
@@ -40,7 +41,7 @@ function warnUnresolvedValue(
   // GUARD: Deduplication
   const key = `${fieldName}:${String(fieldValue)}`;
   let warned = warnedUnresolvedValues.get(bridge);
-  
+
   if (!warned) {
     warned = new Set();
     warnedUnresolvedValues.set(bridge, warned);
@@ -53,15 +54,18 @@ function warnUnresolvedValue(
   warned.add(key);
 
   // Emit developer warning
-  const optionsDisplay = availableValues.length > 0
-    ? availableValues.join(', ')
-    : '(empty - no options loaded)';
+  const optionsDisplay =
+    availableValues.length > 0
+      ? availableValues.join(', ')
+      : '(empty - no options loaded)';
 
   console.warn(
     `[Dashforge Select] Unresolved value for field "${fieldName}".\n` +
-    `Current value "${String(fieldValue)}" does not match any loaded option.\n` +
-    `The form value remains unchanged (no automatic reset).\n` +
-    `Available options: ${optionsDisplay}`
+      `Current value "${String(
+        fieldValue
+      )}" does not match any loaded option.\n` +
+      `The form value remains unchanged (no automatic reset).\n` +
+      `Available options: ${optionsDisplay}`
   );
 }
 
@@ -72,17 +76,17 @@ export interface SelectOption<T extends string | number = string | number> {
 
 /**
  * Component consumption contract for Select runtime options.
- * 
+ *
  * This describes how Select consumes runtime data, not a canonical runtime type.
  * Do NOT use this as a separate source of truth for runtime shape.
- * 
+ *
  * Reactions/runtime producers provide raw data in any shape.
  * Select component interprets option shape via mapper functions.
- * 
+ *
  * The options array can contain any shape.
  * By default, component attempts to use { value, label } shape.
  * For custom shapes, provide getOptionValue/getOptionLabel/getOptionDisabled props.
- * 
+ *
  * Example raw data from reaction (any shape):
  * ```
  * {
@@ -92,7 +96,7 @@ export interface SelectOption<T extends string | number = string | number> {
  *   ]
  * }
  * ```
- * 
+ *
  * Example with mappers:
  * ```tsx
  * <Select
@@ -123,24 +127,24 @@ export interface SelectProps<T extends string | number = string | number>
   rules?: unknown;
   label?: string;
   options?: SelectOption<T>[];
-  
+
   /**
    * If true, reads options from field runtime state via useFieldRuntime.
    * When enabled, 'options' prop is ignored.
-   * 
+   *
    * Runtime data is consumed as-is from runtime state.
    * Component interprets option shape via mapper functions.
-   * 
+   *
    * If no mappers provided, attempts to use { value, label } shape (default).
-   * 
+   *
    * Example (simple - default { value, label } shape):
    * ```tsx
    * <Select name="city" optionsFromFieldData />
    * ```
-   * 
+   *
    * Example (generic shape with mappers):
    * ```tsx
-   * <Select 
+   * <Select
    *   name="city"
    *   optionsFromFieldData
    *   getOptionValue={(opt) => opt.id}
@@ -172,6 +176,32 @@ export interface SelectProps<T extends string | number = string | number>
    * Default: () => false
    */
   getOptionDisabled?: (option: unknown) => boolean;
+
+  /**
+   * Access control requirement for this field (RBAC).
+   *
+   * Controls field visibility and interactivity based on user permissions.
+   * Uses the nearest RbacProvider to resolve access state.
+   *
+   * Behaviors:
+   * - `onUnauthorized: 'hide'` → Field not rendered (returns null)
+   * - `onUnauthorized: 'disable'` → Field disabled (grayed out, non-interactive)
+   * - `onUnauthorized: 'readonly'` → Field read-only (visible, value submitted, not editable)
+   *
+   * @example
+   * ```tsx
+   * // Hide salary field from non-managers
+   * <Select
+   *   name="department"
+   *   access={{
+   *     resource: 'employee.department',
+   *     action: 'edit',
+   *     onUnauthorized: 'hide'
+   *   }}
+   * />
+   * ```
+   */
+  access?: AccessRequirement;
 
   visibleWhen?: (engine: Engine) => boolean;
   layout?: FieldLayout;
@@ -223,6 +253,7 @@ export function Select<T extends string | number = string | number>(
     getOptionValue,
     getOptionLabel,
     getOptionDisabled,
+    access,
     visibleWhen,
     layout,
     fullWidth,
@@ -263,7 +294,9 @@ export function Select<T extends string | number = string | number>(
       ? runtime.data.options
       : [];
 
-  const sourceOptions = optionsFromFieldData ? rawRuntimeOptions : options || [];
+  const sourceOptions = optionsFromFieldData
+    ? rawRuntimeOptions
+    : options || [];
 
   // Use provided mappers or defaults
   const mapValue = getOptionValue || defaultGetOptionValue;
@@ -285,10 +318,10 @@ export function Select<T extends string | number = string | number>(
       };
     })
     .filter((opt) => opt.value !== undefined) as Array<{
-      value: T;
-      label: string;
-      disabled: boolean;
-    }>;
+    value: T;
+    label: string;
+    disabled: boolean;
+  }>;
 
   // Extract available values for display value sanitization (Step 05b/05d)
   // Static mode: always sanitize (always provide available values)
@@ -310,7 +343,12 @@ export function Select<T extends string | number = string | number>(
   // - Value doesn't match any option (including when options are empty)
   const unresolvedDetection = useMemo(() => {
     // Only detect when using runtime options and runtime is ready
-    if (!optionsFromFieldData || runtime?.status !== 'ready' || !bridge || !bridge.getValue) {
+    if (
+      !optionsFromFieldData ||
+      runtime?.status !== 'ready' ||
+      !bridge ||
+      !bridge.getValue
+    ) {
       return null;
     }
 
@@ -334,7 +372,7 @@ export function Select<T extends string | number = string | number>(
 
     // Value is unresolved - return detection data for effect
     const availableValues = normalizedOptions.map((opt) => opt.value);
-    
+
     return {
       fieldName: name,
       fieldValue: currentValue as string | number,
@@ -359,13 +397,14 @@ export function Select<T extends string | number = string | number>(
   }, [unresolvedDetection, bridge]);
 
   // Compose Select from TextField with select mode enabled
-  // TextField handles all form integration, error binding, and gating
+  // TextField handles all form integration, error binding, gating, and RBAC
   return (
     <TextField
       {...rest}
       name={name}
       rules={rules}
       label={label}
+      access={access}
       visibleWhen={visibleWhen}
       layout={layout}
       fullWidth={fullWidth}

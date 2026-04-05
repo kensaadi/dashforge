@@ -246,6 +246,189 @@ export function SelectDocs() {
         <SelectCapabilities />
       </Stack>
 
+      {/* Access Control (RBAC) - Permission-Based Rendering */}
+      <Stack spacing={4} id="access-control">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
+            }}
+          >
+            Access Control (RBAC)
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+              maxWidth: 720,
+            }}
+          >
+            Control field visibility and interaction based on user permissions.
+            Fields can be hidden, disabled, or set to readonly when users lack
+            the required access. Integrates seamlessly with the Dashforge RBAC
+            system.
+          </Typography>
+        </Box>
+
+        <Stack spacing={3}>
+          {/* Example 1: Hide */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Hide field when user lacks permission
+            </Typography>
+            <DocsCodeBlock
+              code={`<Select
+  name="department"
+  label="Department"
+  access={{
+    resource: 'employee.department',
+    action: 'edit',
+    onUnauthorized: 'hide'
+  }}
+  options={[
+    { value: 'engineering', label: 'Engineering' },
+    { value: 'sales', label: 'Sales' },
+    { value: 'marketing', label: 'Marketing' }
+  ]}
+/>
+
+// Field hidden (returns null) when user lacks 'employee.department.edit' permission`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 2: Disable */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Disable field when user lacks permission
+            </Typography>
+            <DocsCodeBlock
+              code={`<Select
+  name="priority"
+  label="Priority"
+  access={{
+    resource: 'project.priority',
+    action: 'edit',
+    onUnauthorized: 'disable'
+  }}
+  options={[
+    { value: 'low', label: 'Low' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'high', label: 'High' },
+    { value: 'critical', label: 'Critical' }
+  ]}
+/>
+
+// Field disabled (grayed out, not focusable, excluded from submission)
+// when user lacks 'project.priority.edit' permission`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 3: Readonly */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Set field to readonly when user lacks permission
+            </Typography>
+            <DocsCodeBlock
+              code={`<Select
+  name="status"
+  label="Contract Status"
+  access={{
+    resource: 'contract.status',
+    action: 'edit',
+    onUnauthorized: 'readonly'
+  }}
+  options={[
+    { value: 'draft', label: 'Draft' },
+    { value: 'pending', label: 'Pending Review' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'rejected', label: 'Rejected' }
+  ]}
+/>
+
+// Note: Select becomes disabled when readonly (MUI select limitation)
+// Value is still included in form submission
+// when user lacks 'contract.status.edit' permission`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 4: Combined with visibleWhen */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Combine access control with conditional visibility
+            </Typography>
+            <DocsCodeBlock
+              code={`<Select
+  name="orderType"
+  label="Order Type"
+  options={[
+    { value: 'standard', label: 'Standard' },
+    { value: 'expedited', label: 'Expedited' }
+  ]}
+/>
+
+<Select
+  name="expediteReason"
+  label="Expedite Reason"
+  visibleWhen={(engine) => engine.getValue('orderType') === 'expedited'}
+  access={{
+    resource: 'order.expedite',
+    action: 'edit',
+    onUnauthorized: 'readonly'
+  }}
+  options={[
+    { value: 'customer_request', label: 'Customer Request' },
+    { value: 'inventory_issue', label: 'Inventory Issue' },
+    { value: 'urgency', label: 'Business Urgency' }
+  ]}
+/>
+
+// Field only appears when orderType is 'expedited' (UI logic)
+// If visible but user lacks permission, field becomes readonly (RBAC logic)
+// Both conditions are checked independently`}
+              language="tsx"
+            />
+          </Box>
+        </Stack>
+      </Stack>
+
       <Divider
         sx={{
           borderColor: isDark

@@ -64,8 +64,8 @@ const numberFieldTocItems: DocsTocItem[] = [
   { id: 'layout-variants', label: 'Layout Variants' },
   { id: 'playground', label: 'Interactive Playground' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
-  { id: 'simple-numeric-form', label: 'Simple Numeric Form' },
-  { id: 'min-max-validation', label: 'Min/Max Validation' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
+  { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
@@ -76,8 +76,8 @@ const selectTocItems: DocsTocItem[] = [
   { id: 'layout-variants', label: 'Layout Variants' },
   { id: 'playground', label: 'Interactive Playground' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
-  { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
-  { id: 'conditional-field-visibility', label: 'Conditional Field Visibility' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
+  { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Implementation Notes' },
 ];

@@ -240,6 +240,163 @@ export function NumberFieldDocs() {
         <NumberFieldCapabilities />
       </Stack>
 
+      {/* Access Control (RBAC) */}
+      <Stack spacing={4} id="access-control">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
+            }}
+          >
+            Access Control (RBAC)
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+              maxWidth: 720,
+            }}
+          >
+            Control field visibility and interaction based on user permissions.
+            Fields can be hidden, disabled, or set to readonly when users lack
+            the required access. Integrates seamlessly with the Dashforge RBAC
+            system.
+          </Typography>
+        </Box>
+
+        <Stack spacing={3}>
+          {/* Example 1: Hidden Field */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Hide field when user lacks permission
+            </Typography>
+            <DocsCodeBlock
+              code={`<NumberField
+  name="salary"
+  label="Salary"
+  access={{
+    resource: 'employee.salary',
+    action: 'read',
+    onUnauthorized: 'hide',
+  }}
+/>`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 2: Disabled Field */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Disable field when user cannot edit
+            </Typography>
+            <DocsCodeBlock
+              code={`<NumberField
+  name="discount"
+  label="Discount"
+  access={{
+    resource: 'pricing.discount',
+    action: 'update',
+    onUnauthorized: 'disable',
+  }}
+/>`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 3: Readonly Field */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Make field readonly when user has view-only access
+            </Typography>
+            <DocsCodeBlock
+              code={`<NumberField
+  name="budget"
+  label="Budget"
+  access={{
+    resource: 'project.budget',
+    action: 'update',
+    onUnauthorized: 'readonly',
+  }}
+/>`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 4: Combination with visibleWhen */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Combine with visibleWhen for UI logic + permissions
+            </Typography>
+            <DocsCodeBlock
+              code={`<NumberField
+  name="otherAmount"
+  label="Other Amount"
+  visibleWhen={(engine) =>
+    engine.getNode('paymentType')?.value === 'custom'
+  }
+  access={{
+    resource: 'payment.otherAmount',
+    action: 'read',
+    onUnauthorized: 'hide',
+  }}
+/>`}
+              language="tsx"
+            />
+            <Typography
+              sx={{
+                fontSize: 14,
+                lineHeight: 1.6,
+                color: isDark
+                  ? 'rgba(255,255,255,0.55)'
+                  : 'rgba(15,23,42,0.55)',
+                mt: 1.5,
+                fontStyle: 'italic',
+              }}
+            >
+              Note: visibleWhen controls UI logic (show when paymentType is
+              "custom"), while RBAC controls permissions (hide if user lacks
+              access). Both conditions must be satisfied for the field to be
+              visible.
+            </Typography>
+          </Box>
+        </Stack>
+      </Stack>
+
       <Divider
         sx={{
           borderColor: isDark
