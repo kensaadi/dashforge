@@ -187,6 +187,10 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
         path: '/docs/access-control/core-concepts',
       },
       {
+        label: 'Dashforge Integration',
+        path: '/docs/access-control/dashforge',
+      },
+      {
         label: 'Playground',
         path: '/docs/access-control/playground',
       },

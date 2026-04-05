@@ -43,6 +43,7 @@ import { FormSystemApi } from './form-system/FormSystemApi';
 import { AccessControlOverview } from './access-control/overview/AccessControlOverview';
 import { AccessControlQuickStart } from './access-control/quick-start/AccessControlQuickStart';
 import { AccessControlCoreConcepts } from './access-control/core-concepts/AccessControlCoreConcepts';
+import { AccessControlDashforge } from './access-control/dashforge/AccessControlDashforge';
 import { AccessControlPlayground } from './access-control/playground/AccessControlPlayground';
 
 const textFieldTocItems: DocsTocItem[] = [
@@ -343,6 +344,16 @@ const accessControlPlaygroundTocItems: DocsTocItem[] = [
   { id: 'how-it-works', label: 'How It Works' },
 ];
 
+const accessControlDashforgeTocItems: DocsTocItem[] = [
+  { id: 'why-dashforge-integration', label: 'Why Dashforge Integration' },
+  { id: 'component-level-access', label: 'Component-level Access' },
+  { id: 'ui-actions', label: 'UI Actions' },
+  { id: 'forms-and-visibility', label: 'Forms + Visibility' },
+  { id: 'filtering', label: 'Filtering' },
+  { id: 'putting-it-together', label: 'Putting It Together' },
+  { id: 'best-practices', label: 'Best Practices' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -396,6 +407,8 @@ export function DocsPage() {
     location.pathname === '/docs/access-control/quick-start';
   const isAccessControlCoreConcepts =
     location.pathname === '/docs/access-control/core-concepts';
+  const isAccessControlDashforge =
+    location.pathname === '/docs/access-control/dashforge';
   const isAccessControlPlayground =
     location.pathname === '/docs/access-control/playground';
 
@@ -455,6 +468,8 @@ export function DocsPage() {
     ? accessControlQuickStartTocItems
     : isAccessControlCoreConcepts
     ? accessControlCoreConceptsTocItems
+    : isAccessControlDashforge
+    ? accessControlDashforgeTocItems
     : isAccessControlPlayground
     ? accessControlPlaygroundTocItems
     : textFieldTocItems;
@@ -515,6 +530,8 @@ export function DocsPage() {
     <AccessControlQuickStart />
   ) : isAccessControlCoreConcepts ? (
     <AccessControlCoreConcepts />
+  ) : isAccessControlDashforge ? (
+    <AccessControlDashforge />
   ) : isAccessControlPlayground ? (
     <AccessControlPlayground />
   ) : (
