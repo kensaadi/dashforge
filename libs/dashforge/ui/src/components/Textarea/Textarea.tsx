@@ -7,11 +7,37 @@ import type {
   FieldRegistration,
   Engine,
 } from '@dashforge/ui-core';
+import type { AccessRequirement } from '@dashforge/rbac';
+import { useAccessState } from '../../hooks/useAccessState';
 
 export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
   name: string;
   rules?: unknown;
   visibleWhen?: (engine: Engine) => boolean;
+
+  /**
+   * RBAC access requirement for this field.
+   *
+   * When provided, the field's visibility, disabled state, and readonly state
+   * are controlled by RBAC permissions.
+   *
+   * Access state is resolved using the RBAC system and combined with
+   * explicit props using OR logic for disabled and readonly states.
+   *
+   * @example
+   * ```tsx
+   * <Textarea
+   *   name="description"
+   *   label="Description"
+   *   access={{
+   *     resource: 'document',
+   *     action: 'update',
+   *     onUnauthorized: 'readonly'
+   *   }}
+   * />
+   * ```
+   */
+  access?: AccessRequirement;
 }
 
 /**
@@ -24,6 +50,7 @@ export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
  * - If used outside → behaves as plain MUI TextField with multiline
  * - Supports reactive visibility via visibleWhen prop
  * - Auto binds error + helperText from form validation
+ * - Supports RBAC access control via access prop
  *
  * Error Display Gating (Form Closure v1):
  * - Errors show only when field is touched (after blur) OR form submitted
@@ -39,7 +66,7 @@ export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
  * It only depends on the bridge contract from @dashforge/ui-core.
  */
 export function Textarea(props: TextareaProps) {
-  const { name, rules, visibleWhen, minRows = 3, ...rest } = props;
+  const { name, rules, visibleWhen, minRows = 3, access, ...rest } = props;
 
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
@@ -57,10 +84,42 @@ export function Textarea(props: TextareaProps) {
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
 
-  // Early return for visibility
+  // RBAC access state (hook always called unconditionally)
+  const accessState = useAccessState(access);
+
+  // Early return for visibleWhen
   if (!isVisible) {
     return null;
   }
+
+  // Early return for RBAC visibility
+  if (!accessState.visible) {
+    return null;
+  }
+
+  // Compute effective disabled state (OR logic: any source can disable)
+  const effectiveDisabled = Boolean(rest.disabled) || accessState.disabled;
+
+  // Compute effective readonly state (OR logic)
+  // Check if slotProps.input.readOnly is already set
+  const existingReadOnly =
+    rest.slotProps?.input &&
+    typeof rest.slotProps.input === 'object' &&
+    'readOnly' in rest.slotProps.input
+      ? rest.slotProps.input.readOnly
+      : false;
+  const shouldApplyReadonly = existingReadOnly || accessState.readonly;
+
+  // Merge readonly into slotProps (preserving existing slotProps)
+  const mergedSlotProps = shouldApplyReadonly
+    ? {
+        ...rest.slotProps,
+        input: {
+          ...(rest.slotProps?.input || {}),
+          readOnly: true,
+        },
+      }
+    : rest.slotProps;
 
   // If inside DashForm, register with form
   if (bridge && typeof bridge.register === 'function') {
@@ -171,18 +230,27 @@ export function Textarea(props: TextareaProps) {
         value={resolvedValue}
         error={resolvedError}
         helperText={resolvedHelperText}
+        disabled={effectiveDisabled}
         {...rest}
         // IMPORTANT: Put handlers AFTER {...rest} spread
         // to ensure they override any handlers from rest
         onChange={handleChange as MuiTextFieldProps['onChange']}
         onBlur={handleBlur as MuiTextFieldProps['onBlur']}
         inputRef={registration.ref}
+        slotProps={mergedSlotProps}
       />
     );
   }
 
   // Standalone fallback (plain mode)
   return (
-    <MuiTextField name={name} multiline={true} minRows={minRows} {...rest} />
+    <MuiTextField
+      name={name}
+      multiline={true}
+      minRows={minRows}
+      disabled={effectiveDisabled}
+      {...rest}
+      slotProps={mergedSlotProps}
+    />
   );
 }

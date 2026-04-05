@@ -121,11 +121,8 @@ const textareaTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
-  { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
-  {
-    id: 'reactive-conditional-visibility',
-    label: 'Reactive Conditional Visibility',
-  },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
+  { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
