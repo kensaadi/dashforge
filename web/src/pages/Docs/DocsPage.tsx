@@ -100,6 +100,7 @@ const radioGroupTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Form Integration Scenarios' },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Implementation Notes' },
