@@ -171,6 +171,17 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
           },
         ],
       },
+      {
+        type: 'subgroup',
+        label: 'Actions',
+        children: [
+          {
+            type: 'link',
+            label: 'Button',
+            path: '/docs/components/button',
+          },
+        ],
+      },
     ],
   },
   {

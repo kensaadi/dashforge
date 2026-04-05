@@ -79,3 +79,6 @@ export type {
   SnackbarVariant,
   SnackbarAPI,
 } from './components/Snackbar/types';
+
+export { Button } from './components/Button/Button';
+export type { ButtonProps } from './components/Button/Button';

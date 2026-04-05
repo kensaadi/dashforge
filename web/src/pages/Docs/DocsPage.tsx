@@ -27,6 +27,7 @@ import { BreadcrumbsDocs } from './components/breadcrumbs/BreadcrumbsDocs';
 import { TopBarDocs } from './components/top-bar/TopBarDocs';
 import { ConfirmDialogDocs } from './components/confirm-dialog/ConfirmDialogDocs';
 import { SnackbarDocs } from './components/snackbar/SnackbarDocs';
+import { ButtonDocs } from './components/button/ButtonDocs';
 import { Overview } from './getting-started/Overview';
 import { Installation } from './getting-started/Installation';
 import { Usage } from './getting-started/Usage';
@@ -187,6 +188,17 @@ const snackbarTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'scenarios', label: 'Integration Scenarios' },
+  { id: 'api', label: 'API Reference' },
+  { id: 'notes', label: 'Implementation Notes' },
+];
+
+const buttonTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'variants', label: 'Button Variants' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
+  { id: 'scenarios', label: 'Action Integration Scenarios' },
   { id: 'api', label: 'API Reference' },
   { id: 'notes', label: 'Implementation Notes' },
 ];
@@ -379,6 +391,7 @@ export function DocsPage() {
   const isConfirmDialogDocs =
     location.pathname === '/docs/components/confirm-dialog';
   const isSnackbarDocs = location.pathname === '/docs/components/snackbar';
+  const isButtonDocs = location.pathname === '/docs/components/button';
   const isOverview =
     location.pathname === '/docs/getting-started' ||
     location.pathname === '/docs/getting-started/overview';
@@ -438,6 +451,8 @@ export function DocsPage() {
     ? confirmDialogTocItems
     : isSnackbarDocs
     ? snackbarTocItems
+    : isButtonDocs
+    ? buttonTocItems
     : isAppShellDocs
     ? appShellTocItems
     : isOverview
@@ -500,6 +515,8 @@ export function DocsPage() {
     <ConfirmDialogDocs />
   ) : isSnackbarDocs ? (
     <SnackbarDocs />
+  ) : isButtonDocs ? (
+    <ButtonDocs />
   ) : isAppShellDocs ? (
     <AppShellDocs />
   ) : isOverview ? (
