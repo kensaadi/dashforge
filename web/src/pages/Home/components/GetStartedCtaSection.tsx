@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { SectionHeader } from './SectionHeader';
+import { SectionHeader } from '../../../components/header/SectionHeader';
 
 export function GetStartedCtaSection() {
   const dashTheme = useDashTheme();

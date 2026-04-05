@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { SectionHeader } from './SectionHeader';
+import { SectionHeader } from '../../../components/header/SectionHeader';
 
 type TrustItem = {
   label: string;
@@ -16,8 +16,10 @@ type TrustItem = {
 const ITEMS: TrustItem[] = [
   { label: 'TypeScript-first' },
   { label: 'React 19' },
-  { label: 'MUI v7 integration' },
-  { label: 'Open-source core' },
+  { label: 'MUI v7-native' },
+  { label: 'React Hook Form' },
+  { label: 'RBAC-ready' },
+  { label: 'Docs-first' },
 ];
 
 export function TrustedForComplexFormsSection() {
@@ -45,8 +47,8 @@ export function TrustedForComplexFormsSection() {
   return (
     <Stack spacing={2}>
       <SectionHeader
-        title="Production-ready components"
-        subtitle="Built with TypeScript, React 19, and Material-UI. Comprehensive docs and real-world examples included."
+        title="Built on proven technology"
+        subtitle="TypeScript-first architecture with React 19, Material-UI v7, and React Hook Form at the core."
         maxWidth={680}
       />
       <Box

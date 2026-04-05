@@ -272,6 +272,75 @@ export function HomePage() {
               </Grid>
             ))}
           </Grid>
+
+          {/* Component surface preview */}
+          <Box sx={{ mt: 4 }}>
+            <Typography
+              sx={{
+                fontSize: 12,
+                fontWeight: 950,
+                letterSpacing: 0.2,
+                textTransform: 'uppercase',
+                color: isDark
+                  ? 'rgba(255,255,255,0.48)'
+                  : 'rgba(15,23,42,0.48)',
+                mb: 2,
+              }}
+            >
+              MUI-Native Components
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 1.5,
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }}
+            >
+              {[
+                'TextField',
+                'Select',
+                'Autocomplete',
+                'Checkbox',
+                'Radio',
+                'Switch',
+                'DatePicker',
+                'Button',
+              ].map((name) => (
+                <Box
+                  key={name}
+                  sx={{
+                    px: 1.75,
+                    py: 0.85,
+                    borderRadius: 1.25,
+                    border: isDark
+                      ? '1px solid rgba(255,255,255,0.12)'
+                      : '1px solid rgba(15,23,42,0.10)',
+                    background: isDark
+                      ? 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))'
+                      : 'linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.70))',
+                    boxShadow: isDark
+                      ? '0 2px 8px rgba(0,0,0,0.18)'
+                      : '0 1px 4px rgba(15,23,42,0.06)',
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      fontFamily: 'monospace',
+                      color: isDark
+                        ? 'rgba(255,255,255,0.78)'
+                        : 'rgba(15,23,42,0.76)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {name}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         </Stack>
 
         <Divider
@@ -296,6 +365,28 @@ export function HomePage() {
             my: { xs: 5, md: 6 },
           }}
         />
+
+        {/* Ecosystem integration statement */}
+        <Box
+          sx={{
+            maxWidth: 720,
+            mx: 'auto',
+            textAlign: 'center',
+            mb: { xs: 5, md: 6 },
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: { xs: 16, md: 18 },
+              lineHeight: 1.65,
+              fontWeight: 500,
+              color: isDark ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.82)',
+            }}
+          >
+            Dashforge combines MUI-native components, reactive form logic, and
+            RBAC-ready primitives in one integrated system.
+          </Typography>
+        </Box>
 
         {/* Use cases - problems solved */}
         <RevealStagger>
