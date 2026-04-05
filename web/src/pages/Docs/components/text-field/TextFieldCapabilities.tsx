@@ -20,7 +20,7 @@ export function TextFieldCapabilities() {
       statusBg: isDark ? 'rgba(34,197,94,0.12)' : 'rgba(34,197,94,0.08)',
       statusBorder: isDark ? 'rgba(34,197,94,0.25)' : 'rgba(34,197,94,0.20)',
       description:
-        'TextField works as a standard React controlled component with familiar patterns. No proprietary lock-in required.',
+        'Works as a standard React controlled component. No proprietary lock-in—use familiar patterns.',
       points: [
         'Standard value and onChange props',
         'Low adoption friction for existing codebases',
@@ -39,7 +39,7 @@ export function TextFieldCapabilities() {
       statusBg: isDark ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.08)',
       statusBorder: isDark ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.20)',
       description:
-        'Designed to integrate with React Hook Form workflows through DashForm. Compatible with existing form-library patterns.',
+        'Integrates with React Hook Form via DashForm. Automatic validation, error handling, and familiar RHF patterns.',
       points: [
         'Works with RHF through DashFormBridge',
         'Automatic validation and error handling',
@@ -59,7 +59,7 @@ export function TextFieldCapabilities() {
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'TextField can participate in engine-driven visibility rules through visibleWhen. Use it when text input depends on other form state.',
+        'Conditional rendering via visibleWhen. Fields respond to form state changes without manual orchestration.',
       points: [
         'Conditional rendering via visibleWhen',
         'Engine evaluates the predicate',
@@ -87,10 +87,9 @@ export function TextFieldCapabilities() {
             maxWidth: 720,
           }}
         >
-          TextField is designed for progressive adoption. Use it as a simple
-          controlled component, integrate it with React Hook Form, or leverage
-          Dashforge-native predictive capabilities. Choose the level that fits
-          your team's workflow.
+          Use TextField as a controlled component, integrate with React Hook
+          Form, or leverage reactive capabilities. Choose the adoption level
+          that fits your workflow.
         </Typography>
       </Box>
 
