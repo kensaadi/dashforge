@@ -7,7 +7,7 @@ import { DocsCodeBlock } from '../components/shared/CodeBlock';
 import { InstallTabs } from '../components/shared/InstallTabs';
 
 /**
- * Installation - Guide for installing Dashforge and its dependencies
+ * Installation - Practical guide for installing Dashforge
  */
 export function Installation() {
   const dashTheme = useDashTheme();
@@ -38,14 +38,13 @@ export function Installation() {
         <Typography
           variant="body1"
           sx={{
-            fontSize: 19,
+            fontSize: 20,
             lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.75)',
             maxWidth: 720,
           }}
         >
-          Install Dashforge and its required peer dependencies to start building
-          applications.
+          Install Dashforge and its dependencies. Takes about 2 minutes.
         </Typography>
       </Stack>
 
@@ -65,61 +64,101 @@ export function Installation() {
           >
             Prerequisites
           </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Required environment for running Dashforge
-          </Typography>
         </Box>
 
         <Box
-          component="ul"
           sx={{
             p: 3,
-            pl: 5,
-            m: 0,
             borderRadius: 2,
             bgcolor: isDark ? 'rgba(17,24,39,0.35)' : 'rgba(248,250,252,0.80)',
             border: isDark
               ? '1px solid rgba(255,255,255,0.06)'
               : '1px solid rgba(15,23,42,0.08)',
-            listStyleType: 'disc',
           }}
         >
-          <Box
-            component="li"
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={3}
             sx={{
-              fontSize: 16,
-              lineHeight: 2,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              '& > *': { flex: 1 },
             }}
           >
-            <strong>Node.js 18+</strong>
-          </Box>
-          <Box
-            component="li"
-            sx={{
-              fontSize: 16,
-              lineHeight: 2,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            <strong>React 19</strong>
-          </Box>
-          <Box
-            component="li"
-            sx={{
-              fontSize: 16,
-              lineHeight: 2,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            <strong>Material UI peer dependencies</strong>
-          </Box>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.55)'
+                    : 'rgba(15,23,42,0.55)',
+                  mb: 0.5,
+                }}
+              >
+                Node.js
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.85)'
+                    : 'rgba(15,23,42,0.85)',
+                }}
+              >
+                18+
+              </Typography>
+            </Box>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.55)'
+                    : 'rgba(15,23,42,0.55)',
+                  mb: 0.5,
+                }}
+              >
+                React
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.85)'
+                    : 'rgba(15,23,42,0.85)',
+                }}
+              >
+                19
+              </Typography>
+            </Box>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.55)'
+                    : 'rgba(15,23,42,0.55)',
+                  mb: 0.5,
+                }}
+              >
+                TypeScript
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.85)'
+                    : 'rgba(15,23,42,0.85)',
+                }}
+              >
+                5.0+
+              </Typography>
+            </Box>
+          </Stack>
         </Box>
       </Stack>
 
@@ -137,46 +176,11 @@ export function Installation() {
               mb: 2,
             }}
           >
-            Install Dashforge
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Install the core UI framework
+            1. Install Dashforge
           </Typography>
         </Box>
 
-        <Stack spacing={3}>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            Install the main Dashforge UI package using your preferred package
-            manager:
-          </Typography>
-
-          <InstallTabs packages={['@dashforge/ui']} />
-
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            This installs the core UI framework with all form components and
-            intelligent field behavior.
-          </Typography>
-        </Stack>
+        <InstallTabs packages={['@dashforge/ui']} />
       </Stack>
 
       {/* Install Peer Dependencies */}
@@ -193,7 +197,7 @@ export function Installation() {
               mb: 2,
             }}
           >
-            Install peer dependencies
+            2. Install peer dependencies
           </Typography>
           <Typography
             sx={{
@@ -202,150 +206,13 @@ export function Installation() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Required dependencies for Material UI integration
+            Required for Material UI components
           </Typography>
         </Box>
 
-        <Stack spacing={3}>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            Dashforge relies on Material UI and Emotion for styling. Install
-            these peer dependencies:
-          </Typography>
-
-          <InstallTabs
-            packages={['@mui/material', '@emotion/react', '@emotion/styled']}
-          />
-
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            These packages provide the Material UI component foundation and
-            CSS-in-JS styling system that Dashforge components extend.
-          </Typography>
-        </Stack>
-      </Stack>
-
-      {/* Optional Packages */}
-      <Stack spacing={4} id="package-overview">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Optional packages
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Additional packages in the Dashforge ecosystem
-          </Typography>
-        </Box>
-
-        <Stack spacing={3}>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            Additional Dashforge packages may include:
-          </Typography>
-
-          <Box
-            component="ul"
-            sx={{
-              pl: 4,
-              m: 0,
-              listStyleType: 'disc',
-            }}
-          >
-            <Box
-              component="li"
-              sx={{
-                fontSize: 16,
-                lineHeight: 2,
-                color: isDark
-                  ? 'rgba(255,255,255,0.70)'
-                  : 'rgba(15,23,42,0.70)',
-              }}
-            >
-              <code
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: '0.95em',
-                  color: isDark
-                    ? 'rgba(139,92,246,0.90)'
-                    : 'rgba(109,40,217,0.90)',
-                }}
-              >
-                @dashforge/theme-core
-              </code>
-            </Box>
-            <Box
-              component="li"
-              sx={{
-                fontSize: 16,
-                lineHeight: 2,
-                color: isDark
-                  ? 'rgba(255,255,255,0.70)'
-                  : 'rgba(15,23,42,0.70)',
-              }}
-            >
-              <code
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: '0.95em',
-                  color: isDark
-                    ? 'rgba(139,92,246,0.90)'
-                    : 'rgba(109,40,217,0.90)',
-                }}
-              >
-                @dashforge/ui-core
-              </code>
-            </Box>
-          </Box>
-
-          <InstallTabs
-            packages={['@dashforge/theme-core', '@dashforge/ui-core']}
-          />
-
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            These are automatically included when installing the full framework
-            but can also be installed separately for advanced setups.
-          </Typography>
-        </Stack>
+        <InstallTabs
+          packages={['@mui/material', '@emotion/react', '@emotion/styled']}
+        />
       </Stack>
 
       {/* Verify Installation */}
@@ -362,16 +229,7 @@ export function Installation() {
               mb: 2,
             }}
           >
-            Verify installation
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Confirm Dashforge is installed correctly
+            3. Verify installation
           </Typography>
         </Box>
 
@@ -384,28 +242,19 @@ export function Installation() {
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             }}
           >
-            Create a minimal component to verify the installation:
+            Test that Dashforge imports work:
           </Typography>
 
           <DocsCodeBlock
-            code={`import { TextField } from '@dashforge/ui'
+            code={`import { TextField } from '@dashforge/ui';
 
 function Example() {
-  return <TextField label="Name" />
-}`}
+  return <TextField label="Name" />;
+}
+
+// If this compiles without errors, you're ready.`}
             language="tsx"
           />
-
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            If this renders correctly, Dashforge is installed successfully.
-          </Typography>
         </Stack>
       </Stack>
 
@@ -415,10 +264,10 @@ function Example() {
           sx={{
             p: 3,
             borderRadius: 2,
-            bgcolor: isDark ? 'rgba(139,92,246,0.08)' : 'rgba(139,92,246,0.05)',
+            bgcolor: isDark ? 'rgba(139,92,246,0.10)' : 'rgba(139,92,246,0.06)',
             border: isDark
-              ? '1px solid rgba(139,92,246,0.20)'
-              : '1px solid rgba(139,92,246,0.15)',
+              ? '1px solid rgba(139,92,246,0.25)'
+              : '1px solid rgba(139,92,246,0.18)',
           }}
         >
           <Typography
@@ -430,7 +279,7 @@ function Example() {
               mb: 1.5,
             }}
           >
-            Next: Learn How to Use Dashforge
+            Next: Build Your First Form →
           </Typography>
           <Typography
             variant="body1"
@@ -440,7 +289,7 @@ function Example() {
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
             }}
           >
-            Now that Dashforge is installed, continue to the{' '}
+            Continue to the{' '}
             <Box
               component={RouterLink}
               to="/docs/getting-started/usage"
@@ -457,7 +306,7 @@ function Example() {
             >
               Usage Guide
             </Box>{' '}
-            to learn the basics of building forms with Dashforge.
+            to build a form with validation and conditional fields.
           </Typography>
         </Box>
       </Stack>
