@@ -166,27 +166,30 @@ export function HomePage() {
 
       <HeroHome />
 
-      {/* ========================= NEXT SECTION PLACEHOLDER ========================= */}
-      {/* Keep the page "docs-first": next sections should be lean and truth-based (no fake previews). */}
+      {/* ========================= CONTENT SECTIONS ========================= */}
       <Container sx={{ pb: { xs: 10, md: 12 }, pt: { xs: 5, md: 6 } }}>
+        {/* What you get - immediate value proposition */}
         <Stack spacing={2}>
-          <SectionHeader title="What you get" />
+          <SectionHeader title="Everything you need for complex forms" />
 
           <Grid container spacing={2}>
             {[
               {
-                title: 'Schema-Driven Logic',
-                description: 'Model your domain and rules declaratively.',
+                title: 'Conditional Logic Made Simple',
+                description:
+                  'Show/hide fields, enable/disable sections, and compute values based on rules — without manual useEffect dependencies.',
                 icon: <SchemaIcon fontSize="small" />,
               },
               {
-                title: 'Smart Form Handling',
-                description: 'Validation and dependencies are first-class.',
+                title: 'Built-in RBAC',
+                description:
+                  'Control field visibility and editability with declarative access rules. No scattered permission checks.',
                 icon: <AutoFixHighIcon fontSize="small" />,
               },
               {
-                title: 'Predictive State Engine',
-                description: 'Reactive behavior without ad-hoc effects.',
+                title: 'Reactive Form State',
+                description:
+                  'Field dependencies update automatically. Changes propagate through your form instantly and predictably.',
                 icon: <InsightsIcon fontSize="small" />,
               },
             ].map((f) => (
@@ -278,30 +281,7 @@ export function HomePage() {
           }}
         />
 
-        <RevealStagger>
-          <UseCasesSection />
-        </RevealStagger>
-
-        <Divider
-          sx={{
-            borderColor: isDark
-              ? 'rgba(255,255,255,0.10)'
-              : 'rgba(15,23,42,0.08)',
-            my: { xs: 5, md: 6 },
-          }}
-        />
-
-        <NotJustAnotherFormLibrarySection />
-
-        <Divider
-          sx={{
-            borderColor: isDark
-              ? 'rgba(255,255,255,0.10)'
-              : 'rgba(15,23,42,0.08)',
-            my: { xs: 5, md: 6 },
-          }}
-        />
-
+        {/* Production-ready proof - build trust early */}
         <RevealStagger>
           <TrustedForComplexFormsSection />
         </RevealStagger>
@@ -315,6 +295,33 @@ export function HomePage() {
           }}
         />
 
+        {/* Use cases - problems solved */}
+        <RevealStagger>
+          <UseCasesSection />
+        </RevealStagger>
+
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            my: { xs: 5, md: 6 },
+          }}
+        />
+
+        {/* Differentiation - why choose Dashforge */}
+        <NotJustAnotherFormLibrarySection />
+
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            my: { xs: 5, md: 6 },
+          }}
+        />
+
+        {/* Final CTA */}
         <GetStartedCtaSection />
       </Container>
     </Box>

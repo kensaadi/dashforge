@@ -14,8 +14,8 @@ export function GetStartedCtaSection() {
   return (
     <Stack spacing={2} alignItems="center" sx={{ textAlign: 'center' }}>
       <SectionHeader
-        title="Get started in minutes"
-        subtitle="Quickstart, examples, and core concepts."
+        title="Ready to build better forms?"
+        subtitle="Get started in minutes with our quickstart guide and working examples."
         align="center"
         maxWidth={680}
       />
@@ -50,12 +50,12 @@ export function GetStartedCtaSection() {
             },
           }}
         >
-          Quickstart
+          Read the Docs
         </Button>
 
         <Button
           component={RouterLink}
-          to="/docs"
+          to="/examples"
           size="large"
           variant="outlined"
           sx={{
@@ -86,7 +86,7 @@ export function GetStartedCtaSection() {
             },
           }}
         >
-          View examples
+          Browse Examples
         </Button>
       </Stack>
 

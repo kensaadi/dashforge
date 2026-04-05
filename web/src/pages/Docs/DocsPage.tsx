@@ -554,7 +554,7 @@ export function DocsPage() {
   ) : isAccessControlPlayground ? (
     <AccessControlPlayground />
   ) : (
-    <TextFieldDocs />
+    <Overview />
   );
 
   return (

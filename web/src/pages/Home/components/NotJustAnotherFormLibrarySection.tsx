@@ -18,20 +18,20 @@ type CompareRow = {
 
 const ROWS: CompareRow[] = [
   {
-    left: 'Scattered effect-based logic',
-    right: 'Predictive derived state engine',
+    left: 'useEffect hooks for field dependencies',
+    right: 'Declarative rules and automatic updates',
   },
   {
-    left: 'Ad-hoc watchers and UI coupling',
-    right: 'Schema-driven rules and dependencies',
+    left: 'Manual state synchronization',
+    right: 'Built-in reactive state engine',
   },
   {
-    left: 'UI-centric abstractions',
-    right: 'Unified UI and domain logic',
+    left: 'Scattered permission checks',
+    right: 'Integrated RBAC on every component',
   },
   {
-    left: 'Implicit state transitions',
-    right: 'Explicit domain model',
+    left: 'Complex async coordination',
+    right: 'First-class async rule support',
   },
 ];
 
@@ -116,8 +116,8 @@ export function NotJustAnotherFormLibrarySection() {
   return (
     <Stack spacing={2}>
       <SectionHeader
-        title="A domain-first approach to forms"
-        subtitle="Dashforge provides domain logic closure: rules and dependencies produce derived state, allowing UI components to remain declarative and free from implementation glue."
+        title="Stop fighting with useEffect"
+        subtitle="Dashforge replaces scattered effects with declarative rules. Field dependencies update automatically, async validation is built-in, and RBAC works out of the box."
         maxWidth={760}
       />
 
@@ -241,10 +241,10 @@ export function NotJustAnotherFormLibrarySection() {
                     : 'rgba(15,23,42,0.86)',
                 }}
               >
-                Key idea:
+                How it works:
               </Box>{' '}
-              <b>Rules → Derived State → UI</b>. Components render state without
-              relying on side effects for consistency.
+              Declare rules once. Dashforge watches field changes and updates
+              dependent fields automatically.
             </Typography>
 
             <Typography
@@ -256,8 +256,8 @@ export function NotJustAnotherFormLibrarySection() {
                   : 'rgba(15,23,42,0.62)',
               }}
             >
-              It establishes a safer architectural default for complex forms and
-              UI workflows.
+              No manual state tracking. No stale closures. No effect
+              dependencies to maintain.
             </Typography>
           </Stack>
         </CardContent>

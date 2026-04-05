@@ -28,26 +28,42 @@ type UseCase = {
 const USE_CASES: UseCase[] = [
   {
     title: 'Conditional Visibility',
-    description: 'Visibility becomes derived state — no UI glue.',
-    bullets: ['Rules live in schema', 'No watcher chains'],
+    description:
+      'Show/hide fields based on other field values without useEffect chains.',
+    bullets: [
+      'Declare visibility rules once',
+      'No manual event listeners or watchers',
+    ],
     icon: <VisibilityIcon fontSize="small" />,
   },
   {
-    title: 'Cross-Field Constraints',
-    description: 'Deterministic updates when fields depend on each other.',
-    bullets: ['Explicit dependency graph', 'Atomic re-evaluation'],
+    title: 'Cross-Field Dependencies',
+    description:
+      'Update one field automatically when another changes — no stale closures.',
+    bullets: [
+      'Explicit dependency declarations',
+      'Guaranteed consistency across updates',
+    ],
     icon: <HubIcon fontSize="small" />,
   },
   {
-    title: 'Async Domain Rules',
-    description: 'Server-backed rules without effect chaos.',
-    bullets: ['First-class async rules', 'Stable loading & error gating'],
+    title: 'Server-Side Validation',
+    description:
+      'Handle async validation rules without managing loading states manually.',
+    bullets: [
+      'Built-in async rule support',
+      'Automatic loading and error states',
+    ],
     icon: <RuleIcon fontSize="small" />,
   },
   {
-    title: 'Wizards & Workflows',
-    description: 'Forms behave like real state machines.',
-    bullets: ['Step gating via rules', 'Derived progress & guardrails'],
+    title: 'Multi-Step Forms',
+    description:
+      'Gate wizard steps based on completion rules and user permissions.',
+    bullets: [
+      'Declarative step visibility',
+      'Progress tracking derived from rules',
+    ],
     icon: <AccountTreeIcon fontSize="small" />,
   },
 ];
@@ -59,8 +75,8 @@ export function UseCasesSection() {
   return (
     <Stack spacing={2}>
       <SectionHeader
-        title="Built for real-world form complexity"
-        subtitle="Common pain points — solved as derived state."
+        title="Solve common form problems"
+        subtitle="Complex form patterns without the complexity."
       />
 
       <Grid container spacing={2}>

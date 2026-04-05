@@ -66,7 +66,7 @@ export function HeroHome() {
                     whiteSpace: { xs: 'normal', md: 'nowrap' },
                   }}
                 >
-                  A predictive framework
+                  React forms with
                 </Box>
 
                 <Box
@@ -77,7 +77,7 @@ export function HeroHome() {
                     color: isDark ? 'rgb(96,165,250)' : 'rgb(37,99,235)',
                   }}
                 >
-                  Prevent state, not events
+                  rules, not effects
                 </Box>
               </Typography>
 
@@ -91,8 +91,9 @@ export function HeroHome() {
                     : 'rgba(15,23,42,0.66)',
                 }}
               >
-                Replace ad-hoc effects with a predictive derived-state engine
-                for complex forms and UI workflows.
+                MUI-native form library with React Hook Form integration,
+                built-in RBAC, and a reactive engine for complex conditional
+                logic. Build enterprise forms without scattered useEffect hooks.
               </Typography>
 
               <Stack direction="row" spacing={2} sx={{ pt: 0.5 }}>
@@ -103,18 +104,78 @@ export function HeroHome() {
                   variant="contained"
                   sx={{ borderRadius: 2 }}
                 >
-                  Quickstart
+                  Get Started
                 </Button>
 
                 <Button
                   component={RouterLink}
-                  to="/docs"
+                  to="/examples"
                   size="large"
                   variant="outlined"
                   sx={{ borderRadius: 2 }}
                 >
-                  View examples
+                  See Examples
                 </Button>
+              </Stack>
+
+              {/* Compatibility Trust Strip */}
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={{ xs: 1, sm: 3 }}
+                sx={{
+                  pt: 1.5,
+                  alignItems: { xs: 'flex-start', sm: 'center' },
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: isDark
+                      ? 'rgba(255,255,255,0.50)'
+                      : 'rgba(15,23,42,0.48)',
+                  }}
+                >
+                  Works with:
+                </Typography>
+                <Stack
+                  direction="row"
+                  spacing={2.5}
+                  sx={{
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: { xs: 1.5, sm: 0 },
+                  }}
+                >
+                  {[
+                    'React 18+',
+                    'React Hook Form',
+                    'Material-UI v7',
+                    'TypeScript',
+                  ].map((tech) => (
+                    <Typography
+                      key={tech}
+                      sx={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: isDark
+                          ? 'rgba(255,255,255,0.68)'
+                          : 'rgba(15,23,42,0.70)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75,
+                        '&::before': {
+                          content: '"✓"',
+                          fontSize: 14,
+                          fontWeight: 900,
+                          color: isDark ? 'rgb(96,165,250)' : 'rgb(37,99,235)',
+                        },
+                      }}
+                    >
+                      {tech}
+                    </Typography>
+                  ))}
+                </Stack>
               </Stack>
 
               <Card
@@ -151,9 +212,9 @@ export function HeroHome() {
 
                     <Stack spacing={0.75}>
                       {[
-                        'RHF handles inputs — domain logic tends to leak into effects.',
-                        'MUI handles UI — complex dependencies need a first-class model.',
-                        'Dashforge provides logic closure: rules and dependencies produce derived state.',
+                        'React Hook Form handles inputs — Dashforge adds reactive rules and conditional logic',
+                        'Material-UI provides components — Dashforge integrates them with form state and RBAC',
+                        'Build complex forms without scattered useEffect hooks or manual dependency tracking',
                       ].map((t) => (
                         <Typography
                           key={t}
