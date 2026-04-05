@@ -50,6 +50,11 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
       },
       {
         type: 'link',
+        label: 'Why Dashforge',
+        path: '/docs/getting-started/why-dashforge',
+      },
+      {
+        type: 'link',
         label: 'Installation',
         path: '/docs/getting-started/installation',
       },
@@ -62,11 +67,6 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
         type: 'link',
         label: 'Project Structure',
         path: '/docs/getting-started/project-structure',
-      },
-      {
-        type: 'link',
-        label: 'Why Dashforge',
-        path: '/docs/getting-started/why-dashforge',
       },
     ],
   },

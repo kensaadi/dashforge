@@ -7,7 +7,7 @@ import { DocsCodeBlock } from '../components/shared/CodeBlock';
 import { InstallTabs } from '../components/shared/InstallTabs';
 
 /**
- * Installation - Practical guide for installing Dashforge
+ * Installation - Zero-friction onboarding for Dashforge
  */
 export function Installation() {
   const dashTheme = useDashTheme();
@@ -44,122 +44,8 @@ export function Installation() {
             maxWidth: 720,
           }}
         >
-          Install Dashforge and its dependencies. Takes about 2 minutes.
+          Three steps. Two minutes. One working form.
         </Typography>
-      </Stack>
-
-      {/* Prerequisites */}
-      <Stack spacing={4} id="prerequisites">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Prerequisites
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            p: 3,
-            borderRadius: 2,
-            bgcolor: isDark ? 'rgba(17,24,39,0.35)' : 'rgba(248,250,252,0.80)',
-            border: isDark
-              ? '1px solid rgba(255,255,255,0.06)'
-              : '1px solid rgba(15,23,42,0.08)',
-          }}
-        >
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={3}
-            sx={{
-              '& > *': { flex: 1 },
-            }}
-          >
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.55)'
-                    : 'rgba(15,23,42,0.55)',
-                  mb: 0.5,
-                }}
-              >
-                Node.js
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.85)'
-                    : 'rgba(15,23,42,0.85)',
-                }}
-              >
-                18+
-              </Typography>
-            </Box>
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.55)'
-                    : 'rgba(15,23,42,0.55)',
-                  mb: 0.5,
-                }}
-              >
-                React
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.85)'
-                    : 'rgba(15,23,42,0.85)',
-                }}
-              >
-                19
-              </Typography>
-            </Box>
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.55)'
-                    : 'rgba(15,23,42,0.55)',
-                  mb: 0.5,
-                }}
-              >
-                TypeScript
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.85)'
-                    : 'rgba(15,23,42,0.85)',
-                }}
-              >
-                5.0+
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
       </Stack>
 
       {/* Install Dashforge */}
@@ -180,7 +66,7 @@ export function Installation() {
           </Typography>
         </Box>
 
-        <InstallTabs packages={['@dashforge/ui']} />
+        <InstallTabs packages={['@dashforge/ui', '@dashforge/forms']} />
       </Stack>
 
       {/* Install Peer Dependencies */}
@@ -206,7 +92,7 @@ export function Installation() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Required for Material UI components
+            Material UI and Emotion
           </Typography>
         </Box>
 
@@ -215,8 +101,8 @@ export function Installation() {
         />
       </Stack>
 
-      {/* Verify Installation */}
-      <Stack spacing={4} id="verification">
+      {/* Minimal Working Example */}
+      <Stack spacing={4} id="first-form">
         <Box>
           <Typography
             variant="h2"
@@ -229,40 +115,113 @@ export function Installation() {
               mb: 2,
             }}
           >
-            3. Verify installation
+            3. Your first form
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+            }}
+          >
+            Copy this into a component to verify everything works
           </Typography>
         </Box>
 
         <Stack spacing={3}>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            }}
-          >
-            Test that Dashforge imports work:
-          </Typography>
-
           <DocsCodeBlock
-            code={`import { TextField } from '@dashforge/ui';
+            code={`import { DashForm } from '@dashforge/forms';
+import { Select, TextField } from '@dashforge/ui';
 
-function Example() {
-  return <TextField label="Name" />;
-}
+function SupportForm() {
+  const handleSubmit = (data) => {
+    console.log(data);
+  };
 
-// If this compiles without errors, you're ready.`}
+  return (
+    <DashForm onSubmit={handleSubmit}>
+      <Select
+        name="category"
+        label="Category"
+        options={[
+          { value: 'bug', label: 'Bug Report' },
+          { value: 'feature', label: 'Feature Request' },
+        ]}
+      />
+
+      <TextField
+        name="details"
+        label="Details"
+        visibleWhen={(engine) =>
+          engine.getNode('category')?.value === 'bug'
+        }
+      />
+
+      <button type="submit">Submit</button>
+    </DashForm>
+  );
+}`}
             language="tsx"
           />
+
+          <Box
+            sx={{
+              px: 2.5,
+              py: 2,
+              borderRadius: 1.5,
+              bgcolor: isDark ? 'rgba(34,197,94,0.08)' : 'rgba(34,197,94,0.05)',
+              border: isDark
+                ? '1px solid rgba(34,197,94,0.20)'
+                : '1px solid rgba(34,197,94,0.15)',
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: 15,
+                lineHeight: 1.6,
+                color: isDark ? 'rgba(34,197,94,0.90)' : 'rgba(22,163,74,0.95)',
+                fontWeight: 500,
+              }}
+            >
+              ✓ If this renders, Dashforge is installed correctly.
+            </Typography>
+          </Box>
         </Stack>
+      </Stack>
+
+      {/* Prerequisites */}
+      <Stack spacing={4} id="prerequisites">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 24, md: 28 },
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.3,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              mb: 1.5,
+            }}
+          >
+            Prerequisites
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 15,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.55)' : 'rgba(15,23,42,0.55)',
+            }}
+          >
+            Node.js 18+, React 19, TypeScript 5.0+
+          </Typography>
+        </Box>
       </Stack>
 
       {/* Next Steps */}
       <Stack spacing={3}>
         <Box
           sx={{
-            p: 3,
+            p: 4,
             borderRadius: 2,
             bgcolor: isDark ? 'rgba(139,92,246,0.10)' : 'rgba(139,92,246,0.06)',
             border: isDark
@@ -273,41 +232,60 @@ function Example() {
           <Typography
             variant="h6"
             sx={{
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: 700,
               color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
               mb: 1.5,
             }}
           >
-            Next: Build Your First Form →
+            You're ready to build
           </Typography>
           <Typography
             variant="body1"
             sx={{
-              fontSize: 15,
+              fontSize: 16,
               lineHeight: 1.6,
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              mb: 2.5,
             }}
           >
-            Continue to the{' '}
-            <Box
-              component={RouterLink}
-              to="/docs/getting-started/usage"
-              sx={{
-                color: isDark
-                  ? 'rgba(139,92,246,0.95)'
-                  : 'rgba(109,40,217,0.95)',
-                fontWeight: 600,
-                textDecoration: 'none',
-                '&:hover': {
-                  textDecoration: 'underline',
-                },
-              }}
-            >
-              Usage Guide
-            </Box>{' '}
-            to build a form with validation and conditional fields.
+            Now that Dashforge is installed, learn how to build real forms with
+            validation, conditional fields, and dynamic behavior.
           </Typography>
+          <Box
+            component={RouterLink}
+            to="/docs/getting-started/usage"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.75,
+              px: 2.5,
+              py: 1.25,
+              borderRadius: 1.5,
+              bgcolor: isDark
+                ? 'rgba(139,92,246,0.15)'
+                : 'rgba(139,92,246,0.12)',
+              border: isDark
+                ? '1px solid rgba(139,92,246,0.30)'
+                : '1px solid rgba(139,92,246,0.20)',
+              color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
+              fontWeight: 600,
+              fontSize: 15,
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: isDark
+                  ? 'rgba(139,92,246,0.20)'
+                  : 'rgba(139,92,246,0.18)',
+                borderColor: isDark
+                  ? 'rgba(139,92,246,0.40)'
+                  : 'rgba(139,92,246,0.30)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
+            Usage Guide →
+          </Box>
         </Box>
       </Stack>
     </Stack>

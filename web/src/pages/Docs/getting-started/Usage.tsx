@@ -6,7 +6,7 @@ import { DocsCodeBlock } from '../components/shared/CodeBlock';
 import { Link as RouterLink } from 'react-router-dom';
 
 /**
- * Usage - Practical guide to building forms with Dashforge
+ * Usage - Guided onboarding for building forms with Dashforge
  */
 export function Usage() {
   const dashTheme = useDashTheme();
@@ -43,35 +43,35 @@ export function Usage() {
             maxWidth: 720,
           }}
         >
-          Learn the core patterns for building forms with Dashforge—from basic
-          setup to conditional fields and validation.
+          Build your first form. Add validation. Make fields conditional. Handle
+          submission. Each step builds on the last.
         </Typography>
       </Stack>
 
-      {/* 1. Set Up Theme Providers */}
+      {/* 1. Quick Setup */}
       <Stack spacing={4} id="theme-setup">
         <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
+              fontSize: { xs: 26, md: 32 },
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.3,
+              color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(15,23,42,0.85)',
+              mb: 1.5,
             }}
           >
-            1. Set up theme providers
+            1. Add the required providers
           </Typography>
           <Typography
             sx={{
-              fontSize: 17,
+              fontSize: 16,
               lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+              color: isDark ? 'rgba(255,255,255,0.60)' : 'rgba(15,23,42,0.60)',
             }}
           >
-            Wrap your app with Dashforge theme providers
+            Quick one-time setup
           </Typography>
         </Box>
 
@@ -92,7 +92,7 @@ function App() {
         />
       </Stack>
 
-      {/* 2. Create Your First Form */}
+      {/* 2. Your First Form */}
       <Stack spacing={4} id="first-form">
         <Box>
           <Typography
@@ -106,7 +106,7 @@ function App() {
               mb: 2,
             }}
           >
-            2. Create a form with validation
+            2. Your first form
           </Typography>
           <Typography
             sx={{
@@ -115,13 +115,14 @@ function App() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Basic form with automatic validation and error display
+            Fields register themselves. Validation runs automatically. Errors
+            display on touch.
           </Typography>
         </Box>
 
         <DocsCodeBlock
           code={`import { DashForm } from '@dashforge/forms';
-import { TextField } from '@dashforge/ui';
+import { TextField, Button } from '@dashforge/ui';
 
 function LoginForm() {
   const handleSubmit = (data) => {
@@ -160,20 +161,40 @@ function LoginForm() {
         }}
       />
 
-      <button type="submit">Sign In</button>
+      <Button type="submit" variant="contained">
+        Sign In
+      </Button>
     </DashForm>
   );
-}
-
-// Components self-register
-// Errors show after touch or submit
-// No Controller needed
-// No manual error wiring`}
+}`}
           language="tsx"
         />
+
+        <Box
+          sx={{
+            px: 2.5,
+            py: 2,
+            borderRadius: 1.5,
+            bgcolor: isDark ? 'rgba(139,92,246,0.08)' : 'rgba(139,92,246,0.05)',
+            border: isDark
+              ? '1px solid rgba(139,92,246,0.20)'
+              : '1px solid rgba(139,92,246,0.15)',
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(139,92,246,0.90)' : 'rgba(109,40,217,0.90)',
+              fontWeight: 500,
+            }}
+          >
+            No Controller. No manual error wiring. No watch() for touched state.
+          </Typography>
+        </Box>
       </Stack>
 
-      {/* 3. Add Conditional Fields */}
+      {/* 3. Conditional Fields */}
       <Stack spacing={4} id="conditional-fields">
         <Box>
           <Typography
@@ -187,7 +208,7 @@ function LoginForm() {
               mb: 2,
             }}
           >
-            3. Add conditional fields
+            3. Make fields conditional
           </Typography>
           <Typography
             sx={{
@@ -196,13 +217,14 @@ function LoginForm() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Show/hide fields based on form state using visibleWhen
+            No watch() or conditional JSX. Fields react to form state
+            automatically.
           </Typography>
         </Box>
 
         <DocsCodeBlock
           code={`import { DashForm } from '@dashforge/forms';
-import { TextField, Select, Checkbox } from '@dashforge/ui';
+import { TextField, Select, Checkbox, Button } from '@dashforge/ui';
 
 function ShippingForm() {
   return (
@@ -246,15 +268,39 @@ function ShippingForm() {
         }
         rules={{ required: 'Company name required' }}
       />
+
+      <Button type="submit" variant="contained">
+        Continue
+      </Button>
     </DashForm>
   );
-}
-
-// No watch() needed
-// No conditional JSX
-// Fields show/hide reactively`}
+}`}
           language="tsx"
         />
+
+        <Box
+          sx={{
+            px: 2.5,
+            py: 2,
+            borderRadius: 1.5,
+            bgcolor: isDark ? 'rgba(139,92,246,0.08)' : 'rgba(139,92,246,0.05)',
+            border: isDark
+              ? '1px solid rgba(139,92,246,0.20)'
+              : '1px solid rgba(139,92,246,0.15)',
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(139,92,246,0.90)' : 'rgba(109,40,217,0.90)',
+              fontWeight: 500,
+            }}
+          >
+            The dependency lives on the field. No scattered watch() calls in the
+            parent.
+          </Typography>
+        </Box>
       </Stack>
 
       {/* 4. Custom Validation */}
@@ -271,7 +317,7 @@ function ShippingForm() {
               mb: 2,
             }}
           >
-            4. Use custom validation
+            4. Write custom validation
           </Typography>
           <Typography
             sx={{
@@ -280,7 +326,8 @@ function ShippingForm() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Write custom validation functions with access to form values
+            Same validation API as React Hook Form. Access form values without
+            manual wiring.
           </Typography>
         </Box>
 
@@ -309,14 +356,14 @@ function ShippingForm() {
   rules={{
     required: 'Confirm password',
     validate: (value, formValues) =>
-      value === formValues.password || 'Passwords must match'
+      value === formValues.password || 'Passwords must match',
   }}
 />`}
           language="tsx"
         />
       </Stack>
 
-      {/* 5. Handle Form Submission */}
+      {/* 5. Handle Submission */}
       <Stack spacing={4} id="form-submission">
         <Box>
           <Typography
@@ -330,7 +377,7 @@ function ShippingForm() {
               mb: 2,
             }}
           >
-            5. Handle form submission
+            5. Submit to your API
           </Typography>
           <Typography
             sx={{
@@ -339,14 +386,14 @@ function ShippingForm() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Submit to API with loading states
+            Handle async submission with loading states and error handling
           </Typography>
         </Box>
 
         <DocsCodeBlock
           code={`import { useState } from 'react';
 import { DashForm } from '@dashforge/forms';
-import { TextField } from '@dashforge/ui';
+import { TextField, Button } from '@dashforge/ui';
 
 function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -364,8 +411,7 @@ function RegistrationForm() {
       });
 
       if (response.ok) {
-        console.log('Registration successful');
-        // Redirect or show success message
+        // Redirect or show success
       } else {
         setError('Registration failed');
       }
@@ -396,9 +442,13 @@ function RegistrationForm() {
 
       {error && <div style={{ color: 'red' }}>{error}</div>}
 
-      <button type="submit" disabled={isSubmitting}>
+      <Button 
+        type="submit" 
+        variant="contained"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? 'Submitting...' : 'Register'}
-      </button>
+      </Button>
     </DashForm>
   );
 }`}
@@ -410,7 +460,7 @@ function RegistrationForm() {
       <Stack spacing={3} id="next-steps">
         <Box
           sx={{
-            p: 3,
+            p: 4,
             borderRadius: 2,
             bgcolor: isDark ? 'rgba(139,92,246,0.10)' : 'rgba(139,92,246,0.06)',
             border: isDark
@@ -421,42 +471,60 @@ function RegistrationForm() {
           <Typography
             variant="h6"
             sx={{
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: 700,
               color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
               mb: 1.5,
             }}
           >
-            Next: Explore Components →
+            You know the patterns
           </Typography>
           <Typography
             variant="body1"
             sx={{
-              fontSize: 15,
+              fontSize: 16,
               lineHeight: 1.6,
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              mb: 2.5,
             }}
           >
-            See the full component library in the{' '}
-            <Box
-              component={RouterLink}
-              to="/docs/components/text-field"
-              sx={{
-                color: isDark
-                  ? 'rgba(139,92,246,0.95)'
-                  : 'rgba(109,40,217,0.95)',
-                fontWeight: 600,
-                textDecoration: 'none',
-                '&:hover': {
-                  textDecoration: 'underline',
-                },
-              }}
-            >
-              Components
-            </Box>{' '}
-            section. Learn about TextField, Select, NumberField, DateTimePicker,
-            and more.
+            Now explore the full component library: TextField, Select,
+            NumberField, DateTimePicker, Checkbox, RadioGroup, and more.
           </Typography>
+          <Box
+            component={RouterLink}
+            to="/docs/components/text-field"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.75,
+              px: 2.5,
+              py: 1.25,
+              borderRadius: 1.5,
+              bgcolor: isDark
+                ? 'rgba(139,92,246,0.15)'
+                : 'rgba(139,92,246,0.12)',
+              border: isDark
+                ? '1px solid rgba(139,92,246,0.30)'
+                : '1px solid rgba(139,92,246,0.20)',
+              color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
+              fontWeight: 600,
+              fontSize: 15,
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: isDark
+                  ? 'rgba(139,92,246,0.20)'
+                  : 'rgba(139,92,246,0.18)',
+                borderColor: isDark
+                  ? 'rgba(139,92,246,0.40)'
+                  : 'rgba(139,92,246,0.30)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
+            Component Library →
+          </Box>
         </Box>
       </Stack>
     </Stack>

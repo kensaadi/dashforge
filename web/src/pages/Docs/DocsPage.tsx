@@ -14,7 +14,6 @@ import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { DOCS_VERSION } from '../../docs/docsVersion';
 import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
-import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { TextareaDocs } from './components/textarea/TextareaDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
@@ -239,12 +238,11 @@ const projectStructureTocItems: DocsTocItem[] = [
 ];
 
 const whyDashforgeTocItems: DocsTocItem[] = [
-  { id: 'the-problem', label: 'The Problem' },
-  { id: 'the-solution', label: 'The Solution' },
-  { id: 'key-benefits', label: 'Key Benefits' },
-  { id: 'when-to-use', label: 'When to Use Dashforge' },
-  { id: 'design-philosophy', label: 'Design Philosophy' },
-  { id: 'get-started', label: 'Get Started' },
+  { id: 'the-core-pain', label: 'The Core Pain' },
+  { id: 'comparison', label: 'The Same Form, Two Approaches' },
+  { id: 'why-this-matters-at-scale', label: 'Why This Matters at Scale' },
+  { id: 'what-dashforge-changes', label: 'What Dashforge Changes' },
+  { id: 'get-started', label: 'Ready to Install?' },
 ];
 
 const designTokensTocItems: DocsTocItem[] = [

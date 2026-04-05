@@ -1,12 +1,90 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsCodeBlock } from '../components/shared/CodeBlock';
+
+const RHF_CODE = `function SupportForm() {
+  const { control, watch } = useForm();
+  const category = watch('category');
+
+  return (
+    <form>
+      <Controller
+        name="category"
+        control={control}
+        rules={{ required: 'Category is required' }}
+        render={({ field, fieldState }) => (
+          <Select
+            {...field}
+            error={!!fieldState.error}
+          >
+            <MenuItem value="bug">Bug</MenuItem>
+            <MenuItem value="feature">Feature</MenuItem>
+            <MenuItem value="billing">Billing</MenuItem>
+          </Select>
+        )}
+      />
+
+      {category === 'bug' && (
+        <Controller
+          name="details"
+          control={control}
+          rules={{
+            validate: (value) =>
+              value?.trim()
+                ? true
+                : 'Details required for bugs'
+          }}
+          render={({ field, fieldState }) => (
+            <TextField
+              {...field}
+              label="Bug Details"
+              error={!!fieldState.error}
+              helperText={fieldState.error?.message}
+            />
+          )}
+        />
+      )}
+    </form>
+  );
+}`;
+
+const DASHFORGE_CODE = `function SupportForm() {
+  return (
+    <DashForm onSubmit={handleSubmit}>
+      <Select
+        name="category"
+        label="Category"
+        options={[
+          { value: 'bug', label: 'Bug' },
+          { value: 'feature', label: 'Feature' },
+          { value: 'billing', label: 'Billing' },
+        ]}
+        rules={{ required: 'Category is required' }}
+      />
+
+      <TextField
+        name="details"
+        label="Bug Details"
+        visibleWhen={(engine) =>
+          engine.getNode('category')?.value === 'bug'
+        }
+        rules={{
+          validate: (value, form) =>
+            value?.trim()
+              ? true
+              : 'Details required for bugs'
+        }}
+      />
+    </DashForm>
+  );
+}`;
 
 /**
- * WhyDashforge - Explains the motivation and benefits of using Dashforge
+ * WhyDashforge - Decision-making page for developers evaluating Dashforge
  */
 export function WhyDashforge() {
   const dashTheme = useDashTheme();
@@ -32,23 +110,36 @@ export function WhyDashforge() {
             backgroundClip: 'text',
           }}
         >
-          Why Dashforge?
+          Why not just use MUI + React Hook Form?
         </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            fontSize: 19,
-            lineHeight: 1.6,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-            maxWidth: 720,
-          }}
-        >
-          Understand the problems Dashforge solves and why it exists.
-        </Typography>
+        <Stack spacing={1.5} sx={{ maxWidth: 720 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 19,
+              lineHeight: 1.5,
+              color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.75)',
+              fontWeight: 500,
+            }}
+          >
+            They work great.
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 19,
+              lineHeight: 1.5,
+              color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.75)',
+              fontWeight: 500,
+            }}
+          >
+            Until your forms start getting complex.
+          </Typography>
+        </Stack>
       </Stack>
 
-      {/* The Problem */}
-      <Stack spacing={4} id="the-problem">
+      {/* The Core Pain */}
+      <Stack spacing={4} id="the-core-pain">
         <Box>
           <Typography
             variant="h2"
@@ -61,7 +152,7 @@ export function WhyDashforge() {
               mb: 2,
             }}
           >
-            The Problem
+            The Core Pain
           </Typography>
           <Typography
             sx={{
@@ -70,7 +161,8 @@ export function WhyDashforge() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Building forms is repetitive and error-prone
+            When forms need conditional fields and dynamic behavior, glue code
+            appears
           </Typography>
         </Box>
 
@@ -82,89 +174,45 @@ export function WhyDashforge() {
             color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
           }}
         >
-          Forms are everywhere in web applications, yet building them remains
-          tedious. Every input field requires manual wiring for state
-          management, validation, error display, and submission handling. This
-          boilerplate multiplies across every form in your application.
+          React Hook Form handles registration and validation. MUI provides the
+          components. But as soon as you need conditional fields, cross-field
+          validation, or dynamic error handling, you write{' '}
+          <code
+            style={{
+              fontFamily: 'monospace',
+              fontSize: '0.95em',
+              padding: '2px 6px',
+              borderRadius: 3,
+              background: isDark
+                ? 'rgba(139,92,246,0.15)'
+                : 'rgba(139,92,246,0.10)',
+              color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
+            }}
+          >
+            Controller
+          </code>{' '}
+          wrappers, scatter{' '}
+          <code
+            style={{
+              fontFamily: 'monospace',
+              fontSize: '0.95em',
+              padding: '2px 6px',
+              borderRadius: 3,
+              background: isDark
+                ? 'rgba(139,92,246,0.15)'
+                : 'rgba(139,92,246,0.10)',
+              color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
+            }}
+          >
+            watch()
+          </code>{' '}
+          calls across components, and manually wire error state. The glue code
+          accumulates.
         </Typography>
-
-        <DocsCodeBlock
-          code={`// Traditional form with React Hook Form
-import { useForm } from 'react-hook-form';
-import TextField from '@mui/material/TextField';
-
-function LoginForm() {
-  const { register, handleSubmit, formState: { errors, touchedFields } } = useForm();
-  
-  const onSubmit = (data) => {
-    console.log(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        {...register('email', {
-          required: 'Email is required',
-          pattern: {
-            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i,
-            message: 'Invalid email',
-          },
-        })}
-        label="Email"
-        error={!!errors.email && touchedFields.email}
-        helperText={touchedFields.email ? errors.email?.message : ''}
-      />
-      
-      <TextField
-        {...register('password', {
-          required: 'Password is required',
-          minLength: { value: 8, message: 'Too short' },
-        })}
-        type="password"
-        label="Password"
-        error={!!errors.password && touchedFields.password}
-        helperText={touchedFields.password ? errors.password?.message : ''}
-      />
-      
-      <button type="submit">Sign In</button>
-    </form>
-  );
-}
-
-// Problems:
-// - Manual registration for every field
-// - Repetitive error handling logic
-// - Touched state tracking boilerplate
-// - Easy to forget a prop or make a mistake`}
-          language="tsx"
-          header={
-            <Typography
-              sx={{
-                position: 'absolute',
-                top: 12,
-                right: 12,
-                fontSize: 11,
-                fontWeight: 600,
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1,
-                bgcolor: isDark
-                  ? 'rgba(139,92,246,0.15)'
-                  : 'rgba(139,92,246,0.10)',
-                color: isDark
-                  ? 'rgba(139,92,246,0.90)'
-                  : 'rgba(109,40,217,0.90)',
-                zIndex: 1,
-              }}
-            >
-              Traditional Approach
-            </Typography>
-          }
-        />
       </Stack>
 
-      {/* The Solution */}
-      <Stack spacing={4} id="the-solution">
+      {/* Comparison Block */}
+      <Stack spacing={4} id="comparison">
         <Box>
           <Typography
             variant="h2"
@@ -177,109 +225,181 @@ function LoginForm() {
               mb: 2,
             }}
           >
-            The Solution
+            The Same Form, Two Approaches
           </Typography>
           <Typography
             sx={{
               fontSize: 17,
               lineHeight: 1.6,
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+              mb: 1.5,
             }}
           >
-            Components that understand forms
+            Support form with conditional field: show details when bug is
+            selected
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 15,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.55)' : 'rgba(15,23,42,0.55)',
+              fontStyle: 'italic',
+            }}
+          >
+            The same form. Two very different approaches.
           </Typography>
         </Box>
 
-        <Typography
-          variant="body1"
-          sx={{
-            fontSize: 16,
-            lineHeight: 1.7,
-            color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
-          }}
-        >
-          Dashforge makes components intelligent. When used inside a DashForm,
-          components automatically register themselves, bind to form state,
-          display errors appropriately, and track touched state. The boilerplate
-          disappears.
-        </Typography>
-
-        <DocsCodeBlock
-          code={`// Same form with Dashforge
-import { DashForm } from '@dashforge/forms';
-import { TextField } from '@dashforge/ui';
-
-function LoginForm() {
-  const handleSubmit = (data) => {
-    console.log(data);
-  };
-
-  return (
-    <DashForm
-      defaultValues={{ email: '', password: '' }}
-      onSubmit={handleSubmit}
-    >
-      <TextField
-        name="email"
-        label="Email"
-        rules={{
-          required: 'Email is required',
-          pattern: {
-            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i,
-            message: 'Invalid email',
-          },
-        }}
-      />
-      
-      <TextField
-        name="password"
-        label="Password"
-        type="password"
-        rules={{
-          required: 'Password is required',
-          minLength: { value: 8, message: 'Too short' },
-        }}
-      />
-      
-      <button type="submit">Sign In</button>
-    </DashForm>
-  );
-}
-
-// Benefits:
-// - Components auto-register
-// - Errors display automatically
-// - Touched state handled internally
-// - Clean, declarative code`}
-          language="tsx"
-          header={
-            <Typography
+        <Grid container spacing={3}>
+          {/* Left: MUI + React Hook Form */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Card
+              elevation={0}
               sx={{
-                position: 'absolute',
-                top: 12,
-                right: 12,
-                fontSize: 11,
-                fontWeight: 600,
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1,
-                bgcolor: isDark
-                  ? 'rgba(139,92,246,0.15)'
-                  : 'rgba(139,92,246,0.10)',
-                color: isDark
-                  ? 'rgba(139,92,246,0.90)'
-                  : 'rgba(109,40,217,0.90)',
-                zIndex: 1,
+                height: '100%',
+                borderRadius: 2,
+                border: isDark
+                  ? '1px solid rgba(255,255,255,0.10)'
+                  : '1px solid rgba(15,23,42,0.08)',
+                background: isDark
+                  ? 'linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))'
+                  : 'linear-gradient(180deg,rgba(15,23,42,0.02),rgba(255,255,255,0.86))',
               }}
             >
-              Dashforge Approach
-            </Typography>
-          }
-        />
+              <CardContent sx={{ p: { xs: 2, md: 2.25 } }}>
+                <Stack spacing={1.5}>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 950,
+                      letterSpacing: 0.2,
+                      textTransform: 'uppercase',
+                      color: isDark
+                        ? 'rgba(255,255,255,0.58)'
+                        : 'rgba(15,23,42,0.54)',
+                    }}
+                  >
+                    MUI + React Hook Form
+                  </Typography>
+
+                  <Box
+                    component="pre"
+                    sx={{
+                      m: 0,
+                      p: 2,
+                      borderRadius: 1,
+                      bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.04)',
+                      border: isDark
+                        ? '1px solid rgba(255,255,255,0.08)'
+                        : '1px solid rgba(15,23,42,0.06)',
+                      overflow: 'auto',
+                      fontSize: 12,
+                      lineHeight: 1.6,
+                      fontFamily:
+                        '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
+                      color: isDark
+                        ? 'rgba(255,255,255,0.82)'
+                        : 'rgba(15,23,42,0.82)',
+                    }}
+                  >
+                    {RHF_CODE}
+                  </Box>
+
+                  <Typography
+                    sx={{
+                      fontSize: 11.5,
+                      lineHeight: 1.55,
+                      color: isDark
+                        ? 'rgba(255,255,255,0.54)'
+                        : 'rgba(15,23,42,0.52)',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    Controller + watch + conditional JSX + manual error wiring
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Right: Dashforge */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Card
+              elevation={0}
+              sx={{
+                height: '100%',
+                borderRadius: 2,
+                border: isDark
+                  ? '1px solid rgba(59,130,246,0.18)'
+                  : '1px solid rgba(37,99,235,0.12)',
+                background: isDark
+                  ? 'linear-gradient(180deg,rgba(59,130,246,0.10),rgba(255,255,255,0.03))'
+                  : 'linear-gradient(180deg,rgba(37,99,235,0.04),rgba(255,255,255,0.92))',
+                boxShadow: isDark
+                  ? '0 30px 80px rgba(0,0,0,0.25)'
+                  : '0 18px 50px rgba(15,23,42,0.10)',
+              }}
+            >
+              <CardContent sx={{ p: { xs: 2, md: 2.25 } }}>
+                <Stack spacing={1.5}>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 950,
+                      letterSpacing: 0.2,
+                      textTransform: 'uppercase',
+                      color: isDark
+                        ? 'rgba(96,165,250,0.90)'
+                        : 'rgba(37,99,235,0.90)',
+                    }}
+                  >
+                    Dashforge
+                  </Typography>
+
+                  <Box
+                    component="pre"
+                    sx={{
+                      m: 0,
+                      p: 2,
+                      borderRadius: 1,
+                      bgcolor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.04)',
+                      border: isDark
+                        ? '1px solid rgba(255,255,255,0.08)'
+                        : '1px solid rgba(15,23,42,0.06)',
+                      overflow: 'auto',
+                      fontSize: 12,
+                      lineHeight: 1.6,
+                      fontFamily:
+                        '"Fira Code", "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace',
+                      color: isDark
+                        ? 'rgba(255,255,255,0.82)'
+                        : 'rgba(15,23,42,0.82)',
+                    }}
+                  >
+                    {DASHFORGE_CODE}
+                  </Box>
+
+                  <Typography
+                    sx={{
+                      fontSize: 11.5,
+                      lineHeight: 1.55,
+                      color: isDark
+                        ? 'rgba(96,165,250,0.76)'
+                        : 'rgba(37,99,235,0.76)',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    No Controller. No watch. Just declarative fields.
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Stack>
 
-      {/* Key Benefits */}
-      <Stack spacing={4} id="key-benefits">
+      {/* Why This Matters at Scale */}
+      <Stack spacing={4} id="why-this-matters-at-scale">
         <Box>
           <Typography
             variant="h2"
@@ -292,7 +412,7 @@ function LoginForm() {
               mb: 2,
             }}
           >
-            Key Benefits
+            Why This Matters at Scale
           </Typography>
           <Typography
             sx={{
@@ -301,44 +421,93 @@ function LoginForm() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            What you gain by using Dashforge
+            The difference compounds as forms grow
+          </Typography>
+        </Box>
+
+        <Stack spacing={2}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            A simple login form has minimal glue code.
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            But forms with 10+ fields, conditional sections, cross-field
+            validation, and dynamic behavior become orchestration nightmares.
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            Dashforge moves that orchestration into the framework. Validation,
+            visibility, and error handling stay close to the field. As forms
+            scale, your code stays clean.
+          </Typography>
+        </Stack>
+      </Stack>
+
+      {/* What Dashforge Changes */}
+      <Stack spacing={4} id="what-dashforge-changes">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
+            }}
+          >
+            What Dashforge Changes
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+            }}
+          >
+            Three practical improvements
           </Typography>
         </Box>
 
         <Grid container spacing={3}>
           {[
             {
-              title: 'Less Code',
+              title: 'No Controller. Ever.',
               description:
-                'Eliminate 50-70% of form boilerplate. Components handle registration, error binding, and state management automatically.',
+                'Fields register themselves. Errors bind automatically. Touched state handled internally. Write the field once—not wrapped in render props.',
             },
             {
-              title: 'Fewer Bugs',
+              title: 'Show/hide fields declaratively',
               description:
-                'No manual wiring means fewer opportunities for mistakes. Error display, touched state, and validation work correctly by default.',
+                'Use visibleWhen on the field instead of watch() + conditional JSX in the parent. The dependency lives where it belongs.',
             },
             {
-              title: 'Better Type Safety',
+              title: 'Validation stays with the field',
               description:
-                'Full TypeScript support throughout. Form values, validation rules, and component props are all strongly typed.',
-            },
-            {
-              title: 'Faster Development',
-              description:
-                'Build forms faster without sacrificing quality. Focus on business logic instead of form plumbing.',
-            },
-            {
-              title: 'Easier Maintenance',
-              description:
-                'Forms are more readable and maintainable. Less code means less to understand and fewer places for bugs to hide.',
-            },
-            {
-              title: 'Progressive Enhancement',
-              description:
-                'Start simple and add features incrementally. Predictive forms and conditional logic are opt-in when you need them.',
+                'Cross-field rules access form state without manual wiring. Validation logic lives next to the field it validates.',
             },
           ].map((benefit) => (
-            <Grid size={{ xs: 12, md: 6 }} key={benefit.title}>
+            <Grid size={{ xs: 12, md: 4 }} key={benefit.title}>
               <Box
                 sx={{
                   p: 3,
@@ -384,212 +553,11 @@ function LoginForm() {
         </Grid>
       </Stack>
 
-      {/* When to Use */}
-      <Stack spacing={4} id="when-to-use">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            When to Use Dashforge
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Dashforge is ideal for certain types of applications
-          </Typography>
-        </Box>
-
-        <Stack spacing={2.5}>
-          {[
-            {
-              title: 'Form-Heavy Applications',
-              description:
-                'Applications with many forms (admin dashboards, SaaS products, data entry systems) benefit most from Dashforge.',
-              good: true,
-            },
-            {
-              title: 'Internal Tools & Dashboards',
-              description:
-                'Perfect for internal tools where rapid development and maintainability are priorities.',
-              good: true,
-            },
-            {
-              title: 'Data-Driven Applications',
-              description:
-                'Applications focused on data input, editing, and management gain significant productivity improvements.',
-              good: true,
-            },
-            {
-              title: 'React + TypeScript Projects',
-              description:
-                'Teams using React and TypeScript get the most value. Dashforge is built for type safety.',
-              good: true,
-            },
-            {
-              title: 'Existing MUI Projects',
-              description:
-                'If you already use Material-UI, Dashforge integrates seamlessly and extends your existing components.',
-              good: true,
-            },
-          ].map((useCase) => (
-            <Box
-              key={useCase.title}
-              sx={{
-                p: 2.5,
-                borderRadius: 1.5,
-                bgcolor: isDark
-                  ? 'rgba(34,197,94,0.08)'
-                  : 'rgba(34,197,94,0.05)',
-                border: isDark
-                  ? '1px solid rgba(34,197,94,0.20)'
-                  : '1px solid rgba(34,197,94,0.15)',
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: isDark
-                    ? 'rgba(34,197,94,0.90)'
-                    : 'rgba(22,163,74,0.95)',
-                  mb: 0.75,
-                }}
-              >
-                ✓ {useCase.title}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.70)'
-                    : 'rgba(15,23,42,0.70)',
-                }}
-              >
-                {useCase.description}
-              </Typography>
-            </Box>
-          ))}
-        </Stack>
-      </Stack>
-
-      {/* Design Philosophy */}
-      <Stack spacing={4} id="design-philosophy">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Design Philosophy
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-            }}
-          >
-            Core principles guiding Dashforge development
-          </Typography>
-        </Box>
-
-        <Stack spacing={2.5}>
-          {[
-            {
-              principle: 'Convention Over Configuration',
-              description:
-                'Components work correctly by default. You only configure what differs from the norm.',
-            },
-            {
-              principle: 'Progressive Disclosure',
-              description:
-                'Start simple, add complexity only when needed. Basic forms are trivial; advanced features are available but optional.',
-            },
-            {
-              principle: 'Type Safety First',
-              description:
-                'Strong typing throughout. TypeScript is a first-class citizen, not an afterthought.',
-            },
-            {
-              principle: 'Composition Over Inheritance',
-              description:
-                'Build complex forms from simple, composable pieces. No deep inheritance hierarchies.',
-            },
-            {
-              principle: 'Explicit Over Implicit',
-              description:
-                'Magic is minimized. Component behavior is predictable and understandable.',
-            },
-          ].map((item) => (
-            <Box
-              key={item.principle}
-              sx={{
-                p: 2.5,
-                borderRadius: 1.5,
-                bgcolor: isDark
-                  ? 'rgba(17,24,39,0.35)'
-                  : 'rgba(248,250,252,0.80)',
-                border: isDark
-                  ? '1px solid rgba(255,255,255,0.06)'
-                  : '1px solid rgba(15,23,42,0.08)',
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: isDark
-                    ? 'rgba(139,92,246,0.90)'
-                    : 'rgba(109,40,217,0.90)',
-                  mb: 0.75,
-                }}
-              >
-                {item.principle}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.70)'
-                    : 'rgba(15,23,42,0.70)',
-                }}
-              >
-                {item.description}
-              </Typography>
-            </Box>
-          ))}
-        </Stack>
-      </Stack>
-
       {/* Get Started */}
       <Stack spacing={3} id="get-started">
         <Box
           sx={{
-            p: 3,
+            p: 4,
             borderRadius: 2,
             bgcolor: isDark ? 'rgba(139,92,246,0.08)' : 'rgba(139,92,246,0.05)',
             border: isDark
@@ -600,41 +568,60 @@ function LoginForm() {
           <Typography
             variant="h6"
             sx={{
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: 700,
               color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
               mb: 1.5,
             }}
           >
-            Ready to Get Started?
+            Ready to Install?
           </Typography>
           <Typography
             variant="body1"
             sx={{
-              fontSize: 15,
+              fontSize: 16,
               lineHeight: 1.6,
               color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              mb: 2.5,
             }}
           >
-            Head to the{' '}
-            <Box
-              component="a"
-              href="/docs/getting-started/installation"
-              sx={{
-                color: isDark
-                  ? 'rgba(139,92,246,0.95)'
-                  : 'rgba(109,40,217,0.95)',
-                fontWeight: 600,
-                textDecoration: 'none',
-                '&:hover': {
-                  textDecoration: 'underline',
-                },
-              }}
-            >
-              Installation Guide
-            </Box>{' '}
-            to install Dashforge and start building intelligent forms.
+            If this looks like a better way to structure forms, start by
+            installing Dashforge.
           </Typography>
+          <Box
+            component="a"
+            href="/docs/getting-started/installation"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.75,
+              px: 2.5,
+              py: 1.25,
+              borderRadius: 1.5,
+              bgcolor: isDark
+                ? 'rgba(139,92,246,0.15)'
+                : 'rgba(139,92,246,0.12)',
+              border: isDark
+                ? '1px solid rgba(139,92,246,0.30)'
+                : '1px solid rgba(139,92,246,0.20)',
+              color: isDark ? 'rgba(139,92,246,0.95)' : 'rgba(109,40,217,0.95)',
+              fontWeight: 600,
+              fontSize: 15,
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: isDark
+                  ? 'rgba(139,92,246,0.20)'
+                  : 'rgba(139,92,246,0.18)',
+                borderColor: isDark
+                  ? 'rgba(139,92,246,0.40)'
+                  : 'rgba(139,92,246,0.30)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
+            Installation →
+          </Box>
         </Box>
       </Stack>
     </Stack>

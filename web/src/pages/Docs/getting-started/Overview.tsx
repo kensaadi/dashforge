@@ -324,6 +324,12 @@ function ContactForm() {
         <Grid container spacing={2.5}>
           {[
             {
+              title: 'Why Dashforge',
+              description: 'Understand the problems it solves',
+              link: '/docs/getting-started/why-dashforge',
+              primary: true,
+            },
+            {
               title: 'Installation',
               description: 'Install packages and set up dependencies',
               link: '/docs/getting-started/installation',
@@ -333,12 +339,6 @@ function ContactForm() {
               title: 'Usage',
               description: 'Build your first form with step-by-step examples',
               link: '/docs/getting-started/usage',
-              primary: true,
-            },
-            {
-              title: 'Why Dashforge',
-              description: 'Understand the problems it solves',
-              link: '/docs/getting-started/why-dashforge',
               primary: false,
             },
           ].map((step) => (
