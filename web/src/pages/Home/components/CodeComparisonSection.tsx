@@ -8,47 +8,57 @@ import Typography from '@mui/material/Typography';
 import { useDashTheme } from '@dashforge/theme-core';
 import { SectionHeader } from '../../../components/header/SectionHeader';
 
-const RHF_CODE = `const { control, watch } = useForm();
-const category = watch('category');
+const RHF_CODE = `function SupportForm() {
+  const { control, watch } = useForm();
+  const category = watch('category');
 
-<Controller
-  name="category"
-  control={control}
-  render={({ field }) => (
-    <Select {...field}>
-      <MenuItem value="bug">Bug</MenuItem>
-      <MenuItem value="feature">Feature</MenuItem>
-      <MenuItem value="billing">Billing</MenuItem>
-    </Select>
-  )}
-/>
+  return (
+    <form>
+      <Controller
+        name="category"
+        control={control}
+        render={({ field }) => (
+          <Select {...field}>
+            <MenuItem value="bug">Bug</MenuItem>
+            <MenuItem value="feature">Feature</MenuItem>
+            <MenuItem value="billing">Billing</MenuItem>
+          </Select>
+        )}
+      />
 
-{category === 'bug' && (
-  <TextField
-    name="details"
-    label="Bug Details"
-  />
-)}`;
+      {category === 'bug' && (
+        <TextField
+          name="details"
+          label="Bug Details"
+        />
+      )}
+    </form>
+  );
+}`;
 
-const DASHFORGE_CODE = `<DashForm onSubmit={handleSubmit}>
-  <Select
-    name="category"
-    label="Category"
-    options={[
-      { value: 'bug', label: 'Bug' },
-      { value: 'feature', label: 'Feature' },
-      { value: 'billing', label: 'Billing' },
-    ]}
-  />
+const DASHFORGE_CODE = `function SupportForm() {
+  return (
+    <DashForm onSubmit={handleSubmit}>
+      <Select
+        name="category"
+        label="Category"
+        options={[
+          { value: 'bug', label: 'Bug' },
+          { value: 'feature', label: 'Feature' },
+          { value: 'billing', label: 'Billing' },
+        ]}
+      />
 
-  <TextField
-    name="details"
-    label="Bug Details"
-    visibleWhen={(engine) =>
-      engine.getNode('category')?.value === 'bug'
-    }
-  />
-</DashForm>`;
+      <TextField
+        name="details"
+        label="Bug Details"
+        visibleWhen={(engine) =>
+          engine.getNode('category')?.value === 'bug'
+        }
+      />
+    </DashForm>
+  );
+}`;
 
 export function CodeComparisonSection() {
   const dashTheme = useDashTheme();
