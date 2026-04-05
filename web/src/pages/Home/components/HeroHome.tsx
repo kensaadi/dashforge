@@ -11,7 +11,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsCodeBlock } from '../../Docs/components/shared/CodeBlock';
+import { LiveTypingCodeBlock } from './LiveTypingCodeBlock';
 
 export function HeroHome() {
   const dashTheme = useDashTheme();
@@ -278,36 +278,48 @@ export function HeroHome() {
                         },
                       }}
                     >
-                      <DocsCodeBlock
-                        code={`<DashForm onSubmit={handleSubmit}>
-  <TextField
-    name="email"
-    label="Email Address"
-    rules={{ required: true }}
-  />
-  
-  <TextField
-    name="reason"
-    label="Why are you contacting us?"
-    visibleWhen={(engine) => 
-      engine.getNode('email')?.value !== ''
-    }
-  />
-  
-  <Button
-    type="submit"
-    access={{
-      resource: 'contact',
-      action: 'submit',
-      onUnauthorized: 'disable'
-    }}
-  >
-    Send Message
-  </Button>
-</DashForm>`}
+                      <LiveTypingCodeBlock
+                        code={`<TextField
+  name="details"
+  label="Additional Details"
+  visibleWhen={(engine) =>
+    engine.getNode('category')?.value === 'bug'
+  }
+/>`}
                         language="tsx"
-                        showCopy={false}
+                        charsPerTick={2}
+                        typingInterval={30}
+                        typingDelay={500}
                       />
+                    </Box>
+
+                    {/* Micro code → behavior hint */}
+                    <Box
+                      sx={{
+                        mt: 1.5,
+                        px: 0.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        fontSize: 11,
+                        lineHeight: 1.4,
+                        color: isDark
+                          ? 'rgba(255,255,255,0.42)'
+                          : 'rgba(15,23,42,0.42)',
+                      }}
+                    >
+                      <Box
+                        component="span"
+                        sx={{
+                          color: isDark
+                            ? 'rgba(96,165,250,0.70)'
+                            : 'rgba(37,99,235,0.70)',
+                        }}
+                      >
+                        category: "bug"
+                      </Box>
+                      <Box component="span">→</Box>
+                      <Box component="span">details field appears</Box>
                     </Box>
 
                     <Typography
@@ -318,10 +330,10 @@ export function HeroHome() {
                           ? 'rgba(255,255,255,0.58)'
                           : 'rgba(15,23,42,0.56)',
                         fontStyle: 'italic',
+                        mt: 1.5,
                       }}
                     >
-                      Conditional visibility and RBAC — no manual state
-                      management.
+                      Conditional visibility — powered by the reactive engine.
                     </Typography>
                   </Stack>
                 </CardContent>
