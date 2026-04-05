@@ -111,6 +111,165 @@ export function CheckboxDocs() {
 
       <DocsDivider />
 
+      {/* Access Control (RBAC) - Permission-Based Rendering */}
+      <Stack spacing={4} id="access-control">
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
+            }}
+          >
+            Access Control (RBAC)
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+              maxWidth: 720,
+            }}
+          >
+            Control field visibility and interaction based on user permissions.
+            Fields can be hidden, disabled, or set to readonly when users lack
+            the required access. Integrates seamlessly with the Dashforge RBAC
+            system.
+          </Typography>
+        </Box>
+
+        <Stack spacing={3}>
+          {/* Example 1: Hide */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Hide field when user lacks permission
+            </Typography>
+            <DocsCodeBlock
+              code={`<Checkbox
+  name="acceptTerms"
+  label="I accept the terms and conditions"
+  access={{
+    resource: 'user.terms',
+    action: 'view',
+    onUnauthorized: 'hide'
+  }}
+/>
+
+// Field hidden (returns null) when user lacks 'user.terms.view' permission`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 2: Disable */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Disable field when user lacks permission
+            </Typography>
+            <DocsCodeBlock
+              code={`<Checkbox
+  name="isPublished"
+  label="Publish to marketplace"
+  access={{
+    resource: 'content.publish',
+    action: 'edit',
+    onUnauthorized: 'disable'
+  }}
+/>
+
+// Field disabled (grayed out, not clickable, value still submitted)
+// when user lacks 'content.publish.edit' permission`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 3: Readonly */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Set field to readonly when user lacks permission
+            </Typography>
+            <DocsCodeBlock
+              code={`<Checkbox
+  name="isVerified"
+  label="Email verified"
+  access={{
+    resource: 'user.verification',
+    action: 'edit',
+    onUnauthorized: 'readonly'
+  }}
+/>
+
+// Note: Checkbox becomes disabled when readonly (checkboxes lack native readonly semantics)
+// Value is still included in form submission
+// when user lacks 'user.verification.edit' permission`}
+              language="tsx"
+            />
+          </Box>
+
+          {/* Example 4: Combined with visibleWhen */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 1.5,
+              }}
+            >
+              Combine access control with conditional visibility
+            </Typography>
+            <DocsCodeBlock
+              code={`<Checkbox
+  name="isCommercial"
+  label="Commercial use"
+/>
+
+<Checkbox
+  name="requiresApproval"
+  label="Requires legal approval"
+  visibleWhen={(engine) => engine.getValue('isCommercial') === true}
+  access={{
+    resource: 'license.approval',
+    action: 'edit',
+    onUnauthorized: 'readonly'
+  }}
+/>
+
+// Field only appears when isCommercial is checked (UI logic)
+// If visible but user lacks permission, field becomes disabled (RBAC logic)
+// Both conditions are checked independently`}
+              language="tsx"
+            />
+          </Box>
+        </Stack>
+      </Stack>
+
+      <DocsDivider />
+
       {/* Integration Scenarios - Practical Demos */}
       <Stack spacing={4} id="scenarios">
         <Box

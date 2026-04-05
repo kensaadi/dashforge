@@ -86,6 +86,7 @@ const checkboxTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
   {
     id: 'reactive-conditional-visibility',
@@ -164,6 +165,7 @@ const autocompleteTocItems: DocsTocItem[] = [
   { id: 'layout-variants', label: 'Layout Variants' },
   { id: 'playground', label: 'Playground' },
   { id: 'capabilities', label: 'Capabilities' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Scenarios' },
   { id: 'api', label: 'API Reference' },
   { id: 'notes', label: 'Implementation Notes' },
