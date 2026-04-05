@@ -429,11 +429,11 @@ export function TextFieldDocs() {
 
       <DocsDivider />
 
-      {/* Implementation Notes */}
+      {/* Under the hood */}
       <DocsSection
         id="notes"
-        title="Implementation Notes"
-        description="Technical details and best practices"
+        title="Under the hood"
+        description="How TextField behaves and why it works this way"
       >
         <TextFieldNotes />
       </DocsSection>
