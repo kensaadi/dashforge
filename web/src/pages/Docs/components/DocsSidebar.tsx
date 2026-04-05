@@ -1,13 +1,17 @@
+import { useState, useEffect } from 'react';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useDashTheme } from '@dashforge/theme-core';
 import {
   docsSidebarTree,
   type DocsSidebarGroup,
   type DocsSidebarItem,
+  type DocsSidebarSubGroup,
+  type DocsSidebarLinkItem,
 } from './DocsSidebar.model';
 
 export function DocsSidebar() {
@@ -15,117 +19,166 @@ export function DocsSidebar() {
   const isDark = dashTheme.meta.mode === 'dark';
   const location = useLocation();
 
-  const isActive = (path?: string) => {
-    if (!path) return false;
+  // Track which sub-groups are expanded (keyed by label)
+  const [expandedSubGroups, setExpandedSubGroups] = useState<Set<string>>(
+    new Set()
+  );
+
+  const isActive = (path: string) => {
     return location.pathname === path;
   };
 
-  const renderItem = (item: DocsSidebarItem) => {
-    const hasActiveChild = item.children?.some((child) => isActive(child.path));
-    const isParentActive = isActive(item.path);
+  // Check if a sub-group contains the active route
+  const subGroupContainsActive = (subGroup: DocsSidebarSubGroup): boolean => {
+    return subGroup.children.some((child) => isActive(child.path));
+  };
+
+  // Auto-expand sub-groups containing active route on mount and route change
+  useEffect(() => {
+    const activeSubGroups = new Set<string>();
+
+    docsSidebarTree.forEach((group) => {
+      group.items.forEach((item) => {
+        if (item.type === 'subgroup' && subGroupContainsActive(item)) {
+          activeSubGroups.add(item.label);
+        }
+      });
+    });
+
+    setExpandedSubGroups(activeSubGroups);
+  }, [location.pathname]);
+
+  const toggleSubGroup = (label: string) => {
+    setExpandedSubGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) {
+        next.delete(label);
+      } else {
+        next.add(label);
+      }
+      return next;
+    });
+  };
+
+  const renderLinkItem = (item: DocsSidebarLinkItem) => {
+    const isItemActive = isActive(item.path);
 
     return (
-      <Stack key={item.label} spacing={0.5}>
+      <Box
+        key={item.path}
+        component={RouterLink}
+        to={item.path}
+        sx={{
+          px: 1.5,
+          py: 0.5,
+          borderRadius: 1,
+          textDecoration: 'none',
+          display: 'block',
+          bgcolor: isItemActive
+            ? isDark
+              ? 'rgba(139,92,246,0.12)'
+              : 'rgba(109,40,217,0.08)'
+            : 'transparent',
+          borderLeft: isItemActive
+            ? `2px solid ${
+                isDark ? 'rgba(139,92,246,0.70)' : 'rgba(109,40,217,0.70)'
+              }`
+            : '2px solid transparent',
+          '&:hover': {
+            bgcolor: isItemActive
+              ? isDark
+                ? 'rgba(139,92,246,0.15)'
+                : 'rgba(109,40,217,0.12)'
+              : isDark
+              ? 'rgba(255,255,255,0.05)'
+              : 'rgba(15,23,42,0.05)',
+          },
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 13,
+            fontWeight: isItemActive ? 600 : 400,
+            color: isItemActive
+              ? isDark
+                ? 'rgba(139,92,246,0.95)'
+                : 'rgba(109,40,217,0.95)'
+              : isDark
+              ? 'rgba(255,255,255,0.65)'
+              : 'rgba(15,23,42,0.65)',
+          }}
+        >
+          {item.label}
+        </Typography>
+      </Box>
+    );
+  };
+
+  const renderSubGroup = (subGroup: DocsSidebarSubGroup) => {
+    const isExpanded = expandedSubGroups.has(subGroup.label);
+    const hasActiveChild = subGroupContainsActive(subGroup);
+
+    return (
+      <Stack key={subGroup.label} spacing={0.5} sx={{ mb: 0.5 }}>
+        {/* Sub-group header (collapsible) */}
         <Box
-          component={item.path ? RouterLink : 'div'}
-          to={item.path}
+          onClick={() => toggleSubGroup(subGroup.label)}
           sx={{
             px: 1.5,
             py: 0.75,
             borderRadius: 1,
-            cursor: item.path ? 'pointer' : 'default',
-            textDecoration: 'none',
-            display: 'block',
-            '&:hover': item.path
-              ? {
-                  bgcolor: isDark
-                    ? 'rgba(255,255,255,0.05)'
-                    : 'rgba(15,23,42,0.05)',
-                }
-              : {},
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            '&:hover': {
+              bgcolor: isDark
+                ? 'rgba(255,255,255,0.05)'
+                : 'rgba(15,23,42,0.05)',
+            },
           }}
         >
           <Typography
             sx={{
               fontSize: 14,
-              fontWeight:
-                item.children || hasActiveChild || isParentActive ? 600 : 400,
-              color:
-                hasActiveChild || isParentActive
-                  ? isDark
-                    ? 'rgba(139,92,246,0.90)'
-                    : 'rgba(109,40,217,0.90)'
-                  : isDark
-                  ? 'rgba(255,255,255,0.75)'
-                  : 'rgba(15,23,42,0.75)',
+              fontWeight: hasActiveChild ? 600 : 500,
+              color: hasActiveChild
+                ? isDark
+                  ? 'rgba(139,92,246,0.90)'
+                  : 'rgba(109,40,217,0.90)'
+                : isDark
+                ? 'rgba(255,255,255,0.75)'
+                : 'rgba(15,23,42,0.75)',
             }}
           >
-            {item.label}
+            {subGroup.label}
           </Typography>
+          <ExpandMoreIcon
+            sx={{
+              fontSize: 18,
+              color: isDark ? 'rgba(255,255,255,0.50)' : 'rgba(15,23,42,0.50)',
+              transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          />
         </Box>
-        {item.children && (
-          <Stack spacing={0.5} sx={{ pl: 2 }}>
-            {item.children.map((child) => {
-              const isChildActive = isActive(child.path);
 
-              return (
-                <Box
-                  key={child.label}
-                  component={child.path ? RouterLink : 'div'}
-                  to={child.path}
-                  sx={{
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: 1,
-                    cursor: child.path ? 'pointer' : 'default',
-                    textDecoration: 'none',
-                    display: 'block',
-                    position: 'relative',
-                    bgcolor: isChildActive
-                      ? isDark
-                        ? 'rgba(139,92,246,0.12)'
-                        : 'rgba(109,40,217,0.08)'
-                      : 'transparent',
-                    borderLeft: isChildActive
-                      ? `2px solid ${
-                          isDark
-                            ? 'rgba(139,92,246,0.70)'
-                            : 'rgba(109,40,217,0.70)'
-                        }`
-                      : '2px solid transparent',
-                    '&:hover': {
-                      bgcolor: isChildActive
-                        ? isDark
-                          ? 'rgba(139,92,246,0.15)'
-                          : 'rgba(109,40,217,0.12)'
-                        : isDark
-                        ? 'rgba(255,255,255,0.05)'
-                        : 'rgba(15,23,42,0.05)',
-                    },
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: isChildActive ? 600 : 400,
-                      color: isChildActive
-                        ? isDark
-                          ? 'rgba(139,92,246,0.95)'
-                          : 'rgba(109,40,217,0.95)'
-                        : isDark
-                        ? 'rgba(255,255,255,0.65)'
-                        : 'rgba(15,23,42,0.65)',
-                    }}
-                  >
-                    {child.label}
-                  </Typography>
-                </Box>
-              );
-            })}
+        {/* Children (collapsible) */}
+        {isExpanded && (
+          <Stack spacing={0.5} sx={{ pl: 2 }}>
+            {subGroup.children.map(renderLinkItem)}
           </Stack>
         )}
       </Stack>
     );
+  };
+
+  const renderItem = (item: DocsSidebarItem) => {
+    if (item.type === 'link') {
+      return renderLinkItem(item);
+    } else {
+      return renderSubGroup(item);
+    }
   };
 
   return (
