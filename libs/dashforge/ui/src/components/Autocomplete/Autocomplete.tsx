@@ -9,6 +9,8 @@ import type {
   Engine,
 } from '@dashforge/ui-core';
 import { useFieldRuntime } from '@dashforge/forms';
+import type { AccessRequirement } from '@dashforge/rbac';
+import { useAccessState } from '../../hooks/useAccessState';
 
 // Module-level deduplication for unresolved value warnings (Phase 2)
 // Tracks warned field:value combinations per bridge instance
@@ -140,6 +142,40 @@ export interface AutocompleteProps<
   getOptionLabel?: (option: TOption) => string;
   getOptionDisabled?: (option: TOption) => boolean;
 
+  /**
+   * Access control requirement for this field (RBAC).
+   *
+   * Controls field visibility and interactivity based on user permissions.
+   * Uses the nearest RbacProvider to resolve access state.
+   *
+   * Behaviors:
+   * - `onUnauthorized: 'hide'` → Field not rendered (returns null)
+   * - `onUnauthorized: 'disable'` → Field disabled (grayed out, non-interactive)
+   * - `onUnauthorized: 'readonly'` → Field read-only (visible, cannot edit/select/clear, value submitted)
+   *
+   * Readonly semantics for Autocomplete:
+   * - Input is read-only (no typing)
+   * - Popup disabled (cannot select different option)
+   * - Clear button hidden (cannot clear value)
+   * - Value remains visible and is submitted with form
+   *
+   * @example
+   * ```tsx
+   * // Hide assignee field from non-managers
+   * <Autocomplete
+   *   name="assignee"
+   *   label="Assignee"
+   *   options={userOptions}
+   *   access={{
+   *     resource: 'task.assignee',
+   *     action: 'edit',
+   *     onUnauthorized: 'hide'
+   *   }}
+   * />
+   * ```
+   */
+  access?: AccessRequirement;
+
   // Phase 2: Runtime integration
   /**
    * When true, load options from field runtime data instead of static options prop.
@@ -195,6 +231,7 @@ export function Autocomplete<
     getOptionValue,
     getOptionLabel,
     getOptionDisabled,
+    access,
     optionsFromFieldData,
     ...rest
   } = props;
@@ -209,6 +246,12 @@ export function Autocomplete<
     options: TOption[];
   }
   const runtime = useFieldRuntime<AutocompleteFieldRuntimeData>(name);
+
+  // Hook always called, regardless of bridge/visibleWhen state
+  const isVisible = useEngineVisibility(engine, visibleWhen);
+
+  // RBAC access state (hook always called unconditionally)
+  const accessState = useAccessState(access);
 
   // Subscribe to form state changes by accessing version strings
   // This ensures Autocomplete re-renders when validation errors or touched state changes
@@ -309,13 +352,25 @@ export function Autocomplete<
     [sourceOptions, actualGetValue, actualGetLabel, actualGetDisabled]
   );
 
-  // Hook always called, regardless of bridge/visibleWhen state
-  const isVisible = useEngineVisibility(engine, visibleWhen);
-
-  // Early return for visibility
+  // Early return for visibleWhen
   if (!isVisible) {
     return null;
   }
+
+  // Early return for RBAC visibility
+  if (!accessState.visible) {
+    return null;
+  }
+
+  // Compute effective disabled state (OR logic: any source can disable)
+  const effectiveDisabled = Boolean(rest.disabled) || accessState.disabled;
+
+  // Compute effective readonly state (OR logic)
+  // For Autocomplete, readonly means:
+  // - Input is read-only (no typing)
+  // - Popup disabled (cannot select different option)
+  // - Clear button hidden (cannot clear value)
+  const effectiveReadonly = accessState.readonly;
 
   // If inside DashForm, register with form
   if (bridge && typeof bridge.register === 'function') {
@@ -570,7 +625,9 @@ export function Autocomplete<
       <MuiAutocomplete<NormalizedOption<TValue>, false, false, true>
         {...(rest as any)}
         freeSolo
-        disabled={rest.disabled || isLoading}
+        disabled={effectiveDisabled || isLoading}
+        readOnly={effectiveReadonly}
+        disableClearable={effectiveReadonly || rest.disableClearable}
         value={valueForAutocomplete}
         inputValue={inputValue}
         options={normalizedOptions}
@@ -613,6 +670,10 @@ export function Autocomplete<
             error={resolvedError}
             helperText={resolvedHelperText}
             inputRef={registration.ref}
+            InputProps={{
+              ...params.InputProps,
+              readOnly: effectiveReadonly,
+            }}
           />
         )}
       />
@@ -717,6 +778,9 @@ export function Autocomplete<
     <MuiAutocomplete<NormalizedOption<TValue>, false, false, true>
       {...(rest as any)}
       freeSolo
+      disabled={effectiveDisabled}
+      readOnly={effectiveReadonly}
+      disableClearable={effectiveReadonly || rest.disableClearable}
       value={plainValueForAutocomplete}
       inputValue={plainInputValue}
       onInputChange={handlePlainInputChange}
@@ -757,6 +821,10 @@ export function Autocomplete<
           label={label}
           error={explicitError}
           helperText={explicitHelperText}
+          InputProps={{
+            ...params.InputProps,
+            readOnly: effectiveReadonly,
+          }}
         />
       )}
     />
