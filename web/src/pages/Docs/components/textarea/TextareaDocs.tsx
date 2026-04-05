@@ -82,6 +82,18 @@ export function TextareaDocs() {
             </Box>
           </Stack>
 
+          {/* Identity Hook */}
+          <Typography
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
+            }}
+          >
+            For multiline input—feedback, comments, descriptions, and long-form
+            content.
+          </Typography>
+
           <DocsCodeBlock
             code={`import { Textarea } from '@dashforge/ui';
 
@@ -95,146 +107,199 @@ export function TextareaDocs() {
       <DocsSection
         id="examples"
         title="Examples"
-        description="Common Textarea patterns and configurations"
+        description="Multiline text input patterns for feedback, comments, and descriptions"
       >
         <TextareaExamples />
       </DocsSection>
 
-      {/* Capabilities */}
-      <DocsSection
-        id="capabilities"
-        title="Dashforge Capabilities"
-        description="Progressive adoption from controlled components to predictive forms"
-      >
-        <TextareaCapabilities />
-      </DocsSection>
+      {/* Capabilities & Access Control - Grouped together (tighter spacing) */}
+      <Stack spacing={6}>
+        {/* Capabilities */}
+        <DocsSection
+          id="capabilities"
+          title="Dashforge Capabilities"
+          description="Progressive adoption from controlled components to predictive forms"
+        >
+          <TextareaCapabilities />
+        </DocsSection>
 
-      {/* Access Control (RBAC) */}
-      <Stack spacing={4} id="access-control">
-        <Box>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: 28, md: 36 },
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.2,
-              color: isDark ? '#ffffff' : '#0f172a',
-              mb: 2,
-            }}
-          >
-            Access Control (RBAC)
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
-              maxWidth: 720,
-            }}
-          >
-            Control field visibility and interaction based on user permissions.
-            Fields can be hidden, disabled, or set to readonly when users lack
-            the required access. Integrates seamlessly with the Dashforge RBAC
-            system.
-          </Typography>
-        </Box>
-
-        <Stack spacing={3}>
-          {/* Example 1: Hidden Field */}
+        {/* Access Control (RBAC) - Compact Grid Layout */}
+        <Stack spacing={4} id="access-control">
           <Box>
             <Typography
+              variant="h2"
               sx={{
-                fontSize: 15,
-                fontWeight: 600,
+                fontSize: { xs: 28, md: 36 },
+                fontWeight: 800,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.2,
                 color: isDark ? '#ffffff' : '#0f172a',
-                mb: 1.5,
+                mb: 2,
               }}
             >
-              Hide field when user lacks permission
+              Access Control (RBAC)
             </Typography>
-            <DocsCodeBlock
-              code={`<Textarea
+            <Typography
+              sx={{
+                fontSize: 17,
+                lineHeight: 1.6,
+                color: isDark
+                  ? 'rgba(255,255,255,0.65)'
+                  : 'rgba(15,23,42,0.65)',
+                maxWidth: 720,
+              }}
+            >
+              Control field visibility and interaction based on user
+              permissions. Fields can be hidden, disabled, or readonly when
+              users lack access.
+            </Typography>
+          </Box>
+
+          {/* Compact Grid of Access Patterns */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                md: 'repeat(2, minmax(0, 1fr))',
+              },
+              gap: 3,
+            }}
+          >
+            {/* Pattern 1: Hide */}
+            <Box
+              sx={{
+                p: 2.5,
+                borderRadius: 2,
+                bgcolor: isDark
+                  ? 'rgba(17,24,39,0.40)'
+                  : 'rgba(248,250,252,0.90)',
+                border: isDark
+                  ? '1px solid rgba(255,255,255,0.08)'
+                  : '1px solid rgba(15,23,42,0.10)',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: isDark ? '#ffffff' : '#0f172a',
+                  mb: 1.5,
+                }}
+              >
+                Hide when unauthorized
+              </Typography>
+              <DocsCodeBlock
+                code={`<Textarea
   name="comments"
-  label="Internal Comments"
   access={{
     resource: 'document.comments',
     action: 'read',
     onUnauthorized: 'hide',
   }}
 />`}
-              language="tsx"
-            />
-          </Box>
+                language="tsx"
+              />
+            </Box>
 
-          {/* Example 2: Disabled Field */}
-          <Box>
-            <Typography
+            {/* Pattern 2: Disable */}
+            <Box
               sx={{
-                fontSize: 15,
-                fontWeight: 600,
-                color: isDark ? '#ffffff' : '#0f172a',
-                mb: 1.5,
+                p: 2.5,
+                borderRadius: 2,
+                bgcolor: isDark
+                  ? 'rgba(17,24,39,0.40)'
+                  : 'rgba(248,250,252,0.90)',
+                border: isDark
+                  ? '1px solid rgba(255,255,255,0.08)'
+                  : '1px solid rgba(15,23,42,0.10)',
               }}
             >
-              Disable field when user cannot edit
-            </Typography>
-            <DocsCodeBlock
-              code={`<Textarea
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: isDark ? '#ffffff' : '#0f172a',
+                  mb: 1.5,
+                }}
+              >
+                Disable when cannot edit
+              </Typography>
+              <DocsCodeBlock
+                code={`<Textarea
   name="feedback"
-  label="Feedback"
   access={{
     resource: 'ticket.feedback',
     action: 'update',
     onUnauthorized: 'disable',
   }}
 />`}
-              language="tsx"
-            />
-          </Box>
+                language="tsx"
+              />
+            </Box>
 
-          {/* Example 3: Readonly Field */}
-          <Box>
-            <Typography
+            {/* Pattern 3: Readonly */}
+            <Box
               sx={{
-                fontSize: 15,
-                fontWeight: 600,
-                color: isDark ? '#ffffff' : '#0f172a',
-                mb: 1.5,
+                p: 2.5,
+                borderRadius: 2,
+                bgcolor: isDark
+                  ? 'rgba(17,24,39,0.40)'
+                  : 'rgba(248,250,252,0.90)',
+                border: isDark
+                  ? '1px solid rgba(255,255,255,0.08)'
+                  : '1px solid rgba(15,23,42,0.10)',
               }}
             >
-              Make field readonly when user has view-only access
-            </Typography>
-            <DocsCodeBlock
-              code={`<Textarea
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: isDark ? '#ffffff' : '#0f172a',
+                  mb: 1.5,
+                }}
+              >
+                Readonly for view-only
+              </Typography>
+              <DocsCodeBlock
+                code={`<Textarea
   name="description"
-  label="Description"
   access={{
     resource: 'project.description',
     action: 'update',
     onUnauthorized: 'readonly',
   }}
 />`}
-              language="tsx"
-            />
-          </Box>
+                language="tsx"
+              />
+            </Box>
 
-          {/* Example 4: Combination with visibleWhen */}
-          <Box>
-            <Typography
+            {/* Pattern 4: Combined with visibleWhen */}
+            <Box
               sx={{
-                fontSize: 15,
-                fontWeight: 600,
-                color: isDark ? '#ffffff' : '#0f172a',
-                mb: 1.5,
+                p: 2.5,
+                borderRadius: 2,
+                bgcolor: isDark
+                  ? 'rgba(17,24,39,0.40)'
+                  : 'rgba(248,250,252,0.90)',
+                border: isDark
+                  ? '1px solid rgba(255,255,255,0.08)'
+                  : '1px solid rgba(15,23,42,0.10)',
               }}
             >
-              Combine with visibleWhen for UI logic + permissions
-            </Typography>
-            <DocsCodeBlock
-              code={`<Textarea
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: isDark ? '#ffffff' : '#0f172a',
+                  mb: 1.5,
+                }}
+              >
+                Combined with visibleWhen
+              </Typography>
+              <DocsCodeBlock
+                code={`<Textarea
   name="otherDetails"
-  label="Other Details"
   visibleWhen={(engine) =>
     engine.getNode('category')?.value === 'other'
   }
@@ -244,23 +309,37 @@ export function TextareaDocs() {
     onUnauthorized: 'hide',
   }}
 />`}
-              language="tsx"
-            />
+                language="tsx"
+              />
+            </Box>
+          </Box>
+
+          {/* Implementation Note - Compact */}
+          <Box
+            sx={{
+              p: 2,
+              borderRadius: 1.5,
+              bgcolor: isDark
+                ? 'rgba(59,130,246,0.08)'
+                : 'rgba(59,130,246,0.05)',
+              border: isDark
+                ? '1px solid rgba(59,130,246,0.20)'
+                : '1px solid rgba(59,130,246,0.15)',
+            }}
+          >
             <Typography
+              variant="body2"
               sx={{
-                fontSize: 14,
+                fontSize: 13,
                 lineHeight: 1.6,
                 color: isDark
-                  ? 'rgba(255,255,255,0.55)'
-                  : 'rgba(15,23,42,0.55)',
-                mt: 1.5,
-                fontStyle: 'italic',
+                  ? 'rgba(255,255,255,0.70)'
+                  : 'rgba(15,23,42,0.70)',
               }}
             >
-              Note: visibleWhen controls UI logic (show when category is
-              "other"), while RBAC controls permissions (hide if user lacks
-              access). Both conditions must be satisfied for the field to be
-              visible.
+              <strong>Note:</strong> When combining visibleWhen with RBAC, both
+              conditions must be satisfied. The field shows only if UI logic
+              returns true AND the user has required permissions.
             </Typography>
           </Box>
         </Stack>
@@ -319,11 +398,11 @@ export function TextareaDocs() {
 
       <DocsDivider />
 
-      {/* Implementation Notes */}
+      {/* Under the hood */}
       <DocsSection
         id="notes"
-        title="Implementation Notes"
-        description="Technical details and best practices"
+        title="Under the hood"
+        description="How Textarea behaves and why it works this way"
       >
         <TextareaNotes />
       </DocsSection>

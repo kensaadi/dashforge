@@ -30,7 +30,7 @@ export function TextareaScenarios() {
       title: 'React Hook Form Integration',
       subtitle: 'Try it: Enter feedback and submit the form',
       description:
-        'Textarea integrates seamlessly with React Hook Form through DashForm. Components self-register, values sync automatically, and validation works out of the box. Try entering feedback with different lengths to see validation in action (minimum 10 characters required). Submit the form to see the complete state.',
+        'Textarea integrates with React Hook Form through DashForm. Fields self-register, errors display after blur, and validation follows RHF patterns. Try submitting with empty fields or less than 10 characters.',
       demo: <TextareaFormIntegrationDemo />,
       code: `import { DashForm } from '@dashforge/forms';
 import { Textarea } from '@dashforge/ui';
@@ -85,7 +85,7 @@ function FeedbackForm() {
 // - Shows errors only after touched OR submit
 // - Tracks touched state on blur`,
       whyItMatters:
-        'Gradual adoption: Drop Textarea into existing form architectures without rewriting state management. Perfect for feedback forms, comment sections, and any multiline text input.',
+        'Drop Textarea into existing form architectures without rewriting validation or state management.',
     },
     {
       id: 'reactive-conditional-visibility',
@@ -93,7 +93,7 @@ function FeedbackForm() {
       subtitle:
         'Try it: Select "Report an issue" to see description textarea appear',
       description:
-        'Textarea supports conditional rendering through the visibleWhen prop. Fields render based on engine state—components query field values and make rendering decisions. Select "Report an issue" from the dropdown to see the description textarea appear instantly without manual state orchestration. This is part of Dashforge Reactive V2 architecture.',
+        'Textarea supports conditional rendering through visibleWhen. Fields render based on engine state—query field values and make rendering decisions. Select "Report an issue" to see conditional textarea appear without manual state orchestration.',
       demo: <TextareaReactiveDemo />,
       code: `import { DashForm } from '@dashforge/forms';
 import { Textarea, Select } from '@dashforge/ui';
@@ -143,7 +143,7 @@ function ContactForm() {
 // - Component re-renders on dependency changes
 // - Component makes rendering decision (engine provides state)`,
       whyItMatters:
-        'Build adaptive forms where textarea visibility responds to user selections. The component handles conditional rendering—you define the predicate. Perfect for dynamic forms and context-dependent fields.',
+        'Build adaptive forms where textarea visibility responds to user input. Define the predicate—the component handles rendering.',
     },
   ];
 
@@ -158,9 +158,8 @@ function ContactForm() {
           maxWidth: 720,
         }}
       >
-        Textarea works in real form contexts, not just isolated demos. Try these
-        live scenarios to experience DashForm integration and reactive
-        visibility—both fully implemented and production-ready.
+        Live scenarios showing DashForm integration and reactive visibility in
+        real form contexts.
       </Typography>
 
       <Stack spacing={5}>

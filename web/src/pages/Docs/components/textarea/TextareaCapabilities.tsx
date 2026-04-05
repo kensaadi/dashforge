@@ -20,7 +20,7 @@ export function TextareaCapabilities() {
       statusBg: isDark ? 'rgba(34,197,94,0.12)' : 'rgba(34,197,94,0.08)',
       statusBorder: isDark ? 'rgba(34,197,94,0.25)' : 'rgba(34,197,94,0.20)',
       description:
-        'Textarea works as a standard React controlled component with familiar patterns. No proprietary lock-in required.',
+        'Controlled multiline input with standard React patterns. No proprietary lock-in—use familiar value/onChange.',
       points: [
         'Standard value and onChange props',
         'No proprietary lock-in',
@@ -39,7 +39,7 @@ export function TextareaCapabilities() {
       statusBg: isDark ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.08)',
       statusBorder: isDark ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.20)',
       description:
-        'Designed to integrate with React Hook Form workflows through DashForm. Compatible with existing form-library patterns.',
+        'Long-form input validation with React Hook Form. Automatic error handling for feedback, comments, and multiline fields.',
       points: [
         'Works through DashForm bridge',
         'Validation and error handling supported',
@@ -63,11 +63,11 @@ export function TextareaCapabilities() {
       statusBg: isDark ? 'rgba(139,92,246,0.12)' : 'rgba(139,92,246,0.08)',
       statusBorder: isDark ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.20)',
       description:
-        'Textarea can participate in engine-driven visibility rules through visibleWhen. Use it when multiline input depends on other form state.',
+        'Conditional rendering for description fields. Show large text areas only when needed—issue details, explanations, notes.',
       points: [
         'Conditional rendering via visibleWhen',
         'Engine evaluates the predicate',
-        'Useful for dependent text fields',
+        'Useful for conditional descriptions and notes',
       ],
       code: `<Textarea
   name="additionalNotes"
@@ -91,10 +91,9 @@ export function TextareaCapabilities() {
             maxWidth: 720,
           }}
         >
-          Textarea is designed for progressive adoption. Use it as a simple
-          controlled component, integrate it with React Hook Form, or leverage
-          Dashforge-native predictive capabilities. Choose the level that fits
-          your team's workflow.
+          Use Textarea as a controlled component, integrate with React Hook
+          Form, or leverage reactive capabilities. Choose the adoption level
+          that fits your workflow.
         </Typography>
       </Box>
 

@@ -23,13 +23,13 @@ export function TextareaExamples() {
   const examples: Example[] = [
     {
       title: 'Basic',
-      description: 'A simple multiline textarea with a label',
+      description: 'Multiline input for descriptions and longer content',
       code: `<Textarea label="Description" name="description" />`,
       component: <Textarea label="Description" name="description" />,
     },
     {
       title: 'With Placeholder',
-      description: 'A textarea with placeholder text to guide input',
+      description: 'Guide users with placeholder text for feedback or comments',
       code: `<Textarea 
   label="Feedback" 
   name="feedback" 
@@ -45,7 +45,7 @@ export function TextareaExamples() {
     },
     {
       title: 'Custom Rows',
-      description: 'A textarea with custom minimum rows (default is 3)',
+      description: 'Expand height for bios, detailed feedback, or longer text',
       code: `<Textarea 
   label="Bio" 
   name="bio" 
@@ -55,7 +55,7 @@ export function TextareaExamples() {
     },
     {
       title: 'With Helper Text',
-      description: 'A textarea with guidance text below the input',
+      description: 'Provide context for optional comments or notes',
       code: `<Textarea 
   label="Comments" 
   name="comments"
@@ -71,7 +71,7 @@ export function TextareaExamples() {
     },
     {
       title: 'Error State',
-      description: 'A textarea displaying an error with helper text',
+      description: 'Validation errors for required or length-constrained text',
       code: `<Textarea
   label="Message"
   name="message"
@@ -89,7 +89,7 @@ export function TextareaExamples() {
     },
     {
       title: 'Disabled',
-      description: 'A disabled textarea that cannot be edited',
+      description: 'Read-only multiline content like terms or policies',
       code: `<Textarea 
   label="Terms & Conditions" 
   name="terms"
@@ -108,20 +108,38 @@ export function TextareaExamples() {
   ];
 
   return (
-    <Stack spacing={3.5}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: 'repeat(2, minmax(0, 1fr))',
+        },
+        gap: 3,
+      }}
+    >
       {examples.map((example) => (
-        <Box key={example.title}>
-          <Stack spacing={2}>
+        <Box
+          key={example.title}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <Stack spacing={1.5} sx={{ height: '100%' }}>
+            {/* Compact Header */}
             <Box>
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: 600,
                   color: isDark
                     ? 'rgba(255,255,255,0.90)'
                     : 'rgba(15,23,42,0.90)',
-                  mb: 0.5,
+                  mb: 0.25,
+                  lineHeight: 1.3,
                 }}
               >
                 {example.title}
@@ -129,22 +147,24 @@ export function TextareaExamples() {
               <Typography
                 variant="body2"
                 sx={{
-                  fontSize: 14,
+                  fontSize: 13,
+                  lineHeight: 1.5,
                   color: isDark
-                    ? 'rgba(255,255,255,0.65)'
-                    : 'rgba(15,23,42,0.65)',
+                    ? 'rgba(255,255,255,0.60)'
+                    : 'rgba(15,23,42,0.60)',
                 }}
               >
                 {example.description}
               </Typography>
             </Box>
 
-            <DocsPreviewBlock code={example.code} badge="">
+            {/* Preview Block with Compact Mode */}
+            <DocsPreviewBlock code={example.code} badge="" compact>
               {example.component}
             </DocsPreviewBlock>
           </Stack>
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 }
