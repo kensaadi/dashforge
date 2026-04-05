@@ -110,6 +110,7 @@ const switchTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
   {
     id: 'reactive-conditional-visibility',
@@ -133,6 +134,7 @@ const dateTimePickerTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'examples', label: 'Examples' },
   { id: 'capabilities', label: 'Dashforge Capabilities' },
+  { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'react-hook-form-integration', label: 'React Hook Form Integration' },
   {
     id: 'reactive-conditional-visibility',

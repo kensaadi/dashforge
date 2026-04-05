@@ -7,6 +7,8 @@ import type {
   FieldRegistration,
   Engine,
 } from '@dashforge/ui-core';
+import type { AccessRequirement } from '@dashforge/rbac';
+import { useAccessState } from '../../hooks/useAccessState';
 
 export type DateTimePickerMode = 'date' | 'time' | 'datetime';
 
@@ -16,6 +18,30 @@ export interface DateTimePickerProps
   mode?: DateTimePickerMode;
   rules?: unknown;
   visibleWhen?: (engine: Engine) => boolean;
+
+  /**
+   * RBAC access requirement for this field.
+   *
+   * When provided, the field's visibility, disabled state, and readonly state
+   * are controlled by RBAC permissions.
+   *
+   * Access state is resolved using the RBAC system and combined with
+   * explicit props using OR logic for disabled and readonly states.
+   *
+   * @example
+   * ```tsx
+   * <DateTimePicker
+   *   name="publishedAt"
+   *   label="Published At"
+   *   access={{
+   *     resource: 'article',
+   *     action: 'update',
+   *     onUnauthorized: 'readonly'
+   *   }}
+   * />
+   * ```
+   */
+  access?: AccessRequirement;
 
   // explicit override (same precedence as other components)
   value?: string | null;
@@ -161,6 +187,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
     name,
     rules,
     visibleWhen,
+    access,
     mode = 'datetime',
     value,
     onChange,
@@ -186,6 +213,9 @@ export function DateTimePicker(props: DateTimePickerProps) {
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
 
+  // RBAC access state (hook always called unconditionally)
+  const accessState = useAccessState(access);
+
   // Internal state for plain mode (when not controlled by explicit value prop)
   const [internalInputValue, setInternalInputValue] = useState('');
 
@@ -193,6 +223,35 @@ export function DateTimePicker(props: DateTimePickerProps) {
   if (!isVisible) {
     return null;
   }
+
+  // Early return for RBAC visibility
+  if (!accessState.visible) {
+    return null;
+  }
+
+  // Compute effective disabled state (OR logic: any source can disable)
+  const effectiveDisabled = Boolean(rest.disabled) || accessState.disabled;
+
+  // Compute effective readonly state (OR logic)
+  // Check if slotProps.input.readOnly is already set
+  const existingReadOnly =
+    rest.slotProps?.input &&
+    typeof rest.slotProps.input === 'object' &&
+    'readOnly' in rest.slotProps.input
+      ? rest.slotProps.input.readOnly
+      : false;
+  const shouldApplyReadonly = existingReadOnly || accessState.readonly;
+
+  // Merge readonly into slotProps (preserving existing slotProps)
+  const mergedSlotProps = shouldApplyReadonly
+    ? {
+        ...rest.slotProps,
+        input: {
+          ...(rest.slotProps?.input || {}),
+          readOnly: true,
+        },
+      }
+    : rest.slotProps;
 
   // Determine native input type based on mode
   const inputType =
@@ -308,6 +367,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
         error={resolvedError}
         helperText={resolvedHelperText}
         {...rest}
+        disabled={effectiveDisabled}
+        slotProps={mergedSlotProps}
         // FIX #1: Pass merged props AFTER {...rest} to prevent override
         InputLabelProps={mergedInputLabelProps}
         inputProps={mergedInputProps}
@@ -349,6 +410,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
       type={inputType}
       value={displayInputValue}
       {...rest}
+      disabled={effectiveDisabled}
+      slotProps={mergedSlotProps}
       // FIX #1: Pass merged props AFTER {...rest} to prevent override
       InputLabelProps={mergedInputLabelProps}
       inputProps={mergedInputProps}

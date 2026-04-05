@@ -3,12 +3,14 @@ import type { SwitchProps as MuiSwitchProps } from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import { useContext } from 'react';
+import type { AccessRequirement } from '@dashforge/rbac';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type {
   DashFormBridge,
   FieldRegistration,
   Engine,
 } from '@dashforge/ui-core';
+import { useAccessState } from '../../hooks/useAccessState';
 
 export interface SwitchProps extends Omit<MuiSwitchProps, 'name'> {
   name: string;
@@ -17,6 +19,17 @@ export interface SwitchProps extends Omit<MuiSwitchProps, 'name'> {
   visibleWhen?: (engine: Engine) => boolean;
   helperText?: string;
   error?: boolean;
+  /**
+   * RBAC access control requirement.
+   *
+   * Controls field visibility and interaction based on user permissions:
+   * - `onUnauthorized: 'hide'` → component returns null
+   * - `onUnauthorized: 'disable'` → switch is disabled
+   * - `onUnauthorized: 'readonly'` → switch is disabled (switches do not support true readonly semantics; disabled is used as fallback)
+   *
+   * Combines with explicit `disabled` prop via OR logic.
+   */
+  access?: AccessRequirement;
 }
 
 /**
@@ -42,7 +55,16 @@ export interface SwitchProps extends Omit<MuiSwitchProps, 'name'> {
  * It only depends on the bridge contract from @dashforge/ui-core.
  */
 export function Switch(props: SwitchProps) {
-  const { name, rules, visibleWhen, label, helperText, error, ...rest } = props;
+  const {
+    name,
+    rules,
+    visibleWhen,
+    label,
+    helperText,
+    error,
+    access,
+    ...rest
+  } = props;
 
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
@@ -60,10 +82,23 @@ export function Switch(props: SwitchProps) {
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
 
+  // RBAC access state (always called unconditionally)
+  const accessState = useAccessState(access);
+
   // Early return for visibility
   if (!isVisible) {
     return null;
   }
+
+  // Early return for RBAC visibility
+  if (!accessState.visible) {
+    return null;
+  }
+
+  // Compute effective disabled state (OR logic: any source can activate disabled)
+  // Note: Switches don't support true readonly semantics, so readonly falls back to disabled
+  const effectiveDisabled =
+    Boolean(rest.disabled) || accessState.disabled || accessState.readonly;
 
   // If inside DashForm, register with form
   if (bridge && typeof bridge.register === 'function') {
@@ -168,6 +203,7 @@ export function Switch(props: SwitchProps) {
         {...rest}
         name={name}
         checked={resolvedChecked}
+        disabled={effectiveDisabled}
         onChange={handleChange as MuiSwitchProps['onChange']}
         onBlur={handleBlur as MuiSwitchProps['onBlur']}
         inputRef={registration.ref}
@@ -197,7 +233,9 @@ export function Switch(props: SwitchProps) {
   }
 
   // Standalone fallback (plain mode)
-  const switchElement = <MuiSwitch {...rest} name={name} />;
+  const switchElement = (
+    <MuiSwitch {...rest} name={name} disabled={effectiveDisabled} />
+  );
 
   // Wrap switch with FormControlLabel if label is provided
   if (label) {
