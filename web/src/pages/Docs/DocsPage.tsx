@@ -14,6 +14,7 @@ import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { DOCS_VERSION } from '../../docs/docsVersion';
 import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
+import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { TextareaDocs } from './components/textarea/TextareaDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
@@ -372,6 +373,7 @@ export function DocsPage() {
   const location = useLocation();
 
   // Determine which documentation to render based on the current path
+  const isTextFieldDocs = location.pathname === '/docs/components/text-field';
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
   const isTextareaDocs = location.pathname === '/docs/components/textarea';
@@ -425,7 +427,9 @@ export function DocsPage() {
   const isAccessControlPlayground =
     location.pathname === '/docs/access-control/playground';
 
-  const tocItems = isNumberFieldDocs
+  const tocItems = isTextFieldDocs
+    ? textFieldTocItems
+    : isNumberFieldDocs
     ? numberFieldTocItems
     : isTextareaDocs
     ? textareaTocItems
@@ -489,7 +493,9 @@ export function DocsPage() {
     ? accessControlPlaygroundTocItems
     : textFieldTocItems;
 
-  const docsContent = isNumberFieldDocs ? (
+  const docsContent = isTextFieldDocs ? (
+    <TextFieldDocs />
+  ) : isNumberFieldDocs ? (
     <NumberFieldDocs />
   ) : isTextareaDocs ? (
     <TextareaDocs />
