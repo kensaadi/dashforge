@@ -21,6 +21,7 @@ import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { UseCasesSection } from './components/UseCases';
 import { NotJustAnotherFormLibrarySection } from './components/NotJustAnotherFormLibrarySection';
 import { TrustedForComplexFormsSection } from './components/TrustedForComplexFormSection';
+import { CodeComparisonSection } from './components/CodeComparisonSection';
 import { GetStartedCtaSection } from './components/GetStartedCtaSection';
 import { RevealOnScroll } from '../../components/motion/RevealOnScroll';
 import { RevealStagger } from '../../components/motion/RevealStagger';
@@ -387,6 +388,29 @@ export function HomePage() {
             RBAC-ready primitives in one integrated system.
           </Typography>
         </Box>
+
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            my: { xs: 5, md: 6 },
+          }}
+        />
+
+        {/* Code comparison - RHF vs Dashforge */}
+        <RevealStagger>
+          <CodeComparisonSection />
+        </RevealStagger>
+
+        <Divider
+          sx={{
+            borderColor: isDark
+              ? 'rgba(255,255,255,0.10)'
+              : 'rgba(15,23,42,0.08)',
+            my: { xs: 5, md: 6 },
+          }}
+        />
 
         {/* Use cases - problems solved */}
         <RevealStagger>
