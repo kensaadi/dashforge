@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6d28d9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background gradient - full bleed for maskable -->
+  <rect width="512" height="512" fill="url(#bg-gradient)"/>
+  
+  <!-- Letter D in white - smaller for safe area -->
+  <text 
+    x="256" 
+    y="340" 
+    font-family="system-ui, -apple-system, sans-serif" 
+    font-size="280" 
+    font-weight="800" 
+    text-anchor="middle" 
+    fill="#ffffff"
+    letter-spacing="-0.05em">D</text>
+</svg>
