@@ -2,7 +2,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsHeroSection, DocsSection } from '../shared';
+import {
+  DocsHeroSection,
+  DocsSection,
+  DocsRelatedSection,
+  DocsDivider,
+} from '../shared';
 import { SnackbarQuickStart } from './SnackbarQuickStart';
 import { SnackbarExamples } from './SnackbarExamples';
 import { SnackbarScenarios } from './SnackbarScenarios';
@@ -96,6 +101,24 @@ export function SnackbarDocs() {
       >
         <SnackbarNotes />
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'ConfirmDialog',
+            path: '/docs/components/confirm-dialog',
+            description: 'User confirmation dialogs',
+          },
+          {
+            label: 'Button',
+            path: '/docs/components/button',
+            description: 'Action buttons',
+          },
+        ]}
+      />
     </Stack>
   );
 }

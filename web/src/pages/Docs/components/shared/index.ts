@@ -15,3 +15,4 @@ export {
   DocsTableCell,
   DocsTableHeaderCell,
 } from './DocsTable';
+export { DocsRelatedSection, type RelatedLink } from './DocsRelatedSection';

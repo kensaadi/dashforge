@@ -46,6 +46,8 @@ import { AccessControlQuickStart } from './access-control/quick-start/AccessCont
 import { AccessControlCoreConcepts } from './access-control/core-concepts/AccessControlCoreConcepts';
 import { AccessControlDashforge } from './access-control/dashforge/AccessControlDashforge';
 import { AccessControlPlayground } from './access-control/playground/AccessControlPlayground';
+import { Troubleshooting } from './guides/Troubleshooting';
+import { Testing } from './guides/Testing';
 
 const textFieldTocItems: DocsTocItem[] = [
   { id: 'quick-start', label: 'Quick Start' },
@@ -367,6 +369,30 @@ const accessControlDashforgeTocItems: DocsTocItem[] = [
   { id: 'best-practices', label: 'Best Practices' },
 ];
 
+const troubleshootingTocItems: DocsTocItem[] = [
+  { id: 'field-not-registering', label: 'Field Not Registering' },
+  { id: 'value-not-updating', label: 'Value Not Updating' },
+  { id: 'stale-closure', label: 'Stale Closure in Reactions' },
+  { id: 'typescript-errors', label: 'TypeScript Type Errors' },
+  { id: 'validation-not-triggering', label: 'Validation Not Triggering' },
+  { id: 'rhf-integration', label: 'React Hook Form Integration' },
+  { id: 'debugging-strategies', label: 'Debugging Strategies' },
+  { id: 'getting-help', label: 'Getting Help' },
+];
+
+const testingTocItems: DocsTocItem[] = [
+  { id: 'testing-philosophy', label: 'Testing Philosophy' },
+  { id: 'testing-forms', label: 'Testing Forms' },
+  { id: 'testing-reactions', label: 'Testing Reactions' },
+  {
+    id: 'testing-conditional-visibility',
+    label: 'Testing Conditional Visibility',
+  },
+  { id: 'testing-with-rbac', label: 'Testing with RBAC' },
+  { id: 'best-practices', label: 'Best Practices' },
+  { id: 'common-patterns', label: 'Common Testing Patterns' },
+];
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
@@ -426,6 +452,9 @@ export function DocsPage() {
     location.pathname === '/docs/access-control/dashforge';
   const isAccessControlPlayground =
     location.pathname === '/docs/access-control/playground';
+  const isTroubleshooting =
+    location.pathname === '/docs/guides/troubleshooting';
+  const isTesting = location.pathname === '/docs/guides/testing';
 
   const tocItems = isTextFieldDocs
     ? textFieldTocItems
@@ -491,6 +520,10 @@ export function DocsPage() {
     ? accessControlDashforgeTocItems
     : isAccessControlPlayground
     ? accessControlPlaygroundTocItems
+    : isTroubleshooting
+    ? troubleshootingTocItems
+    : isTesting
+    ? testingTocItems
     : textFieldTocItems;
 
   const docsContent = isTextFieldDocs ? (
@@ -557,6 +590,10 @@ export function DocsPage() {
     <AccessControlDashforge />
   ) : isAccessControlPlayground ? (
     <AccessControlPlayground />
+  ) : isTroubleshooting ? (
+    <Troubleshooting />
+  ) : isTesting ? (
+    <Testing />
   ) : (
     <Overview />
   );

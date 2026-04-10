@@ -2,7 +2,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsHeroSection, DocsSection, DocsDivider } from '../shared';
+import {
+  DocsHeroSection,
+  DocsSection,
+  DocsDivider,
+  DocsRelatedSection,
+} from '../shared';
 import { TopBarExamples } from './TopBarExamples';
 import { TopBarCapabilities } from './TopBarCapabilities';
 import { TopBarScenarios } from './TopBarScenarios';
@@ -180,6 +185,29 @@ const [navOpen, setNavOpen] = useState(true);
       >
         <TopBarNotes />
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'AppShell',
+            path: '/docs/components/appshell',
+            description: 'Complete application layout',
+          },
+          {
+            label: 'Breadcrumbs',
+            path: '/docs/components/breadcrumbs',
+            description: 'Navigation breadcrumbs',
+          },
+          {
+            label: 'Button',
+            path: '/docs/components/button',
+            description: 'Action buttons with RBAC',
+          },
+        ]}
+      />
     </Stack>
   );
 }

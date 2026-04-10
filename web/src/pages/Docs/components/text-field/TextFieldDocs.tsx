@@ -2,7 +2,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsHeroSection, DocsSection, DocsDivider } from '../shared';
+import {
+  DocsHeroSection,
+  DocsSection,
+  DocsDivider,
+  DocsRelatedSection,
+} from '../shared';
 import { TextFieldPlayground } from './TextFieldPlayground';
 import { TextFieldExamples } from './TextFieldExamples';
 import { TextFieldLayoutVariants } from './TextFieldLayoutVariants';
@@ -437,6 +442,39 @@ export function TextFieldDocs() {
       >
         <TextFieldNotes />
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Select',
+            path: '/docs/components/select',
+            description: 'Dropdown selection component',
+          },
+          {
+            label: 'Autocomplete',
+            path: '/docs/components/autocomplete',
+            description: 'Searchable dropdown with async support',
+          },
+          {
+            label: 'NumberField',
+            path: '/docs/components/number-field',
+            description: 'Numeric input with formatting',
+          },
+          {
+            label: 'Textarea',
+            path: '/docs/components/textarea',
+            description: 'Multi-line text input',
+          },
+          {
+            label: 'Form System Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'Build your first dynamic form',
+          },
+        ]}
+      />
     </Stack>
   );
 }

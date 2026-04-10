@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 import { DocsCodeBlock } from '../components/shared/CodeBlock';
 import { Link as RouterLink } from 'react-router-dom';
+import { DocsRelatedSection, DocsDivider } from '../components/shared';
 
 /**
  * Usage - Guided onboarding for building forms with Dashforge
@@ -527,6 +528,39 @@ function RegistrationForm() {
           </Box>
         </Box>
       </Stack>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Form System Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'Build your first dynamic form',
+          },
+          {
+            label: 'TextField',
+            path: '/docs/components/text-field',
+            description: 'Text input component documentation',
+          },
+          {
+            label: 'Select',
+            path: '/docs/components/select',
+            description: 'Dropdown selection component',
+          },
+          {
+            label: 'Button',
+            path: '/docs/components/button',
+            description: 'Button component with RBAC support',
+          },
+          {
+            label: 'Troubleshooting',
+            path: '/docs/guides/troubleshooting',
+            description: 'Common issues and solutions',
+          },
+        ]}
+      />
     </Stack>
   );
 }

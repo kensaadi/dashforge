@@ -1,5 +1,10 @@
 import Stack from '@mui/material/Stack';
-import { DocsHeroSection, DocsSection } from '../shared';
+import {
+  DocsHeroSection,
+  DocsSection,
+  DocsRelatedSection,
+  DocsDivider,
+} from '../shared';
 import { AppShellQuickStart } from './AppShellQuickStart';
 import { AppShellExamples } from './AppShellExamples';
 import { AppShellScenarios } from './AppShellScenarios';
@@ -64,6 +69,29 @@ export function AppShellDocs() {
       >
         <AppShellNotes />
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'TopBar',
+            path: '/docs/components/top-bar',
+            description: 'Application top bar component',
+          },
+          {
+            label: 'Breadcrumbs',
+            path: '/docs/components/breadcrumbs',
+            description: 'Navigation breadcrumbs',
+          },
+          {
+            label: 'Theme System',
+            path: '/docs/theme-system/overview',
+            description: 'Learn about Dashforge theming',
+          },
+        ]}
+      />
     </Stack>
   );
 }

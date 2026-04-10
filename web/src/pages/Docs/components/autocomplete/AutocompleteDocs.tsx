@@ -11,6 +11,7 @@ import { AutocompleteCapabilities } from './AutocompleteCapabilities';
 import { AutocompleteScenarios } from './AutocompleteScenarios';
 import { AutocompleteApi } from './AutocompleteApi';
 import { AutocompleteNotes } from './AutocompleteNotes';
+import { DocsRelatedSection } from '../shared';
 
 /**
  * AutocompleteDocs is the main documentation page for the Autocomplete component
@@ -557,6 +558,39 @@ export function AutocompleteDocs() {
         </Box>
         <AutocompleteNotes />
       </Stack>
+
+      <Divider sx={{ my: 6 }} />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Select',
+            path: '/docs/components/select',
+            description: 'Dropdown selection component',
+          },
+          {
+            label: 'TextField',
+            path: '/docs/components/text-field',
+            description: 'Text input component',
+          },
+          {
+            label: 'Form System Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'Build your first dynamic form',
+          },
+          {
+            label: 'Reactions',
+            path: '/docs/form-system/reactions',
+            description: 'Handle async data loading',
+          },
+          {
+            label: 'Testing',
+            path: '/docs/guides/testing',
+            description: 'Test async components',
+          },
+        ]}
+      />
     </Stack>
   );
 }

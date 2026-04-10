@@ -270,6 +270,21 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
     ],
   },
   {
+    title: 'Guides',
+    items: [
+      {
+        type: 'link',
+        label: 'Troubleshooting',
+        path: '/docs/guides/troubleshooting',
+      },
+      {
+        type: 'link',
+        label: 'Testing',
+        path: '/docs/guides/testing',
+      },
+    ],
+  },
+  {
     title: 'Architecture',
     items: [
       {

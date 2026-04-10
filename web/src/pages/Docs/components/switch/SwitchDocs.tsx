@@ -2,7 +2,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsHeroSection, DocsSection, DocsDivider } from '../shared';
+import {
+  DocsHeroSection,
+  DocsSection,
+  DocsDivider,
+  DocsRelatedSection,
+} from '../shared';
 import { SwitchExamples } from './SwitchExamples';
 import { SwitchCapabilities } from './SwitchCapabilities';
 import { SwitchScenarios } from './SwitchScenarios';
@@ -409,6 +414,24 @@ export function SwitchDocs() {
         </Box>
         <SwitchNotes />
       </Stack>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Checkbox',
+            path: '/docs/components/checkbox',
+            description: 'Checkbox component',
+          },
+          {
+            label: 'Form System Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'Build your first form',
+          },
+        ]}
+      />
     </Stack>
   );
 }

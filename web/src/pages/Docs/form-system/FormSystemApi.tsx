@@ -6,6 +6,7 @@ import {
   DocsSection,
   DocsDivider,
   DocsApiTable,
+  DocsRelatedSection,
   type ApiPropDefinition,
 } from '../components/shared';
 import { DocsCodeBlock } from '../components/shared/CodeBlock';
@@ -327,6 +328,34 @@ export function FormSystemApi() {
           />
         </Stack>
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Overview',
+            path: '/docs/form-system/overview',
+            description: 'Understanding the Form System',
+          },
+          {
+            label: 'Reactions',
+            path: '/docs/form-system/reactions',
+            description: 'Deep dive into reactions',
+          },
+          {
+            label: 'Patterns',
+            path: '/docs/form-system/patterns',
+            description: 'Best practices for complex forms',
+          },
+          {
+            label: 'Troubleshooting',
+            path: '/docs/guides/troubleshooting',
+            description: 'Common issues and solutions',
+          },
+        ]}
+      />
     </Stack>
   );
 }

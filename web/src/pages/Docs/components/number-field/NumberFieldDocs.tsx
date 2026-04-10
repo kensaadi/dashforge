@@ -11,6 +11,7 @@ import { NumberFieldScenarios } from './NumberFieldScenarios';
 import { NumberFieldApi } from './NumberFieldApi';
 import { NumberFieldNotes } from './NumberFieldNotes';
 import { DocsCodeBlock } from '../shared/CodeBlock';
+import { DocsRelatedSection } from '../shared';
 
 /**
  * NumberFieldDocs is the main documentation page for the NumberField component
@@ -580,6 +581,29 @@ export function NumberFieldDocs() {
         </Box>
         <NumberFieldNotes />
       </Stack>
+
+      <Divider sx={{ my: 6 }} />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'TextField',
+            path: '/docs/components/text-field',
+            description: 'Text input component',
+          },
+          {
+            label: 'Select',
+            path: '/docs/components/select',
+            description: 'Dropdown selection component',
+          },
+          {
+            label: 'Form System Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'Build your first form',
+          },
+        ]}
+      />
     </Stack>
   );
 }

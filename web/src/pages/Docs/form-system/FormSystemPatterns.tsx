@@ -7,6 +7,7 @@ import {
   DocsSection,
   DocsDivider,
   DocsCalloutBox,
+  DocsRelatedSection,
 } from '../components/shared';
 import { DocsCodeBlock } from '../components/shared/CodeBlock';
 
@@ -400,6 +401,34 @@ describe('addressReactions', () => {
           </li>
         </Box>
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Reactions',
+            path: '/docs/form-system/reactions',
+            description: 'Declarative side effects',
+          },
+          {
+            label: 'Dynamic Forms',
+            path: '/docs/form-system/dynamic-forms',
+            description: 'Conditional fields and options',
+          },
+          {
+            label: 'API Reference',
+            path: '/docs/form-system/api',
+            description: 'Complete API documentation',
+          },
+          {
+            label: 'Testing',
+            path: '/docs/guides/testing',
+            description: 'How to test your forms',
+          },
+        ]}
+      />
     </Stack>
   );
 }

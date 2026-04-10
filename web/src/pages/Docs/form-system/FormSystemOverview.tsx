@@ -7,6 +7,7 @@ import {
   DocsSection,
   DocsDivider,
   DocsCalloutBox,
+  DocsRelatedSection,
 } from '../components/shared';
 import { DocsCodeBlock } from '../components/shared/CodeBlock';
 
@@ -813,6 +814,34 @@ const reactions = [{
           </Box>
         </Stack>
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'Build your first dynamic form',
+          },
+          {
+            label: 'Reactions',
+            path: '/docs/form-system/reactions',
+            description: 'Deep dive into declarative side effects',
+          },
+          {
+            label: 'Dynamic Forms',
+            path: '/docs/form-system/dynamic-forms',
+            description: 'Conditional visibility and runtime options',
+          },
+          {
+            label: 'Patterns',
+            path: '/docs/form-system/patterns',
+            description: 'Best practices for complex forms',
+          },
+        ]}
+      />
     </Stack>
   );
 }

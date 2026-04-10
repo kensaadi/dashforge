@@ -599,11 +599,15 @@ function BookingForm({ user }) {
             </li>
             <li>
               <strong>Core Concepts:</strong> Learn about subjects, roles,
-              permissions, and policies (coming soon)
+              permissions, and policies
             </li>
             <li>
               <strong>Dashforge Integration:</strong> See how RBAC works with
-              TextField, Select, and other components (coming soon)
+              TextField, Select, and other components
+            </li>
+            <li>
+              <strong>Playground:</strong> Interactive examples showing RBAC in
+              action
             </li>
           </Box>
         </Stack>

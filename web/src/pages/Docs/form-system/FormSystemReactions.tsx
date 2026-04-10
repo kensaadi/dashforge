@@ -8,6 +8,7 @@ import {
   DocsDivider,
   DocsCalloutBox,
   DocsApiTable,
+  DocsRelatedSection,
   type ApiPropDefinition,
 } from '../components/shared';
 import { DocsCodeBlock } from '../components/shared/CodeBlock';
@@ -743,6 +744,34 @@ function ProductForm() {
           </Box>
         </Stack>
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'See reactions in action',
+          },
+          {
+            label: 'Dynamic Forms',
+            path: '/docs/form-system/dynamic-forms',
+            description: 'Conditional fields and runtime options',
+          },
+          {
+            label: 'API Reference',
+            path: '/docs/form-system/api',
+            description: 'Complete API documentation',
+          },
+          {
+            label: 'Troubleshooting',
+            path: '/docs/guides/troubleshooting',
+            description: 'Common issues and solutions',
+          },
+        ]}
+      />
     </Stack>
   );
 }

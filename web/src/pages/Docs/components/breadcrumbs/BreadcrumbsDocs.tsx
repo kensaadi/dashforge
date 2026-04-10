@@ -2,7 +2,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsHeroSection, DocsSection, DocsDivider } from '../shared';
+import {
+  DocsHeroSection,
+  DocsSection,
+  DocsDivider,
+  DocsRelatedSection,
+} from '../shared';
 import { BreadcrumbsExamples } from './BreadcrumbsExamples';
 import { BreadcrumbsCapabilities } from './BreadcrumbsCapabilities';
 import { BreadcrumbsScenarios } from './BreadcrumbsScenarios';
@@ -177,6 +182,24 @@ const items = [
       >
         <BreadcrumbsNotes />
       </DocsSection>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'TopBar',
+            path: '/docs/components/top-bar',
+            description: 'Application top bar',
+          },
+          {
+            label: 'AppShell',
+            path: '/docs/components/appshell',
+            description: 'Complete application layout',
+          },
+        ]}
+      />
     </Stack>
   );
 }

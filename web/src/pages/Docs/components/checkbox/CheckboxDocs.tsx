@@ -2,7 +2,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
-import { DocsHeroSection, DocsSection, DocsDivider } from '../shared';
+import {
+  DocsHeroSection,
+  DocsSection,
+  DocsDivider,
+  DocsRelatedSection,
+} from '../shared';
 import { CheckboxExamples } from './CheckboxExamples';
 import { CheckboxCapabilities } from './CheckboxCapabilities';
 import { CheckboxScenarios } from './CheckboxScenarios';
@@ -409,6 +414,29 @@ export function CheckboxDocs() {
         </Box>
         <CheckboxNotes />
       </Stack>
+
+      <DocsDivider />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Switch',
+            path: '/docs/components/switch',
+            description: 'Toggle switch component',
+          },
+          {
+            label: 'RadioGroup',
+            path: '/docs/components/radio-group',
+            description: 'Radio button selection',
+          },
+          {
+            label: 'Form System Quick Start',
+            path: '/docs/form-system/quick-start',
+            description: 'Build your first form',
+          },
+        ]}
+      />
     </Stack>
   );
 }

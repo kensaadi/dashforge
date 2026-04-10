@@ -9,6 +9,7 @@ import { ConfirmDialogResult } from './ConfirmDialogResult';
 import { ConfirmDialogScenarios } from './ConfirmDialogScenarios';
 import { ConfirmDialogApi } from './ConfirmDialogApi';
 import { ConfirmDialogNotes } from './ConfirmDialogNotes';
+import { DocsRelatedSection } from '../shared';
 
 /**
  * ConfirmDialogDocs is the main documentation page for the ConfirmDialog component
@@ -297,6 +298,24 @@ export function ConfirmDialogDocs() {
         </Box>
         <ConfirmDialogNotes />
       </Stack>
+
+      <Divider sx={{ my: 6 }} />
+
+      {/* Related Topics */}
+      <DocsRelatedSection
+        links={[
+          {
+            label: 'Snackbar',
+            path: '/docs/components/snackbar',
+            description: 'Toast notifications',
+          },
+          {
+            label: 'Button',
+            path: '/docs/components/button',
+            description: 'Action buttons',
+          },
+        ]}
+      />
     </Stack>
   );
 }
