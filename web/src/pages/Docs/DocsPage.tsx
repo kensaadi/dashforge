@@ -207,11 +207,9 @@ const buttonTocItems: DocsTocItem[] = [
 ];
 
 const overviewTocItems: DocsTocItem[] = [
-  { id: 'what-is-dashforge', label: 'What is Dashforge?' },
-  { id: 'what-you-get', label: 'What you get' },
-  { id: 'built-on-mui', label: 'Built on top of Material-UI' },
-  { id: 'core-building-blocks', label: 'Core building blocks' },
-  { id: 'quick-example', label: 'Quick example' },
+  { id: 'quick-example', label: 'What it looks like' },
+  { id: 'what-you-get', label: 'What Dashforge gives you' },
+  { id: 'built-on-mui', label: 'Built on Material-UI' },
   { id: 'next-steps', label: 'Next steps' },
 ];
 

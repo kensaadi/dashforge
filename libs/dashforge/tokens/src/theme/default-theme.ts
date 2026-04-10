@@ -107,9 +107,9 @@ export const defaultDarkTheme: DashforgeTheme = {
       inverse: '#111827',
     },
     border: {
-      subtle: '#374151',
-      default: '#6B7280',
-      strong: '#9CA3AF',
+      subtle: '#4B5563',
+      default: '#9CA3AF',
+      strong: '#D1D5DB',
       focus: '#3B82F6',
     },
     backdrop: {

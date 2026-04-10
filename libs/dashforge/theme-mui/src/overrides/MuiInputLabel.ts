@@ -4,12 +4,6 @@ import type { ThemeOptions } from '@mui/material/styles';
 export function getMuiInputLabelOverrides(
   dash: DashforgeTheme
 ): ThemeOptions['components'] {
-  // Disabled label should match disabled text affordance
-  const labelDisabled =
-    dash.meta.mode === 'light'
-      ? 'rgba(0, 0, 0, 0.38)' // MUI disabled text: clear non-interactive affordance
-      : 'rgba(255, 255, 255, 0.38)';
-
   return {
     MuiInputLabel: {
       styleOverrides: {
@@ -25,7 +19,7 @@ export function getMuiInputLabelOverrides(
           },
 
           '&.Mui-disabled': {
-            color: labelDisabled,
+            color: dash.color.text.muted,
           },
 
           // Fix vertical centering for outlined small labels

@@ -15,6 +15,21 @@ export default defineConfig(() => ({
     host: 'localhost',
   },
   plugins: [react(), nxViteTsPaths()],
+  resolve: {
+    dedupe: [
+      'react',
+      'react-dom',
+      '@mui/material',
+      '@mui/system',
+      '@mui/styled-engine',
+      '@emotion/react',
+      '@emotion/styled',
+      '@dashforge/tokens',
+      '@dashforge/theme-core',
+      '@dashforge/theme-mui',
+      '@dashforge/ui-core',
+    ],
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [],
