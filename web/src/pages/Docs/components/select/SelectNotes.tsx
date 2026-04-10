@@ -4,7 +4,8 @@ import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 
 /**
- * SelectNotes displays implementation notes and usage guidelines
+ * SelectNotes displays "Under the hood" technical insights
+ * Compact, high-signal explanation of Select behavior and architecture
  */
 export function SelectNotes() {
   const dashTheme = useDashTheme();
@@ -12,143 +13,63 @@ export function SelectNotes() {
 
   const notes = [
     {
-      title: 'Composed from TextField',
+      title: 'Form integration',
       content:
-        'Select is built on top of the Dashforge TextField component with select mode enabled. It inherits all TextField capabilities including form integration, validation, and layout modes.',
+        'Automatically binds to form state inside DashForm. No Controller, no manual wiring.\n\nWorks as a standard MUI TextField (select mode) when used standalone.',
     },
     {
-      title: 'Options-Based API',
+      title: 'Behavior model',
       content:
-        'Unlike MUI Select which uses MenuItem children, Dashforge Select uses an options array prop for cleaner, more declarative code. The component automatically renders MenuItems internally.',
+        'Options array prop for cleaner, declarative code. Errors appear only after blur or submit.\n\nSupports runtime-driven options via Reactive V2—load from APIs, filter dynamically, use any data shape with getOptionValue/getOptionLabel.',
     },
     {
-      title: 'Form Integration',
+      title: 'Architecture',
       content:
-        'When used inside DashForm, Select automatically integrates with React Hook Form through the DashFormBridge. It handles value binding, validation, and error display without explicit prop passing.',
-    },
-    {
-      title: 'Standalone Usage',
-      content:
-        'Select can be used as a standalone component outside of DashForm. In this mode, it behaves like a regular MUI TextField with select mode and requires explicit value and onChange props.',
-    },
-    {
-      title: 'Error Gating',
-      content:
-        'Errors are displayed only when the field is touched (after blur) OR when the form has been submitted. This prevents showing validation errors before the user interacts with the dropdown.',
-    },
-    {
-      title: 'Conditional Visibility',
-      content:
-        'Select supports reactive visibility through the visibleWhen prop, enabling dynamic form behavior where select fields appear or disappear based on other field values or application state.',
-    },
-    {
-      title: 'Layout Modes',
-      content:
-        'Select supports three layout modes: floating (default), stacked, and inline. These control how the label and field are positioned, allowing you to match different design systems and UI patterns.',
-    },
-    {
-      title: 'Type Safety',
-      content:
-        'Select is fully typed with TypeScript generics, supporting both string and number option values. The component provides autocompletion for options and type checking throughout.',
-    },
-    {
-      title: 'Runtime Options & Generic Shapes',
-      content:
-        'Select supports runtime-driven options via the optionsFromFieldData prop (Reactive V2). Options can be any shape—use getOptionValue, getOptionLabel, and optionally getOptionDisabled to map your data structure. This enables async loading, dependent dropdowns, and integration with any data source without forcing a specific option format.',
-    },
-    {
-      title: 'Unresolved Value Behavior',
-      content:
-        'If a field value does not match any loaded option, the Select displays empty while the form value remains unchanged. No automatic reset or reconciliation occurs—this is a business data responsibility, not a UI responsibility. The component does not auto-fix or auto-reset values. In development mode, a console warning is emitted (never in production).',
-    },
-    {
-      title: 'Loading State Display',
-      content:
-        'During runtime loading (idle/loading/error states), the Select display is sanitized to empty if the current value does not match available options. This prevents MUI out-of-range warnings. The underlying form value remains unchanged throughout the loading lifecycle. The field may be disabled during loading.',
+        'Built on MUI TextField with select mode. Fully typed with TypeScript.\n\nPurpose-built for categories, statuses, countries, and any single-selection dropdown.',
     },
   ];
 
   return (
-    <Stack spacing={2.5}>
-      {notes.map((note, index) => (
+    <Stack spacing={3}>
+      {notes.map((note) => (
         <Box
           key={note.title}
           sx={{
-            p: 2.5,
-            borderRadius: 1.5,
-            bgcolor: isDark ? 'rgba(17,24,39,0.35)' : 'rgba(248,250,252,0.80)',
+            p: 3,
+            borderRadius: 2,
+            bgcolor: isDark ? 'rgba(17,24,39,0.40)' : 'rgba(248,250,252,0.90)',
             border: isDark
-              ? '1px solid rgba(255,255,255,0.06)'
-              : '1px solid rgba(15,23,42,0.08)',
-            transition: 'all 0.15s ease',
-            '&:hover': {
-              bgcolor: isDark
-                ? 'rgba(17,24,39,0.50)'
-                : 'rgba(255,255,255,0.90)',
-              borderColor: isDark
-                ? 'rgba(255,255,255,0.10)'
-                : 'rgba(15,23,42,0.12)',
-            },
+              ? '1px solid rgba(255,255,255,0.08)'
+              : '1px solid rgba(15,23,42,0.10)',
           }}
         >
-          <Stack direction="row" spacing={2} alignItems="flex-start">
-            <Box
+          <Stack spacing={1.5}>
+            <Typography
+              variant="h6"
               sx={{
-                mt: 0.5,
-                minWidth: 24,
-                height: 24,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                bgcolor: isDark
-                  ? 'rgba(139,92,246,0.15)'
-                  : 'rgba(139,92,246,0.10)',
-                border: isDark
-                  ? '1px solid rgba(139,92,246,0.25)'
-                  : '1px solid rgba(139,92,246,0.20)',
+                fontSize: 15,
+                fontWeight: 600,
+                letterSpacing: '-0.01em',
+                color: isDark
+                  ? 'rgba(255,255,255,0.90)'
+                  : 'rgba(15,23,42,0.90)',
               }}
             >
-              <Typography
-                sx={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: isDark
-                    ? 'rgba(139,92,246,0.90)'
-                    : 'rgba(109,40,217,0.90)',
-                }}
-              >
-                {index + 1}
-              </Typography>
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: 16,
-                  fontWeight: 600,
-                  letterSpacing: '-0.01em',
-                  color: isDark
-                    ? 'rgba(255,255,255,0.90)'
-                    : 'rgba(15,23,42,0.90)',
-                  mb: 0.75,
-                }}
-              >
-                {note.title}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: 14,
-                  lineHeight: 1.7,
-                  color: isDark
-                    ? 'rgba(255,255,255,0.70)'
-                    : 'rgba(15,23,42,0.70)',
-                }}
-              >
-                {note.content}
-              </Typography>
-            </Box>
+              {note.title}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: 14,
+                lineHeight: 1.7,
+                color: isDark
+                  ? 'rgba(255,255,255,0.70)'
+                  : 'rgba(15,23,42,0.70)',
+                whiteSpace: 'pre-line',
+              }}
+            >
+              {note.content}
+            </Typography>
           </Stack>
         </Box>
       ))}

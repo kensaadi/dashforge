@@ -246,7 +246,7 @@ export function SelectDocs() {
         <SelectCapabilities />
       </Stack>
 
-      {/* Access Control (RBAC) - Permission-Based Rendering */}
+      {/* Access Control (RBAC) - Compact Grid Layout */}
       <Stack spacing={4} id="access-control">
         <Box>
           <Typography
@@ -271,24 +271,43 @@ export function SelectDocs() {
             }}
           >
             Control field visibility and interaction based on user permissions.
-            Fields can be hidden, disabled, or set to readonly when users lack
-            the required access. Integrates seamlessly with the Dashforge RBAC
-            system.
+            Fields can be hidden, disabled, or readonly when users lack access.
           </Typography>
         </Box>
 
-        <Stack spacing={3}>
-          {/* Example 1: Hide */}
-          <Box>
+        {/* Compact Grid of Access Patterns */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, minmax(0, 1fr))',
+            },
+            gap: 3,
+          }}
+        >
+          {/* Pattern 1: Hide */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Hide field when user lacks permission
+              Hide when unauthorized
             </Typography>
             <DocsCodeBlock
               code={`<Select
@@ -300,28 +319,36 @@ export function SelectDocs() {
     onUnauthorized: 'hide'
   }}
   options={[
-    { value: 'engineering', label: 'Engineering' },
-    { value: 'sales', label: 'Sales' },
-    { value: 'marketing', label: 'Marketing' }
+    { value: 'eng', label: 'Engineering' },
+    { value: 'sales', label: 'Sales' }
   ]}
-/>
-
-// Field hidden (returns null) when user lacks 'employee.department.edit' permission`}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 2: Disable */}
-          <Box>
+          {/* Pattern 2: Disable */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Disable field when user lacks permission
+              Disable when cannot edit
             </Typography>
             <DocsCodeBlock
               code={`<Select
@@ -334,34 +361,40 @@ export function SelectDocs() {
   }}
   options={[
     { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-    { value: 'critical', label: 'Critical' }
+    { value: 'high', label: 'High' }
   ]}
-/>
-
-// Field disabled (grayed out, not focusable, excluded from submission)
-// when user lacks 'project.priority.edit' permission`}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 3: Readonly */}
-          <Box>
+          {/* Pattern 3: Readonly */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Set field to readonly when user lacks permission
+              Readonly for view-only
             </Typography>
             <DocsCodeBlock
               code={`<Select
   name="status"
-  label="Contract Status"
+  label="Status"
   access={{
     resource: 'contract.status',
     action: 'edit',
@@ -369,64 +402,80 @@ export function SelectDocs() {
   }}
   options={[
     { value: 'draft', label: 'Draft' },
-    { value: 'pending', label: 'Pending Review' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'rejected', label: 'Rejected' }
+    { value: 'approved', label: 'Approved' }
   ]}
-/>
-
-// Note: Select becomes disabled when readonly (MUI select limitation)
-// Value is still included in form submission
-// when user lacks 'contract.status.edit' permission`}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 4: Combined with visibleWhen */}
-          <Box>
+          {/* Pattern 4: Combined with visibleWhen */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Combine access control with conditional visibility
+              Combined with visibleWhen
             </Typography>
             <DocsCodeBlock
               code={`<Select
-  name="orderType"
-  label="Order Type"
-  options={[
-    { value: 'standard', label: 'Standard' },
-    { value: 'expedited', label: 'Expedited' }
-  ]}
-/>
-
-<Select
   name="expediteReason"
   label="Expedite Reason"
-  visibleWhen={(engine) => engine.getValue('orderType') === 'expedited'}
+  visibleWhen={(e) => 
+    e.getValue('type') === 'expedited'
+  }
   access={{
     resource: 'order.expedite',
     action: 'edit',
     onUnauthorized: 'readonly'
   }}
   options={[
-    { value: 'customer_request', label: 'Customer Request' },
-    { value: 'inventory_issue', label: 'Inventory Issue' },
-    { value: 'urgency', label: 'Business Urgency' }
+    { value: 'urgent', label: 'Urgent' }
   ]}
-/>
-
-// Field only appears when orderType is 'expedited' (UI logic)
-// If visible but user lacks permission, field becomes readonly (RBAC logic)
-// Both conditions are checked independently`}
+/>`}
               language="tsx"
             />
           </Box>
-        </Stack>
+        </Box>
+
+        {/* Compact Info Box */}
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: 2,
+            bgcolor: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.05)',
+            border: isDark
+              ? '1px solid rgba(59,130,246,0.20)'
+              : '1px solid rgba(59,130,246,0.15)',
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.80)' : 'rgba(15,23,42,0.80)',
+            }}
+          >
+            <strong>Note:</strong> When combining visibleWhen with RBAC, both
+            conditions must be satisfied. The field shows only if UI logic
+            returns true AND the user has required permissions.
+          </Typography>
+        </Box>
       </Stack>
 
       <Divider
@@ -523,7 +572,7 @@ export function SelectDocs() {
         }}
       />
 
-      {/* Implementation Notes - Info Cards */}
+      {/* Under the hood - Info Cards */}
       <Stack spacing={4} id="notes">
         <Box>
           <Typography
@@ -537,7 +586,7 @@ export function SelectDocs() {
               mb: 2,
             }}
           >
-            Implementation Notes
+            Under the hood
           </Typography>
           <Typography
             sx={{
@@ -546,7 +595,7 @@ export function SelectDocs() {
               color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Technical details and best practices
+            How Select works internally
           </Typography>
         </Box>
         <SelectNotes />
