@@ -25,6 +25,7 @@ export function AutocompleteBasicDemo() {
       options={countries}
       value={value}
       onChange={setValue}
+      fullWidth
     />
   );
 }

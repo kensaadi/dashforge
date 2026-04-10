@@ -27,7 +27,7 @@ export function NumberFieldExamples() {
       title: 'Basic',
       description: 'A simple numeric input field',
       code: `<NumberField label="Quantity" name="quantity" />`,
-      component: <NumberField label="Quantity" name="quantity" />,
+      component: <NumberField label="Quantity" name="quantity" fullWidth />,
     },
     {
       title: 'Min / Max',
@@ -38,7 +38,12 @@ export function NumberFieldExamples() {
   inputProps={{ min: 0, max: 120 }}
 />`,
       component: (
-        <NumberField label="Age" name="age" inputProps={{ min: 0, max: 120 }} />
+        <NumberField
+          label="Age"
+          name="age"
+          inputProps={{ min: 0, max: 120 }}
+          fullWidth
+        />
       ),
     },
     {
@@ -50,7 +55,12 @@ export function NumberFieldExamples() {
   inputProps={{ step: 0.01 }}
 />`,
       component: (
-        <NumberField label="Price" name="price" inputProps={{ step: 0.01 }} />
+        <NumberField
+          label="Price"
+          name="price"
+          inputProps={{ step: 0.01 }}
+          fullWidth
+        />
       ),
     },
     {
@@ -68,6 +78,7 @@ export function NumberFieldExamples() {
           name="discount"
           helperText="0-100"
           inputProps={{ min: 0, max: 100, step: 0.1 }}
+          fullWidth
         />
       ),
     },
@@ -81,7 +92,13 @@ export function NumberFieldExamples() {
   disabled
 />`,
       component: (
-        <NumberField label="Locked Value" name="locked" value={100} disabled />
+        <NumberField
+          label="Locked Value"
+          name="locked"
+          value={100}
+          disabled
+          fullWidth
+        />
       ),
     },
     {
@@ -99,6 +116,7 @@ export function NumberFieldExamples() {
           name="amount"
           error
           helperText="Value must be positive"
+          fullWidth
         />
       ),
     },
@@ -124,6 +142,7 @@ export function NumberFieldExamples() {
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
           gap: { xs: 3.5, md: 4 },
+          alignItems: 'start',
         }}
       >
         {standardExamples.map((example) => (
@@ -132,7 +151,6 @@ export function NumberFieldExamples() {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
             }}
           >
             {/* Header area - fixed */}

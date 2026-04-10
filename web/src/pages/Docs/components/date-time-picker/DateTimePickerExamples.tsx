@@ -34,6 +34,7 @@ export function DateTimePickerExamples() {
           label="Appointment"
           name="appointment"
           mode="datetime"
+          fullWidth
         />
       ),
     },
@@ -46,7 +47,12 @@ export function DateTimePickerExamples() {
   mode="date"
 />`,
       component: (
-        <DateTimePicker label="Deadline" name="deadline" mode="date" />
+        <DateTimePicker
+          label="Deadline"
+          name="deadline"
+          mode="date"
+          fullWidth
+        />
       ),
     },
     {
@@ -58,7 +64,12 @@ export function DateTimePickerExamples() {
   mode="time"
 />`,
       component: (
-        <DateTimePicker label="Meeting Time" name="meetingTime" mode="time" />
+        <DateTimePicker
+          label="Meeting Time"
+          name="meetingTime"
+          mode="time"
+          fullWidth
+        />
       ),
     },
     {
@@ -76,6 +87,7 @@ export function DateTimePickerExamples() {
           name="reminder"
           mode="datetime"
           helperText="Select when you want to be reminded"
+          fullWidth
         />
       ),
     },
@@ -96,6 +108,7 @@ export function DateTimePickerExamples() {
           mode="datetime"
           error
           helperText="Event start time is required"
+          fullWidth
         />
       ),
     },
@@ -114,6 +127,7 @@ export function DateTimePickerExamples() {
           name="publishDate"
           mode="datetime"
           disabled
+          fullWidth
         />
       ),
     },
@@ -128,7 +142,7 @@ export function DateTimePickerExamples() {
           md: 'repeat(2, 1fr)',
         },
         gap: 3,
-        alignItems: 'stretch',
+        alignItems: 'start',
       }}
     >
       {examples.map((example) => (
@@ -137,10 +151,9 @@ export function DateTimePickerExamples() {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            height: '100%',
           }}
         >
-          <Stack spacing={1.5} sx={{ height: '100%' }}>
+          <Stack spacing={1.5}>
             <Box>
               <Typography
                 variant="h6"

@@ -25,13 +25,13 @@ export function TextFieldExamples() {
       title: 'Basic',
       description: 'A simple text field with a label',
       code: `<TextField label="Name" name="name" />`,
-      component: <TextField label="Name" name="name" />,
+      component: <TextField label="Name" name="name" fullWidth />,
     },
     {
       title: 'Disabled',
       description: 'A disabled text field',
       code: `<TextField label="Name" name="name" disabled />`,
-      component: <TextField label="Name" name="name" disabled />,
+      component: <TextField label="Name" name="name" disabled fullWidth />,
     },
     {
       title: 'Error State',
@@ -49,6 +49,7 @@ export function TextFieldExamples() {
           name="email"
           error
           helperText="Invalid email"
+          fullWidth
         />
       ),
     },
@@ -125,6 +126,7 @@ export function TextFieldExamples() {
           md: 'repeat(2, minmax(0, 1fr))',
         },
         gap: 3,
+        alignItems: 'start',
       }}
     >
       {examples.map((example) => (
@@ -133,10 +135,9 @@ export function TextFieldExamples() {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            height: '100%',
           }}
         >
-          <Stack spacing={1.5} sx={{ height: '100%' }}>
+          <Stack spacing={1.5}>
             {/* Compact Header */}
             <Box>
               <Typography

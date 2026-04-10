@@ -114,6 +114,7 @@ export function AutocompleteExamples() {
           md: 'repeat(2, minmax(0, 1fr))',
         },
         gap: 3,
+        alignItems: 'start',
       }}
     >
       {examples.map((example) => (
@@ -122,10 +123,9 @@ export function AutocompleteExamples() {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            height: '100%',
           }}
         >
-          <Stack spacing={1.5} sx={{ height: '100%' }}>
+          <Stack spacing={1.5}>
             {/* Compact Header */}
             <Box>
               <Typography

@@ -35,6 +35,7 @@ export function AutocompleteDisabledOptionsDemo() {
         getOptionValue={(option) => option.id}
         getOptionLabel={(option) => option.name}
         getOptionDisabled={(option) => !option.inStock}
+        fullWidth
       />
       <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
         Out-of-stock products are disabled and cannot be selected.

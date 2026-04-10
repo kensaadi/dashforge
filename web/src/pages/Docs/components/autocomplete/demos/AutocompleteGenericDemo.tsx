@@ -34,6 +34,7 @@ export function AutocompleteGenericDemo() {
         onChange={setValue}
         getOptionValue={(option) => option.code}
         getOptionLabel={(option) => option.name}
+        fullWidth
       />
       {value && (
         <Typography variant="body2" sx={{ mt: 2 }}>

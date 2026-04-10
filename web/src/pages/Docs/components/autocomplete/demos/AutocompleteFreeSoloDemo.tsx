@@ -19,6 +19,7 @@ export function AutocompleteFreeSoloDemo() {
         options={colors}
         value={value}
         onChange={setValue}
+        fullWidth
       />
       <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
         Type a custom color or select from the list. FreeSolo is always enabled.

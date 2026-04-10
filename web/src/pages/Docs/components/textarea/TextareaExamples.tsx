@@ -25,7 +25,7 @@ export function TextareaExamples() {
       title: 'Basic',
       description: 'Multiline input for descriptions and longer content',
       code: `<Textarea label="Description" name="description" />`,
-      component: <Textarea label="Description" name="description" />,
+      component: <Textarea label="Description" name="description" fullWidth />,
     },
     {
       title: 'With Placeholder',
@@ -40,6 +40,7 @@ export function TextareaExamples() {
           label="Feedback"
           name="feedback"
           placeholder="Share your thoughts..."
+          fullWidth
         />
       ),
     },
@@ -51,7 +52,7 @@ export function TextareaExamples() {
   name="bio" 
   minRows={5}
 />`,
-      component: <Textarea label="Bio" name="bio" minRows={5} />,
+      component: <Textarea label="Bio" name="bio" minRows={5} fullWidth />,
     },
     {
       title: 'With Helper Text',
@@ -66,6 +67,7 @@ export function TextareaExamples() {
           label="Comments"
           name="comments"
           helperText="Enter any additional comments (optional)"
+          fullWidth
         />
       ),
     },
@@ -84,6 +86,7 @@ export function TextareaExamples() {
           name="message"
           error
           helperText="Message is required and must be at least 10 characters"
+          fullWidth
         />
       ),
     },
@@ -102,6 +105,7 @@ export function TextareaExamples() {
           name="terms"
           defaultValue="By using this service, you agree to our terms..."
           disabled
+          fullWidth
         />
       ),
     },
@@ -116,6 +120,7 @@ export function TextareaExamples() {
           md: 'repeat(2, minmax(0, 1fr))',
         },
         gap: 3,
+        alignItems: 'start',
       }}
     >
       {examples.map((example) => (
@@ -124,10 +129,9 @@ export function TextareaExamples() {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            height: '100%',
           }}
         >
-          <Stack spacing={1.5} sx={{ height: '100%' }}>
+          <Stack spacing={1.5}>
             {/* Compact Header */}
             <Box>
               <Typography

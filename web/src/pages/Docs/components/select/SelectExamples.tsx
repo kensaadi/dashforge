@@ -50,6 +50,7 @@ export function SelectExamples() {
             { value: 'ca', label: 'Canada' },
             { value: 'mx', label: 'Mexico' },
           ]}
+          fullWidth
         />
       ),
     },
@@ -70,6 +71,7 @@ export function SelectExamples() {
           name="country"
           disabled
           options={[{ value: 'us', label: 'United States' }]}
+          fullWidth
         />
       ),
     },
@@ -96,6 +98,7 @@ export function SelectExamples() {
             { value: 'us', label: 'United States' },
             { value: 'ca', label: 'Canada' },
           ]}
+          fullWidth
         />
       ),
     },
@@ -150,6 +153,7 @@ export function SelectExamples() {
             { value: 'fl', label: 'Florida' },
             { value: 'il', label: 'Illinois' },
           ]}
+          fullWidth
         />
       ),
     },
@@ -176,6 +180,7 @@ export function SelectExamples() {
             { value: 'ca', label: 'Canada' },
             { value: 'mx', label: 'Mexico' },
           ]}
+          fullWidth
         />
       ),
     },
@@ -281,6 +286,7 @@ export function SelectExamples() {
             md: 'repeat(2, minmax(0, 1fr))',
           },
           gap: 3,
+          alignItems: 'start',
         }}
       >
         {examples.map((example) => (
@@ -289,10 +295,9 @@ export function SelectExamples() {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
             }}
           >
-            <Stack spacing={1.5} sx={{ height: '100%' }}>
+            <Stack spacing={1.5}>
               {/* Compact Header */}
               <Box>
                 <Typography

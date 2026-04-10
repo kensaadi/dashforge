@@ -53,6 +53,7 @@ export function AutocompleteFormDemo() {
             label="Country"
             options={countries}
             rules={{ required: 'Country is required' }}
+            fullWidth
           />
           <Autocomplete
             name="city"
@@ -67,6 +68,7 @@ export function AutocompleteFormDemo() {
                 return true;
               },
             }}
+            fullWidth
           />
           <Button type="submit" variant="contained">
             Submit
