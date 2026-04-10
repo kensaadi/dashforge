@@ -626,9 +626,7 @@ export function DocsPage() {
           >
             {[
               { label: 'Docs', to: '/docs' },
-              { label: 'Examples', to: '/examples' },
-              { label: 'Blog', to: '/blog' },
-              { label: 'Pricing', to: '/pricing' },
+              { label: 'Starter Kits', to: '/examples' },
             ].map((n) => (
               <Link
                 key={n.to}
