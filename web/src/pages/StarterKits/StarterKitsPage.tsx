@@ -1,5 +1,6 @@
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
@@ -167,11 +168,101 @@ export function StarterKitsPage() {
               lg: 'repeat(4, 1fr)',
             },
             gap: 3,
+            mb: 6,
           }}
         >
           {starterKits.map((kit) => (
             <StarterKitCard key={kit.id} kit={kit} />
           ))}
+        </Box>
+
+        {/* Consulting Banner - Horizontal */}
+        <Box
+          sx={{
+            mt: 6,
+            py: 3,
+            px: 3,
+            borderTop: isDark
+              ? '1px solid rgba(255,255,255,0.08)'
+              : '1px solid rgba(15,23,42,0.08)',
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
+            justifyContent: 'space-between',
+            gap: 3,
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography
+              sx={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: isDark ? '#ffffff' : '#0f172a',
+                mb: 0.5,
+              }}
+            >
+              Need custom React development or consulting?
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: 14,
+                lineHeight: 1.6,
+                color: isDark
+                  ? 'rgba(255,255,255,0.65)'
+                  : 'rgba(15,23,42,0.65)',
+              }}
+            >
+              Creator of Dashforge - Available for enterprise applications,
+              framework integration, team training, and full-stack projects.
+            </Typography>
+          </Box>
+
+          <Stack direction="row" spacing={2} sx={{ flexShrink: 0 }}>
+            <Button
+              variant="contained"
+              href="https://calendar.app.google/4RaXpooRkwqbGwn89"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                textTransform: 'none',
+                fontSize: 14,
+                fontWeight: 600,
+                px: 3,
+                py: 1.25,
+                background: isDark
+                  ? 'linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%)'
+                  : 'linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%)',
+                '&:hover': {
+                  opacity: 0.9,
+                },
+              }}
+            >
+              Schedule a Call
+            </Button>
+
+            <Button
+              variant="text"
+              href="https://www.linkedin.com/in/ken-saadi/"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                textTransform: 'none',
+                fontSize: 13,
+                fontWeight: 500,
+                px: 2,
+                color: isDark
+                  ? 'rgba(167,139,250,0.85)'
+                  : 'rgba(109,40,217,0.85)',
+                '&:hover': {
+                  bgcolor: isDark
+                    ? 'rgba(167,139,250,0.08)'
+                    : 'rgba(109,40,217,0.08)',
+                },
+              }}
+            >
+              LinkedIn
+            </Button>
+          </Stack>
         </Box>
       </Container>
     </Box>
