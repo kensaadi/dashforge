@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
@@ -397,6 +398,11 @@ export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
   const location = useLocation();
+
+  // Scroll to top when navigating between documentation pages
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Determine which documentation to render based on the current path
   const isTextFieldDocs = location.pathname === '/docs/components/text-field';

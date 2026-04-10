@@ -4,7 +4,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell, { type TableCellProps } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 
 /**
@@ -96,12 +96,14 @@ export function DocsTable({ children }: DocsTableProps) {
 
   return (
     <TableContainer
-      component={Paper}
+      component={Box}
       sx={{
-        bgcolor: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.8)',
+        bgcolor: isDark ? 'rgba(17,24,39,0.60)' : 'rgba(255,255,255,0.8)',
         border: isDark
           ? '1px solid rgba(255,255,255,0.08)'
           : '1px solid rgba(15,23,42,0.08)',
+        borderRadius: 1,
+        overflow: 'hidden',
       }}
     >
       <Table>{children}</Table>
@@ -174,6 +176,7 @@ export function DocsTableCell({
         color: isDark
           ? `rgba(255,255,255,${getOpacity()})`
           : `rgba(15,23,42,${getOpacity()})`,
+        bgcolor: 'transparent',
         borderBottom: isDark
           ? '1px solid rgba(255,255,255,0.05)'
           : '1px solid rgba(15,23,42,0.05)',
@@ -201,6 +204,7 @@ export function DocsTableHeaderCell({ children }: DocsTableHeaderCellProps) {
       sx={{
         fontWeight: 700,
         color: isDark ? 'rgba(255,255,255,0.90)' : 'rgba(15,23,42,0.90)',
+        bgcolor: 'transparent',
         borderBottom: isDark
           ? '1px solid rgba(255,255,255,0.08)'
           : '1px solid rgba(15,23,42,0.08)',
