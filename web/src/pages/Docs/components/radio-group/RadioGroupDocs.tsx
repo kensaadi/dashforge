@@ -120,7 +120,7 @@ export function RadioGroupDocs() {
 
       <DocsDivider />
 
-      {/* Access Control (RBAC) - Permission-Based Rendering */}
+      {/* Access Control (RBAC) - Compact Grid Layout */}
       <Stack spacing={4} id="access-control">
         <Box>
           <Typography
@@ -144,25 +144,45 @@ export function RadioGroupDocs() {
               maxWidth: 720,
             }}
           >
-            RadioGroup supports RBAC at two distinct levels: group-level access
-            controls the entire field, while option-level access controls
-            individual radio choices. Group-level access has precedence over
-            option-level access.
+            RadioGroup supports RBAC at two levels: group-level access controls
+            the entire field, while option-level access controls individual
+            choices. Group-level access has precedence.
           </Typography>
         </Box>
 
-        <Stack spacing={3}>
-          {/* Example 1: Group hidden */}
-          <Box>
+        {/* Compact Grid of Access Patterns */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, minmax(0, 1fr))',
+            },
+            gap: 3,
+          }}
+        >
+          {/* Pattern 1: Hide entire group */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Hide entire group when user lacks permission
+              Hide when unauthorized
             </Typography>
             <DocsCodeBlock
               code={`<RadioGroup
@@ -177,24 +197,33 @@ export function RadioGroupDocs() {
     { value: 'viewer', label: 'Viewer' },
     { value: 'editor', label: 'Editor' }
   ]}
-/>
-
-// Entire group hidden (returns null) when user lacks 'user.role.read' permission`}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 2: Group readonly/disable fallback */}
-          <Box>
+          {/* Pattern 2: Disable entire group */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Set entire group to readonly when user lacks permission
+              Disable when cannot edit
             </Typography>
             <DocsCodeBlock
               code={`<RadioGroup
@@ -207,30 +236,37 @@ export function RadioGroupDocs() {
   }}
   options={[
     { value: 'viewer', label: 'Viewer' },
-    { value: 'editor', label: 'Editor' },
-    { value: 'admin', label: 'Admin' }
+    { value: 'editor', label: 'Editor' }
   ]}
 />
 
-// Note: RadioGroup becomes disabled when readonly (radio groups lack native readonly semantics)
-// All options are non-interactive, but visible
-// Value is still included in form submission
-// when user lacks 'user.role.update' permission`}
+// Note: RadioGroup becomes disabled when readonly`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 3: Option-level access */}
-          <Box>
+          {/* Pattern 3: Option-level access */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Restrict specific options based on permission
+              Restrict specific options
             </Typography>
             <DocsCodeBlock
               code={`<RadioGroup
@@ -249,271 +285,79 @@ export function RadioGroupDocs() {
       }
     }
   ]}
-/>
-
-// Admin option is visible but not selectable when user lacks 'user.role.admin.assign' permission
-// Viewer and Editor options remain fully interactive`}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 4: Hidden selected option edge case */}
-          <Box>
+          {/* Pattern 4: Combined with visibleWhen */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Selected option remains visible even when hidden
-            </Typography>
-            <DocsCodeBlock
-              code={`// Current value: 'admin'
-// Admin option has onUnauthorized: 'hide'
-// User loses permission to see admin option
-
-<RadioGroup
-  name="role"
-  label="Role"
-  options={[
-    { value: 'viewer', label: 'Viewer' },
-    { value: 'editor', label: 'Editor' },
-    {
-      value: 'admin',
-      label: 'Admin',
-      access: {
-        resource: 'user.role.admin',
-        action: 'view',
-        onUnauthorized: 'hide'
-      }
-    }
-  ]}
-/>
-
-// Critical edge case: If 'admin' is the currently selected value,
-// it remains visible but disabled (non-selectable)
-// This prevents the current value from disappearing from the UI
-// User can see what is selected but cannot select it again`}
-              language="tsx"
-            />
-          </Box>
-
-          {/* Example 5: Combined with visibleWhen */}
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 15,
-                fontWeight: 600,
-                color: isDark ? '#ffffff' : '#0f172a',
-                mb: 1.5,
-              }}
-            >
-              Combine access control with conditional visibility
+              Combined with visibleWhen
             </Typography>
             <DocsCodeBlock
               code={`<RadioGroup
-  name="accountType"
-  label="Account Type"
-  options={[
-    { value: 'personal', label: 'Personal' },
-    { value: 'business', label: 'Business' }
-  ]}
-/>
-
-<RadioGroup
   name="businessType"
   label="Business Type"
-  visibleWhen={(engine) => engine.getValue('accountType') === 'business'}
+  visibleWhen={(e) => 
+    e.getValue('accountType') === 'business'
+  }
   access={{
     resource: 'account.businessType',
     action: 'edit',
     onUnauthorized: 'readonly'
   }}
   options={[
-    { value: 'sole-proprietor', label: 'Sole Proprietor' },
     { value: 'llc', label: 'LLC' },
-    {
-      value: 'corporation',
-      label: 'Corporation',
-      access: {
-        resource: 'account.businessType.corporation',
-        action: 'assign',
-        onUnauthorized: 'hide'
-      }
-    }
+    { value: 'corp', label: 'Corporation' }
   ]}
-/>
-
-// businessType field only appears when accountType is 'business' (UI logic)
-// If visible but user lacks permission, field becomes disabled (group-level RBAC)
-// Corporation option hidden unless user has specific permission (option-level RBAC)
-// All three conditions are checked independently`}
+/>`}
               language="tsx"
             />
           </Box>
-        </Stack>
-
-        {/* Adoption Guidance */}
-        <Box
-          sx={{
-            p: 3,
-            borderRadius: 2,
-            bgcolor: isDark ? 'rgba(251,191,36,0.08)' : 'rgba(251,191,36,0.06)',
-            border: isDark
-              ? '1px solid rgba(251,191,36,0.25)'
-              : '1px solid rgba(251,191,36,0.20)',
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: isDark ? '#fbbf24' : '#d97706',
-              mb: 2,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            Adoption Guidance
-          </Typography>
-          <Stack spacing={1.5}>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              • Use <strong>group-level access</strong> to control the field as
-              a whole (visibility, editability)
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              • Use <strong>option-level access</strong> to restrict specific
-              choices based on granular permissions
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              • Remember that{' '}
-              <strong>readonly on RadioGroup falls back to disabled</strong> (no
-              native readonly support)
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              • If an option may be hidden dynamically,{' '}
-              <strong>
-                the selected-value visibility rule ensures current values remain
-                visible
-              </strong>
-            </Typography>
-          </Stack>
         </Box>
 
-        {/* Edge Case Guidance */}
+        {/* Compact Info Box */}
         <Box
           sx={{
-            p: 3,
+            p: 2,
             borderRadius: 2,
-            bgcolor: isDark ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.06)',
+            bgcolor: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.05)',
             border: isDark
-              ? '1px solid rgba(239,68,68,0.25)'
-              : '1px solid rgba(239,68,68,0.20)',
+              ? '1px solid rgba(59,130,246,0.20)'
+              : '1px solid rgba(59,130,246,0.15)',
           }}
         >
           <Typography
             sx={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: isDark ? '#f87171' : '#dc2626',
-              mb: 2,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.80)' : 'rgba(15,23,42,0.80)',
             }}
           >
-            Edge Cases
+            <strong>Note:</strong> When combining visibleWhen with RBAC, both
+            conditions must be satisfied. RadioGroup becomes disabled when
+            readonly (no native readonly support). If a hidden option is
+            selected, it remains visible but disabled.
           </Typography>
-          <Stack spacing={1.5}>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              • <strong>Group access has precedence over option access</strong>:
-              if group is disabled, all options are non-interactive
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              •{' '}
-              <strong>
-                Hidden selected options remain visible but disabled
-              </strong>
-              : prevents current value from disappearing
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              •{' '}
-              <strong>
-                Option-level readonly behaves as disabled fallback
-              </strong>
-              : radio options lack native readonly semantics
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: isDark
-                  ? 'rgba(255,255,255,0.80)'
-                  : 'rgba(15,23,42,0.80)',
-              }}
-            >
-              •{' '}
-              <strong>Group-level readonly behaves as disabled fallback</strong>
-              : radio groups lack native readonly semantics
-            </Typography>
-          </Stack>
         </Box>
       </Stack>
 
@@ -570,11 +414,11 @@ export function RadioGroupDocs() {
 
       <DocsDivider />
 
-      {/* Implementation Notes */}
+      {/* Under the hood - Info Cards */}
       <DocsSection
         id="notes"
-        title="Implementation Notes"
-        description="Technical details and best practices for RadioGroup usage"
+        title="Under the hood"
+        description="How RadioGroup works internally"
       >
         <RadioGroupNotes />
       </DocsSection>

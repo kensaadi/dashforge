@@ -241,188 +241,232 @@ export function AutocompleteDocs() {
 
       {/* Access Control (RBAC) */}
       <Stack spacing={4} id="access-control">
-        <Stack spacing={1.5}>
+        <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: 32,
-              fontWeight: 700,
-              color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
             }}
           >
             Access Control (RBAC)
           </Typography>
           <Typography
-            variant="body1"
             sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
               maxWidth: 720,
             }}
           >
             Control field visibility and interaction based on user permissions.
-            Fields can be hidden, disabled, or set to readonly when users lack
-            the required access. Integrates seamlessly with the Dashforge RBAC
-            system.
+            Fields can be hidden, disabled, or readonly when users lack access.
           </Typography>
-        </Stack>
+        </Box>
 
-        <Stack spacing={3}>
-          {/* Example 1: Hide */}
-          <Box>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, minmax(0, 1fr))',
+            },
+            gap: 3,
+          }}
+        >
+          {/* Pattern 1: Hide */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Hide field when user lacks permission
+              Hide when unauthorized
             </Typography>
             <DocsCodeBlock
               code={`<Autocomplete
   name="assignee"
   label="Assignee"
-  options={[
-    { value: 'alice', label: 'Alice Johnson' },
-    { value: 'bob', label: 'Bob Smith' },
-    { value: 'carol', label: 'Carol Williams' }
-  ]}
   access={{
     resource: 'task.assignee',
     action: 'edit',
     onUnauthorized: 'hide'
   }}
-/>
-
-// Field hidden (returns null) when user lacks 'task.assignee.edit' permission`}
+  options={[
+    { value: 'alice', label: 'Alice' },
+    { value: 'bob', label: 'Bob' }
+  ]}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 2: Disable */}
-          <Box>
+          {/* Pattern 2: Disable */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Disable field when user lacks permission
+              Disable when cannot edit
             </Typography>
             <DocsCodeBlock
               code={`<Autocomplete
   name="status"
   label="Status"
-  options={[
-    { value: 'open', label: 'Open' },
-    { value: 'in_progress', label: 'In Progress' },
-    { value: 'review', label: 'In Review' },
-    { value: 'done', label: 'Done' }
-  ]}
   access={{
     resource: 'task.status',
     action: 'update',
     onUnauthorized: 'disable'
   }}
-/>
-
-// Field disabled (grayed out, not focusable, excluded from submission)
-// when user lacks 'task.status.update' permission`}
+  options={[
+    { value: 'open', label: 'Open' },
+    { value: 'done', label: 'Done' }
+  ]}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 3: Readonly */}
-          <Box>
+          {/* Pattern 3: Readonly */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Set field to readonly when user lacks permission
+              Readonly for view-only
             </Typography>
             <DocsCodeBlock
               code={`<Autocomplete
   name="category"
   label="Category"
-  options={[
-    { value: 'electronics', label: 'Electronics' },
-    { value: 'books', label: 'Books' },
-    { value: 'clothing', label: 'Clothing' },
-    { value: 'home', label: 'Home & Garden' }
-  ]}
   access={{
     resource: 'product.category',
     action: 'update',
     onUnauthorized: 'readonly'
   }}
-/>
-
-// Readonly behavior for Autocomplete:
-// - Input is read-only (cannot type new text)
-// - Popup disabled (cannot select different option)
-// - Clear button hidden (cannot clear value)
-// - Value remains visible and is submitted with form
-// when user lacks 'product.category.update' permission`}
+  options={[
+    { value: 'electronics', label: 'Electronics' },
+    { value: 'books', label: 'Books' }
+  ]}
+/>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 4: Combined with visibleWhen */}
-          <Box>
+          {/* Pattern 4: Combined with visibleWhen */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Combine access control with conditional visibility
+              Combined with visibleWhen
             </Typography>
             <DocsCodeBlock
               code={`<Autocomplete
-  name="reasonType"
-  label="Reason Type"
-  options={[
-    { value: 'standard', label: 'Standard' },
-    { value: 'other', label: 'Other (specify)' }
-  ]}
-/>
-
-<Autocomplete
-  name="otherReason"
-  label="Other Reason"
-  options={[
-    { value: 'technical', label: 'Technical Issue' },
-    { value: 'business', label: 'Business Requirement' },
-    { value: 'customer', label: 'Customer Request' }
-  ]}
-  visibleWhen={(engine) =>
-    engine.getValue('reasonType') === 'other'
+  name="expediteReason"
+  label="Expedite Reason"
+  visibleWhen={(e) => 
+    e.getValue('type') === 'expedited'
   }
   access={{
-    resource: 'request.otherReason',
+    resource: 'order.expedite',
     action: 'edit',
-    onUnauthorized: 'hide'
+    onUnauthorized: 'readonly'
   }}
-/>
-
-// Field only appears when reasonType is 'other' (UI logic)
-// If visible but user lacks permission, field is hidden (RBAC logic)
-// Both conditions are checked independently`}
+  options={[
+    { value: 'urgent', label: 'Urgent' }
+  ]}
+/>`}
               language="tsx"
             />
           </Box>
-        </Stack>
+        </Box>
+
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: 2,
+            bgcolor: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.05)',
+            border: isDark
+              ? '1px solid rgba(59,130,246,0.20)'
+              : '1px solid rgba(59,130,246,0.15)',
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.80)' : 'rgba(15,23,42,0.80)',
+            }}
+          >
+            <strong>Note:</strong> When combining visibleWhen with RBAC, both
+            conditions must be satisfied. The field shows only if UI logic
+            returns true AND the user has required permissions.
+          </Typography>
+        </Box>
       </Stack>
 
       <Divider sx={{ opacity: 0.1 }} />
@@ -485,30 +529,32 @@ export function AutocompleteDocs() {
 
       <Divider sx={{ opacity: 0.1 }} />
 
-      {/* Implementation Notes */}
+      {/* Under the hood */}
       <Stack spacing={4} id="notes">
-        <Stack spacing={1.5}>
+        <Box>
           <Typography
             variant="h2"
             sx={{
-              fontSize: 32,
-              fontWeight: 700,
-              color: isDark ? 'rgba(255,255,255,0.95)' : 'rgba(15,23,42,0.95)',
+              fontSize: { xs: 28, md: 36 },
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.2,
+              color: isDark ? '#ffffff' : '#0f172a',
+              mb: 2,
             }}
           >
-            Implementation Notes
+            Under the hood
           </Typography>
           <Typography
-            variant="body1"
             sx={{
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(15,23,42,0.65)',
             }}
           >
-            Technical details and important warnings.
+            How Autocomplete works internally
           </Typography>
-        </Stack>
+        </Box>
         <AutocompleteNotes />
       </Stack>
     </Stack>

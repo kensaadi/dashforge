@@ -46,7 +46,7 @@ export function RadioGroupExamples() {
   const examples: Example[] = [
     {
       title: 'Basic',
-      description: 'A simple radio group for account type selection',
+      description: 'Single choice from mutually exclusive options',
       code: `<RadioGroup
   name="accountType"
   label="Account Type"
@@ -65,7 +65,7 @@ export function RadioGroupExamples() {
     },
     {
       title: 'With Default Value',
-      description: 'A radio group with a pre-selected option',
+      description: 'Pre-select an option at render time',
       code: `<RadioGroup
   name="shipping"
   label="Shipping Method"
@@ -87,7 +87,7 @@ export function RadioGroupExamples() {
     },
     {
       title: 'Horizontal Layout',
-      description: 'A radio group with horizontal orientation',
+      description: 'Display options side-by-side with row prop',
       code: `<RadioGroup
   name="plan"
   label="Plan"
@@ -104,7 +104,7 @@ export function RadioGroupExamples() {
     },
     {
       title: 'With Disabled Option',
-      description: 'A radio group with one disabled option',
+      description: 'Restrict specific choices from selection',
       code: `<RadioGroup
   name="contact"
   label="Contact Method"
@@ -124,7 +124,7 @@ export function RadioGroupExamples() {
     },
     {
       title: 'Error State',
-      description: 'A radio group displaying an error with helper text',
+      description: 'Validation feedback for required selections',
       code: `<RadioGroup
   name="accountError"
   label="Account Type"
@@ -147,7 +147,7 @@ export function RadioGroupExamples() {
     },
     {
       title: 'Without Label',
-      description: 'A radio group without a form label',
+      description: 'Render options without a group label',
       code: `<RadioGroup
   name="standalone"
   options={[
@@ -168,20 +168,38 @@ export function RadioGroupExamples() {
   ];
 
   return (
-    <Stack spacing={3.5}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: 'repeat(2, minmax(0, 1fr))',
+        },
+        gap: 3,
+      }}
+    >
       {examples.map((example) => (
-        <Box key={example.title}>
-          <Stack spacing={2}>
+        <Box
+          key={example.title}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <Stack spacing={1.5} sx={{ height: '100%' }}>
+            {/* Compact Header */}
             <Box>
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: 600,
                   color: isDark
                     ? 'rgba(255,255,255,0.90)'
                     : 'rgba(15,23,42,0.90)',
-                  mb: 0.5,
+                  mb: 0.25,
+                  lineHeight: 1.3,
                 }}
               >
                 {example.title}
@@ -189,22 +207,24 @@ export function RadioGroupExamples() {
               <Typography
                 variant="body2"
                 sx={{
-                  fontSize: 14,
+                  fontSize: 13,
+                  lineHeight: 1.5,
                   color: isDark
-                    ? 'rgba(255,255,255,0.65)'
-                    : 'rgba(15,23,42,0.65)',
+                    ? 'rgba(255,255,255,0.60)'
+                    : 'rgba(15,23,42,0.60)',
                 }}
               >
                 {example.description}
               </Typography>
             </Box>
 
-            <DocsPreviewBlock code={example.code} badge="">
+            {/* Preview Block with Compact Mode */}
+            <DocsPreviewBlock code={example.code} badge="" compact>
               {example.component}
             </DocsPreviewBlock>
           </Stack>
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 }

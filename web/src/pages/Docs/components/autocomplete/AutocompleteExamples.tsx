@@ -26,8 +26,7 @@ export function AutocompleteExamples() {
   const examples: Example[] = [
     {
       title: 'Basic Static Options',
-      description:
-        'Simple Autocomplete with static string array options. Always in freeSolo mode, allowing custom text entry.',
+      description: 'Simple autocomplete with predefined choices',
       code: `<Autocomplete
   name="country"
   label="Country"
@@ -39,8 +38,7 @@ export function AutocompleteExamples() {
     },
     {
       title: 'FreeSolo Behavior',
-      description:
-        'Type custom values or select from options. FreeSolo is always enabled in DashAutocomplete.',
+      description: 'Custom values or selection from options',
       code: `<Autocomplete
   name="favoriteColor"
   label="Favorite Color"
@@ -52,8 +50,7 @@ export function AutocompleteExamples() {
     },
     {
       title: 'Generic Options with Mappers',
-      description:
-        'Use object arrays with getOptionValue and getOptionLabel for type-safe mapping.',
+      description: 'Type-safe object arrays with custom mappers',
       code: `<Autocomplete<string, Country>
   name="country"
   label="Country"
@@ -67,8 +64,7 @@ export function AutocompleteExamples() {
     },
     {
       title: 'DashForm Integration',
-      description:
-        'Integrate with DashForm for validation, error handling, and form submission.',
+      description: 'Form validation and error handling',
       code: `<DashForm onSubmit={handleSubmit}>
   <Autocomplete
     name="country"
@@ -96,8 +92,7 @@ export function AutocompleteExamples() {
     },
     {
       title: 'Disabled Options',
-      description:
-        'Disable specific options using getOptionDisabled. Useful for showing unavailable choices.',
+      description: 'Prevent selection of unavailable choices',
       code: `<Autocomplete<string, Product>
   name="product"
   label="Product"
@@ -111,20 +106,38 @@ export function AutocompleteExamples() {
   ];
 
   return (
-    <Stack spacing={4}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: 'repeat(2, minmax(0, 1fr))',
+        },
+        gap: 3,
+      }}
+    >
       {examples.map((example) => (
-        <Box key={example.title}>
-          <Stack spacing={2}>
+        <Box
+          key={example.title}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <Stack spacing={1.5} sx={{ height: '100%' }}>
+            {/* Compact Header */}
             <Box>
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: 600,
                   color: isDark
                     ? 'rgba(255,255,255,0.90)'
                     : 'rgba(15,23,42,0.90)',
-                  mb: 0.5,
+                  mb: 0.25,
+                  lineHeight: 1.3,
                 }}
               >
                 {example.title}
@@ -132,21 +145,24 @@ export function AutocompleteExamples() {
               <Typography
                 variant="body2"
                 sx={{
-                  fontSize: 14,
+                  fontSize: 13,
+                  lineHeight: 1.5,
                   color: isDark
-                    ? 'rgba(255,255,255,0.65)'
-                    : 'rgba(15,23,42,0.65)',
+                    ? 'rgba(255,255,255,0.60)'
+                    : 'rgba(15,23,42,0.60)',
                 }}
               >
                 {example.description}
               </Typography>
             </Box>
-            <DocsPreviewBlock code={example.code}>
+
+            {/* Preview Block with Compact Mode */}
+            <DocsPreviewBlock code={example.code} badge="" compact>
               {example.component}
             </DocsPreviewBlock>
           </Stack>
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 }

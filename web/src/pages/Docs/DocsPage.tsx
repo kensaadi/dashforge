@@ -56,7 +56,7 @@ const textFieldTocItems: DocsTocItem[] = [
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const numberFieldTocItems: DocsTocItem[] = [
@@ -68,7 +68,7 @@ const numberFieldTocItems: DocsTocItem[] = [
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const selectTocItems: DocsTocItem[] = [
@@ -80,7 +80,7 @@ const selectTocItems: DocsTocItem[] = [
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const checkboxTocItems: DocsTocItem[] = [
@@ -94,7 +94,7 @@ const checkboxTocItems: DocsTocItem[] = [
     label: 'Reactive Conditional Visibility',
   },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const radioGroupTocItems: DocsTocItem[] = [
@@ -104,7 +104,7 @@ const radioGroupTocItems: DocsTocItem[] = [
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Form Integration Scenarios' },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const switchTocItems: DocsTocItem[] = [
@@ -118,7 +118,7 @@ const switchTocItems: DocsTocItem[] = [
     label: 'Reactive Conditional Visibility',
   },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const textareaTocItems: DocsTocItem[] = [
@@ -128,7 +128,7 @@ const textareaTocItems: DocsTocItem[] = [
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Form Integration' },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const dateTimePickerTocItems: DocsTocItem[] = [
@@ -142,7 +142,7 @@ const dateTimePickerTocItems: DocsTocItem[] = [
     label: 'Reactive Conditional Visibility',
   },
   { id: 'api', label: 'API' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const breadcrumbsTocItems: DocsTocItem[] = [
@@ -151,7 +151,7 @@ const breadcrumbsTocItems: DocsTocItem[] = [
   { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'scenarios', label: 'Navigation Scenarios' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const topBarTocItems: DocsTocItem[] = [
@@ -160,7 +160,7 @@ const topBarTocItems: DocsTocItem[] = [
   { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'scenarios', label: 'Layout Composition' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const autocompleteTocItems: DocsTocItem[] = [
@@ -172,7 +172,7 @@ const autocompleteTocItems: DocsTocItem[] = [
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Scenarios' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const confirmDialogTocItems: DocsTocItem[] = [
@@ -181,7 +181,7 @@ const confirmDialogTocItems: DocsTocItem[] = [
   { id: 'result', label: 'Understanding the Result' },
   { id: 'scenarios', label: 'Integration Scenarios' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const snackbarTocItems: DocsTocItem[] = [
@@ -189,7 +189,7 @@ const snackbarTocItems: DocsTocItem[] = [
   { id: 'examples', label: 'Examples' },
   { id: 'scenarios', label: 'Integration Scenarios' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const buttonTocItems: DocsTocItem[] = [
@@ -200,7 +200,7 @@ const buttonTocItems: DocsTocItem[] = [
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Action Integration Scenarios' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const overviewTocItems: DocsTocItem[] = [
@@ -256,7 +256,7 @@ const designTokensTocItems: DocsTocItem[] = [
   { id: 'theme-adapter', label: 'Theme Adapter' },
   { id: 'scenarios', label: 'Customization Scenarios' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const appShellTocItems: DocsTocItem[] = [
@@ -264,7 +264,7 @@ const appShellTocItems: DocsTocItem[] = [
   { id: 'examples', label: 'Examples' },
   { id: 'scenarios', label: 'Real-World Scenarios' },
   { id: 'api', label: 'API Reference' },
-  { id: 'notes', label: 'Implementation Notes' },
+  { id: 'notes', label: 'Under the hood' },
 ];
 
 const formSystemOverviewTocItems: DocsTocItem[] = [

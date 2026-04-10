@@ -23,7 +23,7 @@ export function DateTimePickerExamples() {
   const examples: Example[] = [
     {
       title: 'DateTime Mode',
-      description: 'Date and time picker combined (default mode)',
+      description: 'Combined date and time selection for appointments',
       code: `<DateTimePicker 
   label="Appointment" 
   name="appointment" 
@@ -39,7 +39,7 @@ export function DateTimePickerExamples() {
     },
     {
       title: 'Date Only',
-      description: 'Date picker without time selection',
+      description: 'Select dates for deadlines and milestones',
       code: `<DateTimePicker 
   label="Deadline" 
   name="deadline" 
@@ -51,7 +51,7 @@ export function DateTimePickerExamples() {
     },
     {
       title: 'Time Only',
-      description: 'Time picker without date selection',
+      description: 'Choose time slots without date selection',
       code: `<DateTimePicker 
   label="Meeting Time" 
   name="meetingTime" 
@@ -63,7 +63,7 @@ export function DateTimePickerExamples() {
     },
     {
       title: 'With Helper Text',
-      description: 'Provides guidance below the picker',
+      description: 'Guide users with contextual instructions',
       code: `<DateTimePicker 
   label="Reminder" 
   name="reminder"
@@ -81,7 +81,7 @@ export function DateTimePickerExamples() {
     },
     {
       title: 'Error State',
-      description: 'Shows validation error with message',
+      description: 'Validation feedback for required datetime fields',
       code: `<DateTimePicker
   label="Event Start"
   name="eventStart"
@@ -101,7 +101,7 @@ export function DateTimePickerExamples() {
     },
     {
       title: 'Disabled',
-      description: 'Read-only state for locked dates/times',
+      description: 'Prevent interaction when datetime is locked',
       code: `<DateTimePicker
   label="Publish Date"
   name="publishDate"
@@ -140,7 +140,7 @@ export function DateTimePickerExamples() {
             height: '100%',
           }}
         >
-          <Stack spacing={2} sx={{ height: '100%' }}>
+          <Stack spacing={1.5} sx={{ height: '100%' }}>
             <Box>
               <Typography
                 variant="h6"
@@ -151,7 +151,8 @@ export function DateTimePickerExamples() {
                   color: isDark
                     ? 'rgba(255,255,255,0.90)'
                     : 'rgba(15,23,42,0.90)',
-                  mb: 0.5,
+                  mb: 0.25,
+                  lineHeight: 1.3,
                 }}
               >
                 {example.title}
@@ -160,6 +161,7 @@ export function DateTimePickerExamples() {
                 variant="body2"
                 sx={{
                   fontSize: 13,
+                  lineHeight: 1.5,
                   color: isDark
                     ? 'rgba(255,255,255,0.60)'
                     : 'rgba(15,23,42,0.60)',
@@ -168,11 +170,9 @@ export function DateTimePickerExamples() {
                 {example.description}
               </Typography>
             </Box>
-            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-              <DocsPreviewBlock code={example.code}>
-                <Box sx={{ p: 2 }}>{example.component}</Box>
-              </DocsPreviewBlock>
-            </Box>
+            <DocsPreviewBlock code={example.code} badge="" compact>
+              {example.component}
+            </DocsPreviewBlock>
           </Stack>
         </Box>
       ))}

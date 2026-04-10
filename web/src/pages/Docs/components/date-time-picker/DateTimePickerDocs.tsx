@@ -109,7 +109,7 @@ export function DateTimePickerDocs() {
 
       <DocsDivider />
 
-      {/* Access Control (RBAC) */}
+      {/* Access Control (RBAC) - Compact Grid Layout */}
       <Stack spacing={4} id="access-control">
         <Box>
           <Typography
@@ -134,24 +134,43 @@ export function DateTimePickerDocs() {
             }}
           >
             Control field visibility and interaction based on user permissions.
-            Fields can be hidden, disabled, or set to readonly when users lack
-            the required access. Integrates seamlessly with the Dashforge RBAC
-            system.
+            Fields can be hidden, disabled, or readonly when users lack access.
           </Typography>
         </Box>
 
-        <Stack spacing={3}>
-          {/* Example 1: Hidden Field */}
-          <Box>
+        {/* Compact Grid of Access Patterns */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, minmax(0, 1fr))',
+            },
+            gap: 3,
+          }}
+        >
+          {/* Pattern 1: Hide */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Hide field when user lacks permission
+              Hide when unauthorized
             </Typography>
             <DocsCodeBlock
               code={`<DateTimePicker
@@ -167,17 +186,28 @@ export function DateTimePickerDocs() {
             />
           </Box>
 
-          {/* Example 2: Disabled Field */}
-          <Box>
+          {/* Pattern 2: Disable */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Disable field when user cannot edit
+              Disable when cannot edit
             </Typography>
             <DocsCodeBlock
               code={`<DateTimePicker
@@ -193,17 +223,28 @@ export function DateTimePickerDocs() {
             />
           </Box>
 
-          {/* Example 3: Readonly Field */}
-          <Box>
+          {/* Pattern 3: Readonly */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Make field readonly when user has view-only access
+              Readonly for view-only
             </Typography>
             <DocsCodeBlock
               code={`<DateTimePicker
@@ -217,42 +258,38 @@ export function DateTimePickerDocs() {
 />`}
               language="tsx"
             />
+          </Box>
+
+          {/* Pattern 4: Combined with visibleWhen */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
                 fontSize: 14,
-                lineHeight: 1.6,
-                color: isDark
-                  ? 'rgba(255,255,255,0.55)'
-                  : 'rgba(15,23,42,0.55)',
-                mt: 1.5,
-                fontStyle: 'italic',
-              }}
-            >
-              Note: DateTimePicker supports native readonly via the underlying
-              TextField's readOnly property, allowing users to see and select
-              the value but preventing edits.
-            </Typography>
-          </Box>
-
-          {/* Example 4: Combination with visibleWhen */}
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 15,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Combine with visibleWhen for UI logic + permissions
+              Combined with visibleWhen
             </Typography>
             <DocsCodeBlock
               code={`<DateTimePicker
   name="reminderAt"
   label="Reminder Date"
   mode="datetime"
-  visibleWhen={(engine) =>
-    engine.getNode('enableReminders')?.value === true
+  visibleWhen={(e) =>
+    e.getValue('enableReminders') === true
   }
   access={{
     resource: 'task.reminderAt',
@@ -262,23 +299,32 @@ export function DateTimePickerDocs() {
 />`}
               language="tsx"
             />
-            <Typography
-              sx={{
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: isDark
-                  ? 'rgba(255,255,255,0.55)'
-                  : 'rgba(15,23,42,0.55)',
-                mt: 1.5,
-                fontStyle: 'italic',
-              }}
-            >
-              Note: visibleWhen controls UI logic (show when reminders are
-              enabled), while RBAC controls permissions (hide if user lacks
-              access). Both must be true for the field to render.
-            </Typography>
           </Box>
-        </Stack>
+        </Box>
+
+        {/* Compact Info Box */}
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: 2,
+            bgcolor: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.05)',
+            border: isDark
+              ? '1px solid rgba(59,130,246,0.20)'
+              : '1px solid rgba(59,130,246,0.15)',
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.80)' : 'rgba(15,23,42,0.80)',
+            }}
+          >
+            <strong>Note:</strong> When combining visibleWhen with RBAC, both
+            conditions must be satisfied. The field shows only if UI logic
+            returns true AND the user has required permissions.
+          </Typography>
+        </Box>
       </Stack>
 
       <DocsDivider />
@@ -305,11 +351,11 @@ export function DateTimePickerDocs() {
 
       <DocsDivider />
 
-      {/* Implementation Notes */}
+      {/* Under the hood - Info Cards */}
       <DocsSection
         id="notes"
-        title="Implementation Notes"
-        description="Important details and best practices"
+        title="Under the hood"
+        description="How DateTimePicker works internally"
       >
         <DateTimePickerNotes />
       </DocsSection>

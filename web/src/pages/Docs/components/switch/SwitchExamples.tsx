@@ -23,25 +23,25 @@ export function SwitchExamples() {
   const examples: Example[] = [
     {
       title: 'Basic',
-      description: 'A simple toggle switch with a label',
+      description: 'Binary toggle with label for settings',
       code: `<Switch label="Enable notifications" name="notifications" />`,
       component: <Switch label="Enable notifications" name="notifications" />,
     },
     {
       title: 'Checked by Default',
-      description: 'A switch that starts in the on position',
+      description: 'Pre-enabled state for default preferences',
       code: `<Switch label="Dark mode" name="darkMode" checked />`,
       component: <Switch label="Dark mode" name="darkMode" defaultChecked />,
     },
     {
       title: 'Disabled',
-      description: 'A disabled switch that cannot be toggled',
+      description: 'Prevent interaction when locked by policy',
       code: `<Switch label="Beta features" name="beta" disabled />`,
       component: <Switch label="Beta features" name="beta" disabled />,
     },
     {
       title: 'Disabled and On',
-      description: 'A switch that is both disabled and in the on state',
+      description: 'Show enabled state without toggle control',
       code: `<Switch 
   label="Auto-save (enabled by admin)" 
   name="autoSave" 
@@ -59,7 +59,7 @@ export function SwitchExamples() {
     },
     {
       title: 'Error State',
-      description: 'A switch displaying an error with helper text',
+      description: 'Validation feedback for required toggles',
       code: `<Switch
   label="Accept privacy policy"
   name="privacy"
@@ -77,27 +77,45 @@ export function SwitchExamples() {
     },
     {
       title: 'Without Label',
-      description: 'A standalone switch without a label',
+      description: 'Standalone toggle for compact layouts',
       code: `<Switch name="standalone" />`,
       component: <Switch name="standalone" />,
     },
   ];
 
   return (
-    <Stack spacing={3.5}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: 'repeat(2, minmax(0, 1fr))',
+        },
+        gap: 3,
+      }}
+    >
       {examples.map((example) => (
-        <Box key={example.title}>
-          <Stack spacing={2}>
+        <Box
+          key={example.title}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <Stack spacing={1.5} sx={{ height: '100%' }}>
+            {/* Compact Header */}
             <Box>
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: 600,
                   color: isDark
                     ? 'rgba(255,255,255,0.90)'
                     : 'rgba(15,23,42,0.90)',
-                  mb: 0.5,
+                  mb: 0.25,
+                  lineHeight: 1.3,
                 }}
               >
                 {example.title}
@@ -105,22 +123,24 @@ export function SwitchExamples() {
               <Typography
                 variant="body2"
                 sx={{
-                  fontSize: 14,
+                  fontSize: 13,
+                  lineHeight: 1.5,
                   color: isDark
-                    ? 'rgba(255,255,255,0.65)'
-                    : 'rgba(15,23,42,0.65)',
+                    ? 'rgba(255,255,255,0.60)'
+                    : 'rgba(15,23,42,0.60)',
                 }}
               >
                 {example.description}
               </Typography>
             </Box>
 
-            <DocsPreviewBlock code={example.code} badge="">
+            {/* Preview Block with Compact Mode */}
+            <DocsPreviewBlock code={example.code} badge="" compact>
               {example.component}
             </DocsPreviewBlock>
           </Stack>
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 }
