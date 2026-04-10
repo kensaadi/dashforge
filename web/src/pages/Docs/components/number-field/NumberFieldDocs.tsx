@@ -271,18 +271,38 @@ export function NumberFieldDocs() {
           </Typography>
         </Box>
 
-        <Stack spacing={3}>
-          {/* Example 1: Hidden Field */}
-          <Box>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, minmax(0, 1fr))',
+            },
+            gap: 3,
+          }}
+        >
+          {/* Pattern 1: Hide */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Hide field when user lacks permission
+              Hide when unauthorized
             </Typography>
             <DocsCodeBlock
               code={`<NumberField
@@ -298,17 +318,28 @@ export function NumberFieldDocs() {
             />
           </Box>
 
-          {/* Example 2: Disabled Field */}
-          <Box>
+          {/* Pattern 2: Disable */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Disable field when user cannot edit
+              Disable when cannot edit
             </Typography>
             <DocsCodeBlock
               code={`<NumberField
@@ -324,17 +355,28 @@ export function NumberFieldDocs() {
             />
           </Box>
 
-          {/* Example 3: Readonly Field */}
-          <Box>
+          {/* Pattern 3: Readonly */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Make field readonly when user has view-only access
+              Readonly for view-only
             </Typography>
             <DocsCodeBlock
               code={`<NumberField
@@ -350,22 +392,32 @@ export function NumberFieldDocs() {
             />
           </Box>
 
-          {/* Example 4: Combination with visibleWhen */}
-          <Box>
+          {/* Pattern 4: Combined with visibleWhen */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Combine with visibleWhen for UI logic + permissions
+              Combined with visibleWhen
             </Typography>
             <DocsCodeBlock
               code={`<NumberField
   name="otherAmount"
-  label="Other Amount"
   visibleWhen={(engine) =>
     engine.getNode('paymentType')?.value === 'custom'
   }
@@ -377,24 +429,33 @@ export function NumberFieldDocs() {
 />`}
               language="tsx"
             />
-            <Typography
-              sx={{
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: isDark
-                  ? 'rgba(255,255,255,0.55)'
-                  : 'rgba(15,23,42,0.55)',
-                mt: 1.5,
-                fontStyle: 'italic',
-              }}
-            >
-              Note: visibleWhen controls UI logic (show when paymentType is
-              "custom"), while RBAC controls permissions (hide if user lacks
-              access). Both conditions must be satisfied for the field to be
-              visible.
-            </Typography>
           </Box>
-        </Stack>
+        </Box>
+
+        {/* Implementation Note - Compact */}
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: 1.5,
+            bgcolor: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.05)',
+            border: isDark
+              ? '1px solid rgba(59,130,246,0.20)'
+              : '1px solid rgba(59,130,246,0.15)',
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            <strong>Note:</strong> When combining visibleWhen with RBAC, both
+            conditions must be satisfied. The field shows only if UI logic
+            returns true AND the user has required permissions.
+          </Typography>
+        </Box>
       </Stack>
 
       <Divider

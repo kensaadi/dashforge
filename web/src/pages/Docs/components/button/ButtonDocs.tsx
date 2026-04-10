@@ -231,49 +231,76 @@ export function ButtonDocs() {
           </Typography>
         </Box>
 
-        <Stack spacing={3}>
-          {/* Example 1: Hide */}
-          <Box>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, minmax(0, 1fr))',
+            },
+            gap: 3,
+          }}
+        >
+          {/* Pattern 1: Hide */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Hide button when user lacks permission
+              Hide when unauthorized
             </Typography>
             <DocsCodeBlock
               code={`<Button
   variant="contained"
-  color="error"
   access={{
     resource: 'user',
     action: 'delete',
     onUnauthorized: 'hide',
   }}
-  onClick={handleDeleteUser}
 >
   Delete User
-</Button>
-
-// Button hidden (returns null) when user lacks 'user.delete' permission`}
+</Button>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 2: Disable */}
-          <Box>
+          {/* Pattern 2: Disable */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Disable button when user cannot execute action
+              Disable when cannot execute
             </Typography>
             <DocsCodeBlock
               code={`<Button
@@ -283,28 +310,35 @@ export function ButtonDocs() {
     action: 'publish',
     onUnauthorized: 'disable',
   }}
-  onClick={handlePublish}
 >
   Publish Article
-</Button>
-
-// Button disabled (grayed out, not clickable)
-// when user lacks 'article.publish' permission`}
+</Button>`}
               language="tsx"
             />
           </Box>
 
-          {/* Example 3: Readonly Fallback */}
-          <Box>
+          {/* Pattern 3: Readonly */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Readonly fallback (behaves as disabled)
+              Readonly fallback
             </Typography>
             <DocsCodeBlock
               code={`<Button
@@ -314,99 +348,78 @@ export function ButtonDocs() {
     action: 'approve',
     onUnauthorized: 'readonly',
   }}
-  onClick={handleApprove}
 >
   Approve Invoice
-</Button>
-
-// Button disabled when user lacks 'invoice.approve' permission
-// Note: Buttons do not support true readonly semantics.
-// readonly falls back to disabled for safe, explicit behavior.`}
+</Button>`}
               language="tsx"
             />
+          </Box>
+
+          {/* Pattern 4: Combined */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              bgcolor: isDark
+                ? 'rgba(17,24,39,0.40)'
+                : 'rgba(248,250,252,0.90)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(15,23,42,0.10)',
+            }}
+          >
             <Typography
               sx={{
                 fontSize: 14,
-                lineHeight: 1.6,
-                color: isDark
-                  ? 'rgba(255,255,255,0.55)'
-                  : 'rgba(15,23,42,0.55)',
-                mt: 1.5,
-                fontStyle: 'italic',
-              }}
-            >
-              Note: Buttons are action components and do not have readonly
-              semantics. When <code>onUnauthorized: 'readonly'</code> is used,
-              the button falls back to disabled state for safety. This prevents
-              unintended action execution while providing clear visual feedback.
-            </Typography>
-          </Box>
-
-          {/* Example 4: Combined with Business Logic */}
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 15,
                 fontWeight: 600,
                 color: isDark ? '#ffffff' : '#0f172a',
                 mb: 1.5,
               }}
             >
-              Combine RBAC with application state
+              Combined with disabled state
             </Typography>
             <DocsCodeBlock
-              code={`function PublishButton() {
-  const [isPublishing, setIsPublishing] = useState(false);
-
-  const handlePublish = async () => {
-    setIsPublishing(true);
-    try {
-      await publishArticle();
-    } finally {
-      setIsPublishing(false);
-    }
-  };
-
-  return (
-    <Button
-      variant="contained"
-      disabled={isPublishing}
-      access={{
-        resource: 'article',
-        action: 'publish',
-        onUnauthorized: 'disable',
-      }}
-      onClick={handlePublish}
-    >
-      {isPublishing ? 'Publishing...' : 'Publish Article'}
-    </Button>
-  );
-}
-
-// RBAC controls authorization (can user publish?)
-// Application state controls loading/submission (is publish in progress?)
-// Both combine via OR logic: button disabled if either condition is true`}
+              code={`<Button
+  variant="contained"
+  disabled={isPublishing}
+  access={{
+    resource: 'article',
+    action: 'publish',
+    onUnauthorized: 'disable',
+  }}
+>
+  Publish
+</Button>`}
               language="tsx"
             />
-            <Typography
-              sx={{
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: isDark
-                  ? 'rgba(255,255,255,0.55)'
-                  : 'rgba(15,23,42,0.55)',
-                mt: 1.5,
-                fontStyle: 'italic',
-              }}
-            >
-              Note: RBAC handles authorization (permissions), not all UI logic.
-              Combine the <code>access</code> prop with explicit{' '}
-              <code>disabled</code> for loading states, validation failures, or
-              business rules. The effective disabled state uses OR logic: the
-              button is disabled if either RBAC or explicit props require it.
-            </Typography>
           </Box>
-        </Stack>
+        </Box>
+
+        {/* Implementation Note - Compact */}
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: 1.5,
+            bgcolor: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.05)',
+            border: isDark
+              ? '1px solid rgba(59,130,246,0.20)'
+              : '1px solid rgba(59,130,246,0.15)',
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: isDark ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.70)',
+            }}
+          >
+            <strong>Note:</strong> Buttons do not support readonly semantics.
+            When <code>onUnauthorized: 'readonly'</code> is used, it falls back
+            to disabled for safety. Combine <code>access</code> with explicit{' '}
+            <code>disabled</code> for loading states or business rules.
+          </Typography>
+        </Box>
       </Stack>
 
       <DocsDivider />
