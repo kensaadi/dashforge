@@ -93,7 +93,7 @@ export function HomePage() {
             >
               {[
                 { label: 'Docs', to: '/docs' },
-                { label: 'Starter Kits', to: '/examples' },
+                { label: 'Starter Kits', to: '/starter-kits' },
               ].map((n) => (
                 <Link
                   key={n.to}

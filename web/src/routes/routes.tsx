@@ -4,6 +4,8 @@ import { DocsPage } from '../pages/Docs/DocsPage';
 import { ComponentsPage } from '../pages/ComponentsPage';
 import { PricingPage } from '../pages/PricingPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { StarterKitsPage } from '../pages/StarterKits/StarterKitsPage';
+import { StarterKitDetailPage } from '../pages/StarterKits/StarterKitDetailPage';
 
 const routes: RouteObject[] = [
   {
@@ -17,6 +19,14 @@ const routes: RouteObject[] = [
   {
     path: '/components',
     element: <ComponentsPage />,
+  },
+  {
+    path: '/starter-kits',
+    element: <StarterKitsPage />,
+  },
+  {
+    path: '/starter-kits/:kitId',
+    element: <StarterKitDetailPage />,
   },
   {
     path: '/pricing',
