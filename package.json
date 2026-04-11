@@ -44,6 +44,7 @@
     "eslint-plugin-jsx-a11y": "6.10.1",
     "eslint-plugin-react": "7.35.0",
     "eslint-plugin-react-hooks": "5.0.0",
+    "get-port": "^7.2.0",
     "jest": "^30.0.2",
     "jest-environment-node": "^30.0.2",
     "jest-util": "^30.0.2",
@@ -52,14 +53,17 @@
     "jsonc-eslint-parser": "^2.1.0",
     "nx": "22.5.0",
     "prettier": "^2.6.2",
+    "puppeteer": "^24.40.0",
     "rollup": "^4.14.0",
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
     "vite": "^7.0.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "wait-on": "^8.0.5"
   },
   "dependencies": {
     "express": "^4.21.2",

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 import { highlightCode, type SupportedLanguage } from '../../Docs/utils/shiki';
+import { matchMedia } from '../../../utils/dom';
 
 interface LiveTypingCodeBlockProps {
   /**
@@ -47,9 +48,9 @@ export function LiveTypingCodeBlock({
   const [showHighlighted, setShowHighlighted] = useState(false);
 
   // Check for reduced motion preference
-  const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefersReducedMotion = matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
 
   // Character-by-character typing animation
   useEffect(() => {

@@ -5,6 +5,13 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import { useDashTheme } from '@dashforge/theme-core';
 import type { DocsTocProps, DocsTocItem } from './DocsToc.types';
+import {
+  isBrowser,
+  getScrollPosition,
+  getElementById,
+  addEventListener,
+  scrollTo,
+} from '../../../utils/dom';
 
 /**
  * DocsToc displays a sticky table of contents panel
@@ -16,6 +23,9 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
   const [activeId, setActiveId] = useState<string>('');
 
   useEffect(() => {
+    // Skip during SSR
+    if (!isBrowser) return;
+
     const allIds = getAllIds(items);
     if (allIds.length === 0) return;
 
@@ -27,9 +37,7 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
      * Returns true when within 50px of the bottom
      */
     const isNearBottom = (): boolean => {
-      const scrollHeight = document.documentElement.scrollHeight;
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const clientHeight = window.innerHeight;
+      const { scrollTop, scrollHeight, clientHeight } = getScrollPosition();
       return scrollHeight - scrollTop - clientHeight < 50;
     };
 
@@ -69,7 +77,7 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
     );
 
     allIds.forEach((id) => {
-      const element = document.getElementById(id);
+      const element = getElementById(id);
       if (element) {
         observer.observe(element);
       }
@@ -80,21 +88,23 @@ export function DocsToc({ items, title = 'On This Page' }: DocsTocProps) {
       updateActiveSection();
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const removeListener = addEventListener('scroll', handleScroll, {
+      passive: true,
+    });
 
     return () => {
       observer.disconnect();
-      window.removeEventListener('scroll', handleScroll);
+      removeListener();
     };
   }, [items]);
 
   const handleClick = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
+    const element = getElementById(id);
+    if (element && isBrowser) {
       const yOffset = -100;
       const y =
         element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 

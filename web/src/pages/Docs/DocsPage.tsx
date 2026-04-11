@@ -13,6 +13,7 @@ import BrightnessLowIcon from '@mui/icons-material/BrightnessLow';
 
 import { useDashTheme, toggleThemeMode } from '@dashforge/theme-core';
 import { DOCS_VERSION } from '../../docs/docsVersion';
+import { scrollToTop } from '../../utils/dom';
 import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
@@ -399,7 +400,7 @@ export function DocsPage() {
 
   // Scroll to top when navigating between documentation pages
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, [location.pathname]);
 
   // Determine which documentation to render based on the current path
