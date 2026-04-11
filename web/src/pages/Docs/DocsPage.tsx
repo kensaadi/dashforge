@@ -16,6 +16,7 @@ import { DOCS_VERSION } from '../../docs/docsVersion';
 import { scrollToTop } from '../../utils/dom';
 import { DocsLayout } from './components/DocsLayout';
 import type { DocsTocItem } from './components/DocsToc.types';
+import { SEO } from '../../components/seo/SEO';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { TextareaDocs } from './components/textarea/TextareaDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
@@ -393,10 +394,224 @@ const testingTocItems: DocsTocItem[] = [
   { id: 'common-patterns', label: 'Common Testing Patterns' },
 ];
 
+/**
+ * Get SEO metadata for documentation pages
+ * Maps each doc route to specific title and description
+ */
+function getDocsSEO(pathname: string): { title: string; description: string } {
+  const docsMetadata: Record<string, { title: string; description: string }> = {
+    // Getting Started
+    '/docs/getting-started/overview': {
+      title: 'Overview',
+      description:
+        'Get started with Dashforge-UI, a type-safe React form management library with enterprise-grade features like validation, conditional logic, and RBAC support.',
+    },
+    '/docs/getting-started/why-dashforge': {
+      title: 'Why Dashforge',
+      description:
+        'Discover why Dashforge simplifies complex form development with reactive state management, built-in RBAC, and MUI-native components.',
+    },
+    '/docs/getting-started/installation': {
+      title: 'Installation',
+      description:
+        'Install Dashforge-UI packages including core libraries, UI components, theme system, and access control. Complete setup guide for React and TypeScript projects.',
+    },
+    '/docs/getting-started/usage': {
+      title: 'Usage',
+      description:
+        'Learn how to build forms with Dashforge-UI. Covers basic setup, form components, validation, conditional fields, and form submission patterns.',
+    },
+    '/docs/getting-started/project-structure': {
+      title: 'Project Structure',
+      description:
+        'Understand the Dashforge project architecture with package organization, layer separation, import patterns, and best practices for scalable applications.',
+    },
+
+    // UI Components - Input
+    '/docs/components/text-field': {
+      title: 'TextField',
+      description:
+        'TextField component with form integration, validation, RBAC support, and conditional rendering. Built on Material-UI with DashForm capabilities.',
+    },
+    '/docs/components/textarea': {
+      title: 'Textarea',
+      description:
+        'Multi-line text input component with form binding, validation rules, access control, and reactive form integration.',
+    },
+    '/docs/components/number-field': {
+      title: 'NumberField',
+      description:
+        'Numeric input component with min/max validation, step controls, form integration, and RBAC-ready field access.',
+    },
+    '/docs/components/select': {
+      title: 'Select',
+      description:
+        'Dropdown select component with dynamic options, form binding, validation, and role-based field visibility.',
+    },
+    '/docs/components/autocomplete': {
+      title: 'Autocomplete',
+      description:
+        'Searchable select component with async data loading, multi-select support, form integration, and conditional rendering.',
+    },
+    '/docs/components/checkbox': {
+      title: 'Checkbox',
+      description:
+        'Checkbox component with form integration, validation, RBAC support, and reactive conditional visibility.',
+    },
+    '/docs/components/radio-group': {
+      title: 'RadioGroup',
+      description:
+        'Radio button group component with form binding, dynamic options, access control, and validation support.',
+    },
+    '/docs/components/switch': {
+      title: 'Switch',
+      description:
+        'Toggle switch component with form integration, boolean state management, and conditional field rendering.',
+    },
+    '/docs/components/date-time-picker': {
+      title: 'DateTimePicker',
+      description:
+        'Date and time picker component with form binding, validation rules, timezone support, and RBAC integration.',
+    },
+
+    // UI Components - Layout
+    '/docs/components/appshell': {
+      title: 'AppShell',
+      description:
+        'Application shell layout component with responsive sidebar, header, and content areas. Includes navigation, theme toggle, and mobile support.',
+    },
+
+    // UI Components - Navigation
+    '/docs/components/breadcrumbs': {
+      title: 'Breadcrumbs',
+      description:
+        'Navigation breadcrumbs component with auto-generated paths, customizable separators, and React Router integration.',
+    },
+    '/docs/components/top-bar': {
+      title: 'TopBar',
+      description:
+        'Application top bar component with branding, navigation links, user menu, and theme controls.',
+    },
+
+    // UI Components - Utilities
+    '/docs/components/confirm-dialog': {
+      title: 'ConfirmDialog',
+      description:
+        'Confirmation dialog component with customizable actions, promise-based API, and cancellation support.',
+    },
+    '/docs/components/snackbar': {
+      title: 'Snackbar',
+      description:
+        'Toast notification component with multiple variants, auto-dismiss, and queue management for user feedback.',
+    },
+
+    // UI Components - Actions
+    '/docs/components/button': {
+      title: 'Button',
+      description:
+        'Button component with RBAC integration, loading states, multiple variants, and form submission support.',
+    },
+
+    // Form System
+    '/docs/form-system/overview': {
+      title: 'Form System Overview',
+      description:
+        'Understand the Dashforge form system architecture with reactive state management, conditional logic, and automatic field dependencies.',
+    },
+    '/docs/form-system/quick-start': {
+      title: 'Form System Quick Start',
+      description:
+        'Get started with DashForm provider, field registration, validation, and form submission in minutes.',
+    },
+    '/docs/form-system/reactions': {
+      title: 'Reactions',
+      description:
+        'Master form reactions for automatic field updates, chained dependencies, async data fetching, and stale response protection.',
+    },
+    '/docs/form-system/dynamic-forms': {
+      title: 'Dynamic Forms',
+      description:
+        'Build dynamic forms with conditional visibility, runtime options, calculated values, and conditional validation.',
+    },
+    '/docs/form-system/patterns': {
+      title: 'Form Patterns',
+      description:
+        'Best practices for organizing reactions, separating concerns, error handling, testing strategies, and performance optimization.',
+    },
+    '/docs/form-system/api': {
+      title: 'Form System API',
+      description:
+        'Complete API reference for DashForm, ReactionDefinition, RunContext, FieldRuntimeState, and helper functions.',
+    },
+
+    // Access Control
+    '/docs/access-control/overview': {
+      title: 'Access Control Overview',
+      description:
+        'Implement role-based access control (RBAC) in Dashforge applications with subjects, permissions, roles, and policies.',
+    },
+    '/docs/access-control/quick-start': {
+      title: 'Access Control Quick Start',
+      description:
+        'Set up RBAC in your application with permission policies, role definitions, and component-level access control.',
+    },
+    '/docs/access-control/core-concepts': {
+      title: 'Access Control Core Concepts',
+      description:
+        'Deep dive into subjects, permissions, roles, policies, conditions, effect precedence, and wildcard support for RBAC.',
+    },
+    '/docs/access-control/dashforge': {
+      title: 'Dashforge RBAC Integration',
+      description:
+        'Integrate access control with Dashforge components for field-level permissions, conditional visibility, and UI action gating.',
+    },
+    '/docs/access-control/playground': {
+      title: 'RBAC Playground',
+      description:
+        'Interactive playground to experiment with role-based access control policies, permissions, and component behavior.',
+    },
+
+    // Theme System
+    '/docs/theme-system/design-tokens': {
+      title: 'Design Tokens',
+      description:
+        'Customize Dashforge theme with semantic design tokens, color intents, typography, spacing, and theme adapter configuration.',
+    },
+
+    // Guides
+    '/docs/guides/troubleshooting': {
+      title: 'Troubleshooting',
+      description:
+        'Debug common issues with field registration, value updates, stale closures, TypeScript errors, validation, and React Hook Form integration.',
+    },
+    '/docs/guides/testing': {
+      title: 'Testing',
+      description:
+        'Test Dashforge forms, reactions, conditional visibility, and RBAC with best practices, common patterns, and testing utilities.',
+    },
+  };
+
+  // Fallback for /docs (redirect to overview)
+  if (pathname === '/docs' || pathname === '/docs/') {
+    return docsMetadata['/docs/getting-started/overview'];
+  }
+
+  return (
+    docsMetadata[pathname] || {
+      title: 'Documentation',
+      description:
+        'Dashforge-UI documentation and guides for building production-ready React applications with forms, RBAC, and enterprise features.',
+    }
+  );
+}
+
 export function DocsPage() {
   const dashTheme = useDashTheme();
   const isDark = dashTheme.meta.mode === 'dark';
   const location = useLocation();
+
+  // Get SEO metadata for current page
+  const { title, description } = getDocsSEO(location.pathname);
 
   // Scroll to top when navigating between documentation pages
   useEffect(() => {
@@ -604,143 +819,151 @@ export function DocsPage() {
   );
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        color: 'text.primary',
-        bgcolor: isDark ? '#0b1220' : '#f8fafc',
-      }}
-    >
-      {/* ========================= TOP BAR ========================= */}
+    <>
+      <SEO
+        title={title}
+        description={description}
+        path={location.pathname}
+        type="article"
+      />
       <Box
-        component="header"
         sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          backdropFilter: 'blur(12px)',
-          bgcolor: isDark ? 'rgba(11,18,32,0.75)' : 'rgba(255,255,255,0.75)',
-          borderBottom: isDark
-            ? '1px solid rgba(255,255,255,0.08)'
-            : '1px solid rgba(15,23,42,0.06)',
+          minHeight: '100vh',
+          color: 'text.primary',
+          bgcolor: isDark ? '#0b1220' : '#f8fafc',
         }}
       >
+        {/* ========================= TOP BAR ========================= */}
         <Box
+          component="header"
           sx={{
-            px: { xs: 2, md: 3 },
-            py: 1.5,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+            backdropFilter: 'blur(12px)',
+            bgcolor: isDark ? 'rgba(11,18,32,0.75)' : 'rgba(255,255,255,0.75)',
+            borderBottom: isDark
+              ? '1px solid rgba(255,255,255,0.08)'
+              : '1px solid rgba(15,23,42,0.06)',
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={1.25}>
-            <Link underline="none" component={RouterLink} to="/">
-              <Typography
-                variant="h4"
-                component="div"
+          <Box
+            sx={{
+              px: { xs: 2, md: 3 },
+              py: 1.5,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1.25}>
+              <Link underline="none" component={RouterLink} to="/">
+                <Typography
+                  variant="h4"
+                  component="div"
+                  sx={{
+                    fontSize: { xs: 28, md: 36 },
+                    fontWeight: 800,
+                    letterSpacing: '-0.04em',
+                    lineHeight: 1.1,
+                    color: isDark ? '#ffffff' : '#0f172a',
+                    background: isDark
+                      ? 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)'
+                      : 'linear-gradient(135deg, #0f172a 0%, #6d28d9 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    textShadow: isDark
+                      ? '0 0 20px rgba(167,139,250,0.20)'
+                      : '0 1px 2px rgba(0,0,0,0.05)',
+                  }}
+                >
+                  Dashforge-UI
+                </Typography>
+              </Link>
+            </Stack>
+
+            <Stack
+              direction="row"
+              spacing={3}
+              sx={{ display: { xs: 'none', md: 'flex' } }}
+            >
+              {[
+                { label: 'Docs', to: '/docs' },
+                { label: 'Starter Kits', to: '/starter-kits' },
+              ].map((n) => (
+                <Link
+                  key={n.to}
+                  component={RouterLink}
+                  to={n.to}
+                  underline="none"
+                  sx={{
+                    fontSize: 14,
+                    fontWeight: n.to === '/docs' ? 600 : 400,
+                    color:
+                      n.to === '/docs'
+                        ? isDark
+                          ? 'rgba(255,255,255,0.95)'
+                          : 'rgba(15,23,42,0.95)'
+                        : isDark
+                        ? 'rgba(255,255,255,0.75)'
+                        : 'rgba(15,23,42,0.70)',
+                    '&:hover': {
+                      color: isDark
+                        ? 'rgba(255,255,255,0.95)'
+                        : 'rgba(15,23,42,0.95)',
+                    },
+                  }}
+                >
+                  {n.label}
+                </Link>
+              ))}
+            </Stack>
+
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <IconButton
+                onClick={toggleThemeMode}
+                size="small"
                 sx={{
-                  fontSize: { xs: 28, md: 36 },
-                  fontWeight: 800,
-                  letterSpacing: '-0.04em',
-                  lineHeight: 1.1,
-                  color: isDark ? '#ffffff' : '#0f172a',
-                  background: isDark
-                    ? 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)'
-                    : 'linear-gradient(135deg, #0f172a 0%, #6d28d9 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  textShadow: isDark
-                    ? '0 0 20px rgba(167,139,250,0.20)'
-                    : '0 1px 2px rgba(0,0,0,0.05)',
+                  color: isDark
+                    ? 'rgba(255,255,255,0.75)'
+                    : 'rgba(15,23,42,0.70)',
                 }}
               >
-                Dashforge-UI
-              </Typography>
-            </Link>
-          </Stack>
+                {isDark ? (
+                  <BrightnessLowIcon fontSize="small" />
+                ) : (
+                  <BedtimeIcon fontSize="small" />
+                )}
+              </IconButton>
 
-          <Stack
-            direction="row"
-            spacing={3}
-            sx={{ display: { xs: 'none', md: 'flex' } }}
-          >
-            {[
-              { label: 'Docs', to: '/docs' },
-              { label: 'Starter Kits', to: '/starter-kits' },
-            ].map((n) => (
-              <Link
-                key={n.to}
-                component={RouterLink}
-                to={n.to}
-                underline="none"
+              <Chip
+                label={DOCS_VERSION}
+                size="small"
+                variant="outlined"
+                aria-label="Documentation version"
                 sx={{
-                  fontSize: 14,
-                  fontWeight: n.to === '/docs' ? 600 : 400,
-                  color:
-                    n.to === '/docs'
-                      ? isDark
-                        ? 'rgba(255,255,255,0.95)'
-                        : 'rgba(15,23,42,0.95)'
-                      : isDark
-                      ? 'rgba(255,255,255,0.75)'
-                      : 'rgba(15,23,42,0.70)',
-                  '&:hover': {
-                    color: isDark
-                      ? 'rgba(255,255,255,0.95)'
-                      : 'rgba(15,23,42,0.95)',
+                  height: 24,
+                  fontWeight: 500,
+                  fontSize: 12,
+                  borderColor: isDark
+                    ? 'rgba(255,255,255,0.20)'
+                    : 'rgba(15,23,42,0.20)',
+                  color: isDark
+                    ? 'rgba(255,255,255,0.75)'
+                    : 'rgba(15,23,42,0.75)',
+                  '& .MuiChip-label': {
+                    px: 1.5,
                   },
                 }}
-              >
-                {n.label}
-              </Link>
-            ))}
-          </Stack>
-
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <IconButton
-              onClick={toggleThemeMode}
-              size="small"
-              sx={{
-                color: isDark
-                  ? 'rgba(255,255,255,0.75)'
-                  : 'rgba(15,23,42,0.70)',
-              }}
-            >
-              {isDark ? (
-                <BrightnessLowIcon fontSize="small" />
-              ) : (
-                <BedtimeIcon fontSize="small" />
-              )}
-            </IconButton>
-
-            <Chip
-              label={DOCS_VERSION}
-              size="small"
-              variant="outlined"
-              aria-label="Documentation version"
-              sx={{
-                height: 24,
-                fontWeight: 500,
-                fontSize: 12,
-                borderColor: isDark
-                  ? 'rgba(255,255,255,0.20)'
-                  : 'rgba(15,23,42,0.20)',
-                color: isDark
-                  ? 'rgba(255,255,255,0.75)'
-                  : 'rgba(15,23,42,0.75)',
-                '& .MuiChip-label': {
-                  px: 1.5,
-                },
-              }}
-            />
-          </Stack>
+              />
+            </Stack>
+          </Box>
         </Box>
-      </Box>
 
-      {/* ========================= DOCS LAYOUT ========================= */}
-      <DocsLayout tocItems={tocItems}>{docsContent}</DocsLayout>
-    </Box>
+        {/* ========================= DOCS LAYOUT ========================= */}
+        <DocsLayout tocItems={tocItems}>{docsContent}</DocsLayout>
+      </Box>
+    </>
   );
 }
