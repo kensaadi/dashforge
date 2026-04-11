@@ -4,16 +4,6 @@
   "sourceRoot": "libs/dashforge/ui-core/src",
   "projectType": "library",
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/dashforge/ui-core",
-        "main": "libs/dashforge/ui-core/src/index.ts",
-        "tsConfig": "libs/dashforge/ui-core/tsconfig.lib.json",
-        "assets": ["libs/dashforge/ui-core/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],

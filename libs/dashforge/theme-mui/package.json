@@ -1,7 +1,22 @@
 {
   "name": "@dashforge/theme-mui",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.0-alpha",
+  "description": "Material-UI theme integration for Dashforge design system",
+  "keywords": [
+    "dashforge",
+    "theme",
+    "mui",
+    "material-ui",
+    "design-system"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dashforge/dashforge.git",
+    "directory": "libs/dashforge/theme-mui"
+  },
+  "homepage": "https://github.com/dashforge/dashforge#readme",
+  "bugs": "https://github.com/dashforge/dashforge/issues",
+  "private": false,
   "type": "module",
   "main": "./dist/index.esm.js",
   "module": "./dist/index.esm.js",
@@ -15,10 +30,17 @@
     }
   },
   "dependencies": {
-    "@dashforge/tokens": "workspace:*",
-    "@dashforge/theme-core": "workspace:*",
+    "@dashforge/tokens": "^0.1.0-alpha",
+    "@dashforge/theme-core": "^0.1.0-alpha",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.3.8"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,11 +1,34 @@
-# theme-core
+# @dashforge/theme-core
 
-This library was generated with [Nx](https://nx.dev).
+Framework-agnostic theme foundation for Dashforge.
 
-## Building
+## Installation
 
-Run `nx build theme-core` to build the library.
+```bash
+npm install @dashforge/theme-core @dashforge/tokens
+```
 
-## Running unit tests
+## Usage
 
-Run `nx test theme-core` to execute the unit tests via [Vitest](https://vitest.dev/).
+```typescript
+import { createTheme } from '@dashforge/theme-core';
+
+const theme = createTheme({
+  // Theme configuration
+});
+```
+
+## Features
+
+- Framework-agnostic theme structure
+- Built on `@dashforge/tokens`
+- Type-safe theme configuration
+- Extensible and composable
+
+## TypeScript Support
+
+Full TypeScript type definitions included.
+
+## License
+
+MIT

@@ -1,7 +1,8 @@
 {
   "name": "@dashforge/tokens",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.0-alpha",
+  "description": "Design tokens for Dashforge UI framework",
+  "private": false,
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -16,5 +17,25 @@
   },
   "dependencies": {
     "tslib": "^2.3.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "dashforge",
+    "design-tokens",
+    "theme"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dashforge/dashforge"
+  },
+  "homepage": "https://github.com/dashforge/dashforge#readme",
+  "bugs": {
+    "url": "https://github.com/dashforge/dashforge/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

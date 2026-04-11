@@ -1,23 +1,45 @@
 {
   "name": "@dashforge/ui-core",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
+  "description": "Core React utilities and animations for Dashforge UI components",
+  "keywords": [
+    "dashforge",
+    "ui-core",
+    "react",
+    "utilities",
+    "animations"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dashforge/dashforge.git",
+    "directory": "libs/dashforge/ui-core"
+  },
+  "homepage": "https://github.com/dashforge/dashforge#readme",
+  "bugs": "https://github.com/dashforge/dashforge/issues",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.esm.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.esm.d.ts",
   "exports": {
+    "./package.json": "./package.json",
     ".": {
-      "import": "./src/index.ts",
-      "types": "./src/index.ts"
+      "types": "./dist/index.esm.d.ts",
+      "import": "./dist/index.esm.js",
+      "default": "./dist/index.esm.js"
     },
-    "./animations.css": "./src/animations/animations.css"
+    "./animations.css": "./dist/animations/animations.css"
   },
   "dependencies": {
     "valtio": "2.3.0",
     "tslib": "^2.0.0"
   },
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "publishConfig": {
     "access": "public"
   }

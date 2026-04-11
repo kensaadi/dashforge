@@ -19,6 +19,7 @@ module.exports = withNx(
       '@emotion/styled',
     ],
     format: ['esm'],
+    sourcemap: true,
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
   },
   {

@@ -10,6 +10,7 @@ module.exports = withNx(
     compiler: 'babel',
     external: ['react', 'react-dom', 'react/jsx-runtime', '@dashforge/ui-core'],
     format: ['esm'],
+    sourcemap: true,
     assets: [{ input: '.', output: '.', glob: 'README.md' }],
   },
   {

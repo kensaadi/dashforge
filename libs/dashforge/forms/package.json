@@ -1,6 +1,21 @@
 {
   "name": "@dashforge/forms",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha",
+  "description": "Type-safe form bridge for react-hook-form with Dashforge UI components",
+  "keywords": [
+    "dashforge",
+    "forms",
+    "react-hook-form",
+    "validation",
+    "form-bridge"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dashforge/dashforge.git",
+    "directory": "libs/dashforge/forms"
+  },
+  "homepage": "https://github.com/dashforge/dashforge#readme",
+  "bugs": "https://github.com/dashforge/dashforge/issues",
   "type": "module",
   "main": "./dist/index.esm.js",
   "module": "./dist/index.esm.js",
@@ -18,7 +33,14 @@
     "react-hook-form": "^7.71.1"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "@dashforge/ui-core": "workspace:*"
+    "react": "^18.0.0 || ^19.0.0",
+    "@dashforge/ui-core": "^0.1.0-alpha"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

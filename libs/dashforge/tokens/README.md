@@ -1,11 +1,38 @@
-# tokens
+# @dashforge/tokens
 
-This library was generated with [Nx](https://nx.dev).
+Design tokens for the Dashforge design system.
 
-## Building
+## Installation
 
-Run `nx build tokens` to build the library.
+```bash
+npm install @dashforge/tokens
+```
 
-## Running unit tests
+## Usage
 
-Run `nx test tokens` to execute the unit tests via [Vitest](https://vitest.dev/).
+```typescript
+import { colors, typography, spacing, breakpoints } from '@dashforge/tokens';
+
+// Use design tokens in your application
+const primaryColor = colors.primary.main;
+const headingFont = typography.fontFamily.heading;
+const baseSpacing = spacing.base;
+```
+
+## Contents
+
+This package provides standardized design tokens for:
+
+- **Colors**: Primary, secondary, semantic colors
+- **Typography**: Font families, sizes, weights, line heights
+- **Spacing**: Consistent spacing scale
+- **Breakpoints**: Responsive design breakpoints
+- **Elevation**: Shadow and depth tokens
+
+## TypeScript Support
+
+Full TypeScript type definitions included.
+
+## License
+
+MIT

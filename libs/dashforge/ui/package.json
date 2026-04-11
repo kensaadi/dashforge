@@ -1,6 +1,23 @@
 {
   "name": "@dashforge/ui",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha",
+  "description": "Comprehensive MUI-based UI component library with form integration and RBAC support",
+  "keywords": [
+    "dashforge",
+    "ui",
+    "components",
+    "mui",
+    "react",
+    "forms",
+    "rbac"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dashforge/dashforge.git",
+    "directory": "libs/dashforge/ui"
+  },
+  "homepage": "https://github.com/dashforge/dashforge#readme",
+  "bugs": "https://github.com/dashforge/dashforge/issues",
   "type": "module",
   "main": "./dist/index.esm.js",
   "module": "./dist/index.esm.js",
@@ -15,8 +32,8 @@
     }
   },
   "peerDependencies": {
-    "@dashforge/rbac": "workspace:*",
-    "@dashforge/ui-core": "workspace:*",
+    "@dashforge/rbac": "^0.1.0-alpha",
+    "@dashforge/ui-core": "^0.1.0-alpha",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
     "@mui/material": "^7.0.0",
@@ -37,5 +54,12 @@
   },
   "dependencies": {
     "motion": "^12.34.3"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

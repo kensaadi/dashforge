@@ -4,16 +4,6 @@
   "sourceRoot": "libs/dashforge/rbac/src",
   "projectType": "library",
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/dashforge/rbac",
-        "main": "libs/dashforge/rbac/src/index.ts",
-        "tsConfig": "libs/dashforge/rbac/tsconfig.lib.json",
-        "assets": ["libs/dashforge/rbac/*.md"]
-      }
-    },
     "test": {
       "executor": "@nx/vite:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
