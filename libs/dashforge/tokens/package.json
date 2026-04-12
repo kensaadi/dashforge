@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/tokens",
-  "version": "0.1.1-alpha",
+  "version": "0.1.2-alpha",
   "description": "Design tokens for Dashforge UI framework",
   "license": "MIT",
   "private": false,
