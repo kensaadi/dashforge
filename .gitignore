@@ -8,6 +8,9 @@ out-tsc
 # dependencies
 node_modules
 
+.opencode/
+.cloude/
+
 # IDEs and editors
 /.idea
 .project
