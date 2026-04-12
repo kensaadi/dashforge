@@ -2,6 +2,7 @@
   "name": "@dashforge/theme-mui",
   "version": "0.1.0-alpha",
   "description": "Material-UI theme integration for Dashforge design system",
+  "license": "MIT",
   "keywords": [
     "dashforge",
     "theme",
@@ -33,10 +34,12 @@
   },
   "dependencies": {
     "@dashforge/tokens": "^0.1.0-alpha",
-    "@dashforge/theme-core": "^0.1.0-alpha",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/material": "^7.3.8"
+    "@dashforge/theme-core": "^0.1.0-alpha"
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "@mui/material": "^7.0.0"
   },
   "files": [
     "dist",

@@ -1,5 +1,5 @@
 import { useSnapshot } from 'valtio';
-import { themeStore } from '../store/theme.store';
+import { themeStore } from '../store/theme.store.js';
 
 /**
  * Reactive hook for Dashforge theme

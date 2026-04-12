@@ -11,7 +11,7 @@
     "moduleResolution": "bundler",
     "rootDir": "src",
     "jsx": "react-jsx",
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo"
+    "tsBuildInfoFile": ".tsbuildinfo"
   },
   "exclude": [
     "out-tsc",

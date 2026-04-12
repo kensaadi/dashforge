@@ -1,4 +1,4 @@
-import { DashforgeTheme } from './types';
+import { DashforgeTheme } from './types.js';
 
 export const defaultLightTheme: DashforgeTheme = {
   meta: {

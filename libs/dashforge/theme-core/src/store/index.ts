@@ -1,2 +1,2 @@
-export * from './theme.actions';
-export * from './theme.store';
+export * from './theme.actions.js';
+export * from './theme.store.js';

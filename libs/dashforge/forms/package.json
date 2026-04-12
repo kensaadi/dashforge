@@ -2,6 +2,7 @@
   "name": "@dashforge/forms",
   "version": "0.1.0-alpha",
   "description": "Type-safe form bridge for react-hook-form with Dashforge UI components",
+  "license": "MIT",
   "keywords": [
     "dashforge",
     "forms",

@@ -1,3 +1,7 @@
-export { useDashTheme } from './hooks/useDashTheme';
-export { replaceTheme, patchTheme } from './store/theme.actions';
-export { setTheme, setThemeMode, toggleThemeMode } from './store/theme.store';
+export { useDashTheme } from './hooks/useDashTheme.js';
+export { replaceTheme, patchTheme } from './store/theme.actions.js';
+export {
+  setTheme,
+  setThemeMode,
+  toggleThemeMode,
+} from './store/theme.store.js';

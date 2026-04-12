@@ -2,6 +2,7 @@
   "name": "@dashforge/theme-core",
   "version": "0.1.0-alpha",
   "description": "Core theming system for Dashforge",
+  "license": "MIT",
   "private": false,
   "type": "module",
   "main": "./dist/index.js",

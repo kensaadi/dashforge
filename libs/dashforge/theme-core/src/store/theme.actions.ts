@@ -1,5 +1,5 @@
 import type { DashforgeTheme } from '@dashforge/tokens';
-import { themeStore } from './theme.store';
+import { themeStore } from './theme.store.js';
 
 /**
  * DeepPartial utility

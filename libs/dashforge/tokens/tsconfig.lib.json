@@ -4,9 +4,11 @@
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "tsBuildInfoFile": ".tsbuildinfo",
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
+    "module": "node16",
+    "moduleResolution": "node16",
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
