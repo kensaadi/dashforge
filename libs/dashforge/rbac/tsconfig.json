@@ -4,8 +4,6 @@
     "module": "esnext",
     "lib": ["ES2020"],
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
