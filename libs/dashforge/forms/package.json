@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/forms",
-  "version": "0.1.0-alpha",
+  "version": "0.1.1-alpha",
   "description": "Type-safe form bridge for react-hook-form with Dashforge UI components",
   "license": "MIT",
   "keywords": [
@@ -37,7 +37,7 @@
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
-    "@dashforge/ui-core": "^0.1.0-alpha"
+    "@dashforge/ui-core": "^0.1.1-alpha"
   },
   "files": [
     "dist",
