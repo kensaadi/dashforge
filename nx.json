@@ -106,6 +106,9 @@
     "version": {
       "conventionalCommits": false,
       "preserveMatchingDependencyRanges": false,
+      "versionActionsOptions": {
+        "skipLockFileUpdate": true
+      },
       "git": {
         "commit": true,
         "tag": true,
