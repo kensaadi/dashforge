@@ -11,11 +11,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dashforge/dashforge.git",
+    "url": "git+https://github.com/kensaadi/dashforge.git",
     "directory": "libs/dashforge/ui-core"
   },
-  "homepage": "https://github.com/dashforge/dashforge#readme",
-  "bugs": "https://github.com/dashforge/dashforge/issues",
+  "homepage": "https://github.com/kensaadi/dashforge/tree/main/libs/dashforge/ui-core",
+  "bugs": {
+    "url": "https://github.com/kensaadi/dashforge/issues"
+  },
   "type": "module",
   "main": "./dist/index.esm.js",
   "module": "./dist/index.esm.js",

@@ -31,11 +31,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dashforge/dashforge"
+    "url": "git+https://github.com/kensaadi/dashforge.git",
+    "directory": "libs/dashforge/theme-core"
   },
-  "homepage": "https://github.com/dashforge/dashforge#readme",
+  "homepage": "https://github.com/kensaadi/dashforge/tree/main/libs/dashforge/theme-core",
   "bugs": {
-    "url": "https://github.com/dashforge/dashforge/issues"
+    "url": "https://github.com/kensaadi/dashforge/issues"
   },
   "publishConfig": {
     "access": "public"

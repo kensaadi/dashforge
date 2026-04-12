@@ -11,11 +11,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dashforge/dashforge.git",
+    "url": "git+https://github.com/kensaadi/dashforge.git",
     "directory": "libs/dashforge/theme-mui"
   },
-  "homepage": "https://github.com/dashforge/dashforge#readme",
-  "bugs": "https://github.com/dashforge/dashforge/issues",
+  "homepage": "https://github.com/kensaadi/dashforge/tree/main/libs/dashforge/theme-mui",
+  "bugs": {
+    "url": "https://github.com/kensaadi/dashforge/issues"
+  },
   "private": false,
   "type": "module",
   "main": "./dist/index.esm.js",
