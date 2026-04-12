@@ -24,17 +24,18 @@
   "type": "module",
   "main": "./dist/index.esm.js",
   "module": "./dist/index.esm.js",
-  "types": "./dist/index.esm.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "@org/source": "./src/index.ts",
-      "types": "./dist/index.esm.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
       "default": "./dist/index.esm.js"
     }
   },
   "peerDependencies": {
+    "@dashforge/forms": "^0.1.0-alpha",
     "@dashforge/rbac": "^0.1.0-alpha",
     "@dashforge/ui-core": "^0.1.0-alpha",
     "@emotion/react": "^11.0.0",
