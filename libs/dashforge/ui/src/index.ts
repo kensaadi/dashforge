@@ -38,6 +38,9 @@ export type {
   DateTimePickerMode,
 } from './components/DateTimePicker/DateTimePicker';
 
+export { OTPField } from './components/OTPField/OTPField';
+export type { OTPFieldProps } from './components/OTPField/otpField.types';
+
 export { Breadcrumbs } from './components/Breadcrumbs/Breadcrumbs';
 export type { BreadcrumbsProps } from './components/Breadcrumbs/Breadcrumbs';
 export type {
