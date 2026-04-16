@@ -108,6 +108,11 @@ export const docsSidebarTree: DocsSidebarGroup[] = [
           },
           {
             type: 'link',
+            label: 'OTPField',
+            path: '/docs/components/otp-field',
+          },
+          {
+            type: 'link',
             label: 'Select',
             path: '/docs/components/select',
           },

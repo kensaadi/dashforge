@@ -20,6 +20,7 @@ import { SEO } from '../../components/seo/SEO';
 import { TextFieldDocs } from './components/text-field/TextFieldDocs';
 import { TextareaDocs } from './components/textarea/TextareaDocs';
 import { NumberFieldDocs } from './components/number-field/NumberFieldDocs';
+import { OTPFieldDocs } from './components/otp-field/OTPFieldDocs';
 import { SelectDocs } from './components/select/SelectDocs';
 import { AutocompleteDocs } from './components/autocomplete/AutocompleteDocs';
 import { CheckboxDocs } from './components/checkbox/CheckboxDocs';
@@ -72,6 +73,14 @@ const numberFieldTocItems: DocsTocItem[] = [
   { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'access-control', label: 'Access Control (RBAC)' },
   { id: 'scenarios', label: 'Form Integration' },
+  { id: 'api', label: 'API' },
+  { id: 'notes', label: 'Under the hood' },
+];
+
+const otpFieldTocItems: DocsTocItem[] = [
+  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'capabilities', label: 'Dashforge Capabilities' },
   { id: 'api', label: 'API' },
   { id: 'notes', label: 'Under the hood' },
 ];
@@ -443,6 +452,11 @@ function getDocsSEO(pathname: string): { title: string; description: string } {
       description:
         'Numeric input component with min/max validation, step controls, form integration, and RBAC-ready field access.',
     },
+    '/docs/components/otp-field': {
+      title: 'OTPField',
+      description:
+        'Slot-based OTP input component for verification codes, 2FA, and SMS tokens. Supports numeric, alphanumeric, and alpha modes with paste handling and mobile autofill.',
+    },
     '/docs/components/select': {
       title: 'Select',
       description:
@@ -622,6 +636,7 @@ export function DocsPage() {
   const isTextFieldDocs = location.pathname === '/docs/components/text-field';
   const isNumberFieldDocs =
     location.pathname === '/docs/components/number-field';
+  const isOTPFieldDocs = location.pathname === '/docs/components/otp-field';
   const isTextareaDocs = location.pathname === '/docs/components/textarea';
   const isSelectDocs = location.pathname === '/docs/components/select';
   const isCheckboxDocs = location.pathname === '/docs/components/checkbox';
@@ -680,6 +695,8 @@ export function DocsPage() {
     ? textFieldTocItems
     : isNumberFieldDocs
     ? numberFieldTocItems
+    : isOTPFieldDocs
+    ? otpFieldTocItems
     : isTextareaDocs
     ? textareaTocItems
     : isSelectDocs
@@ -750,6 +767,8 @@ export function DocsPage() {
     <TextFieldDocs />
   ) : isNumberFieldDocs ? (
     <NumberFieldDocs />
+  ) : isOTPFieldDocs ? (
+    <OTPFieldDocs />
   ) : isTextareaDocs ? (
     <TextareaDocs />
   ) : isSelectDocs ? (
