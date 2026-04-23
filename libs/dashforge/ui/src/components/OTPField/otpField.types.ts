@@ -57,7 +57,7 @@ export interface OTPFieldProps
 
   /**
    * Auto-focus first slot on mount
-   * @default false
+   * @default true
    */
   autoFocus?: boolean;
 

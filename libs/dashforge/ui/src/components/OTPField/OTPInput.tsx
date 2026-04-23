@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import type { OTPInputProps } from './otpField.types';
 import { isValidChar, parsePasteContent } from './otpField.logic';
@@ -9,8 +9,10 @@ import { getSlotStyles, getSlotsContainerStyles } from './otpField.styles';
  *
  * OTPInput primitive handles slot rendering, caret synchronization, and user input.
  *
- * CRITICAL: The native input's selectionStart/selectionEnd are the ONLY source of truth
- * for which visual slot is highlighted. NO independent focus state exists.
+ * Active slot strategy: `activeSlot` is a React state so that arrow key navigation
+ * and any caret move that does NOT change `value` still triggers a re-render and
+ * updates the visual highlight. `setCaretToSlot` keeps the hidden DOM input in sync.
+ * `isFocused` gates the highlight — no slot appears active when the field is blurred.
  */
 export function OTPInput(props: OTPInputProps): React.ReactElement {
   const {
@@ -20,13 +22,15 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
     length,
     mode,
     disabled = false,
-    autoFocus = false,
+    autoFocus = true,
     onComplete,
     error = false,
     inputProps = {},
   } = props;
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [activeSlot, setActiveSlot] = useState(0);
 
   // Auto-focus on mount if requested
   useEffect(() => {
@@ -36,28 +40,23 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
   }, [autoFocus]);
 
   /**
-   * CRITICAL: Derive active slot index from input caret (READ from DOM)
-   * NO useState or useRef caching - always read fresh from DOM
-   */
-  const getActiveSlotIndex = (): number => {
-    const input = inputRef.current;
-    if (!input) return 0;
-    // selectionStart is the caret position (0-indexed)
-    // Clamp to valid slot range
-    return Math.min(input.selectionStart ?? 0, length - 1);
-  };
-
-  /**
-   * CRITICAL: Sync input caret to desired slot index (WRITE to DOM)
-   * Only way to change which slot is visually active
+   * Sync DOM caret to the desired slot (WRITE only — does not trigger re-render)
    */
   const setCaretToSlot = (slotIndex: number) => {
     const input = inputRef.current;
     if (!input) return;
-    // Clamp only to valid slot bounds, NOT value.length
-    // This allows clicking/moving to empty future slots
     const position = Math.max(0, Math.min(slotIndex, length - 1));
     input.setSelectionRange(position, position);
+  };
+
+  /**
+   * Move both the visual highlight and the DOM caret to a slot.
+   * Use this for any navigation that does NOT change `value`.
+   */
+  const moveTo = (slotIndex: number) => {
+    const clamped = Math.max(0, Math.min(slotIndex, length - 1));
+    setActiveSlot(clamped);
+    setCaretToSlot(clamped);
   };
 
   /**
@@ -66,26 +65,21 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
 
-    // Sanitize based on mode
     let sanitized = '';
     for (const char of newValue) {
       if (isValidChar(char, mode)) {
         sanitized += char;
       }
     }
-
-    // Truncate to max length
     sanitized = sanitized.slice(0, length);
 
-    // Update value
     onChange(sanitized);
+    // Advance highlight to next empty slot (or stay at last)
+    setActiveSlot(Math.min(sanitized.length, length - 1));
 
-    // Check for completion
     if (sanitized.length === length && onComplete) {
       onComplete(sanitized);
     }
-
-    // Caret will be automatically positioned by browser after value update
   };
 
   /**
@@ -100,35 +94,36 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
     switch (e.key) {
       case 'ArrowLeft':
         e.preventDefault();
-        setCaretToSlot(Math.max(0, currentPos - 1));
+        moveTo(Math.max(0, currentPos - 1));
         break;
 
       case 'ArrowRight':
         e.preventDefault();
-        setCaretToSlot(Math.min(length - 1, currentPos + 1));
+        moveTo(Math.min(length - 1, currentPos + 1));
         break;
 
       case 'Home':
         e.preventDefault();
-        setCaretToSlot(0);
+        moveTo(0);
         break;
 
       case 'End':
         e.preventDefault();
-        // Place caret AFTER last entered character (at value.length)
-        setCaretToSlot(value.length);
+        moveTo(value.length); // moveTo clamps to length-1
         break;
 
-      case 'Backspace':
-        if (currentPos > 0 && value.length > 0) {
+      case 'Backspace': {
+        const effectivePos = Math.min(currentPos, value.length);
+        if (effectivePos > 0) {
           e.preventDefault();
           const newValue =
-            value.slice(0, currentPos - 1) + value.slice(currentPos);
+            value.slice(0, effectivePos - 1) + value.slice(effectivePos);
           onChange(newValue);
-          // Position caret after deletion
-          setTimeout(() => setCaretToSlot(currentPos - 1), 0);
+          setActiveSlot(effectivePos - 1);
+          setTimeout(() => setCaretToSlot(effectivePos - 1), 0);
         }
         break;
+      }
 
       case 'Delete':
         if (currentPos < value.length) {
@@ -136,20 +131,19 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
           const newValue =
             value.slice(0, currentPos) + value.slice(currentPos + 1);
           onChange(newValue);
-          // Keep caret at same position
+          // Slot stays at currentPos — the next char shifts into view
+          setActiveSlot(Math.min(currentPos, length - 1));
           setTimeout(() => setCaretToSlot(currentPos), 0);
         }
         break;
 
       default:
-        // Allow other keys to be handled by default input behavior
         break;
     }
   };
 
   /**
    * Handle paste events
-   * CRITICAL: Insert pasted content at current caret position
    */
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -157,34 +151,25 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
     const input = inputRef.current;
     if (!input) return;
 
-    // Get current caret position
     const currentPos = input.selectionStart ?? 0;
-
-    // Get clipboard content and sanitize
     const clipboardData = e.clipboardData.getData('text');
     const pasteResult = parsePasteContent(clipboardData, mode, length);
 
     if (pasteResult.valid && pasteResult.sanitized.length > 0) {
-      // Insert pasted content at current caret position
       const beforeCaret = value.slice(0, currentPos);
       const afterCaret = value.slice(currentPos);
       const combined = beforeCaret + pasteResult.sanitized + afterCaret;
-
-      // Truncate to max length
       const newValue = combined.slice(0, length);
 
       onChange(newValue);
 
-      // Position caret after pasted content
       const newCaretPos = Math.min(
         currentPos + pasteResult.sanitized.length,
         length - 1
       );
-      setTimeout(() => {
-        setCaretToSlot(newCaretPos);
-      }, 0);
+      setActiveSlot(newCaretPos);
+      setTimeout(() => setCaretToSlot(newCaretPos), 0);
 
-      // Check for completion
       if (newValue.length === length && onComplete) {
         onComplete(newValue);
       }
@@ -193,23 +178,31 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
 
   /**
    * Handle click on visual slot
-   * CRITICAL: Manipulate caret, not state
    */
   const handleSlotClick = (slotIndex: number) => {
     inputRef.current?.focus();
-    setCaretToSlot(slotIndex);
+    // handleFocus fires synchronously inside focus() and snaps to value.length;
+    // we override immediately after to the clicked slot.
+    moveTo(slotIndex);
+  };
+
+  /**
+   * Handle focus: snap to first empty slot
+   */
+  const handleFocus = () => {
+    setIsFocused(true);
+    const snapTo = Math.min(value.length, length - 1);
+    setActiveSlot(snapTo);
+    setCaretToSlot(snapTo);
   };
 
   /**
    * Handle blur
    */
   const handleBlur = () => {
+    setIsFocused(false);
     onBlur?.();
   };
-
-  // CRITICAL: Derive active slot index from caret on EVERY render
-  // NO useState or cached value - always read fresh from DOM
-  const activeSlotIndex = getActiveSlotIndex();
 
   return (
     <Box sx={{ position: 'relative', width: '100%' }}>
@@ -224,6 +217,7 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
+        onFocus={handleFocus}
         onBlur={handleBlur}
         disabled={disabled}
         autoFocus={autoFocus}
@@ -239,7 +233,6 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
           whiteSpace: 'nowrap',
           border: 0,
         }}
-        // CRITICAL: Input MUST remain accessible (no aria-hidden, no pointerEvents:none)
       />
 
       {/* Visual slot display (decorative) */}
@@ -252,7 +245,7 @@ export function OTPInput(props: OTPInputProps): React.ReactElement {
           <Box
             key={i}
             onClick={() => !disabled && handleSlotClick(i)}
-            sx={getSlotStyles(i === activeSlotIndex, error, disabled)}
+            sx={getSlotStyles(isFocused && i === activeSlot, error, disabled)}
           >
             {value[i] || ''}
           </Box>

@@ -339,6 +339,24 @@ describe('OTPInput - Internal Primitive', () => {
       expect(onChange).toHaveBeenCalledWith('13');
     });
 
+    it('Backspace with caret beyond value.length deletes last character', () => {
+      const onChange = vi.fn();
+      render(
+        <OTPInput {...defaultProps} value="123" onChange={onChange} length={6} />
+      );
+      const input = screen.getByRole('textbox', {
+        hidden: true,
+      }) as HTMLInputElement;
+
+      // Caret at position 5 (empty slot, beyond value.length=3)
+      input.setSelectionRange(5, 5);
+
+      fireEvent.keyDown(input, { key: 'Backspace' });
+
+      // Should delete last character ('3'), not silently do nothing
+      expect(onChange).toHaveBeenCalledWith('12');
+    });
+
     it('handles Delete key', () => {
       const onChange = vi.fn();
       render(<OTPInput {...defaultProps} value="123" onChange={onChange} />);
@@ -532,6 +550,36 @@ describe('OTPInput - Internal Primitive', () => {
       fireEvent.blur(input);
 
       expect(onBlur).toHaveBeenCalled();
+    });
+  });
+
+  describe('Focus Handling', () => {
+    it('onFocus snaps caret to first empty slot', () => {
+      render(<OTPInput {...defaultProps} value="123" length={6} />);
+      const input = screen.getByRole('textbox', {
+        hidden: true,
+      }) as HTMLInputElement;
+
+      const setSelectionRangeSpy = vi.spyOn(input, 'setSelectionRange');
+
+      fireEvent.focus(input);
+
+      // value.length = 3, so caret should snap to slot 3
+      expect(setSelectionRangeSpy).toHaveBeenCalledWith(3, 3);
+    });
+
+    it('onFocus clamps caret to length-1 when value is full', () => {
+      render(<OTPInput {...defaultProps} value="123456" length={6} />);
+      const input = screen.getByRole('textbox', {
+        hidden: true,
+      }) as HTMLInputElement;
+
+      const setSelectionRangeSpy = vi.spyOn(input, 'setSelectionRange');
+
+      fireEvent.focus(input);
+
+      // value.length = 6 = length, so clamp to length-1 = 5
+      expect(setSelectionRangeSpy).toHaveBeenCalledWith(5, 5);
     });
   });
 

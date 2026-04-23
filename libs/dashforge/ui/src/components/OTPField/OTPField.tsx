@@ -67,7 +67,7 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
     length = 6,
     mode = 'numeric',
     onComplete,
-    autoFocus = false,
+    autoFocus = true,
     label,
     required = false,
     fullWidth = false,
