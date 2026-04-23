@@ -1,3 +1,10 @@
+export interface PricingTier {
+  name: string;
+  price: number;
+  purchaseUrl: string;
+  highlight?: boolean;
+}
+
 export interface StarterKit {
   id: string;
   name: string;
@@ -13,6 +20,8 @@ export interface StarterKit {
   purchaseUrl: string;
   overview: string;
   tags: string[];
+  pricingTiers?: PricingTier[];
+  licenseUrl?: string;
 }
 
 export const starterKits: StarterKit[] = [
@@ -20,110 +29,147 @@ export const starterKits: StarterKit[] = [
     id: 'registration-app',
     name: 'Registration Kit',
     shortDescription:
-      'Complete user registration system with email verification and multi-step forms',
+      'Full-stack auth starter: registration, login, 2FA, and password reset — React + Express + MongoDB',
     longDescription:
-      'A comprehensive registration system built with DashForm, featuring multi-step flows, email verification, password strength validation, and user profile management.',
+      'A complete authentication system with React frontend and Express/MongoDB backend. Covers every auth flow out of the box: OTP-based registration, login, TOTP two-factor authentication, and forgot/reset password. Swap to mock mode to develop the entire frontend without a running server.',
     icon: 'IconUserPlus',
     iconColor: 'purple',
-    price: 99,
+    price: 149,
     currency: 'USD',
-    version: '1.2.0',
-    lastUpdated: 'March 15, 2024',
+    version: '1.0.0',
+    lastUpdated: 'April 2025',
     previewUrl: '#',
     purchaseUrl: '#',
-    overview: `# Welcome to Registration Kit
+    pricingTiers: [
+      { name: 'Developer', price: 149, purchaseUrl: '#' },
+      { name: 'Team', price: 349, purchaseUrl: '#', highlight: true },
+      { name: 'Extended', price: 599, purchaseUrl: '#' },
+    ],
+    licenseUrl: '#',
+    overview: `# Registration Kit
 
-A production-ready user registration system designed for modern web applications. Built with DashForm and Material-UI, this starter kit provides everything you need to implement a secure and user-friendly registration flow.
+A full-stack authentication starter designed for modern web applications. It ships a working React client, an Express API, and a MongoDB data layer — all connected and ready to customise.
 
 ## What's Included
 
-- **Multi-step Registration Forms** - Split complex registration into manageable steps with progress indicators
-- **Email Verification** - Built-in email verification system with customizable templates
-- **Password Strength Validation** - Real-time password strength meter and validation rules
-- **User Profile Management** - Complete profile editing interface with form validation
-- **Social Login Integration** - Ready-to-use social authentication (Google, GitHub, Facebook)
-- **Account Recovery** - Password reset and account recovery flows
-- **Email Templates** - Professional HTML email templates for verification and notifications
+- **Registration with OTP** — user signs up, receives a one-time code by email, activates the account
+- **Login** — credential-based login with JWT; token validity configurable via \`JWT_EXPIRES_IN\`
+- **Two-Factor Authentication** — TOTP setup via QR code (compatible with Authenticator apps), backup codes included
+- **Forgot / Reset Password** — email OTP flow for secure password recovery
+- **User Profile** — read and update profile data, change password, enable/disable 2FA
+- **Mock Provider** — set \`VITE_PROVIDER=mock\` to run the full client without a backend; every flow works with simulated responses
+- **Provider Pattern** — swap auth/user implementations via a single env variable; drop in your own API without touching UI code
 
 ## Tech Stack
 
-- React 18
-- TypeScript
-- DashForm for form management
-- Material-UI components
-- React Router for navigation
-- Vite for blazing-fast development
+**Client**
+- React 18 + TypeScript
+- Material-UI v7
+- Valtio (state management)
+- React Hook Form
+- React Router v6
+- Vite 8
+
+**Server**
+- Express 4 + TypeScript
+- Mongoose / MongoDB
+- JWT authentication
+- Nodemailer (email OTP)
+
+**Shared**
+- DTOs and types shared between client and server via \`@shared\` path alias
+- Zod validation on shared schemas
 
 ## Getting Started
 
-1. Download and extract the starter kit
-2. Install dependencies: \`npm install\`
-3. Configure environment variables: Copy \`.env.example\` to \`.env\`
-4. Start development server: \`npm run dev\`
-5. Open your browser at \`http://localhost:5173\`
+\`\`\`bash
+# 1. Install dependencies
+pnpm install
+
+# 2. Configure environment
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+
+# 3. Start development (client + server)
+pnpm dev
+\`\`\`
+
+Open \`http://localhost:5173\` for the client and \`http://localhost:3000\` for the API.
+
+**No backend yet?** Set \`VITE_PROVIDER=mock\` in \`client/.env\` and start only the client. All auth flows simulate correctly without a running server.
 
 ## Prerequisites
 
-- Node.js 18 or higher
-- npm or yarn package manager
-- Basic knowledge of React and TypeScript
-- SMTP server for email functionality (optional for development)
+- Node.js 20+
+- pnpm
+- MongoDB (local or Atlas) — only needed when running the server
+- SMTP credentials (for real email OTP) — Mailtrap or similar works for development
 
 ## Project Structure
 
 \`\`\`
 registration-kit/
-├── src/
-│   ├── components/
-│   │   ├── RegistrationForm/
-│   │   ├── EmailVerification/
-│   │   └── ProfileEditor/
-│   ├── pages/
-│   │   ├── Register.tsx
-│   │   ├── Verify.tsx
-│   │   └── Profile.tsx
-│   ├── hooks/
-│   ├── utils/
-│   └── main.tsx
-├── package.json
-└── README.md
+├── client/          # React + Vite frontend
+│   └── src/
+│       ├── api/     # auth + user providers (live & mock)
+│       ├── components/
+│       ├── pages/
+│       └── store/
+├── server/          # Express + TypeScript API
+│   └── src/
+│       ├── controllers/
+│       ├── services/
+│       ├── models/
+│       └── routes/
+├── shared/          # DTOs and types shared between client and server
+└── package.json
 \`\`\`
 
-## Key Features
+## Auth Flows
 
-### Multi-step Forms
-Navigate through registration steps with automatic validation and progress tracking. Each step validates independently before allowing progression.
+### Registration
+1. User submits email + password
+2. Server creates an inactive account and sends a 6-digit OTP
+3. User enters the OTP → account activated
 
-### Email Verification
-Send verification emails automatically upon registration. Users receive a secure token-based link to verify their email address.
+### Login
+- Standard: returns a JWT
+- With 2FA enabled: returns a challenge token, prompts for TOTP code, then issues the JWT
 
-### Password Security
-Enforce strong passwords with configurable rules. Real-time feedback helps users create secure passwords.
+### Two-Factor Authentication
+- Setup via QR code scan in any Authenticator app (Google Authenticator, Authy, etc.)
+- On setup confirmation, server returns one-time backup codes
+- Disable 2FA from the profile page at any time
 
-### Profile Management
-Allow users to update their information with the same form validation patterns used in registration.
+### Password Reset
+1. User requests a reset code sent to their email
+2. Enters the code + new password → password updated
 
 ## Configuration
 
-The kit is highly configurable. Edit \`src/config.ts\` to customize:
+Key variables in \`server/.env\`:
 
-- Registration fields and validation rules
-- Email templates and SMTP settings
-- Password complexity requirements
-- Social login providers
-- Session management
+\`\`\`
+MONGODB_URI=mongodb://localhost:27017/registration-kit
+JWT_SECRET=your-secret
+JWT_EXPIRES_IN=15d
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=587
+SMTP_USER=...
+SMTP_PASS=...
+\`\`\`
 
-## Support
+Key variables in \`client/.env\`:
 
-For questions and support:
-- Email: support@dashforge.com
-- Documentation: https://dashforge.dev/docs
-- GitHub Issues: https://github.com/dashforge/registration-kit
+\`\`\`
+VITE_API_URL=http://localhost:3000
+VITE_PROVIDER=live   # or 'mock' for no-backend dev
+\`\`\`
 
 ## License
 
-This starter kit is licensed under a commercial license. One license per project. See LICENSE.md for details.`,
-    tags: ['React', 'TypeScript', 'DashForm', 'Authentication', 'MUI'],
+Registration Kit ships under a **commercial license** with three tiers — Developer, Team, and Extended. See the license page for full terms and what each tier allows.`,
+    tags: ['React', 'TypeScript', 'Express', 'MongoDB', 'Authentication', 'MUI', '2FA'],
   },
   {
     id: 'admin-dashboard',
