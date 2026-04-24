@@ -8,20 +8,30 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "web",
-        "commands": ["vite build", "npm run prerender", "npm run sitemap"],
+        "commands": ["vite build"],
         "parallel": false
       },
       "cache": true,
       "dependsOn": ["^build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "prerender": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "web",
+        "commands": ["npm run prerender", "npm run sitemap"],
+        "parallel": false
+      },
+      "cache": true,
+      "dependsOn": ["build"],
       "inputs": [
         "production",
-        "^production",
         "{projectRoot}/scripts/prerender.ts",
         "{projectRoot}/scripts/generate-sitemap.ts",
         "{projectRoot}/scripts/generate-routes.ts"
       ],
       "outputs": [
-        "{projectRoot}/dist",
         "{projectRoot}/dist/sitemap.xml",
         "{projectRoot}/dist/index.html",
         "{projectRoot}/dist/components/index.html",
