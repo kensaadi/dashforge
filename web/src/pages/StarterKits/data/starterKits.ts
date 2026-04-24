@@ -7,6 +7,7 @@ export interface PricingTier {
 
 export interface StarterKit {
   id: string;
+  visible: boolean;
   name: string;
   shortDescription: string;
   longDescription: string;
@@ -27,6 +28,7 @@ export interface StarterKit {
 export const starterKits: StarterKit[] = [
   {
     id: 'registration-app',
+    visible: true,
     name: 'Registration Kit',
     shortDescription:
       'Full-stack auth starter: registration, login, 2FA, and password reset — React + Express + MongoDB',
@@ -37,15 +39,15 @@ export const starterKits: StarterKit[] = [
     price: 149,
     currency: 'USD',
     version: '1.0.0',
-    lastUpdated: 'April 2025',
-    previewUrl: '#',
+    lastUpdated: 'May 2026',
+    previewUrl: 'https://registration-kit.dashforge-ui.com',
     purchaseUrl: '#',
     pricingTiers: [
       { name: 'Developer', price: 149, purchaseUrl: '#' },
       { name: 'Team', price: 349, purchaseUrl: '#', highlight: true },
       { name: 'Extended', price: 599, purchaseUrl: '#' },
     ],
-    licenseUrl: '#',
+    licenseUrl: 'https://registration-kit.dashforge-ui.com/docs/license',
     overview: `# Registration Kit
 
 A full-stack authentication starter designed for modern web applications. It ships a working React client, an Express API, and a MongoDB data layer — all connected and ready to customise.
@@ -169,10 +171,19 @@ VITE_PROVIDER=live   # or 'mock' for no-backend dev
 ## License
 
 Registration Kit ships under a **commercial license** with three tiers — Developer, Team, and Extended. See the license page for full terms and what each tier allows.`,
-    tags: ['React', 'TypeScript', 'Express', 'MongoDB', 'Authentication', 'MUI', '2FA'],
+    tags: [
+      'React',
+      'TypeScript',
+      'Express',
+      'MongoDB',
+      'Authentication',
+      'MUI',
+      '2FA',
+    ],
   },
   {
     id: 'admin-dashboard',
+    visible: false,
     name: 'Admin Dashboard',
     shortDescription:
       'Modern admin dashboard with analytics, charts, and data management tools',
@@ -301,6 +312,7 @@ Commercial license. One license per project. See LICENSE.md for full terms.`,
   },
   {
     id: 'ecommerce-starter',
+    visible: false,
     name: 'E-commerce Starter',
     shortDescription:
       'Complete e-commerce solution with product catalog, cart, and checkout flow',
@@ -447,6 +459,7 @@ Commercial license. One license per project. Contact us for multi-site licensing
   },
   {
     id: 'multitenant-saas',
+    visible: false,
     name: 'Multi-tenant SaaS',
     shortDescription:
       'Enterprise-grade SaaS template with tenant isolation and subscription management',

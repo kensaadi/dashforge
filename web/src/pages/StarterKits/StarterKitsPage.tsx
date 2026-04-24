@@ -180,9 +180,11 @@ export function StarterKitsPage() {
               mb: 6,
             }}
           >
-            {starterKits.map((kit) => (
-              <StarterKitCard key={kit.id} kit={kit} />
-            ))}
+            {starterKits
+              .filter((kit) => kit.visible)
+              .map((kit) => (
+                <StarterKitCard key={kit.id} kit={kit} />
+              ))}
           </Box>
 
           {/* Consulting Banner - Horizontal */}

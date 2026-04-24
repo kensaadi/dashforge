@@ -117,7 +117,7 @@ export function StarterKitHero({ kit }: StarterKitHeroProps) {
             <Button
               variant="contained"
               size="large"
-              href={kit.purchaseUrl}
+              href={kit.previewUrl}
               target="_blank"
               sx={{
                 textTransform: 'none',
@@ -128,36 +128,6 @@ export function StarterKitHero({ kit }: StarterKitHeroProps) {
                 background: iconGradients[kit.iconColor],
                 '&:hover': {
                   opacity: 0.9,
-                },
-              }}
-            >
-              Buy Now ${kit.price}
-            </Button>
-
-            <Button
-              variant="outlined"
-              size="large"
-              href={kit.previewUrl}
-              target="_blank"
-              sx={{
-                textTransform: 'none',
-                fontSize: 15,
-                fontWeight: 600,
-                px: 4,
-                py: 1.5,
-                borderColor: isDark
-                  ? 'rgba(255,255,255,0.20)'
-                  : 'rgba(15,23,42,0.20)',
-                color: isDark
-                  ? 'rgba(255,255,255,0.85)'
-                  : 'rgba(15,23,42,0.85)',
-                '&:hover': {
-                  borderColor: isDark
-                    ? 'rgba(167,139,250,0.50)'
-                    : 'rgba(109,40,217,0.50)',
-                  bgcolor: isDark
-                    ? 'rgba(167,139,250,0.08)'
-                    : 'rgba(109,40,217,0.08)',
                 },
               }}
             >
