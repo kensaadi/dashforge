@@ -43,9 +43,9 @@ export const starterKits: StarterKit[] = [
     previewUrl: 'https://registration-kit.dashforge-ui.com',
     purchaseUrl: '#',
     pricingTiers: [
-      { name: 'Developer', price: 149, purchaseUrl: '#' },
-      { name: 'Team', price: 349, purchaseUrl: '#', highlight: true },
-      { name: 'Extended', price: 599, purchaseUrl: '#' },
+      { name: 'Developer', price: 149, purchaseUrl: 'https://buy.stripe.com/test_7sY8wObyAeAS2Bm3vpgYU00' },
+      { name: 'Team', price: 349, purchaseUrl: 'https://buy.stripe.com/test_bJefZgdGIfEW8ZK1nhgYU01', highlight: true },
+      { name: 'Extended', price: 599, purchaseUrl: 'https://buy.stripe.com/test_8x23cuauwakC8ZK5DxgYU02' },
     ],
     licenseUrl: 'https://registration-kit.dashforge-ui.com/docs/license',
     overview: `# Registration Kit

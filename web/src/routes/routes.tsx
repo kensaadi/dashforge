@@ -4,6 +4,7 @@ import { DocsPage } from '../pages/Docs/DocsPage';
 import { ComponentsPage } from '../pages/ComponentsPage';
 import { PricingPage } from '../pages/PricingPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { ThankYouPage } from '../pages/ThankYouPage';
 import { StarterKitsPage } from '../pages/StarterKits/StarterKitsPage';
 import { StarterKitDetailPage } from '../pages/StarterKits/StarterKitDetailPage';
 
@@ -31,6 +32,10 @@ const routes: RouteObject[] = [
   {
     path: '/pricing',
     element: <PricingPage />,
+  },
+  {
+    path: '/thank-you',
+    element: <ThankYouPage />,
   },
   {
     path: '*',
