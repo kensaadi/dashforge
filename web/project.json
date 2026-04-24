@@ -8,8 +8,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "web",
-        "commands": ["vite build"],
-        "parallel": false
+        "command": "vite build"
       },
       "cache": true,
       "dependsOn": ["^build"],
