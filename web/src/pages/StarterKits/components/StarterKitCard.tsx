@@ -11,6 +11,7 @@ import {
   IconBuilding,
 } from '@tabler/icons-react';
 import { useDashTheme } from '@dashforge/theme-core';
+import { trackEvent } from '../../../utils/analytics';
 import type { StarterKit } from '../data/starterKits';
 import { Divider } from '@mui/material';
 
@@ -147,6 +148,7 @@ export function StarterKitCard({ kit }: StarterKitCardProps) {
               variant="outlined"
               href={kit.previewUrl}
               target="_blank"
+              onClick={() => trackEvent('demo_open', { kit_id: kit.id })}
               sx={{
                 fontSize: 11,
                 textTransform: 'none',
@@ -171,6 +173,7 @@ export function StarterKitCard({ kit }: StarterKitCardProps) {
               variant="text"
               component={RouterLink}
               to={`/starter-kits/${kit.id}`}
+              onClick={() => trackEvent('starter_kit_click', { kit_id: kit.id })}
               sx={{
                 fontSize: 11,
                 textTransform: 'none',

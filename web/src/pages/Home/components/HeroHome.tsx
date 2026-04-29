@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { useDashTheme } from '@dashforge/theme-core';
+import { trackEvent } from '../../../utils/analytics';
 import { LiveTypingCodeBlock } from './LiveTypingCodeBlock';
 
 export function HeroHome() {
@@ -104,6 +105,7 @@ export function HeroHome() {
                   size="large"
                   variant="contained"
                   sx={{ borderRadius: 2 }}
+                  onClick={() => trackEvent('cta_click', { cta_id: 'hero_get_started', page: '/' })}
                 >
                   Get Started
                 </Button>
@@ -114,6 +116,7 @@ export function HeroHome() {
                   size="large"
                   variant="outlined"
                   sx={{ borderRadius: 2 }}
+                  onClick={() => trackEvent('cta_click', { cta_id: 'hero_see_examples', page: '/' })}
                 >
                   See Examples
                 </Button>

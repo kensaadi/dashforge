@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useDashTheme } from '@dashforge/theme-core';
+import { trackEvent } from '../../../utils/analytics';
 import {
   docsSidebarTree,
   type DocsSidebarGroup,
@@ -68,6 +69,7 @@ export function DocsSidebar() {
         key={item.path}
         component={RouterLink}
         to={item.path}
+        onClick={() => trackEvent('docs_nav', { section: item.path })}
         sx={{
           px: 1.5,
           py: 0.5,

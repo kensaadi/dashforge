@@ -4,6 +4,7 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useDashTheme } from '@dashforge/theme-core';
+import { trackEvent } from '../../../utils/analytics';
 import type { StarterKit } from '../data/starterKits';
 
 interface StarterKitSidebarProps {
@@ -197,6 +198,7 @@ export function StarterKitSidebar({ kit }: StarterKitSidebarProps) {
                       variant={tier.highlight ? 'contained' : 'outlined'}
                       href={tier.purchaseUrl}
                       target="_blank"
+                      onClick={() => trackEvent('starter_kit_buy_click', { kit_id: kit.id, tier: tier.name })}
                       sx={{
                         textTransform: 'none',
                         fontSize: 12,
@@ -275,6 +277,7 @@ export function StarterKitSidebar({ kit }: StarterKitSidebarProps) {
               fullWidth
               href={kit.purchaseUrl}
               target="_blank"
+              onClick={() => trackEvent('starter_kit_buy_click', { kit_id: kit.id })}
               sx={{
                 textTransform: 'none',
                 fontSize: 15,
@@ -295,6 +298,7 @@ export function StarterKitSidebar({ kit }: StarterKitSidebarProps) {
             fullWidth
             href={kit.previewUrl}
             target="_blank"
+            onClick={() => trackEvent('demo_open', { kit_id: kit.id })}
             sx={{
               textTransform: 'none',
               fontSize: 15,
