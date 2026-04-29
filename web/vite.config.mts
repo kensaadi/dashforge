@@ -80,7 +80,6 @@ export default defineConfig(() => ({
   },
   ssgOptions: {
     dirStyle: 'nested',
-    mock: true,
     onFinished(dir) {
       // collect all rendered routes from the flat file listing
       const rendered: string[] = ['/'];
