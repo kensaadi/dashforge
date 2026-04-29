@@ -1,24 +1,33 @@
-import { StrictMode } from 'react';
-import { DashforgeThemeProvider } from '@dashforge/theme-mui';
-import { ConfirmDialogProvider, SnackbarProvider } from '@dashforge/ui';
-import { HelmetProvider } from 'react-helmet-async';
-import * as ReactDOM from 'react-dom/client';
-import App from './app/app';
+import { ViteReactSSG } from 'vite-react-ssg';
+import { routes } from './routes/routes';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+export const createRoot = ViteReactSSG(
+  { routes },
+  () => {
+    // global setup hook (runs both client and SSG)
+  },
+  {
+    getStyleCollector: async () => {
+      const { default: createCache } = await import('@emotion/cache');
+      const { default: createEmotionServer } = await import(
+        '@emotion/server/create-instance'
+      );
+      const { CacheProvider } = await import('@emotion/react');
+      const { createElement } = await import('react');
 
-root.render(
-  <StrictMode>
-    <HelmetProvider>
-      <DashforgeThemeProvider>
-        <SnackbarProvider>
-          <ConfirmDialogProvider>
-            <App />
-          </ConfirmDialogProvider>
-        </SnackbarProvider>
-      </DashforgeThemeProvider>
-    </HelmetProvider>
-  </StrictMode>
+      const cache = createCache({ key: 'css' });
+      const { extractCriticalToChunks, constructStyleTagsFromChunks } =
+        createEmotionServer(cache);
+
+      return {
+        collect(app) {
+          return createElement(CacheProvider, { value: cache }, app);
+        },
+        toString(html) {
+          const chunks = extractCriticalToChunks(html);
+          return constructStyleTagsFromChunks(chunks);
+        },
+      };
+    },
+  }
 );

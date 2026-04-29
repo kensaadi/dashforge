@@ -20,7 +20,7 @@ export const scrollToTop = (): void => {
 export const matchMedia = (
   query: string
 ): MediaQueryList | { matches: boolean } => {
-  if (isBrowser) {
+  if (isBrowser && typeof window.matchMedia === 'function') {
     return window.matchMedia(query);
   }
   return { matches: false };
