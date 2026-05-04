@@ -1,5 +1,6 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import { useDashTheme } from '@dashforge/theme-core';
 import {
   DocsHeroSection,
@@ -7,6 +8,7 @@ import {
   DocsDivider,
   DocsApiTable,
   DocsRelatedSection,
+  DocsCalloutBox,
   type ApiPropDefinition,
 } from '../components/shared';
 import { DocsCodeBlock } from '../components/shared/CodeBlock';
@@ -25,6 +27,12 @@ export function FormSystemApi() {
       type: 'ReactionDefinition[]',
       defaultValue: '[]',
       description: 'Array of reaction definitions for dynamic behavior',
+    },
+    {
+      name: 'resolver',
+      type: 'Resolver<FormValues>',
+      defaultValue: '-',
+      description: 'Optional schema-based validation resolver (Zod, Yup, Joi, etc.)',
     },
     {
       name: 'onSubmit',
@@ -133,6 +141,79 @@ export function FormSystemApi() {
     },
   ];
 
+  const validationComparisonProps: ApiPropDefinition[] = [
+    {
+      name: 'Field Rules',
+      type: 'rules prop',
+      defaultValue: '-',
+      description: 'Simple field-level validation (required, min, max, pattern)',
+    },
+    {
+      name: 'Resolver',
+      type: 'resolver prop',
+      defaultValue: '-',
+      description: 'Schema-based validation with type safety and reusable schemas',
+    },
+    {
+      name: 'Reactions',
+      type: 'reactions array',
+      defaultValue: '-',
+      description: 'Dynamic cross-field validation triggered by value changes',
+    },
+  ];
+
+  const zodExampleCode = `import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { DashForm, TextField, NumberField } from '@dashforge/ui';
+
+const schema = z.object({
+  email: z.string().email('Invalid email address'),
+  age: z.number().min(18, 'Must be at least 18'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+function RegistrationForm() {
+  const handleSubmit = (data: FormValues) => {
+    console.log('Valid data:', data);
+  };
+
+  return (
+    <DashForm
+      resolver={zodResolver(schema)}
+      defaultValues={{ email: '', age: 0, password: '' }}
+      onSubmit={handleSubmit}
+    >
+      <TextField name="email" label="Email" />
+      <NumberField name="age" label="Age" />
+      <TextField name="password" label="Password" type="password" />
+    </DashForm>
+  );
+}`;
+
+  const yupExampleCode = `import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { DashForm, TextField } from '@dashforge/ui';
+
+const schema = yup.object({
+  email: yup.string().email('Invalid email').required('Email is required'),
+  password: yup.string().min(8, 'Password too short').required('Required'),
+});
+
+function LoginForm() {
+  return (
+    <DashForm
+      resolver={yupResolver(schema)}
+      defaultValues={{ email: '', password: '' }}
+      onSubmit={(data) => console.log(data)}
+    >
+      <TextField name="email" label="Email" />
+      <TextField name="password" label="Password" type="password" />
+    </DashForm>
+  );
+}`;
+
   return (
     <Stack spacing={8}>
       <DocsHeroSection
@@ -173,6 +254,181 @@ export function FormSystemApi() {
           />
 
           <DocsApiTable props={dashFormProps} />
+        </Stack>
+      </DocsSection>
+
+      <DocsDivider />
+
+      <DocsSection
+        id="schema-based-validation"
+        title="Schema-Based Validation (Resolver)"
+        description="Using validation schemas with Zod, Yup, or other resolvers"
+      >
+        <Stack spacing={3}>
+          <DocsCalloutBox
+            type="info"
+            message={
+              <Typography sx={{ fontSize: 14, lineHeight: 1.6 }}>
+                <strong>Architectural note:</strong> Dashforge does NOT bundle
+                or provide validation logic. The resolver is a pure pass-through
+                to React Hook Form. Users must install and configure their own
+                validation library such as Zod, Yup, Joi, Valibot, or ArkType.
+              </Typography>
+            }
+          />
+
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 16,
+              lineHeight: 1.7,
+              color: isDark ? 'rgba(255,255,255,0.75)' : 'rgba(15,23,42,0.75)',
+            }}
+          >
+            The resolver prop accepts a React Hook Form resolver function.
+            Resolvers translate validation schemas into error objects. This
+            enables schema-based validation instead of field-level rules.
+          </Typography>
+
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: isDark ? '#a78bfa' : '#7c3aed',
+                mb: 1.5,
+              }}
+            >
+              Field Rules vs Resolver
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: 15,
+                lineHeight: 1.7,
+                color: isDark
+                  ? 'rgba(255,255,255,0.70)'
+                  : 'rgba(15,23,42,0.70)',
+                mb: 2,
+              }}
+            >
+              Use <code>rules</code> for simple field-level validation. Use{' '}
+              <code>resolver</code> for schema-based validation.
+            </Typography>
+
+            <DocsApiTable props={validationComparisonProps} />
+          </Box>
+
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: isDark ? '#a78bfa' : '#7c3aed',
+                mb: 1.5,
+              }}
+            >
+              With Zod
+            </Typography>
+
+            <DocsCodeBlock code={`npm install zod @hookform/resolvers`} language="bash" />
+
+            <DocsCodeBlock code={zodExampleCode} language="tsx" />
+          </Box>
+
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: isDark ? '#a78bfa' : '#7c3aed',
+                mb: 1.5,
+              }}
+            >
+              With Yup
+            </Typography>
+
+            <DocsCodeBlock code={`npm install yup @hookform/resolvers`} language="bash" />
+
+            <DocsCodeBlock code={yupExampleCode} language="tsx" />
+          </Box>
+
+          <DocsCalloutBox
+            type="success"
+            message={
+              <Typography sx={{ fontSize: 14, lineHeight: 1.6 }}>
+                <strong>Validation flow:</strong> When a resolver is provided,
+                it becomes the primary validation source. Errors still flow
+                through bridge.getError() and display automatically in Dashforge
+                UI components. Error gating, touch tracking, and all other
+                features work normally.
+              </Typography>
+            }
+          />
+
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: isDark ? '#a78bfa' : '#7c3aed',
+                mb: 1.5,
+              }}
+            >
+              When to Use Resolver
+            </Typography>
+
+            <Box
+              component="ul"
+              sx={{
+                pl: 3,
+                '& li': {
+                  fontSize: 15,
+                  lineHeight: 1.8,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.70)'
+                    : 'rgba(15,23,42,0.70)',
+                  mb: 1,
+                },
+              }}
+            >
+              <li>✅ Validation schema is reused across forms</li>
+              <li>✅ Validation logic is complex (cross-field, conditional)</li>
+              <li>✅ Type safety with schema inference is required</li>
+              <li>✅ Team already uses Zod/Yup</li>
+            </Box>
+
+            <Typography
+              sx={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: isDark ? '#a78bfa' : '#7c3aed',
+                mb: 1.5,
+                mt: 2,
+              }}
+            >
+              When to Use Field Rules
+            </Typography>
+
+            <Box
+              component="ul"
+              sx={{
+                pl: 3,
+                '& li': {
+                  fontSize: 15,
+                  lineHeight: 1.8,
+                  color: isDark
+                    ? 'rgba(255,255,255,0.70)'
+                    : 'rgba(15,23,42,0.70)',
+                  mb: 1,
+                },
+              }}
+            >
+              <li>✅ Validation is simple (required, min, max, pattern)</li>
+              <li>✅ Each field has independent validation</li>
+              <li>✅ No schema library is needed</li>
+            </Box>
+          </Box>
         </Stack>
       </DocsSection>
 

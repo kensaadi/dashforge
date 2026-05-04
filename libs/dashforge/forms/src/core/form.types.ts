@@ -1,5 +1,5 @@
 import type { Engine } from '@dashforge/ui-core';
-import type { FieldValues, UseFormReturn, FieldPath } from 'react-hook-form';
+import type { FieldValues, UseFormReturn, FieldPath, Resolver } from 'react-hook-form';
 import type { ReactionDefinition } from '../reactions/reaction.types';
 
 /**
@@ -139,6 +139,46 @@ export interface DashFormConfig<
    * @default undefined
    */
   reactions?: ReactionDefinition<TFieldValues>[];
+
+  /**
+   * Optional React Hook Form resolver (pass-through).
+   *
+   * **IMPORTANT: Dashforge does NOT bundle any validation library.**
+   * **It only exposes React Hook Form capabilities via pass-through.**
+   *
+   * When a resolver is provided, it becomes the primary validation source.
+   * Field-level rules may still be defined, but their behavior depends on
+   * React Hook Form's validation flow.
+   *
+   * When NOT provided:
+   * - Field-level rules work as before (backward compatible)
+   *
+   * Compatible resolvers (user must install separately):
+   * - @hookform/resolvers/yup (requires yup)
+   * - @hookform/resolvers/zod (requires zod)
+   * - @hookform/resolvers/joi (requires joi)
+   * - Custom resolvers (implement Resolver<TFieldValues> interface)
+   *
+   * @see https://react-hook-form.com/docs/useform#resolver
+   * @example
+   * ```tsx
+   * // User must install: npm install yup @hookform/resolvers
+   * import { yupResolver } from '@hookform/resolvers/yup';
+   * import * as yup from 'yup';
+   *
+   * const schema = yup.object({
+   *   email: yup.string().email().required(),
+   * });
+   *
+   * <DashFormProvider
+   *   resolver={yupResolver(schema)}
+   *   defaultValues={{ email: '' }}
+   * >
+   *   <TextField name="email" label="Email" />
+   * </DashFormProvider>
+   * ```
+   */
+  resolver?: Resolver<TFieldValues>;
 }
 
 /**

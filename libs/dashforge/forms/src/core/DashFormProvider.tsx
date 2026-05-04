@@ -96,6 +96,7 @@ export function DashFormProvider<
   debug = false,
   mode = 'onChange',
   reactions,
+  resolver,
 }: DashFormProviderProps<TFieldValues>) {
   // Create or use provided Engine instance
   // Memoized to prevent re-creation on every render
@@ -119,6 +120,7 @@ export function DashFormProvider<
   const rhf = useForm<TFieldValues>({
     defaultValues: defaultValues as DefaultValues<TFieldValues>,
     mode,
+    resolver,
   });
 
   // Subscribe to formState fields to ensure reactivity
