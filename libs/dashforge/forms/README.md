@@ -107,11 +107,64 @@ function MyForm() {
 - Validation errors from the resolver are accessible via `bridge.getError(fieldName)`
 - All existing Dashforge features (error gating, touch tracking, reactions) work seamlessly with resolvers
 
+### Dynamic Field Arrays
+
+Dashforge provides `useDashFieldArray` for managing dynamic lists of form fields (e.g., multiple addresses, phone numbers, or dynamic configurations).
+
+**V1 Notice:** This is a thin adapter over React Hook Form's `useFieldArray` with Dashforge-style API. It provides **developer experience improvements** (pre-computed field names, stable IDs, type-safe interface) but does **not claim performance benefits** over raw RHF. Performance profiling is planned for a future phase.
+
+```typescript
+import { useDashFieldArray } from '@dashforge/forms';
+
+interface Address {
+  street: string;
+  city: string;
+  zipCode: string;
+}
+
+function AddressForm() {
+  const { fields, append, remove, move } = useDashFieldArray<Address>('addresses');
+
+  return (
+    <>
+      {fields.map((field) => (
+        <div key={field.id}>
+          <TextField name={`${field.name}.street`} label="Street" />
+          <TextField name={`${field.name}.city`} label="City" />
+          <TextField name={`${field.name}.zipCode`} label="Zip Code" />
+          <Button onClick={() => remove(field.index)}>Remove</Button>
+        </div>
+      ))}
+      <Button onClick={() => append({ street: '', city: '', zipCode: '' })}>
+        Add Address
+      </Button>
+    </>
+  );
+}
+```
+
+**Key Features:**
+- **Pre-computed field names:** `field.name` provides the full path (e.g., `"addresses.0"`) without manual template strings
+- **Stable IDs:** `field.id` is stable across operations for React keys
+- **Type-safe operations:** `append`, `remove`, `move`, `insert`, `replace` are fully typed
+- **Dashforge-owned types:** API designed for future engine-native optimization without breaking changes
+
+**API:**
+- `fields`: Array of field items with `{ id, index, name }` metadata
+- `append(item)`: Add item to end
+- `remove(index)`: Remove item at index
+- `move(from, to)`: Reorder items
+- `insert(index, item)`: Insert at specific position
+- `replace(items)`: Replace entire array
+
+**Important:** This hook must be called inside a `DashFormProvider` context.
+
 ## Features
 
 - **Type-safe bridge** between react-hook-form and Dashforge components
 - **Automatic registration** and validation
 - **Schema-based validation** via resolver pass-through (Zod, Yup, Joi, etc.)
+- **Dynamic field arrays** with pre-computed paths and stable IDs
 - **Error state management** with Form Closure v1 rules
 - **Touch tracking** for MUI and native components
 - **Zero unsafe casts** in public API

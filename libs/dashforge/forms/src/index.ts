@@ -80,6 +80,21 @@ export type { UseDashRegisterResult } from './hooks/useDashRegister';
  */
 export { useFieldRuntime } from './hooks/useFieldRuntime';
 
+/**
+ * Hook to manage dynamic field arrays.
+ * V1: Thin adapter over RHF useFieldArray with Dashforge API.
+ * Provides pre-computed field names and stable IDs.
+ */
+export { useDashFieldArray } from './hooks/useDashFieldArray';
+
+/**
+ * Type definitions for field array hook.
+ */
+export type {
+  DashFieldArrayItem,
+  UseDashFieldArrayReturn,
+} from './hooks/useDashFieldArray';
+
 // ============================================================================
 // RUNTIME (Reactive V2)
 // ============================================================================
