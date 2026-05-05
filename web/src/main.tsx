@@ -28,8 +28,9 @@ export const createRoot = ViteReactSSG(
         toString(_html) {
           const ids = Object.keys(insertedStyles);
           const css = Object.values(insertedStyles).join('');
-          if (!css) return '';
-          return `<style data-emotion="${cache.key} ${ids.join(' ')}">${css}</style>`;
+          const globalStyles = 'html{margin:0!important;padding:0!important;}body{margin:0!important;padding:0!important;}#root{margin:0!important;padding:0!important;}';
+          if (!css) return `<style data-emotion="${cache.key} global">${globalStyles}</style>`;
+          return `<style data-emotion="${cache.key} ${ids.join(' ')}">${globalStyles}${css}</style>`;
         },
       };
     },
