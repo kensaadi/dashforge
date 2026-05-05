@@ -117,11 +117,43 @@ export function DashFormProvider<
   }, [externalEngine, debug]);
 
   // Initialize React Hook Form
-  const rhf = useForm<TFieldValues>({
+  // Skip in SSR/SSG to avoid "Cannot read properties of null (reading 'useRef')" error
+  const isClient = typeof window !== 'undefined';
+  const rhf = isClient ? useForm<TFieldValues>({
     defaultValues: defaultValues as DefaultValues<TFieldValues>,
     mode,
     resolver,
-  });
+  }) : ({
+    // SSR mock - minimal API to prevent errors
+    register: () => ({}),
+    unregister: () => {},
+    watch: () => defaultValues ?? {},
+    handleSubmit: (cb: any) => async () => {},
+    reset: () => {},
+    formState: {
+      errors: {},
+      touchedFields: {},
+      dirtyFields: {},
+      submitCount: 0,
+      isSubmitting: false,
+      isValidating: false,
+      isDirty: false,
+      isValid: true,
+    },
+    control: {} as any,
+    getValues: () => defaultValues ?? {},
+    setValue: () => {},
+    getFieldState: () => ({
+      isDirty: false,
+      isTouched: false,
+      invalid: false,
+      error: undefined,
+    }),
+    clearErrors: () => {},
+    setError: () => {},
+    setFocus: () => {},
+    trigger: async () => true,
+  }) as any;
 
   // Subscribe to formState fields to ensure reactivity
   const errors = rhf.formState.errors;
