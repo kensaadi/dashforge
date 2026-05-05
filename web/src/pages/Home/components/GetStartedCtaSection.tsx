@@ -53,41 +53,41 @@ export function GetStartedCtaSection() {
           Read the Docs
         </Button>
 
-        <Button
-          component={RouterLink}
-          to="/examples"
-          size="large"
-          variant="outlined"
-          sx={{
-            minWidth: { xs: 240, md: 320 },
-            height: 52,
-            borderRadius: 2,
-            fontWeight: 900,
-            borderColor: isDark
-              ? 'rgba(255,255,255,0.22)'
-              : 'rgba(15,23,42,0.22)',
-            color: isDark ? 'rgba(255,255,255,0.86)' : 'rgba(15,23,42,0.86)',
-            background: isDark
-              ? 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))'
-              : 'linear-gradient(180deg, rgba(255,255,255,0.90), rgba(255,255,255,0.78))',
-            boxShadow: isDark
-              ? '0 16px 42px rgba(0,0,0,0.30)'
-              : '0 14px 34px rgba(15,23,42,0.12)',
-            '&:hover': {
-              borderColor: isDark
-                ? 'rgba(255,255,255,0.30)'
-                : 'rgba(15,23,42,0.30)',
-              background: isDark
-                ? 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))'
-                : 'linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.82))',
-              boxShadow: isDark
-                ? '0 18px 50px rgba(0,0,0,0.36)'
-                : '0 18px 44px rgba(15,23,42,0.16)',
-            },
-          }}
-        >
-          Browse Examples
-        </Button>
+        {/* <Button */}
+        {/*   component={RouterLink} */}
+        {/*   to="/examples" */}
+        {/*   size="large" */}
+        {/*   variant="outlined" */}
+        {/*   sx={{ */}
+        {/*     minWidth: { xs: 240, md: 320 }, */}
+        {/*     height: 52, */}
+        {/*     borderRadius: 2, */}
+        {/*     fontWeight: 900, */}
+        {/*     borderColor: isDark */}
+        {/*       ? 'rgba(255,255,255,0.22)' */}
+        {/*       : 'rgba(15,23,42,0.22)', */}
+        {/*     color: isDark ? 'rgba(255,255,255,0.86)' : 'rgba(15,23,42,0.86)', */}
+        {/*     background: isDark */}
+        {/*       ? 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))' */}
+        {/*       : 'linear-gradient(180deg, rgba(255,255,255,0.90), rgba(255,255,255,0.78))', */}
+        {/*     boxShadow: isDark */}
+        {/*       ? '0 16px 42px rgba(0,0,0,0.30)' */}
+        {/*       : '0 14px 34px rgba(15,23,42,0.12)', */}
+        {/*     '&:hover': { */}
+        {/*       borderColor: isDark */}
+        {/*         ? 'rgba(255,255,255,0.30)' */}
+        {/*         : 'rgba(15,23,42,0.30)', */}
+        {/*       background: isDark */}
+        {/*         ? 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))' */}
+        {/*         : 'linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.82))', */}
+        {/*       boxShadow: isDark */}
+        {/*         ? '0 18px 50px rgba(0,0,0,0.36)' */}
+        {/*         : '0 18px 44px rgba(15,23,42,0.16)', */}
+        {/*     }, */}
+        {/*   }} */}
+        {/* > */}
+        {/*   Browse Examples */}
+        {/* </Button> */}
       </Stack>
 
       {/* Optional subtle divider glow line (matches the "line" feel in screenshot) */}
