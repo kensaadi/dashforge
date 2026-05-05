@@ -34,7 +34,7 @@ export function HomePage() {
   const isDark = dashTheme.meta.mode === 'dark';
 
   return (
-    <>
+    <Box sx={{ border: "0px solid black", m: 0, p: 0 }}>
       <SEO
         title="React Form Management Library"
         description="Type-safe React form management with enterprise-grade features. Build complex forms with validation, conditional logic, and RBAC support."
@@ -173,7 +173,7 @@ export function HomePage() {
         <HeroHome />
 
         {/* ========================= CONTENT SECTIONS ========================= */}
-        <Container sx={{ pb: { xs: 10, md: 12 }, pt: { xs: 5, md: 6 }, mx: 0, px: 0 }}>
+        <Container sx={{ pb: { xs: 10, md: 12 }, pt: { xs: 5, md: 6 } }}>
           {/* What you get - immediate value proposition */}
           <Stack spacing={2}>
             <SectionHeader title="Everything you need for complex forms" />
@@ -449,6 +449,6 @@ export function HomePage() {
           <GetStartedCtaSection />
         </Container>
       </Box>
-    </>
+    </Box>
   );
 }
