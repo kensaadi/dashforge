@@ -12,8 +12,8 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import BedtimeIcon from '@mui/icons-material/Bedtime';
-import BrightnessLowIcon from '@mui/icons-material/BrightnessLow';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SchemaIcon from '@mui/icons-material/Schema';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import InsightsIcon from '@mui/icons-material/Insights';
@@ -139,7 +139,7 @@ export function HomePage() {
                     height: 40,
                   }}
                 >
-                  {isDark ? <BrightnessLowIcon /> : <BedtimeIcon />}
+                  {isDark ? <LightModeIcon /> : <DarkModeIcon />}
                 </IconButton>
 
                 <Button
