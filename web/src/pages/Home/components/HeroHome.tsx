@@ -110,16 +110,16 @@ export function HeroHome() {
                   Get Started
                 </Button>
 
-                <Button
-                  component={RouterLink}
-                  to="/examples"
-                  size="large"
-                  variant="outlined"
-                  sx={{ borderRadius: 2 }}
-                  onClick={() => trackEvent('cta_click', { cta_id: 'hero_see_examples', page: '/' })}
-                >
-                  See Examples
-                </Button>
+                {/* <Button */}
+                {/*   component={RouterLink} */}
+                {/*   to="/examples" */}
+                {/*   size="large" */}
+                {/*   variant="outlined" */}
+                {/*   sx={{ borderRadius: 2 }} */}
+                {/*   onClick={() => trackEvent('cta_click', { cta_id: 'hero_see_examples', page: '/' })} */}
+                {/* > */}
+                {/*   See Examples */}
+                {/* </Button> */}
               </Stack>
 
               {/* Compatibility Trust Strip */}
