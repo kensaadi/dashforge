@@ -173,7 +173,7 @@ export function HomePage() {
         <HeroHome />
 
         {/* ========================= CONTENT SECTIONS ========================= */}
-        <Container sx={{ pb: { xs: 10, md: 12 }, pt: { xs: 5, md: 6 } }}>
+        <Container sx={{ pb: { xs: 10, md: 12 }, pt: { xs: 5, md: 6 }, mx: 0, px: 0 }}>
           {/* What you get - immediate value proposition */}
           <Stack spacing={2}>
             <SectionHeader title="Everything you need for complex forms" />
