@@ -11,7 +11,8 @@
     "moduleResolution": "bundler",
     "rootDir": "src",
     "jsx": "react-jsx",
-    "tsBuildInfoFile": ".tsbuildinfo"
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "exclude": [
     "out-tsc",

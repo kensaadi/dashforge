@@ -12,7 +12,6 @@
     "rootDir": "src",
     "jsx": "react-jsx",
     "tsBuildInfoFile": ".tsbuildinfo",
-    "customConditions": ["import", "default"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "exclude": [
