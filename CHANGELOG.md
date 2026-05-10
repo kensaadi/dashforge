@@ -1,0 +1,160 @@
+# Dashforge Changelog
+
+All notable changes to the Dashforge monorepo are documented here. Per-package
+changelogs (where present) describe deeper, package-scoped detail. This file is
+the entrypoint for understanding cross-package releases.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+with `-alpha` / `-beta` / `-rc` pre-release tags.
+
+---
+
+## [0.1.6-alpha] — 2026-05-10
+
+> **Performance + correctness release.** Restores Dashforge's core promise of
+> "fewer renders than plain RHF" via per-field subscriptions, fixes two
+> hook-rules / lifecycle bugs flagged in the libs CR, and tightens
+> dependent-field UX.
+
+Affected packages (all bumped to `0.1.6-alpha`):
+
+| Package                | Notes                                                                                                       |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `@dashforge/ui-core`   | Bridge interface gains `subscribeField`, `unregister` (both optional, fully backwards-compatible).          |
+| `@dashforge/forms`     | New `useDashFieldMeta` hook. Bridge identity stabilized; per-field listeners replace global version-bumps.  |
+| `@dashforge/rbac`      | New `useRbacOptional` (non-throwing variant of `useRbac`) used by access-aware UI hooks.                    |
+| `@dashforge/ui`        | All form components migrate to per-field subscribe; deferred unregister on real unmount; auto-reset policy. |
+| `@dashforge/tokens`    | Version bump only (peer alignment).                                                                         |
+| `@dashforge/theme-core`| Version bump only (peer alignment).                                                                         |
+| `@dashforge/theme-mui` | Version bump only (peer alignment).                                                                         |
+
+### Added
+
+- **`useDashFieldMeta(name)` hook** in `@dashforge/forms` — canonical way to
+  subscribe a UI component to its own field's `value` / `error` / `touched` /
+  `dirty` / `submitCount` / `allowAutoError`. Backed by `useSyncExternalStore`
+  with a primitive-equality cache, so unrelated field edits do not re-render
+  the consumer.
+- **`useRbacOptional()` hook** in `@dashforge/rbac` — non-throwing version of
+  `useRbac()` that returns `null` when `RbacProvider` is absent. Eliminates the
+  hooks-rules violation in `useAccessState` (previously wrapped `useRbac()` in
+  try/catch).
+- **`bridge.unregister?(name)`** in `DashFormBridge` — releases engine + RHF
+  state for a field. Form UI components now call this on real unmount,
+  preventing the `getNode(name)` memory-leak after dynamic field removal.
+- **`bridge.subscribeField?(name, listener)`** in `DashFormBridge` — per-field
+  subscription primitive used by `useDashFieldMeta`.
+- **`DateTimePicker.layout` prop** — `'stacked'` (default) or `'inline'`.
+  `'floating'` is silently downgraded to `'stacked'` with a dev warning, since
+  native `<input type="date|time|datetime-local">` always renders a placeholder
+  mask that overlaps the floating label.
+
+### Changed
+
+- **Bridge identity is now stable across keystrokes.** Previously the bridge
+  object identity changed every time `valuesVersion`, `errorVersion`,
+  `touchedVersion`, `dirtyVersion`, or `submitCount` advanced — which forced
+  every consumer of `useContext(DashFormContext)` to re-render. The bridge is
+  now memoized on the structural deps (`engine`, `runtimeStore`, `rhf`,
+  `adapter`, `debug`, `subscribeField`); reactivity is delegated to per-field
+  listeners + `useDashFieldMeta`.
+- **All 9 UI form components** (`TextField`, `Textarea`, `NumberField`,
+  `Checkbox`, `Switch`, `RadioGroup`, `Select`, `Autocomplete`, `OTPField`,
+  `DateTimePicker`) replaced the legacy `void bridge?.errorVersion;`-style
+  global subscribe with a single `useDashFieldMeta(name)` call.
+- **Unresolved-value policy for `Select` and `Autocomplete`** — when loaded
+  options can no longer resolve the current form value (e.g. a parent field
+  changed and a reaction reloaded options for a different scope), the form
+  value is now auto-reset to `null` instead of being preserved silently.
+  Previously the user saw a blank control but the form still submitted a stale
+  id. **This is a behavior change; see Migration below.**
+- **`Autocomplete` object-mapped mode** (custom `getOptionValue` /
+  `getOptionLabel`): the displayed text is now strictly derived from the
+  matched option's label. The raw stored id can never appear in the input, and
+  the freeSolo "commit typed text on blur" path is disabled — typing a label
+  string would otherwise overwrite the id and break the round-trip.
+
+### Fixed
+
+- **CR fix #2 — Rules of Hooks violation in `useAccessState`.** The hook
+  previously called `useRbac()` inside a `try/catch`, which threw when
+  `RbacProvider` was absent and changed the hook count between renders under
+  React 19 StrictMode. Refactored to call `useRbacOptional()` unconditionally
+  and branch on its return value. Eliminates the
+  `"Rendered more hooks than during the previous render."` warning.
+- **CR fix #3 — Memory leak on dynamic field unmount.** Bridge-bound field
+  components now defer `bridge.unregister(name)` to a `queueMicrotask` after
+  unmount, guarded by a mounted-ref. This fixes:
+  - the original leak (engine / RHF state stayed attached after unmount), and
+  - a regression introduced by the naïve fix where `useEffect`'s cleanup ran
+    on every render because the bridge identity used to change every keystroke
+    — destroying values on the very first keystroke. Bridge identity is now
+    stable, but the deferred-cleanup pattern is preserved as defense-in-depth.
+- **`DateTimePicker` time-mode loses base date.** When typing `13:45` into a
+  time field bound to `2026-02-25T10:00:00.000Z`, intermediate keystrokes
+  (`'1'`, `'13'`, `'13:'`, `'13:4'`) all parsed as invalid time and wrote
+  `null` to the bridge, dropping the date component. The next valid parse then
+  fell back to **today**, silently changing year/month/day. A new
+  `lastValidIsoRef` keeps the most recent valid ISO and is used as the
+  fallback `baseIso` during partial typing.
+- **`DateTimePicker` floating label overlapping native placeholder.** Native
+  date/time inputs always render a mask (e.g. `mm/dd/yyyy`) that visually
+  collided with the MUI floating label. The component now defaults to
+  `layout="stacked"` and warns if `floating` is requested.
+- **`Autocomplete` showing raw id instead of label.** Three independent
+  causes: missing sanitization in object-mapped mode, local `inputValue`
+  state pollution from MUI's internal "reset" reason, and `inputRef={
+  registration.ref}` leaking the RHF stored value (an id) into the DOM,
+  overriding the controlled `inputValue`. All three are fixed; the registered
+  ref is no longer wired to the visible input in object-mapped mode.
+- **`Autocomplete` React 19 key-spread warning.** `<li {...props}>` in
+  `renderOption` now extracts `key` first and applies it explicitly, complying
+  with React 19's restriction on spreading `key`.
+
+### Performance
+
+The Dashforge tagline — "fewer re-renders than plain RHF" — is now backed by
+the per-field subscription model:
+
+- A bridge-bound `<TextField name="A">` re-renders **only** when field `A`'s
+  value, error, touched, dirty, or submitCount changes. Editing field `B`
+  does not touch field `A`'s reconciler.
+- Form-wide getters (`bridge.errorVersion` etc.) remain readable for
+  diagnostic / introspection use, but components no longer subscribe through
+  them.
+- Verified end-to-end with a `React.Profiler`-instrumented test harness
+  exercising 9 components, dependent fields with reactions, RBAC gating, and
+  a 50× stress submit.
+
+### Migration
+
+Most consumers do **not** need to change anything. Two cases require
+attention:
+
+1. **Unresolved Select / Autocomplete values are now reset to `null`.** If
+   your code intentionally relied on the previous "preserve unresolved value"
+   behavior (e.g. round-tripping a value that's expected to materialize on a
+   later runtime load), guard the value yourself before passing it to the
+   form, or hold it outside form state until the option list contains it.
+2. **Custom components reading `bridge.getError(name)` / `bridge.getValue(name)`
+   directly during render** will no longer re-render automatically when those
+   values change, because the bridge object identity is now stable. Migrate
+   to `useDashFieldMeta(name)` (preferred) or call `bridge.subscribeField(
+   name, onChange)` from a `useSyncExternalStore` of your own. The 9 first-
+   party UI components have already been migrated.
+
+### Internal
+
+- Test suite recovered from 325 → 0 failures across `forms`, `rbac`,
+  `ui-core`, and `ui` (481 / 482 passing in `@dashforge/ui`, 1 skipped).
+- Outdated tests for the pre-0.1.6 "no automatic reset" Select policy were
+  updated to assert the new auto-reset contract.
+- Pre-existing typecheck noise in `DashFormProvider.resolver.test.tsx` and
+  `reactionIntegration.test.tsx` (test-only `bridge.register possibly
+  undefined`) is **not** addressed in this release; it predates the refactor.
+
+---
+
+For per-package detail, see the package-scoped CHANGELOG.md files (currently
+only `libs/dashforge/forms/CHANGELOG.md`).

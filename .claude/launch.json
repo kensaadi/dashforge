@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["nx", "run", "web:serve"],
       "port": 4200
+    },
+    {
+      "name": "dash-consumer",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "/Users/mcs/projects/web/learn/dash", "dev"],
+      "port": 5173
     }
   ]
 }

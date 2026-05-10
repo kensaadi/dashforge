@@ -12,7 +12,7 @@ npm install react-hook-form react
 ## Peer Dependencies
 
 - `react@^18.0.0 || ^19.0.0`
-- `@dashforge/ui-core@^0.1.0-alpha`
+- `@dashforge/ui-core@^0.1.6-alpha`
 
 ## Usage
 

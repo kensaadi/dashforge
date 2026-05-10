@@ -144,27 +144,43 @@ All packages use ESM module format and include full TypeScript declarations.
 
 Build artifacts are excluded from version control. Each package's `package.json` defines which files are published via the `files` field.
 
-## First Release: v0.1.0-alpha
+## Current Release: `0.1.6-alpha`
 
-This is the first public alpha release of Dashforge. All packages are available on npm under the `@dashforge` scope.
+Dashforge is in **alpha**. All seven packages are published on npm under the
+`@dashforge` scope and follow [Semantic Versioning](https://semver.org) with
+`-alpha` / `-beta` / `-rc` pre-release tags.
 
-**Stability Notice:**
+**Latest:** [`0.1.6-alpha`](./CHANGELOG.md#016-alpha--2026-05-10) — per-field
+subscriptions, hooks-rules + memory-leak fixes, auto-reset policy on
+unresolved Select/Autocomplete values, DateTimePicker time-mode hardening.
 
-This is an alpha release. While APIs may evolve, the core architecture is already used in real-world scenarios. Public APIs may change in future versions based on community feedback.
+For the full history see [`CHANGELOG.md`](./CHANGELOG.md). For the path to
+`1.0.0` see [`ROADMAP-1.0.md`](./ROADMAP-1.0.md).
 
-**What's Included:**
+**Stability Notice**
+
+While the core architecture is already used in real-world scenarios, public
+APIs may still evolve. Pin to an exact version (e.g. `"^0.1.6-alpha"`) and
+review the changelog before each upgrade.
+
+**What's Included**
 
 - Complete theming system with light/dark mode support
-- Form bridge with react-hook-form integration
-- MUI-based component library
-- RBAC utilities for access control
-- Full TypeScript support
+- Form bridge with react-hook-form integration (per-field subscriptions for
+  optimal re-render behavior)
+- 9 MUI-based form components (TextField, Textarea, NumberField, Checkbox,
+  Switch, RadioGroup, Select, Autocomplete, DateTimePicker, OTPField)
+- RBAC utilities for access control with `hide` / `disable` / `readonly`
+  semantics
+- Full TypeScript support with strict contracts at every boundary
 
-**Known Limitations:**
+**Known Limitations**
 
-- API surface may change based on feedback
-- Documentation is still evolving
-- Some advanced use cases may require direct interaction with underlying libraries
+- API surface may change based on feedback (see `ROADMAP-1.0.md`)
+- Some MUI v9 deprecation warnings still surface in console; planned for
+  cleanup before `1.0`
+- Documentation is still evolving — only `@dashforge/forms` has a rich README
+  today; the others are scheduled for `0.2.0-beta`
 
 ## Contributing
 

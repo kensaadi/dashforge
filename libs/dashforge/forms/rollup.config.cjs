@@ -11,7 +11,10 @@ module.exports = withNx(
     external: ['react', 'react-dom', 'react/jsx-runtime', '@dashforge/ui-core'],
     format: ['esm'],
     sourcemap: true,
-    assets: [{ input: '.', output: '.', glob: 'README.md' }],
+    assets: [
+      { input: '.', output: '.', glob: 'README.md' },
+      { input: '.', output: '.', glob: 'CHANGELOG.md' },
+    ],
   },
   {
     // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
