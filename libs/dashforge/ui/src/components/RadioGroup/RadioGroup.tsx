@@ -5,9 +5,10 @@ import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Radio from '@mui/material/Radio';
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useDashFieldMeta } from '@dashforge/forms';
 import type { FieldRegistration, Engine } from '@dashforge/ui-core';
 import { useAccessState } from '../../hooks/useAccessState';
 
@@ -109,16 +110,32 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
   // Get engine for visibility evaluation
   const engine = bridge?.engine;
 
-  // Subscribe to bridge state changes for reactive updates
-  // Access version strings to create subscriptions (causes re-render when they change)
-  void bridge?.errorVersion;
-  void bridge?.touchedVersion;
-  void bridge?.dirtyVersion;
-  void bridge?.submitCount;
-  void bridge?.valuesVersion;
+  // Granular per-field subscription (replaces legacy global void-version trick).
+  useDashFieldMeta(name);
 
   // RBAC access state for group (hook always called unconditionally)
   const groupAccessState = useAccessState(access);
+
+  // Release engine/RHF state on REAL unmount when registered through the
+  // bridge. See TextField.tsx for the rationale (bridge identity changes
+  // on every keystroke, so we must not re-run cleanup on deps changes).
+  const unregisterRef = useRef({ bridge, name });
+  unregisterRef.current = { bridge, name };
+  const isMountedRef = useRef(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      const { bridge: capturedBridge, name: capturedName } =
+        unregisterRef.current;
+      queueMicrotask(() => {
+        if (!isMountedRef.current) {
+          capturedBridge?.unregister?.(capturedName);
+        }
+      });
+    };
+  }, []);
 
   // Evaluate visibility predicate
   const isVisible = useEngineVisibility(engine, visibleWhen);

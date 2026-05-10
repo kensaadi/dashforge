@@ -127,6 +127,13 @@ export function createMockBridge(options: MockBridgeOptions = {}): {
       };
     },
 
+    unregister: (name: string) => {
+      delete state.values[name];
+      delete state.errors[name];
+      delete state.touched[name];
+      notifySubscribers();
+    },
+
     getError: (name: string) => {
       return state.errors[name] ?? null;
     },

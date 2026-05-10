@@ -13,6 +13,8 @@ export type { RbacProviderProps } from './RbacProvider';
 export { useRbac } from './useRbac';
 export type { UseRbacResult } from './useRbac';
 
+export { useRbacOptional } from './useRbacOptional';
+
 export { useCan } from './useCan';
 
 export { Can } from './Can';

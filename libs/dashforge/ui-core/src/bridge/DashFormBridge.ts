@@ -122,6 +122,28 @@ export interface DashFormBridge {
   subscribeFieldRuntime?(name: string, listener: () => void): () => void;
 
   /**
+   * Subscribe to per-field state changes (value, error, touched, dirty).
+   *
+   * Listener fires ONLY when this specific field's state changes — not for
+   * any change in any other field. This is the granular subscription that
+   * enables isolated re-renders: a UI component subscribed to field "email"
+   * is NOT notified when "password" changes.
+   *
+   * USAGE: Pair with `useSyncExternalStore` and a per-field getter (e.g.
+   * `bridge.getValue(name)` / `bridge.getError(name)`) to subscribe a UI
+   * component to its own field state. Replaces the legacy
+   * `void bridge?.errorVersion` "global subscribe" trick which forced a
+   * re-render of every consumer on every keystroke.
+   *
+   * Implementation provided by @dashforge/forms DashFormProvider.
+   *
+   * @param name - Field name to subscribe to
+   * @param listener - Callback fired on per-field state change
+   * @returns Unsubscribe function
+   */
+  subscribeField?(name: string, listener: () => void): () => void;
+
+  /**
    * Register a field with the form system.
    * Returns an object with onChange, onBlur, ref, etc.
    *
@@ -129,6 +151,21 @@ export interface DashFormBridge {
    * @param rules - Validation rules (opaque to ui-core)
    */
   register?: (name: string, rules?: unknown) => FieldRegistration;
+
+  /**
+   * Unregister a field from the form system.
+   *
+   * Counterpart to `register`. UI components that consume the bridge via
+   * `register` should call this on unmount to release engine/RHF state for
+   * the field and avoid leaks (engine nodes growing unbounded, reactions
+   * firing on stale fields).
+   *
+   * Optional for backward compatibility: bridge implementations may omit it,
+   * and consumers should always invoke it via optional chaining.
+   *
+   * @param name - Field name
+   */
+  unregister?: (name: string) => void;
 
   /**
    * Get validation error for a field.

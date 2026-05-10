@@ -81,6 +81,15 @@ export type { UseDashRegisterResult } from './hooks/useDashRegister';
 export { useFieldRuntime } from './hooks/useFieldRuntime';
 
 /**
+ * Hook for granular per-field state subscription.
+ * Replaces the legacy `void bridge?.errorVersion` global subscribe pattern
+ * with a subscription scoped to a single field name. The consumer
+ * re-renders ONLY when its own field's value/error/touched/dirty changes.
+ */
+export { useDashFieldMeta } from './hooks/useDashFieldMeta';
+export type { DashFieldMeta } from './hooks/useDashFieldMeta';
+
+/**
  * Hook to manage dynamic field arrays.
  * V1: Thin adapter over RHF useFieldArray with Dashforge API.
  * Provides pre-computed field names and stable IDs.

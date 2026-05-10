@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DashFormProvider } from './DashFormProvider';
 import { useDashFormContext } from './useDashFormContext';
+import { useDashFieldMeta } from '../hooks/useDashFieldMeta';
 import { DashFormContext } from '@dashforge/ui-core';
 import type { Resolver, FieldError } from 'react-hook-form';
 import { useState, useContext } from 'react';
@@ -32,11 +33,16 @@ interface TestFormValues {
 function TestComponent({ fieldName = 'email' }: { fieldName?: string }) {
   const bridge = useContext(DashFormContext);
   const [inputValue, setInputValue] = useState('');
-  
+
   if (!bridge) throw new Error('Bridge not available');
-  
+
+  // Subscribe to per-field meta changes so the component re-renders when
+  // resolver-emitted errors arrive (post-0.1.6 the bridge identity is
+  // stable, so reading bridge.getError() during render is no longer
+  // sufficient on its own).
+  const { error } = useDashFieldMeta(fieldName);
+
   const registration = bridge.register(fieldName);
-  const error = bridge.getError(fieldName);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
@@ -142,10 +148,12 @@ describe('DashFormProvider - Resolver Pass-Through', () => {
 
       if (!bridge) throw new Error('Bridge not available');
 
+      // Subscribe to per-field meta so error updates re-render the component.
+      const { error } = useDashFieldMeta('email');
+
       const registration = bridge.register('email', {
         required: 'Email required by RegisterOptions',
       });
-      const error = bridge.getError('email');
 
       const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;
@@ -221,10 +229,12 @@ describe('DashFormProvider - Resolver Pass-Through', () => {
 
       if (!bridge) throw new Error('Bridge not available');
 
+      // Subscribe to per-field meta so error updates re-render the component.
+      const { error } = useDashFieldMeta('email');
+
       const registration = bridge.register('email', {
         required: 'RegisterOptions error',
       });
-      const error = bridge.getError('email');
 
       const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;

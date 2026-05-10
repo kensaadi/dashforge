@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useRbac, resolveAccessState } from '@dashforge/rbac';
+import { useRbacOptional, resolveAccessState } from '@dashforge/rbac';
 import type { AccessRequirement, AccessState } from '@dashforge/rbac';
 
 // Default full access state (used when no access requirement or no RbacProvider)
@@ -47,30 +47,28 @@ const DEFAULT_ACCESS_STATE: AccessState = {
 export function useAccessState(
   access: AccessRequirement | undefined
 ): AccessState {
-  // If no access requirement, return default full access (no RBAC evaluation needed)
-  if (!access) {
-    return DEFAULT_ACCESS_STATE;
-  }
+  // Hooks are called unconditionally to comply with the rules of hooks.
+  // useRbacOptional() returns null when no RbacProvider is mounted (no throw).
+  const rbac = useRbacOptional();
 
-  // Attempt to use RBAC context
-  let rbac;
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    rbac = useRbac();
-  } catch (error) {
-    // No RbacProvider found - fail safe to full access
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(
-        '[useAccessState] No RbacProvider found but access requirement was provided. ' +
-          'Defaulting to full access. Wrap your component tree with <RbacProvider> to enable RBAC. ' +
-          `Resource: ${access.resource}, Action: ${access.action}`
-      );
+  return useMemo(() => {
+    if (!access) {
+      return DEFAULT_ACCESS_STATE;
     }
-    return DEFAULT_ACCESS_STATE;
-  }
 
-  // Resolve to UI access state using memoization
-  // This prevents creating new objects when access requirement doesn't change
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useMemo(() => resolveAccessState(access, rbac.can), [access, rbac]);
+    if (!rbac) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          '[useAccessState] No RbacProvider found but access requirement was provided. ' +
+            'Defaulting to full access. Wrap your component tree with <RbacProvider> to enable RBAC. ' +
+            `Resource: ${access.resource}, Action: ${access.action}`
+        );
+      }
+      return DEFAULT_ACCESS_STATE;
+    }
+
+    return resolveAccessState(access, (request) =>
+      rbac.engine.can(rbac.subject, request)
+    );
+  }, [access, rbac]);
 }

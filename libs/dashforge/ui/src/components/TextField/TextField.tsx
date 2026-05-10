@@ -1,6 +1,7 @@
 import MuiTextField from '@mui/material/TextField';
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useDashFieldMeta } from '@dashforge/forms';
 import { useDashTheme } from '@dashforge/theme-core';
 import type { DashFormBridge } from '@dashforge/ui-core';
 import type { TextFieldProps } from './textField.types';
@@ -65,20 +66,46 @@ export function TextField(props: TextFieldProps) {
   const engine = bridge?.engine;
   const dashTheme = useDashTheme();
 
-  // Subscribe to form state changes by accessing version strings
-  // This ensures TextField re-renders when validation errors or touched state changes
-  // Using void to explicitly mark as intentional subscription without side effects
-  void bridge?.errorVersion;
-  void bridge?.touchedVersion;
-  void bridge?.dirtyVersion;
-  void bridge?.submitCount;
-  void bridge?.valuesVersion;
+  // Granular per-field subscription: re-renders this component ONLY when
+  // its own field state changes (value/error/touched/dirty/submitCount).
+  // Replaces the legacy `void bridge?.errorVersion` global subscribe trick
+  // which forced every consumer to re-render on every keystroke anywhere
+  // in the form.
+  const fieldMeta = useDashFieldMeta(name);
 
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
 
   // RBAC access state (hook always called unconditionally)
   const accessState = useAccessState(access);
+
+  // Release engine/RHF state on REAL unmount when registered through the
+  // bridge. Important details:
+  //  - The bridge object identity changes on every keystroke (its memo deps
+  //    include version strings). We must NOT re-run cleanup on those changes,
+  //    otherwise rhf.unregister() would fire mid-typing and wipe the value.
+  //  - StrictMode performs a fake mount/unmount/remount in dev. We defer the
+  //    unregister to a microtask and skip it if the component is still
+  //    mounted (i.e. it was a StrictMode double-invoke, not a real unmount).
+  //  - We capture the latest bridge/name via a ref so the cleanup uses the
+  //    current values without taking them as effect dependencies.
+  const unregisterRef = useRef({ bridge, name });
+  unregisterRef.current = { bridge, name };
+  const isMountedRef = useRef(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      const { bridge: capturedBridge, name: capturedName } =
+        unregisterRef.current;
+      queueMicrotask(() => {
+        if (!isMountedRef.current) {
+          capturedBridge?.unregister?.(capturedName);
+        }
+      });
+    };
+  }, []);
 
   // Early return for visibleWhen
   if (!isVisible) {
@@ -280,8 +307,10 @@ export function TextField(props: TextFieldProps) {
   }
 
   // Standard TextField mode
-  // Get value from bridge for controlled mode
-  const fieldValue = bridge.getValue?.(name) ?? '';
+  // Read the current value from the granular subscription. The hook keeps
+  // this component in sync without triggering re-renders for unrelated
+  // field changes elsewhere in the form.
+  const fieldValue = (fieldMeta.value as string | number | undefined) ?? '';
 
   // Floating layout: use standard MUI TextField with internal label
   if (layout === 'floating') {

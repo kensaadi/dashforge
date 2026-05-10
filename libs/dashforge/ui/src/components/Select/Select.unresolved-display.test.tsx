@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { DashForm } from '@dashforge/forms';
 import type { ReactionDefinition } from '@dashforge/forms';
 import { Select } from './Select';
@@ -137,7 +137,7 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(hiddenInput.value).toBe('option-2');
     });
 
-    it('unresolved value displays empty when runtime ready, RHF unchanged', () => {
+    it('unresolved value displays empty when runtime ready and RHF auto-resets to null (0.1.6+)', async () => {
       const { state, container } = renderWithRuntime(
         <Select name="item" label="Item" optionsFromFieldData />,
         {
@@ -154,10 +154,15 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
         }
       );
 
-      // CRITICAL: RHF value must remain unchanged
-      expect(state?.values.item).toBe('deleted-option');
+      // Auto-reset (0.1.6-alpha): RHF value is cleared to null when the
+      // loaded runtime options can't resolve the current value. Previously
+      // the value was preserved, but that left the form submitting a stale
+      // id that the user couldn't see or change.
+      await waitFor(() => {
+        expect(state?.values.item).toBeNull();
+      });
 
-      // Display value should be empty (prevents MUI warning)
+      // Display value is empty (prevents MUI warning).
       const hiddenInput = container.querySelector(
         'input[name="item"]'
       ) as HTMLInputElement;
@@ -195,7 +200,7 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
       expect(hiddenInput.value).toBe('');
     });
 
-    it('empty options with non-empty value displays empty', () => {
+    it('empty options with non-empty value displays empty AND auto-resets RHF to null (0.1.6+)', async () => {
       const { state, container } = renderWithRuntime(
         <Select name="item" label="Item" optionsFromFieldData />,
         {
@@ -212,10 +217,13 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
         }
       );
 
-      // RHF value unchanged
-      expect(state?.values.item).toBe('some-value');
+      // Auto-reset (0.1.6-alpha): with no options the value can't resolve,
+      // so it is cleared to null.
+      await waitFor(() => {
+        expect(state?.values.item).toBeNull();
+      });
 
-      // Display empty (unresolved)
+      // Display empty (unresolved).
       const hiddenInput = container.querySelector(
         'input[name="item"]'
       ) as HTMLInputElement;

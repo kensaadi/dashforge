@@ -31,6 +31,7 @@ export type {
 // React layer exports (re-export from react/index)
 export { RbacProvider } from './react/RbacProvider';
 export { useRbac } from './react/useRbac';
+export { useRbacOptional } from './react/useRbacOptional';
 export { useCan } from './react/useCan';
 export { Can } from './react/Can';
 

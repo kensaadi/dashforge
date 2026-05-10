@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6-alpha] — 2026-05-10
+
+### Added
+
+- **`useDashFieldMeta(name)` hook**: canonical per-field subscription. Returns
+  `{ value, error, touched, dirty, submitCount, allowAutoError }` and triggers
+  a re-render only when the named field's state changes. Backed by
+  `useSyncExternalStore` with a primitive-equality cache, so the snapshot
+  reference is stable across no-op reads (no tear-loop).
+
+### Changed
+
+- **`DashFormProvider` bridge identity is now stable** across keystrokes. The
+  `useMemo` that builds the bridge no longer depends on `valuesVersion` /
+  `errorVersion` / `touchedVersion` / `dirtyVersion` / `submitCount` strings —
+  reactivity is delegated to per-field listeners (`bridge.subscribeField`)
+  instead. Result: `useContext(DashFormContext)` consumers no longer re-render
+  on every keystroke.
+- Internally maintains stable refs to `errors`, `touchedFields`, `dirtyFields`
+  and `submitCount`, plus a `Map<fieldName, Set<listener>>` registry that the
+  RHF subscription diffs against to fire only the fields whose state actually
+  changed.
+
+### Fixed
+
+- **Bridge cleanup no longer destroys form values on first keystroke.**
+  Components calling `bridge.unregister(name)` from a `useEffect` cleanup were
+  previously seeing the cleanup fire on every render because the bridge
+  identity changed every keystroke. With the stable bridge, plus the
+  defer-via-`queueMicrotask` pattern in the UI components, cleanup runs only
+  on real unmount.
+
+## [0.1.5-alpha] - 2026-04-04
+
 ### Added
 
 - **Resolver Pass-Through**: Added `resolver` prop to `DashFormProvider` to enable schema-based validation via React Hook Form's resolver contract

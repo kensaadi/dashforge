@@ -11,6 +11,8 @@ export default defineConfig(() => ({
       '@dashforge/tokens': resolve(__dirname, '../tokens/src/index.ts'),
       '@dashforge/theme-core': resolve(__dirname, '../theme-core/src/index.ts'),
       '@dashforge/forms': resolve(__dirname, '../forms/src/index.ts'),
+      '@dashforge/rbac': resolve(__dirname, '../rbac/src/index.ts'),
+      '@dashforge/ui-core': resolve(__dirname, '../ui-core/src/index.ts'),
     },
   },
   // Uncomment this if you are using workers.

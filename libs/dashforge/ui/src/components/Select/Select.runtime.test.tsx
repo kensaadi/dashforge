@@ -401,7 +401,7 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       });
     });
 
-    it('should display empty selection when form value is unresolved (no automatic reset)', async () => {
+    it('should display empty selection AND auto-reset when form value is unresolved (0.1.6+)', async () => {
       const { getFormValue, container } = renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
         {
@@ -429,8 +429,17 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       ) as HTMLInputElement;
       expect(hiddenInput?.value).toBe('');
 
-      // Form value should remain unchanged (policy: no automatic reset)
-      expect(getFormValue('city')).toBe('unknown-city');
+      // Auto-reset (introduced 0.1.6-alpha): when the loaded options can no
+      // longer resolve the current value (e.g. parent field changed and a
+      // reaction reloaded options for a different scope), the form value is
+      // cleared to null automatically. This prevents stale ids from lingering
+      // in form state where the user can neither see nor change them.
+      // Note: `getFormValue` coalesces null to '' for ergonomics, so we
+      // accept either form here.
+      await waitFor(() => {
+        const v = getFormValue('city');
+        expect(v === null || v === '').toBe(true);
+      });
     });
 
     it('should handle runtime error state without throwing (component stability)', () => {
@@ -520,7 +529,7 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
       // This is implicit - no exception thrown, component renders
     });
 
-    it('should NOT reset form value when value is unresolved', () => {
+    it('should auto-reset form value when value is unresolved (0.1.6+)', async () => {
       const { getFormValue } = renderWithRuntime(
         <Select name="city" label="City" optionsFromFieldData />,
         {
@@ -539,8 +548,15 @@ describe('Select - Runtime Integration (Reactive V2)', () => {
         }
       );
 
-      // Form value must remain unchanged (policy: no automatic reset)
-      expect(getFormValue('city')).toBe('deleted-city');
+      // Auto-reset policy (0.1.6-alpha): an unresolved value is cleared to
+      // null so the user can re-pick a valid option. Previously the value
+      // was preserved indefinitely, which created confusing dependent-field
+      // behavior (parent changes → child shows blank but still submits the
+      // old id).
+      await waitFor(() => {
+        const v = getFormValue('city');
+        expect(v === null || v === '').toBe(true);
+      });
     });
 
     it('should emit warning in development mode for unresolved value', async () => {

@@ -1,4 +1,4 @@
-import { createContext, useMemo, useEffect } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type {
   FieldValues,
@@ -193,6 +193,75 @@ export function DashFormProvider<
     return adapterInstance;
   }, [engine, rhf, debug]);
 
+  // === Per-field subscription system =========================================
+  // Map<fieldName, Set<listener>>. Listeners are notified ONLY when their
+  // specific field's state changes (value/error/touched/dirty), enabling
+  // isolated re-renders in UI components that pair this with
+  // useSyncExternalStore. Replaces the legacy "void bridge?.errorVersion"
+  // global subscribe trick that re-rendered every consumer on every keystroke.
+  // ==========================================================================
+  const fieldListenersRef = useRef<Map<string, Set<() => void>>>(new Map());
+
+  const notifyField = useCallback((name: string) => {
+    const listeners = fieldListenersRef.current.get(name);
+    if (!listeners) return;
+    listeners.forEach((listener) => listener());
+  }, []);
+
+  const subscribeField = useCallback(
+    (name: string, listener: () => void): (() => void) => {
+      let listeners = fieldListenersRef.current.get(name);
+      if (!listeners) {
+        listeners = new Set();
+        fieldListenersRef.current.set(name, listeners);
+      }
+      listeners.add(listener);
+      return () => {
+        const current = fieldListenersRef.current.get(name);
+        if (!current) return;
+        current.delete(listener);
+        if (current.size === 0) {
+          fieldListenersRef.current.delete(name);
+        }
+      };
+    },
+    []
+  );
+
+  // Wire adapter value-sync to per-field notifier: when RHF→Engine sync
+  // happens for a field, notify only that field's listeners.
+  useEffect(() => {
+    return adapter.addOnValueSyncListener((fieldName) => {
+      notifyField(fieldName);
+    });
+  }, [adapter, notifyField]);
+
+  // Diff RHF formState changes (errors/touched/dirty) to identify which
+  // fields actually changed and notify only those listeners. This avoids
+  // a global broadcast on every keystroke.
+  const prevErrorsRef = useRef<Record<string, unknown>>({});
+  const prevTouchedRef = useRef<Record<string, unknown>>({});
+  const prevDirtyRef = useRef<Record<string, unknown>>({});
+
+  const diffAndNotify = useCallback(
+    (
+      ref: React.MutableRefObject<Record<string, unknown>>,
+      current: Record<string, unknown> | undefined
+    ) => {
+      const prev = ref.current ?? {};
+      const next = current ?? {};
+      const allKeys = new Set([...Object.keys(prev), ...Object.keys(next)]);
+      for (const key of allKeys) {
+        // Cheap shallow compare (object identity changes when RHF mutates)
+        if (prev[key] !== next[key]) {
+          notifyField(key);
+        }
+      }
+      ref.current = next;
+    },
+    [notifyField]
+  );
+
   // NEW: Create runtime store (PROVIDER OWNS IT)
   // Memoized to maintain stable reference across renders
   const runtimeStore = useMemo(() => {
@@ -247,6 +316,50 @@ export function DashFormProvider<
 
     return registry;
   }, [reactions, debug, engine, rhf, runtimeStore]);
+
+  // Run diff-and-notify after every render (when RHF formState changes).
+  // We rely on the version strings being recomputed when the underlying
+  // objects change identity, then diff each field individually.
+  useEffect(() => {
+    diffAndNotify(
+      prevErrorsRef,
+      errors as Record<string, unknown> | undefined
+    );
+  }, [errorVersion, errors, diffAndNotify]);
+
+  useEffect(() => {
+    diffAndNotify(
+      prevTouchedRef,
+      touchedFields as Record<string, unknown> | undefined
+    );
+  }, [touchedVersion, touchedFields, diffAndNotify]);
+
+  useEffect(() => {
+    diffAndNotify(
+      prevDirtyRef,
+      dirtyFields as Record<string, unknown> | undefined
+    );
+  }, [dirtyVersion, dirtyFields, diffAndNotify]);
+
+  // Stable refs that always point at the latest formState values. The bridge
+  // closures read from these refs so they can return current data even though
+  // the bridge object identity itself stays stable (no re-render cascades).
+  const errorsRef = useRef(errors);
+  errorsRef.current = errors;
+  const touchedFieldsRef = useRef(touchedFields);
+  touchedFieldsRef.current = touchedFields;
+  const dirtyFieldsRef = useRef(dirtyFields);
+  dirtyFieldsRef.current = dirtyFields;
+  const submitCountRef = useRef(submitCount);
+  submitCountRef.current = submitCount;
+  const errorVersionRef = useRef(errorVersion);
+  errorVersionRef.current = errorVersion;
+  const touchedVersionRef = useRef(touchedVersion);
+  touchedVersionRef.current = touchedVersion;
+  const dirtyVersionRef = useRef(dirtyVersion);
+  dirtyVersionRef.current = dirtyVersion;
+  const valuesVersionRef = useRef(valuesVersion);
+  valuesVersionRef.current = valuesVersion;
 
   // Build bridge value for public DashFormContext (minimal API)
   // Used by ui components to detect and integrate with form
@@ -324,8 +437,16 @@ export function DashFormProvider<
           onChange: wrappedOnChange,
         } as FieldRegistration;
       },
+      unregister: (name: string) => {
+        const fieldName = name as FieldPath<TFieldValues>;
+        // Release RHF state and engine node so reactions stop firing for this field
+        rhf.unregister(fieldName);
+        adapter.unregisterField(fieldName);
+      },
+      // Per-field subscription (granular re-render path)
+      subscribeField,
       getError: (name: string): BridgeFieldError | null => {
-        const err = getByPath(errors, name);
+        const err = getByPath(errorsRef.current, name);
 
         // Check if error has a message property
         if (err && typeof err === 'object' && 'message' in err) {
@@ -337,19 +458,35 @@ export function DashFormProvider<
 
         return null;
       },
-      errorVersion,
+      // The xxxVersion getters keep the legacy "subscribe via property
+      // access" pattern (`void bridge?.errorVersion`) compiling, but they no
+      // longer cause global re-renders because the bridge identity is now
+      // stable. New code should use `subscribeField(name, listener)` (via
+      // useSyncExternalStore / useDashFieldMeta) for isolated per-field
+      // subscriptions.
+      get errorVersion() {
+        return errorVersionRef.current;
+      },
       isTouched: (name: string): boolean => {
-        const touched = getByPath(touchedFields, name);
+        const touched = getByPath(touchedFieldsRef.current, name);
         return Boolean(touched);
       },
       isDirty: (name: string): boolean => {
-        const dirty = getByPath(dirtyFields, name);
+        const dirty = getByPath(dirtyFieldsRef.current, name);
         return Boolean(dirty);
       },
-      touchedVersion,
-      dirtyVersion,
-      valuesVersion,
-      submitCount,
+      get touchedVersion() {
+        return touchedVersionRef.current;
+      },
+      get dirtyVersion() {
+        return dirtyVersionRef.current;
+      },
+      get valuesVersion() {
+        return valuesVersionRef.current;
+      },
+      get submitCount() {
+        return submitCountRef.current;
+      },
       setValue: (name: string, value: unknown) => {
         rhf.setValue(
           name as FieldPath<TFieldValues>,
@@ -361,18 +498,12 @@ export function DashFormProvider<
       },
       debug,
     }),
-    [
-      engine,
-      runtimeStore,
-      rhf,
-      adapter,
-      debug,
-      errorVersion,
-      touchedVersion,
-      dirtyVersion,
-      valuesVersion,
-      submitCount,
-    ]
+    // Identity-stable bridge: deps include only the long-lived references.
+    // Removing the version strings from this list is the core of the
+    // re-render optimization — the bridge no longer changes on every
+    // keystroke, and consumers must use subscribeField/useDashFieldMeta to
+    // observe per-field state changes.
+    [engine, runtimeStore, rhf, adapter, debug, subscribeField]
   );
 
   // Build internal context value for @dashforge/forms hooks

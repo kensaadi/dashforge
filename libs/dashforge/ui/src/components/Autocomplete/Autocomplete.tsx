@@ -1,14 +1,14 @@
 import MuiAutocomplete from '@mui/material/Autocomplete';
 import type { AutocompleteProps as MuiAutocompleteProps } from '@mui/material/Autocomplete';
 import MuiTextField from '@mui/material/TextField';
-import { useContext, useMemo, useState, useEffect } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type {
   DashFormBridge,
   FieldRegistration,
   Engine,
 } from '@dashforge/ui-core';
-import { useFieldRuntime } from '@dashforge/forms';
+import { useDashFieldMeta, useFieldRuntime } from '@dashforge/forms';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
 
@@ -253,14 +253,8 @@ export function Autocomplete<
   // RBAC access state (hook always called unconditionally)
   const accessState = useAccessState(access);
 
-  // Subscribe to form state changes by accessing version strings
-  // This ensures Autocomplete re-renders when validation errors or touched state changes
-  // Using void to explicitly mark as intentional subscription without side effects
-  void bridge?.errorVersion;
-  void bridge?.touchedVersion;
-  void bridge?.dirtyVersion;
-  void bridge?.submitCount;
-  void bridge?.valuesVersion;
+  // Granular per-field subscription (replaces legacy global void-version trick).
+  useDashFieldMeta(name);
 
   // Phase 2: Dev warnings for invalid prop combinations
   useEffect(() => {
@@ -295,6 +289,27 @@ export function Autocomplete<
     }
   }, [optionsFromFieldData, bridge, name, options, explicitValue]);
 
+  // Release engine/RHF state on REAL unmount when registered through the
+  // bridge. See TextField.tsx for the rationale (bridge identity changes
+  // on every keystroke, so we must not re-run cleanup on deps changes).
+  const unregisterRef = useRef({ bridge, name });
+  unregisterRef.current = { bridge, name };
+  const isMountedRef = useRef(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      const { bridge: capturedBridge, name: capturedName } =
+        unregisterRef.current;
+      queueMicrotask(() => {
+        if (!isMountedRef.current) {
+          capturedBridge?.unregister?.(capturedName);
+        }
+      });
+    };
+  }, []);
+
   // Default mappers (with correction: String(option ?? ''))
   const defaultGetValue = (opt: TOption): TValue => {
     // For backward compatibility: if opt has a 'value' property, use it
@@ -317,6 +332,13 @@ export function Autocomplete<
   const actualGetValue = getOptionValue ?? defaultGetValue;
   const actualGetLabel = getOptionLabel ?? defaultGetLabel;
   const actualGetDisabled = getOptionDisabled ?? defaultGetDisabled;
+
+  // Object-mapped mode: the consumer passed custom mappers, so the stored
+  // value is semantically an id and the input shows a label. We use this
+  // to disable freeSolo "commit typed text on blur" and to never expose the
+  // raw stored value in the input display.
+  const isObjectMappedMode =
+    getOptionValue !== undefined || getOptionLabel !== undefined;
 
   // Phase 2: Resolve options source (runtime vs static)
   const rawRuntimeOptions =
@@ -428,7 +450,10 @@ export function Autocomplete<
     // Rule: IF optionsFromFieldData=true AND runtime.status='ready':
     //   - IF value matches normalizedOptions → show option
     //   - ELSE → sanitize to null (display empty string)
-    // ELSE (static mode):
+    // ELSE IF object-mapped mode (custom getOptionValue/getOptionLabel):
+    //   - The stored value is semantically an id, not human-readable text →
+    //     sanitize unresolved values so the input never shows a raw id.
+    // ELSE (pure freeSolo static mode):
     //   - preserve freeSolo behavior: sanitize numeric, show string
     const isRuntimeMode = optionsFromFieldData && runtime?.status === 'ready';
     const isValueResolved =
@@ -438,8 +463,12 @@ export function Autocomplete<
     if (isRuntimeMode) {
       // Runtime mode: sanitize ALL unresolved values (type-independent)
       shouldSanitize = !isValueResolved;
+    } else if (isObjectMappedMode) {
+      // Object-mapped static mode: never expose the raw stored value
+      // (it's an id, not a label) when no matching option is found.
+      shouldSanitize = !isValueResolved;
     } else {
-      // Static mode: preserve freeSolo behavior (only sanitize numeric)
+      // Pure freeSolo static mode: preserve typed text behavior
       shouldSanitize = !isValueResolved && typeof resolvedValue === 'number';
     }
 
@@ -460,12 +489,21 @@ export function Autocomplete<
       ? String(displayInputValue)
       : '';
 
-    const [inputValue, setInputValue] = useState(computedInputValue);
+    const [localInputValue, setLocalInputValue] = useState(computedInputValue);
 
-    // Sync inputValue when resolvedValue or matchingOption changes
+    // Sync local state when resolvedValue or matchingOption changes (only
+    // relevant for pure freeSolo mode where the user can type free text).
     useEffect(() => {
-      setInputValue(computedInputValue);
+      setLocalInputValue(computedInputValue);
     }, [computedInputValue]);
+
+    // In object-mapped mode the input must always reflect the matched option's
+    // label (or empty), never local typed text — the stored value is an id and
+    // free-typing arbitrary text would corrupt the round-trip. Use the
+    // derived computedInputValue directly. In pure freeSolo mode keep the
+    // local state so typing works as before.
+    const inputValue = isObjectMappedMode ? computedInputValue : localInputValue;
+    const setInputValue = setLocalInputValue;
 
     // Phase 2: Unresolved value detection
     // Only warn in dev mode, only when runtime is ready, deduplicate warnings
@@ -506,6 +544,16 @@ export function Autocomplete<
         unresolvedDetection.availableValues
       );
     }, [unresolvedDetection, bridge]);
+
+    // Auto-reset value when the loaded options no longer contain the current
+    // value (e.g. a parent field changed and reaction reloaded options for a
+    // different scope). Without this the form state would keep an id that the
+    // user can't see and can't pick again — a stale value bug.
+    useEffect(() => {
+      if (!unresolvedDetection) return;
+      if (!bridge?.setValue) return;
+      bridge.setValue(name, null);
+    }, [unresolvedDetection, bridge, name]);
 
     // Wrap onChange to update both registration and bridge
     const handleChange = async (
@@ -557,6 +605,13 @@ export function Autocomplete<
       newInputValue: string,
       reason: string
     ) => {
+      // In object-mapped mode the input value is derived from the selected
+      // option (computedInputValue), not from a local state. Skip updates so
+      // MUI's internal label-syncing can't pollute the displayed text with
+      // arbitrary strings (e.g. the raw id from a transient render).
+      if (isObjectMappedMode) {
+        return;
+      }
       // Update inputValue state for all reasons except 'reset'
       // MUI uses 'reset' for internal state management
       if (reason !== 'reset') {
@@ -566,37 +621,44 @@ export function Autocomplete<
 
     // Wrap onBlur to mark as touched AND commit freeSolo value
     const handleBlur = async (event: React.FocusEvent<HTMLDivElement>) => {
-      // HARDENING B: Use currentTarget + querySelector for robust input detection
-      // event.currentTarget is the Autocomplete root div, event.target might be any child
-      const inputElement = event.currentTarget.querySelector('input');
+      // In object-mapped mode (custom getOptionValue/getOptionLabel) the
+      // stored value is an id and the input shows a label. Committing the
+      // typed text on blur would overwrite the id with the label and break
+      // the round-trip. Skip the freeSolo commit path entirely.
+      if (!isObjectMappedMode) {
+        // HARDENING B: Use currentTarget + querySelector for robust input detection
+        // event.currentTarget is the Autocomplete root div, event.target might be any child
+        const inputElement = event.currentTarget.querySelector('input');
 
-      if (inputElement) {
-        const typedValue = inputElement.value;
+        if (inputElement) {
+          const typedValue = inputElement.value;
 
-        // Get current bridge value
-        const currentBridgeValue = bridge.getValue?.(name) ?? null;
+          // Get current bridge value
+          const currentBridgeValue = bridge.getValue?.(name) ?? null;
 
-        // Normalize typed value: empty string => null, otherwise cast to TValue
-        const valueToSet = typedValue === '' ? null : (typedValue as TValue);
+          // Normalize typed value: empty string => null, otherwise cast to TValue
+          const valueToSet =
+            typedValue === '' ? null : (typedValue as TValue);
 
-        // If the typed value is different from current value, update it
-        if (valueToSet !== currentBridgeValue) {
-          // Create synthetic event
-          const syntheticEvent = {
-            target: { name, value: valueToSet },
-            type: 'change',
-          };
+          // If the typed value is different from current value, update it
+          if (valueToSet !== currentBridgeValue) {
+            // Create synthetic event
+            const syntheticEvent = {
+              target: { name, value: valueToSet },
+              type: 'change',
+            };
 
-          // Update via registration and bridge
-          if (registration.onChange) {
-            await registration.onChange(syntheticEvent);
-          }
-          if (bridge.setValue) {
-            bridge.setValue(name, valueToSet);
-          }
-          // Call user's onChange if provided
-          if (explicitOnChange) {
-            explicitOnChange(valueToSet);
+            // Update via registration and bridge
+            if (registration.onChange) {
+              await registration.onChange(syntheticEvent);
+            }
+            if (bridge.setValue) {
+              bridge.setValue(name, valueToSet);
+            }
+            // Call user's onChange if provided
+            if (explicitOnChange) {
+              explicitOnChange(valueToSet);
+            }
           }
         }
       }
@@ -640,10 +702,19 @@ export function Autocomplete<
           return option.label;
         }}
         renderOption={(props, option: NormalizedOption<TValue>) => {
-          // MUI v7: Explicitly add aria-disabled for accessibility
-          // Note: Props AFTER spread override props FROM spread
+          // React 19: extract `key` explicitly, do NOT spread it via {...props}.
+          // MUI v7+: Explicitly add aria-disabled for accessibility.
+          // Note: Props AFTER spread override props FROM spread.
+          const { key, ...rest } = props as { key?: React.Key } & Record<
+            string,
+            unknown
+          >;
           return (
-            <li {...props} aria-disabled={option.disabled ? 'true' : 'false'}>
+            <li
+              key={key}
+              {...rest}
+              aria-disabled={option.disabled ? 'true' : 'false'}
+            >
               {option.label}
             </li>
           );
@@ -669,7 +740,13 @@ export function Autocomplete<
             label={label}
             error={resolvedError}
             helperText={resolvedHelperText}
-            inputRef={registration.ref}
+            // NOTE: We deliberately do NOT pass `inputRef={registration.ref}`
+            // here. The Autocomplete is fully controlled via
+            // `inputValue` + `bridge.setValue/getValue`; passing the RHF ref
+            // would let RHF write the raw stored value (an id, in object-
+            // mapped mode) directly to the DOM input on every setValue,
+            // overwriting MUI's controlled label and showing the id in the
+            // visible input.
             InputProps={{
               ...params.InputProps,
               readOnly: effectiveReadonly,
@@ -739,19 +816,24 @@ export function Autocomplete<
 
   // Plain mode onBlur handler to commit freeSolo text
   const handlePlainBlur = (event: React.FocusEvent<HTMLDivElement>) => {
-    // HARDENING B: Use currentTarget + querySelector for robust input detection
-    const inputElement = event.currentTarget.querySelector('input');
+    // Skip the freeSolo "commit typed text" path in object-mapped mode (the
+    // typed text is a label, not an id, and committing it would corrupt the
+    // value). See form-mode handleBlur for the same logic.
+    if (!isObjectMappedMode) {
+      // HARDENING B: Use currentTarget + querySelector for robust input detection
+      const inputElement = event.currentTarget.querySelector('input');
 
-    if (inputElement) {
-      const typedValue = inputElement.value;
+      if (inputElement) {
+        const typedValue = inputElement.value;
 
-      // Normalize typed value: empty string => null, otherwise cast to TValue
-      const valueToSet = typedValue === '' ? null : (typedValue as TValue);
+        // Normalize typed value: empty string => null, otherwise cast to TValue
+        const valueToSet = typedValue === '' ? null : (typedValue as TValue);
 
-      // If the typed value is different from current value, call onChange
-      if (valueToSet !== plainValue) {
-        if (explicitOnChange) {
-          explicitOnChange(valueToSet);
+        // If the typed value is different from current value, call onChange
+        if (valueToSet !== plainValue) {
+          if (explicitOnChange) {
+            explicitOnChange(valueToSet);
+          }
         }
       }
     }
@@ -793,10 +875,19 @@ export function Autocomplete<
         return option.label;
       }}
       renderOption={(props, option: NormalizedOption<TValue>) => {
-        // MUI v7: Explicitly add aria-disabled for accessibility
-        // Note: Props AFTER spread override props FROM spread
+        // React 19: extract `key` explicitly, do NOT spread it via {...props}.
+        // MUI v7+: Explicitly add aria-disabled for accessibility.
+        // Note: Props AFTER spread override props FROM spread.
+        const { key, ...rest } = props as { key?: React.Key } & Record<
+          string,
+          unknown
+        >;
         return (
-          <li {...props} aria-disabled={option.disabled ? 'true' : 'false'}>
+          <li
+            key={key}
+            {...rest}
+            aria-disabled={option.disabled ? 'true' : 'false'}
+          >
             {option.label}
           </li>
         );

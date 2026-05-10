@@ -486,7 +486,7 @@ describe('Autocomplete', () => {
           options={products}
           getOptionValue={(opt: Product) => opt.id}
           getOptionLabel={(opt: Product) => opt.name}
-          getOptionDisabled={(opt: Product) => opt.discontinued}
+          value={1}
         />
       );
 

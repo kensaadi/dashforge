@@ -1,16 +1,32 @@
 import MuiTextField from '@mui/material/TextField';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useDashFieldMeta } from '@dashforge/forms';
 import type {
   DashFormBridge,
   FieldRegistration,
   Engine,
 } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
+import { useDashTheme } from '@dashforge/theme-core';
 import { useAccessState } from '../../hooks/useAccessState';
+import { FieldLayoutShell } from '../_internal/FieldLayoutShell';
+import type { FieldLayout } from '../_internal/FieldLayoutShell';
 
 export type DateTimePickerMode = 'date' | 'time' | 'datetime';
+
+/**
+ * Layout for DateTimePicker label/control.
+ *
+ * Native `<input type="date|time|datetime-local">` always renders a
+ * visible placeholder (e.g. `mm/dd/yyyy`) and may be pre-filled with
+ * the current value. MUI's `floating` label would overlap that text,
+ * so this component does NOT support `floating` and uses `stacked` as
+ * the default. If `floating` is passed, it falls back to `stacked`
+ * (with a dev warning) for safety.
+ */
+export type DateTimePickerLayout = Exclude<FieldLayout, 'floating'>;
 
 export interface DateTimePickerProps
   extends Omit<MuiTextFieldProps, 'name' | 'type' | 'value' | 'onChange'> {
@@ -18,6 +34,13 @@ export interface DateTimePickerProps
   mode?: DateTimePickerMode;
   rules?: unknown;
   visibleWhen?: (engine: Engine) => boolean;
+  /**
+   * Layout for the label/control. Defaults to `stacked` because the
+   * native date/time inputs always show a placeholder mask, which makes
+   * the floating label pattern unusable. `floating` is silently downgraded
+   * to `stacked` (with a dev warning).
+   */
+  layout?: FieldLayout;
 
   /**
    * RBAC access requirement for this field.
@@ -191,24 +214,41 @@ export function DateTimePicker(props: DateTimePickerProps) {
     mode = 'datetime',
     value,
     onChange,
+    label,
+    required,
+    fullWidth,
     inputProps: inputPropsProp,
     InputLabelProps: inputLabelPropsProp,
     onBlur: onBlurProp,
+    layout = 'stacked',
     ...rest
   } = props;
+
+  // Resolve effective layout: native date/time inputs always show a
+  // placeholder mask, so the floating-label pattern is unusable. Downgrade
+  // `floating` to `stacked` and emit a dev warning so consumers know.
+  const effectiveLayout: DateTimePickerLayout =
+    layout === 'floating' ? 'stacked' : layout;
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    layout === 'floating' &&
+    typeof console !== 'undefined'
+  ) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[Dashforge DateTimePicker] layout="floating" is not supported because ` +
+        `native <input type="date|time|datetime-local"> always shows a ` +
+        `placeholder that overlaps the floating label. Using "stacked" instead.`
+    );
+  }
 
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
   const engine = bridge?.engine;
+  const dashTheme = useDashTheme();
 
-  // Subscribe to form state changes by accessing version strings
-  // This ensures DateTimePicker re-renders when validation errors or touched state changes
-  // Using void to explicitly mark as intentional subscription without side effects
-  void bridge?.errorVersion;
-  void bridge?.touchedVersion;
-  void bridge?.dirtyVersion;
-  void bridge?.submitCount;
-  void bridge?.valuesVersion;
+  // Granular per-field subscription (replaces legacy global void-version trick).
+  useDashFieldMeta(name);
 
   // Hook always called, regardless of bridge/visibleWhen state
   const isVisible = useEngineVisibility(engine, visibleWhen);
@@ -218,6 +258,35 @@ export function DateTimePicker(props: DateTimePickerProps) {
 
   // Internal state for plain mode (when not controlled by explicit value prop)
   const [internalInputValue, setInternalInputValue] = useState('');
+
+  // Last successfully-parsed ISO. Used as a fallback baseIso for time-mode
+  // typing so that intermediate invalid keystrokes (e.g. typing the first
+  // character of "13:45") don't wipe the date component. Without this the
+  // bridge briefly receives `null`, the next keystroke can't recover the
+  // base date, and `inputValueToIso` falls back to today — losing the
+  // original year/month/day.
+  const lastValidIsoRef = useRef<string | null>(null);
+
+  // Release engine/RHF state on REAL unmount when registered through the
+  // bridge. See TextField.tsx for the rationale (bridge identity changes
+  // on every keystroke, so we must not re-run cleanup on deps changes).
+  const unregisterRef = useRef({ bridge, name });
+  unregisterRef.current = { bridge, name };
+  const isMountedRef = useRef(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      const { bridge: capturedBridge, name: capturedName } =
+        unregisterRef.current;
+      queueMicrotask(() => {
+        if (!isMountedRef.current) {
+          capturedBridge?.unregister?.(capturedName);
+        }
+      });
+    };
+  }, []);
 
   // Early return for visibility
   if (!isVisible) {
@@ -269,6 +338,12 @@ export function DateTimePicker(props: DateTimePickerProps) {
     const bridgeIsoValue = (bridge.getValue?.(name) as string | null) ?? null;
     const resolvedIsoValue = value !== undefined ? value : bridgeIsoValue;
 
+    // Keep ref in sync with the latest non-null ISO seen during render so it
+    // can serve as a fallback baseIso for time-mode mid-typing.
+    if (resolvedIsoValue) {
+      lastValidIsoRef.current = resolvedIsoValue;
+    }
+
     // Convert ISO to input display string
     const inputValue = isoToInputValue(mode, resolvedIsoValue);
 
@@ -309,8 +384,21 @@ export function DateTimePicker(props: DateTimePickerProps) {
       // Extract input string from event
       const inputString = event.target.value;
 
+      // For time mode, prefer the most recent valid ISO as base date so
+      // intermediate keystrokes (e.g. just "1" before "13:45") don't lose
+      // year/month/day. Falls back to today only when there's no history.
+      // Use `||` because some bridge implementations return '' for null —
+      // an empty string is just as unusable as null for parsing a date.
+      const baseIso = resolvedIsoValue || lastValidIsoRef.current;
+
       // Convert input string to ISO or null
-      const isoOrNull = inputValueToIso(mode, inputString, resolvedIsoValue);
+      const isoOrNull = inputValueToIso(mode, inputString, baseIso);
+
+      // Persist the latest non-null parse so the next intermediate keystroke
+      // can recover the date component.
+      if (isoOrNull) {
+        lastValidIsoRef.current = isoOrNull;
+      }
 
       // Create a properly structured synthetic event
       const syntheticEvent = {
@@ -339,8 +427,13 @@ export function DateTimePicker(props: DateTimePickerProps) {
       // FIX #2: Read the actual input value at blur time
       const inputString = event.currentTarget.value;
 
+      // Use the same fallback baseIso strategy as handleChange to preserve
+      // the date component when blur fires on a partially typed time.
+      // `||` instead of `??` to also coalesce '' returned by some bridges.
+      const baseIso = resolvedIsoValue || lastValidIsoRef.current;
+
       // Compute ISO from current input string
-      const isoOrNull = inputValueToIso(mode, inputString, resolvedIsoValue);
+      const isoOrNull = inputValueToIso(mode, inputString, baseIso);
 
       // Create a synthetic blur event for touch tracking
       const syntheticEvent = {
@@ -359,15 +452,22 @@ export function DateTimePicker(props: DateTimePickerProps) {
       }
     };
 
-    return (
+    const fieldId = `dashforge-field-${name}`;
+    const control = (
       <MuiTextField
         name={name}
         type={inputType}
         value={inputValue}
         error={resolvedError}
-        helperText={resolvedHelperText}
         {...rest}
+        id={fieldId}
+        // Label and helperText are rendered by FieldLayoutShell to keep
+        // them out of the input padding (avoids overlap with the native
+        // date/time placeholder).
+        label={undefined}
+        helperText={undefined}
         disabled={effectiveDisabled}
+        fullWidth={fullWidth}
         slotProps={mergedSlotProps}
         // FIX #1: Pass merged props AFTER {...rest} to prevent override
         InputLabelProps={mergedInputLabelProps}
@@ -378,6 +478,22 @@ export function DateTimePicker(props: DateTimePickerProps) {
         onBlur={handleBlur}
         inputRef={registration.ref}
       />
+    );
+
+    return (
+      <FieldLayoutShell
+        layout={effectiveLayout}
+        label={label}
+        required={required}
+        helperText={resolvedHelperText}
+        error={resolvedError}
+        disabled={effectiveDisabled}
+        htmlFor={fieldId}
+        fullWidth={fullWidth}
+        theme={dashTheme}
+      >
+        {control}
+      </FieldLayoutShell>
     );
   }
 
@@ -404,13 +520,18 @@ export function DateTimePicker(props: DateTimePickerProps) {
     }
   };
 
-  return (
+  const fieldId = `dashforge-field-${name}`;
+  const control = (
     <MuiTextField
       name={name}
       type={inputType}
       value={displayInputValue}
       {...rest}
+      id={fieldId}
+      label={undefined}
+      helperText={undefined}
       disabled={effectiveDisabled}
+      fullWidth={fullWidth}
       slotProps={mergedSlotProps}
       // FIX #1: Pass merged props AFTER {...rest} to prevent override
       InputLabelProps={mergedInputLabelProps}
@@ -418,5 +539,21 @@ export function DateTimePicker(props: DateTimePickerProps) {
       // IMPORTANT: Put handler AFTER {...rest} spread
       onChange={handlePlainChange}
     />
+  );
+
+  return (
+    <FieldLayoutShell
+      layout={effectiveLayout}
+      label={label}
+      required={required}
+      helperText={rest.helperText}
+      error={Boolean(rest.error)}
+      disabled={effectiveDisabled}
+      htmlFor={fieldId}
+      fullWidth={fullWidth}
+      theme={dashTheme}
+    >
+      {control}
+    </FieldLayoutShell>
   );
 }

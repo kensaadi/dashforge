@@ -396,6 +396,16 @@ export function Select<T extends string | number = string | number>(
     );
   }, [unresolvedDetection, bridge]);
 
+  // Auto-reset value when the loaded options no longer contain the current
+  // value (e.g. a parent field changed and reaction reloaded options for a
+  // different scope). Keeps the form state consistent with what the user can
+  // actually pick from the dropdown.
+  useEffect(() => {
+    if (!unresolvedDetection) return;
+    if (!bridge?.setValue) return;
+    bridge.setValue(name, null);
+  }, [unresolvedDetection, bridge, name]);
+
   // Compose Select from TextField with select mode enabled
   // TextField handles all form integration, error binding, gating, and RBAC
   return (
