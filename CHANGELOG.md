@@ -10,6 +10,87 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [Unreleased] — targeting `0.1.8-alpha`
+
+> **MUI v9 compatibility release.** Migrates `@dashforge/ui` and
+> `@dashforge/theme-mui` from `@mui/material@^7` to `@mui/material@^9`,
+> eliminating the four persistent React deprecation warnings
+> (`InputProps`, `inputProps`, `InputLabelProps`, `inputRef`) that fired on
+> every render of every form component. No public API breaks.
+
+Affected packages:
+
+| Package                | Notes                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| `@dashforge/ui`        | All 9 form components migrated to `slotProps`. Snackbar, ConfirmDialog and LeftNav fixed for v9.    |
+| `@dashforge/theme-mui` | Peer dep bumped to `@mui/material@^9.0.0`. Theme overrides untouched (slot signatures unchanged).   |
+
+### Changed
+
+- **Peer dependency** `@mui/material` widened from `^7.0.0` to `^9.0.0`
+  in both `@dashforge/ui` and `@dashforge/theme-mui`. The workspace
+  dev-dependency is also bumped so tests and builds run against v9.
+- **`@dashforge/ui` form components** — all internal usage of the deprecated
+  top-level props is migrated to the new MUI v9 `slotProps` API:
+
+  | Old prop          | New location                       |
+  | ----------------- | ---------------------------------- |
+  | `inputRef`        | `slotProps.htmlInput.ref` (TextField family) or `slotProps.input.ref` (SwitchBase family) |
+  | `InputProps`      | `slotProps.input`                  |
+  | `inputProps`      | `slotProps.htmlInput`              |
+  | `InputLabelProps` | `slotProps.inputLabel`             |
+
+  Touched: `TextField`, `Textarea`, `Select` (via `textField.select.ts`),
+  `Autocomplete` (`params.InputProps` → `params.slotProps.input` inside
+  `renderInput`), `Checkbox`, `Switch`, `DateTimePicker`.
+  `NumberField` and `RadioGroup` did not use the deprecated props internally
+  so they only inherit the cleaner downstream behavior.
+
+- **`@dashforge/ui` non-form components** also adapted to v9:
+  - `LeftNav`: `PaperProps` → `slotProps.paper`; `ModalProps` → `slotProps.root`.
+    Without this, the `role="navigation"` and `data-dash-open` attributes
+    were silently dropped under v9.
+  - `Snackbar`: `TransitionComponent` → `slots.transition`. The Slide
+    `direction` prop now flows through `slotProps.transition`.
+
+### Fixed
+
+- **Four persistent React deprecation warnings** in the browser console
+  (one per deprecated prop, fired on every render of every form component
+  under MUI v9) are eliminated. End-to-end browser smoke on the
+  `~/projects/web/learn/dash` consumer shows zero React deprecation errors.
+- **`LeftNav` accessibility**: the `role="navigation"` landmark that
+  silently disappeared after the v9 bump is back. Drawer + RBAC tests for
+  `LeftNav` pass again.
+
+### Backwards compatibility
+
+The public API of `@dashforge/ui` components does **not** change. The
+deprecated MUI props were always:
+
+- Either explicitly `Omit`-ed from the component prop types (`TextField`,
+  `Select`, `Autocomplete`), so consumers couldn't pass them anyway;
+- Or forwarded internally to the new `slotProps` shape (`DateTimePicker`,
+  which still accepts `inputProps` and `InputLabelProps` as `@deprecated`
+  props for ergonomic backward compat).
+
+`DateTimePickerProps` now explicitly types `inputProps` and `InputLabelProps`
+as `@deprecated` because MUI v9 removed them from `TextFieldProps` —
+without the explicit re-declaration TypeScript would have flagged the
+existing destructuring as an error.
+
+### Internal
+
+- 19 existing tests in `Snackbar`, `ConfirmDialog` and `LeftNav` were
+  updated to assert against the new MUI v9 class names (compound classes
+  like `MuiAlert-filledSuccess` and `MuiButton-containedError` were split
+  into two atomic classes: `MuiAlert-filled` + `MuiAlert-colorSuccess` etc.).
+  No component behavior change — purely test-side assertion updates.
+- Full test suite back to baseline: **481 passing / 1 skipped** in
+  `@dashforge/ui` (482 total).
+
+---
+
 ## [0.1.6-alpha] — 2026-05-10
 
 > **Performance + correctness release.** Restores Dashforge's core promise of

@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.3% </span>
+                <span class="strong">92.59% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>48/52</span>
+                <span class='fraction'>50/54</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">93.87% </span>
+                <span class="strong">94.11% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>46/49</span>
+                <span class='fraction'>48/51</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.3% </span>
+                <span class="strong">92.59% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>48/52</span>
+                <span class='fraction'>50/54</span>
             </div>
         
             
@@ -431,7 +431,25 @@
 <a name='L366'></a><a href='#L366'>366</a>
 <a name='L367'></a><a href='#L367'>367</a>
 <a name='L368'></a><a href='#L368'>368</a>
-<a name='L369'></a><a href='#L369'>369</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L369'></a><a href='#L369'>369</a>
+<a name='L370'></a><a href='#L370'>370</a>
+<a name='L371'></a><a href='#L371'>371</a>
+<a name='L372'></a><a href='#L372'>372</a>
+<a name='L373'></a><a href='#L373'>373</a>
+<a name='L374'></a><a href='#L374'>374</a>
+<a name='L375'></a><a href='#L375'>375</a>
+<a name='L376'></a><a href='#L376'>376</a>
+<a name='L377'></a><a href='#L377'>377</a>
+<a name='L378'></a><a href='#L378'>378</a>
+<a name='L379'></a><a href='#L379'>379</a>
+<a name='L380'></a><a href='#L380'>380</a>
+<a name='L381'></a><a href='#L381'>381</a>
+<a name='L382'></a><a href='#L382'>382</a>
+<a name='L383'></a><a href='#L383'>383</a>
+<a name='L384'></a><a href='#L384'>384</a>
+<a name='L385'></a><a href='#L385'>385</a>
+<a name='L386'></a><a href='#L386'>386</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -670,6 +688,12 @@
 <span class="cline-any cline-yes">140x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">140x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">140x</span>
 <span class="cline-any cline-yes">113x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -703,9 +727,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -744,6 +766,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">194x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">194x</span>
@@ -800,6 +834,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import MuiTextField from '@mui/material/TextField';
+import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import { useContext, useEffect, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
@@ -1037,6 +1072,12 @@ export function TextField(props: TextFieldProps) {
   // Form-integrated mode
   const registration = bridge.register(name, rules);
 &nbsp;
+  // MUI v9: the registration `ref` must be routed through the html-input slot
+  // (not spread on `MuiTextField` directly) so it ends up on the `&lt;input&gt;`
+  // rather than the FormControl wrapper. The other registration props
+  // (`name`, `onChange`, `onBlur`) are still passed top-level for ergonomics.
+  const { ref: registrationRef, ...registrationProps } = registration;
+&nbsp;
   // Select mode: requires special handling for controlled value and touch tracking
   if (rest.select) {
     const selectProps = createSelectIntegration(
@@ -1064,7 +1105,6 @@ export function TextField(props: TextFieldProps) {
           fullWidth={fullWidth}
           onChange={selectProps.onChange}
           onBlur={selectProps.onBlur}
-          inputRef={selectProps.inputRef}
           slotProps={selectProps.slotProps}
         /&gt;
       );
@@ -1085,7 +1125,6 @@ export function TextField(props: TextFieldProps) {
         fullWidth={fullWidth}
         onChange={selectProps.onChange}
         onBlur={selectProps.onBlur}
-        inputRef={selectProps.inputRef}
         slotProps={selectProps.slotProps}
       /&gt;
     );
@@ -1113,12 +1152,24 @@ export function TextField(props: TextFieldProps) {
   // field changes elsewhere in the form.
   const fieldValue = (fieldMeta.value as string | number | undefined) ?? <span class="branch-1 cbranch-no" title="branch not covered" >'';</span>
 &nbsp;
+  // Merge the registration `ref` into `slotProps.htmlInput` so MUI routes it
+  // to the `&lt;input&gt;` DOM element. We start from `mergedSlotProps` (which may
+  // already contain a `readOnly` on the `input` slot) and only extend the
+  // `htmlInput` slot to add the ref.
+  const slotPropsWithRef = {
+    ...(mergedSlotProps ?? {}),
+    htmlInput: {
+      ...(mergedSlotProps?.htmlInput as Record&lt;string, unknown&gt; | undefined),
+      ref: registrationRef,
+    },
+  } as MuiTextFieldProps['slotProps'];
+&nbsp;
   // Floating layout: use standard MUI TextField with internal label
   if (layout === 'floating') {
     return (
       &lt;MuiTextField
         {...rest}
-        {...registration}
+        {...registrationProps}
         id={fieldId}
         name={name}
         label={label}
@@ -1128,7 +1179,7 @@ export function TextField(props: TextFieldProps) {
         error={validation.error}
         disabled={effectiveDisabled}
         fullWidth={fullWidth}
-        slotProps={mergedSlotProps}
+        slotProps={slotPropsWithRef}
       /&gt;
     );
   }
@@ -1137,7 +1188,7 @@ export function TextField(props: TextFieldProps) {
   const control = (
 <span class="cstat-no" title="statement not covered" >    &lt;MuiTextField</span>
       {...rest}
-      {...registration}
+      {...registrationProps}
       id={fieldId}
       name={name}
       label={undefined}
@@ -1147,7 +1198,7 @@ export function TextField(props: TextFieldProps) {
       error={validation.error}
       disabled={effectiveDisabled}
       fullWidth={fullWidth}
-      slotProps={mergedSlotProps}
+      slotProps={slotPropsWithRef}
     /&gt;
   );
 &nbsp;
@@ -1174,7 +1225,7 @@ export function TextField(props: TextFieldProps) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-10T14:21:25.532Z
+                at 2026-05-11T19:17:40.863Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

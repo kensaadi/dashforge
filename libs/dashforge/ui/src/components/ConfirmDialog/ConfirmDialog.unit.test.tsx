@@ -555,7 +555,11 @@ describe('ConfirmDialog', () => {
       await user.click(screen.getByRole('button', { name: 'Open' }));
 
       const confirmBtn = screen.getByRole('button', { name: 'Confirm' });
-      expect(confirmBtn).toHaveClass('MuiButton-containedError');
+      // MUI v9 split the per-variant compound class
+      // (`MuiButton-containedError`) into two independent classes:
+      // `MuiButton-contained` (variant) + `MuiButton-colorError` (color).
+      expect(confirmBtn).toHaveClass('MuiButton-contained');
+      expect(confirmBtn).toHaveClass('MuiButton-colorError');
     });
 
     it('forwards cancelButtonProps to cancel button', async () => {
@@ -586,7 +590,10 @@ describe('ConfirmDialog', () => {
       await user.click(screen.getByRole('button', { name: 'Open' }));
 
       const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
-      expect(cancelBtn).toHaveClass('MuiButton-textSecondary');
+      // MUI v9 split the per-variant compound class
+      // (`MuiButton-textSecondary`) into `MuiButton-text` + `MuiButton-colorSecondary`.
+      expect(cancelBtn).toHaveClass('MuiButton-text');
+      expect(cancelBtn).toHaveClass('MuiButton-colorSecondary');
     });
   });
 

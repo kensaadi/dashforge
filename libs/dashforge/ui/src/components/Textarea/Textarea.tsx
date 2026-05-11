@@ -238,6 +238,18 @@ export function Textarea(props: TextareaProps) {
       }
     };
 
+    // MUI v9: route the RHF ref through the html-input slot so it lands on
+    // the `<textarea>` (the actual focusable element MUI multiline renders),
+    // not on the FormControl wrapper. Merging preserves any existing
+    // `readOnly` already configured on `slotProps.input`.
+    const slotPropsWithRef = {
+      ...(mergedSlotProps ?? {}),
+      htmlInput: {
+        ...(mergedSlotProps?.htmlInput as Record<string, unknown> | undefined),
+        ref: registration.ref,
+      },
+    } as MuiTextFieldProps['slotProps'];
+
     return (
       <MuiTextField
         name={name}
@@ -252,8 +264,7 @@ export function Textarea(props: TextareaProps) {
         // to ensure they override any handlers from rest
         onChange={handleChange as MuiTextFieldProps['onChange']}
         onBlur={handleBlur as MuiTextFieldProps['onBlur']}
-        inputRef={registration.ref}
-        slotProps={mergedSlotProps}
+        slotProps={slotPropsWithRef}
       />
     );
   }

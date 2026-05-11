@@ -22,12 +22,16 @@ export function SnackbarItem({ item, onClose, onExited }: SnackbarItemProps) {
   return (
     <Snackbar
       open={isOpen}
-      TransitionComponent={Slide}
+      // MUI v9 removed the legacy `TransitionComponent` top-level prop in
+      // favor of `slots.transition`. The Slide-specific `direction` value
+      // still flows through `slotProps.transition` (cast required because
+      // the generic TransitionProps signature doesn't enumerate it).
+      slots={{ transition: Slide }}
       slotProps={{
         transition: {
           direction: 'left',
           onExited,
-        },
+        } as Record<string, unknown>,
       }}
       sx={{ position: 'static', pointerEvents: 'auto' }}
     >

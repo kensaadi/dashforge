@@ -159,7 +159,7 @@ describe('Snackbar Smoke Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledSuccess');
+      expect(alert).toHaveClass('MuiAlert-colorSuccess');
     });
 
     test('renders error variant', () => {
@@ -174,7 +174,7 @@ describe('Snackbar Smoke Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledError');
+      expect(alert).toHaveClass('MuiAlert-colorError');
     });
   });
 
@@ -191,7 +191,7 @@ describe('Snackbar Smoke Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledSuccess');
+      expect(alert).toHaveClass('MuiAlert-colorSuccess');
     });
 
     test('error() helper enqueues with variant=error', () => {
@@ -206,7 +206,7 @@ describe('Snackbar Smoke Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledError');
+      expect(alert).toHaveClass('MuiAlert-colorError');
     });
 
     test('warning() helper enqueues with variant=warning', () => {
@@ -221,7 +221,7 @@ describe('Snackbar Smoke Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledWarning');
+      expect(alert).toHaveClass('MuiAlert-colorWarning');
     });
 
     test('info() helper enqueues with variant=info', () => {
@@ -236,7 +236,7 @@ describe('Snackbar Smoke Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledInfo');
+      expect(alert).toHaveClass('MuiAlert-colorInfo');
     });
   });
 

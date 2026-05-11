@@ -2,13 +2,17 @@ import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextFiel
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 
 /**
- * Props returned by useSelectIntegration for MUI TextField in Select mode
+ * Props returned by useSelectIntegration for MUI TextField in Select mode.
+ *
+ * As of MUI v9 the `inputRef` top-level prop is no longer the canonical way to
+ * attach a ref to the underlying `<input>`. The ref is now routed through
+ * `slotProps.htmlInput.ref`, which lets MUI's slot dispatcher pass it to the
+ * correct DOM element without React's "unknown prop on DOM element" warning.
  */
 export interface SelectIntegrationProps {
   value: unknown;
   onChange: MuiTextFieldProps['onChange'];
   onBlur: MuiTextFieldProps['onBlur'];
-  inputRef: MuiTextFieldProps['inputRef'];
   slotProps: MuiTextFieldProps['slotProps'];
 }
 
@@ -173,15 +177,19 @@ export function createSelectIntegration(
     value: displayValue,
     onChange: handleChange as MuiTextFieldProps['onChange'],
     onBlur: handleBlur as MuiTextFieldProps['onBlur'],
-    inputRef: registration.ref,
     slotProps: {
       ...userSlotProps,
       select: {
         ...(userSlotProps?.select as Record<string, unknown> | undefined),
         onClose: handleClose,
       },
+      // Route RHF's ref into the html input slot instead of the deprecated
+      // top-level `inputRef` prop. Also pin the `name` so the rendered
+      // <input> matches the bridge field name (otherwise MUI's Select hidden
+      // input drops the attribute and form submission loses the value).
       htmlInput: {
         ...(userSlotProps?.htmlInput as Record<string, unknown> | undefined),
+        ref: registration.ref,
         name,
       },
     } as MuiTextFieldProps['slotProps'],

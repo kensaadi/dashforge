@@ -222,7 +222,18 @@ export function Switch(props: SwitchProps) {
         disabled={effectiveDisabled}
         onChange={handleChange as MuiSwitchProps['onChange']}
         onBlur={handleBlur as MuiSwitchProps['onBlur']}
-        inputRef={registration.ref}
+        // MUI v9 removed `inputRef` from the SwitchBase props. Routing the
+        // RHF ref through `slotProps.input.ref` lands it on the underlying
+        // `<input type="checkbox">` (Switch is a styled checkbox) exactly
+        // like the old `inputRef` did.
+        slotProps={{
+          ...(rest.slotProps as Record<string, unknown> | undefined),
+          input: {
+            ...((rest.slotProps as { input?: Record<string, unknown> } | undefined)
+              ?.input ?? {}),
+            ref: registration.ref,
+          },
+        } as MuiSwitchProps['slotProps']}
       />
     );
 

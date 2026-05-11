@@ -740,16 +740,26 @@ export function Autocomplete<
             label={label}
             error={resolvedError}
             helperText={resolvedHelperText}
-            // NOTE: We deliberately do NOT pass `inputRef={registration.ref}`
-            // here. The Autocomplete is fully controlled via
+            // NOTE: We deliberately do NOT route `registration.ref` here.
+            // The Autocomplete is fully controlled via
             // `inputValue` + `bridge.setValue/getValue`; passing the RHF ref
             // would let RHF write the raw stored value (an id, in object-
             // mapped mode) directly to the DOM input on every setValue,
             // overwriting MUI's controlled label and showing the id in the
             // visible input.
-            InputProps={{
-              ...params.InputProps,
-              readOnly: effectiveReadonly,
+            //
+            // MUI v9: `AutocompleteRenderInputParams` no longer exposes a
+            // top-level `InputProps`. The internal autocomplete plumbing
+            // (start/end adornments, popup ref, etc.) is now on
+            // `params.slotProps.input`. We merge it with our `readOnly` flag
+            // and pass everything through TextField's `slotProps.input`.
+            slotProps={{
+              input: {
+                ...params.slotProps.input,
+                readOnly: effectiveReadonly,
+              },
+              htmlInput: params.slotProps.htmlInput,
+              inputLabel: params.slotProps.inputLabel,
             }}
           />
         )}
@@ -906,15 +916,21 @@ export function Autocomplete<
       onChange={handlePlainChange}
       onBlur={handlePlainBlur}
       renderInput={(params) => (
+        // See bound-mode renderInput above for why we route everything via
+        // `slotProps` instead of the deprecated `InputProps` shape.
         <MuiTextField
           {...params}
           name={name}
           label={label}
           error={explicitError}
           helperText={explicitHelperText}
-          InputProps={{
-            ...params.InputProps,
-            readOnly: effectiveReadonly,
+          slotProps={{
+            input: {
+              ...params.slotProps.input,
+              readOnly: effectiveReadonly,
+            },
+            htmlInput: params.slotProps.htmlInput,
+            inputLabel: params.slotProps.inputLabel,
           }}
         />
       )}

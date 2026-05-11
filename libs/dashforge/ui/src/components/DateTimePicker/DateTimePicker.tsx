@@ -1,5 +1,6 @@
 import MuiTextField from '@mui/material/TextField';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
+import type React from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
@@ -71,6 +72,21 @@ export interface DateTimePickerProps
 
   // simplified callback
   onChange?: (value: string | null) => void;
+
+  /**
+   * @deprecated Pass via `slotProps.htmlInput` instead. Kept for
+   * backward compatibility with consumers written against MUI v7 / earlier
+   * Dashforge releases — the component forwards this value to
+   * `slotProps.htmlInput` internally. Removed in MUI v9's `TextFieldProps`.
+   */
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+
+  /**
+   * @deprecated Pass via `slotProps.inputLabel` instead. Kept for
+   * backward compatibility — the component forwards this value to
+   * `slotProps.inputLabel` internally. Removed in MUI v9's `TextFieldProps`.
+   */
+  InputLabelProps?: Record<string, unknown>;
 }
 
 /**
@@ -326,8 +342,12 @@ export function DateTimePicker(props: DateTimePickerProps) {
   const inputType =
     mode === 'date' ? 'date' : mode === 'time' ? 'time' : 'datetime-local';
 
-  // Merge inputProps and InputLabelProps with defaults
-  const mergedInputProps = { step: 60, ...inputPropsProp };
+  // MUI v9: `inputProps` and `InputLabelProps` are deprecated top-level
+  // props. We now build the merged values once and route them through the
+  // `htmlInput` and `inputLabel` slots of `slotProps`. `step: 60` keeps the
+  // native time control on whole minutes; `shrink: true` keeps the label
+  // floating above the native placeholder mask (which always shows).
+  const mergedHtmlInputProps = { step: 60, ...inputPropsProp };
   const mergedInputLabelProps = { shrink: true, ...inputLabelPropsProp };
 
   // If inside DashForm, register with form
@@ -453,6 +473,24 @@ export function DateTimePicker(props: DateTimePickerProps) {
     };
 
     const fieldId = `dashforge-field-${name}`;
+
+    // Build the full slotProps object once. We merge:
+    //  - mergedSlotProps (may carry `input.readOnly` from RBAC handling)
+    //  - htmlInput: step + RHF ref (replaces legacy `inputProps` + `inputRef`)
+    //  - inputLabel: shrink:true (replaces legacy `InputLabelProps`)
+    const finalSlotProps = {
+      ...(mergedSlotProps ?? {}),
+      htmlInput: {
+        ...mergedHtmlInputProps,
+        ...(mergedSlotProps?.htmlInput as Record<string, unknown> | undefined),
+        ref: registration.ref,
+      },
+      inputLabel: {
+        ...mergedInputLabelProps,
+        ...(mergedSlotProps?.inputLabel as Record<string, unknown> | undefined),
+      },
+    } as MuiTextFieldProps['slotProps'];
+
     const control = (
       <MuiTextField
         name={name}
@@ -468,15 +506,12 @@ export function DateTimePicker(props: DateTimePickerProps) {
         helperText={undefined}
         disabled={effectiveDisabled}
         fullWidth={fullWidth}
-        slotProps={mergedSlotProps}
         // FIX #1: Pass merged props AFTER {...rest} to prevent override
-        InputLabelProps={mergedInputLabelProps}
-        inputProps={mergedInputProps}
+        slotProps={finalSlotProps}
         // IMPORTANT: Put handlers AFTER {...rest} spread
         // to ensure they override any handlers from rest
         onChange={handleChange}
         onBlur={handleBlur}
-        inputRef={registration.ref}
       />
     );
 
@@ -521,6 +556,21 @@ export function DateTimePicker(props: DateTimePickerProps) {
   };
 
   const fieldId = `dashforge-field-${name}`;
+
+  // Plain mode has no `registration.ref`. Otherwise the slotProps merge is
+  // identical to the bound-mode branch above.
+  const finalPlainSlotProps = {
+    ...(mergedSlotProps ?? {}),
+    htmlInput: {
+      ...mergedHtmlInputProps,
+      ...(mergedSlotProps?.htmlInput as Record<string, unknown> | undefined),
+    },
+    inputLabel: {
+      ...mergedInputLabelProps,
+      ...(mergedSlotProps?.inputLabel as Record<string, unknown> | undefined),
+    },
+  } as MuiTextFieldProps['slotProps'];
+
   const control = (
     <MuiTextField
       name={name}
@@ -532,10 +582,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
       helperText={undefined}
       disabled={effectiveDisabled}
       fullWidth={fullWidth}
-      slotProps={mergedSlotProps}
       // FIX #1: Pass merged props AFTER {...rest} to prevent override
-      InputLabelProps={mergedInputLabelProps}
-      inputProps={mergedInputProps}
+      slotProps={finalPlainSlotProps}
       // IMPORTANT: Put handler AFTER {...rest} spread
       onChange={handlePlainChange}
     />

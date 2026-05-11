@@ -1,4 +1,5 @@
 import MuiTextField from '@mui/material/TextField';
+import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import { useContext, useEffect, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
@@ -236,6 +237,12 @@ export function TextField(props: TextFieldProps) {
   // Form-integrated mode
   const registration = bridge.register(name, rules);
 
+  // MUI v9: the registration `ref` must be routed through the html-input slot
+  // (not spread on `MuiTextField` directly) so it ends up on the `<input>`
+  // rather than the FormControl wrapper. The other registration props
+  // (`name`, `onChange`, `onBlur`) are still passed top-level for ergonomics.
+  const { ref: registrationRef, ...registrationProps } = registration;
+
   // Select mode: requires special handling for controlled value and touch tracking
   if (rest.select) {
     const selectProps = createSelectIntegration(
@@ -263,7 +270,6 @@ export function TextField(props: TextFieldProps) {
           fullWidth={fullWidth}
           onChange={selectProps.onChange}
           onBlur={selectProps.onBlur}
-          inputRef={selectProps.inputRef}
           slotProps={selectProps.slotProps}
         />
       );
@@ -284,7 +290,6 @@ export function TextField(props: TextFieldProps) {
         fullWidth={fullWidth}
         onChange={selectProps.onChange}
         onBlur={selectProps.onBlur}
-        inputRef={selectProps.inputRef}
         slotProps={selectProps.slotProps}
       />
     );
@@ -312,12 +317,24 @@ export function TextField(props: TextFieldProps) {
   // field changes elsewhere in the form.
   const fieldValue = (fieldMeta.value as string | number | undefined) ?? '';
 
+  // Merge the registration `ref` into `slotProps.htmlInput` so MUI routes it
+  // to the `<input>` DOM element. We start from `mergedSlotProps` (which may
+  // already contain a `readOnly` on the `input` slot) and only extend the
+  // `htmlInput` slot to add the ref.
+  const slotPropsWithRef = {
+    ...(mergedSlotProps ?? {}),
+    htmlInput: {
+      ...(mergedSlotProps?.htmlInput as Record<string, unknown> | undefined),
+      ref: registrationRef,
+    },
+  } as MuiTextFieldProps['slotProps'];
+
   // Floating layout: use standard MUI TextField with internal label
   if (layout === 'floating') {
     return (
       <MuiTextField
         {...rest}
-        {...registration}
+        {...registrationProps}
         id={fieldId}
         name={name}
         label={label}
@@ -327,7 +344,7 @@ export function TextField(props: TextFieldProps) {
         error={validation.error}
         disabled={effectiveDisabled}
         fullWidth={fullWidth}
-        slotProps={mergedSlotProps}
+        slotProps={slotPropsWithRef}
       />
     );
   }
@@ -336,7 +353,7 @@ export function TextField(props: TextFieldProps) {
   const control = (
     <MuiTextField
       {...rest}
-      {...registration}
+      {...registrationProps}
       id={fieldId}
       name={name}
       label={undefined}
@@ -346,7 +363,7 @@ export function TextField(props: TextFieldProps) {
       error={validation.error}
       disabled={effectiveDisabled}
       fullWidth={fullWidth}
-      slotProps={mergedSlotProps}
+      slotProps={slotPropsWithRef}
     />
   );
 

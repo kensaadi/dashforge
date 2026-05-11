@@ -682,7 +682,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledSuccess');
+      expect(alert).toHaveClass('MuiAlert-colorSuccess');
     });
 
     test('renders error variant with correct styling', () => {
@@ -695,7 +695,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledError');
+      expect(alert).toHaveClass('MuiAlert-colorError');
     });
 
     test('renders warning variant with correct styling', () => {
@@ -708,7 +708,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledWarning');
+      expect(alert).toHaveClass('MuiAlert-colorWarning');
     });
 
     test('renders info variant with correct styling', () => {
@@ -721,7 +721,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledInfo');
+      expect(alert).toHaveClass('MuiAlert-colorInfo');
     });
 
     test('renders default variant with SnackbarContent', () => {
@@ -817,7 +817,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledSuccess');
+      expect(alert).toHaveClass('MuiAlert-colorSuccess');
     });
 
     test('error() helper enqueues with variant=error', () => {
@@ -830,7 +830,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledError');
+      expect(alert).toHaveClass('MuiAlert-colorError');
     });
 
     test('warning() helper enqueues with variant=warning', () => {
@@ -843,7 +843,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledWarning');
+      expect(alert).toHaveClass('MuiAlert-colorWarning');
     });
 
     test('info() helper enqueues with variant=info', () => {
@@ -856,7 +856,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledInfo');
+      expect(alert).toHaveClass('MuiAlert-colorInfo');
     });
 
     test('helpers accept options without variant field', () => {
@@ -872,7 +872,7 @@ describe('Snackbar Hardened Tests', () => {
       });
 
       const alert = screen.getByRole('alert');
-      expect(alert).toHaveClass('MuiAlert-filledSuccess');
+      expect(alert).toHaveClass('MuiAlert-colorSuccess');
       expect(screen.getByText('Undo')).toBeInTheDocument();
     });
 

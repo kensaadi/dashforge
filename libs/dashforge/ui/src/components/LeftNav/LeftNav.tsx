@@ -380,13 +380,23 @@ export function LeftNav({
       data-testid={dataTestId}
       data-dash-expanded-width={String(widthExpanded)}
       data-dash-collapsed-width={String(widthCollapsed)}
-      ModalProps={{
-        keepMounted: true, // Better mobile performance
-      }}
-      PaperProps={{
-        role: 'navigation',
-        'aria-label': 'Main navigation',
-        'data-dash-open': String(isOpen),
+      // MUI v9: `PaperProps` was replaced by the `slotProps` dispatcher.
+      // Routing the navigation role + data attributes through `slotProps.paper`
+      // ensures they land on the actual rendered Paper element — with the
+      // legacy `PaperProps` they were silently dropped under v9.
+      //
+      // The cast on `paper` is needed because MUI's strict v9 slot types
+      // don't enumerate every `data-*` attribute, but they DO forward them
+      // to the DOM at runtime (tests rely on `data-dash-open`).
+      slotProps={{
+        root: {
+          keepMounted: true, // Better mobile performance
+        } as Record<string, unknown>,
+        paper: {
+          role: 'navigation',
+          'aria-label': 'Main navigation',
+          'data-dash-open': String(isOpen),
+        } as Record<string, unknown>,
       }}
     >
       {navContent}
