@@ -10,7 +10,7 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
-## [Unreleased] — targeting `0.1.8-alpha`
+## [0.1.7-alpha] — 2026-05-11
 
 > **MUI v9 compatibility release.** Migrates `@dashforge/ui` and
 > `@dashforge/theme-mui` from `@mui/material@^7` to `@mui/material@^9`,

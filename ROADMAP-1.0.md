@@ -15,15 +15,16 @@
 
 ### Codice / fix tecnici
 
-- [ ] **MUI v9 deprecation cleanup** — i 4 warning sempre presenti in console:
+- [x] **MUI v9 deprecation cleanup** — ✅ chiuso in **`0.1.7-alpha`** (2026-05-11).
   - `InputProps` → `slotProps.input`
   - `inputProps` → `slotProps.htmlInput`
-  - `inputRef` → `slotProps.input.ref` (o gestito via `register.ref`)
+  - `inputRef` → `slotProps.htmlInput.ref` (TextField family) /
+    `slotProps.input.ref` (SwitchBase family)
   - `InputLabelProps` → `slotProps.inputLabel`
 
-  File toccati: `TextField`, `Textarea`, `NumberField`, `Select`, `Autocomplete`,
-  `DateTimePicker`, `OTPField`. Esplicitamente rimandato durante la 0.1.6 — è un
-  debito che va saldato prima del 1.0.
+  Peer dep `@mui/material` bumpato da `^7.0.0` a `^9.0.0` in `@dashforge/ui` e
+  `@dashforge/theme-mui`. Console del consumer ora pulita (0 deprecation
+  warning). Vedi `CHANGELOG.md` sezione `[0.1.7-alpha]` per il dettaglio.
 
 - [ ] **Stringa stantia in `Autocomplete` `warnUnresolvedValue`** — il messaggio
   `"...The form value remains unchanged (no automatic reset)"` ora è bugiardo
@@ -203,9 +204,9 @@
 
 | Versione         | Contenuto principale                                                      |
 | ---------------- | ------------------------------------------------------------------------- |
-| `0.1.6-alpha`    | ✅ già rilasciata (CR fixes + per-field subs + auto-reset)                |
-| `0.1.7-alpha`    | stringa stantia Autocomplete + DateTimePicker docs + cleanup typecheck    |
-| `0.1.8-alpha`    | MUI v9 props migration (slotProps)                                        |
+| `0.1.6-alpha`    | ✅ rilasciata (CR fixes + per-field subs + auto-reset)                    |
+| `0.1.7-alpha`    | ✅ MUI v9 slotProps migration (peer dep ^9.0.0, console pulita)           |
+| `0.1.8-alpha`    | stringa stantia Autocomplete + packaging completion CHANGELOGs            |
 | `0.2.0-beta`     | public-API freeze + bridge interface non-optional + README per package    |
 | `0.3.0-beta`     | docs site (API + perf + migration) + esempi puliti                        |
 | `0.4.0-rc`       | CI green + a11y audit + bundle budget                                     |
