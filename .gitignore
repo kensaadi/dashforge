@@ -31,11 +31,21 @@ node_modules
 /.sass-cache
 /connect.lock
 /coverage
+**/coverage
 /libpeerconnection.log
 npm-debug.log
 yarn-error.log
 testem.log
 /typings
+
+# TypeScript build info — never commit (regenerated locally / on CI)
+**/*.tsbuildinfo
+**/.tsbuildinfo
+
+# AI / Claude assistant artifacts
+.claude/
+.aider*
+.cursor/
 
 # System Files
 .DS_Store

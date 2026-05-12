@@ -1,6 +1,15 @@
 # Dashforge
 
+[![GitHub stars](https://img.shields.io/github/stars/kensaadi/dashforge?style=flat&logo=github&color=ffcc00)](https://github.com/kensaadi/dashforge/stargazers)
+[![npm version (@dashforge/ui)](https://img.shields.io/npm/v/@dashforge/ui?label=%40dashforge%2Fui&color=cb3837&logo=npm)](https://www.npmjs.com/package/@dashforge/ui)
+[![npm downloads](https://img.shields.io/npm/dw/@dashforge/ui?label=downloads&color=brightgreen&logo=npm)](https://www.npmjs.com/package/@dashforge/ui)
+[![License](https://img.shields.io/github/license/kensaadi/dashforge?color=blue)](./LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/kensaadi/dashforge?logo=github)](https://github.com/kensaadi/dashforge/commits/main)
+[![Issues](https://img.shields.io/github/issues/kensaadi/dashforge?logo=github)](https://github.com/kensaadi/dashforge/issues)
+
 A composable UI framework for building data-driven React applications with type-safe forms, dynamic theming, and built-in access control.
+
+> 📚 **[Documentation](https://dashforge-ui.com)** · 🛒 **[Starter Kits](https://dashforge-ui.com/starter-kits)** · 📝 **[Changelog](./CHANGELOG.md)** · 🗺️ **[Roadmap to 1.0](./ROADMAP-1.0.md)**
 
 ## What is Dashforge
 
