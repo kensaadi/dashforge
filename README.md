@@ -153,15 +153,17 @@ All packages use ESM module format and include full TypeScript declarations.
 
 Build artifacts are excluded from version control. Each package's `package.json` defines which files are published via the `files` field.
 
-## Current Release: `0.1.6-alpha`
+## Current Release: `0.1.7-alpha`
 
 Dashforge is in **alpha**. All seven packages are published on npm under the
 `@dashforge` scope and follow [Semantic Versioning](https://semver.org) with
 `-alpha` / `-beta` / `-rc` pre-release tags.
 
-**Latest:** [`0.1.6-alpha`](./CHANGELOG.md#016-alpha--2026-05-10) — per-field
-subscriptions, hooks-rules + memory-leak fixes, auto-reset policy on
-unresolved Select/Autocomplete values, DateTimePicker time-mode hardening.
+**Latest:** [`0.1.7-alpha`](./CHANGELOG.md#017-alpha--2026-05-11) — MUI v9
+slotProps migration: peer dep bumped to `@mui/material@^9.0.0`, all 9 form
+components migrated from deprecated `InputProps`/`inputProps`/`InputLabelProps`/`inputRef`
+to the v9 `slotProps` API. Zero breaking changes for consumers; console now
+free of React deprecation warnings.
 
 For the full history see [`CHANGELOG.md`](./CHANGELOG.md). For the path to
 `1.0.0` see [`ROADMAP-1.0.md`](./ROADMAP-1.0.md).
@@ -169,7 +171,7 @@ For the full history see [`CHANGELOG.md`](./CHANGELOG.md). For the path to
 **Stability Notice**
 
 While the core architecture is already used in real-world scenarios, public
-APIs may still evolve. Pin to an exact version (e.g. `"^0.1.6-alpha"`) and
+APIs may still evolve. Pin to an exact version (e.g. `"^0.1.7-alpha"`) and
 review the changelog before each upgrade.
 
 **What's Included**
