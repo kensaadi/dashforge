@@ -11,13 +11,19 @@ import { renderWithBridge, renderWithRuntime } from '../../test-utils';
  *
  * Tests verify that when a field value doesn't match any available option:
  * 1. The visual display is empty (no MUI warning)
- * 2. The RHF value remains unchanged (no automatic reset)
+ * 2. The RHF value is auto-reset to null (introduced in 0.1.6-alpha)
  * 3. Resolved values still render normally
  *
- * Policy: reaction-v2.md Section 3.2
- * - UI displays no selected value
- * - Form value remains unchanged
- * - NO automatic reset
+ * Note (historical): the original Step 05b policy was "preserve unresolved
+ * RHF value as-is". That was reversed in 0.1.6-alpha after dependent-field
+ * UX feedback — keeping a stale id that the user can't see led to silent
+ * data corruption on submit. The display sanitization (point 1 above) is
+ * still done at the display layer; the auto-reset (point 2) is orchestrated
+ * by the Select component's `unresolvedDetection` effect.
+ *
+ * Static-mode tests (where there is no bridge / runtime) still assert that
+ * the source prop is left untouched — auto-reset only applies in bridge-bound
+ * mode with `optionsFromFieldData`.
  */
 describe('Select - Unresolved Value Display (Step 05b)', () => {
   const testOptions = [

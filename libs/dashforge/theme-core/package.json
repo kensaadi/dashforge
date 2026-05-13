@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/theme-core",
-  "version": "0.1.7-alpha",
+  "version": "0.1.8-alpha",
   "description": "Core theming system for Dashforge",
   "license": "MIT",
   "private": false,
@@ -18,13 +18,14 @@
     }
   },
   "dependencies": {
-    "@dashforge/tokens": "^0.1.7-alpha",
+    "@dashforge/tokens": "^0.1.8-alpha",
     "tslib": "^2.3.0",
     "valtio": "^2.3.0"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "dashforge",

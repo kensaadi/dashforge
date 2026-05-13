@@ -17,9 +17,9 @@ npm install react react-dom
 - `@mui/material@^7.0.0`
 - `@emotion/react@^11.0.0`
 - `@emotion/styled@^11.0.0`
-- `@dashforge/ui-core@^0.1.6-alpha`
-- `@dashforge/rbac@^0.1.6-alpha`
-- `@dashforge/forms@^0.1.6-alpha`
+- `@dashforge/ui-core@^0.1.8-alpha`
+- `@dashforge/rbac@^0.1.8-alpha`
+- `@dashforge/forms@^0.1.8-alpha`
 
 ## Usage
 

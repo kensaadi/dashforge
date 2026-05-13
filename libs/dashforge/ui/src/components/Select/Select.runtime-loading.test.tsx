@@ -12,11 +12,12 @@
  * - Idle state (status='idle')
  * - Error state (status='error')
  * 
- * Policy Compliance (reaction-v2.md):
- * - No reconciliation
- * - No automatic value reset
- * - Display-layer only sanitization
- * - Form value remains unchanged
+ * Policy Compliance (reaction-v2.md, updated for 0.1.6-alpha):
+ * - No reconciliation during 'loading' / 'idle' / 'error' states (this file's scope)
+ * - During 'loading' specifically: display-layer sanitization only — the form
+ *   value is NOT auto-reset because we don't yet know what the loaded options
+ *   will look like. Auto-reset only triggers when status='ready' and the
+ *   value is confirmed unresolvable against the loaded options.
  */
 
 import { render } from '@testing-library/react';

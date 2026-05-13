@@ -20,7 +20,12 @@ module.exports = withNx(
     ],
     format: ['esm'],
     sourcemap: true,
-    assets: [{ input: '.', output: '.', glob: 'README.md' }],
+    assets: [
+      // Workspace-root-relative; point at the package folder so dist/
+      // gets the PACKAGE README/CHANGELOG, not the workspace ones.
+      { input: 'libs/dashforge/ui', output: '.', glob: 'README.md' },
+      { input: 'libs/dashforge/ui', output: '.', glob: 'CHANGELOG.md' },
+    ],
   },
   {
     // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options

@@ -68,7 +68,8 @@ function warnUnresolvedValue(
       `Current value "${String(
         fieldValue
       )}" does not match any loaded option.\n` +
-      `The form value remains unchanged (no automatic reset).\n` +
+      `The form value has been auto-reset to null so the user can pick a ` +
+      `valid option (introduced in 0.1.6-alpha).\n` +
       `Available options: ${optionsDisplay}`
   );
 }

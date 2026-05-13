@@ -12,8 +12,12 @@ module.exports = withNx(
     format: ['esm'],
     sourcemap: true,
     assets: [
-      { input: '.', output: '.', glob: 'README.md' },
-      { input: '.', output: '.', glob: 'CHANGELOG.md' },
+      // Paths are resolved relative to the workspace root by @nx/rollup,
+      // not to this config file. Pointing at the package's own folder
+      // ensures we copy the PACKAGE README/CHANGELOG into dist/, not the
+      // workspace root ones.
+      { input: 'libs/dashforge/forms', output: '.', glob: 'README.md' },
+      { input: 'libs/dashforge/forms', output: '.', glob: 'CHANGELOG.md' },
     ],
   },
   {

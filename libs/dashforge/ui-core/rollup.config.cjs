@@ -10,7 +10,10 @@ module.exports = withNx(
     format: ['esm'],
     sourcemap: true,
     assets: [
-      { input: '.', output: '.', glob: 'README.md' },
+      // Paths are workspace-root-relative; point at the package folder
+      // so dist/ gets the PACKAGE README/CHANGELOG, not the workspace ones.
+      { input: 'libs/dashforge/ui-core', output: '.', glob: 'README.md' },
+      { input: 'libs/dashforge/ui-core', output: '.', glob: 'CHANGELOG.md' },
       {
         input: 'libs/dashforge/ui-core/src/animations',
         output: 'animations',

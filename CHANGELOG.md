@@ -10,6 +10,67 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [0.1.8-alpha] — 2026-05-13
+
+> **Packaging + docs cleanup release.** No functional changes. Two themes:
+> (1) every `@dashforge/*` package now ships its `CHANGELOG.md` inside the
+> npm tarball (was only `@dashforge/forms` before); (2) a stale developer
+> warning in `Autocomplete`/`Select` that mentioned "no automatic reset"
+> has been corrected to reflect the actual `0.1.6-alpha+` behavior.
+
+Affected packages (all bumped to `0.1.8-alpha`):
+
+| Package                | Notes                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `@dashforge/tokens`    | New `CHANGELOG.md`; included in tarball via `files[]`.                                         |
+| `@dashforge/theme-core`| New `CHANGELOG.md`; included in tarball via `files[]`.                                         |
+| `@dashforge/theme-mui` | New `CHANGELOG.md`; rollup config copies it to `dist/`.                                        |
+| `@dashforge/ui-core`   | New `CHANGELOG.md`; rollup config copies it to `dist/`.                                        |
+| `@dashforge/rbac`      | New `CHANGELOG.md`; rollup config copies it to `dist/`.                                        |
+| `@dashforge/forms`     | (`CHANGELOG.md` was already shipping since 0.1.7-alpha) Version bump only.                     |
+| `@dashforge/ui`        | New `CHANGELOG.md`; rollup config copies it to `dist/`. Stale `warnUnresolvedValue` corrected. |
+
+### Changed
+
+- **Dev warning correction in `Autocomplete` and `Select`.** When a stored
+  value can't be resolved against the loaded options, the `console.warn`
+  message used to say *"The form value remains unchanged (no automatic
+  reset)"*. That hasn't been accurate since `0.1.6-alpha` introduced the
+  auto-reset effect — the value is actually cleared to `null` so the user
+  can pick a valid option. The warning now reads:
+
+  > *"The form value has been auto-reset to null so the user can pick a
+  > valid option (introduced in 0.1.6-alpha)."*
+
+  Pure message change. No runtime behavior change.
+
+### Internal — packaging
+
+- Every package now has a per-package `CHANGELOG.md` at its root. Each one
+  links to this top-level changelog for cross-package release context.
+- Each package's `files[]` array in `package.json` now includes
+  `CHANGELOG.md`, so the file is published in the npm tarball.
+- For packages built with Rollup (`@dashforge/{theme-mui,ui-core,rbac,forms,ui}`),
+  the `rollup.config.cjs` `assets[]` array now globs `CHANGELOG.md` from the
+  package root into `dist/`. This way the changelog is also available inside
+  `node_modules/@dashforge/<pkg>/dist/` for consumers that resolve through
+  the dist subtree.
+
+### Documentation
+
+- Outdated inline docstrings in `Select.tsx`, `textField.select.ts`,
+  `Select.unresolved-display.test.tsx`, and `Select.runtime-loading.test.tsx`
+  that described the pre-`0.1.6-alpha` "no automatic reset" policy have been
+  rewritten to describe the actual behavior with a clear historical note.
+
+### Tests
+
+- All `@dashforge/ui` tests still passing (**481 / 482**, 1 skipped). The
+  warning message change is not asserted in any test — only doc comments
+  needed updating.
+
+---
+
 ## [0.1.7-alpha] — 2026-05-11
 
 > **MUI v9 compatibility release.** Migrates `@dashforge/ui` and

@@ -1,7 +1,8 @@
 # Roadmap verso `1.0.0`
 
-> **Punto di partenza:** `0.1.7-alpha` (publish del 2026-05-11 — MUI v9
-> slotProps migration; precedente `0.1.6-alpha` del 2026-05-10 con CR fixes
+> **Punto di partenza:** `0.1.8-alpha` (publish del 2026-05-13 — packaging
+> completion + dev warning cleanup; precedente `0.1.7-alpha` del 2026-05-11
+> con MUI v9 slotProps migration; `0.1.6-alpha` del 2026-05-10 con CR fixes
 > #1/#2/#3, per-field subscriptions, auto-reset policy, DateTimePicker
 > time-mode fix).
 >
@@ -417,7 +418,7 @@
 | ---------------- | ------------------------------------------------------------------------- |
 | `0.1.6-alpha`    | ✅ rilasciata (CR fixes + per-field subs + auto-reset)                    |
 | `0.1.7-alpha`    | ✅ MUI v9 slotProps migration (peer dep ^9.0.0, console pulita)           |
-| `0.1.8-alpha`    | stringa stantia Autocomplete + packaging completion CHANGELOGs            |
+| `0.1.8-alpha`    | ✅ packaging completion (CHANGELOG.md nei tarball) + stringa stantia Autocomplete corretta |
 | `0.1.9-alpha`    | bridge.unregister test + lastValidIsoRef test + OTPField smoke + naming  |
 | `0.2.0-beta`     | public-API freeze + bridge interface non-optional + 7 README + MIGRATION  |
 | `0.3.0-beta`     | docs-lab: doc per versione + CodeSandbox sulle demo + esempi Zod/FieldArray |

@@ -104,9 +104,12 @@ export function sanitizeSelectDisplayValue(
  *
  * Display Value Sanitization (Reactive V2 Policy Compliance):
  * - If RHF value doesn't match any available option → pass empty string to MUI
- * - RHF value remains unchanged (no automatic reset)
- * - Prevents MUI "out-of-range value" warning in console
- * - Only affects display layer, not form data integrity
+ *   (display layer only — prevents MUI "out-of-range value" warning).
+ * - The Select component itself ALSO auto-resets the RHF value to null when
+ *   the value is unresolved (introduced in 0.1.6-alpha) — see Select.tsx
+ *   `unresolvedDetection` effect.
+ * - This helper only handles the display sanitization; the auto-reset is
+ *   orchestrated by the consumer component.
  */
 export function createSelectIntegration(
   name: string,

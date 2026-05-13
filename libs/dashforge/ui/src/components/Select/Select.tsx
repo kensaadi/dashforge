@@ -64,7 +64,8 @@ function warnUnresolvedValue(
       `Current value "${String(
         fieldValue
       )}" does not match any loaded option.\n` +
-      `The form value remains unchanged (no automatic reset).\n` +
+      `The form value has been auto-reset to null so the user can pick a ` +
+      `valid option (introduced in 0.1.6-alpha).\n` +
       `Available options: ${optionsDisplay}`
   );
 }
@@ -223,7 +224,7 @@ export interface SelectProps<T extends string | number = string | number>
  * - Set optionsFromFieldData={true} to read options from field runtime state
  * - Supports generic option shapes via mapper functions (getOptionValue, getOptionLabel, getOptionDisabled)
  * - Loading state disables the field (no UI messaging)
- * - Unresolved values: UI displays no selected value, form value remains unchanged (no automatic reset)
+ * - Unresolved values: UI displays no selected value AND the form value is auto-reset to null (so the user can pick a valid option). Behavior introduced in 0.1.6-alpha.
  * - Development-only warnings: If value cannot be resolved, a console warning is emitted (deduplicated, effect-based)
  * - Empty options with non-null value triggers warning (helps detect data loading issues)
  * - Production mode: No warnings, silent operation
