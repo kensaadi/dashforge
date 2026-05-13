@@ -9,6 +9,17 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.1.9-alpha] — 2026-05-13
+
+- Version bump only. No source change to the bridge or engine.
+- See the
+  [top-level 0.1.9-alpha notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#019-alpha--2026-05-13)
+  for the cross-package release context. The `bridge.unregister?(name)`
+  API introduced in `0.1.6-alpha` now has dedicated unit-test coverage
+  in `@dashforge/forms` (5 new cases covering API exposure, mount,
+  direct unregister, real-unmount-via-microtask, and the mount → unmount
+  → remount cycle) — no `DashFormBridge` shape change.
+
 ## [0.1.8-alpha] — 2026-05-13
 
 - Packaging: the published tarball now includes `CHANGELOG.md`.

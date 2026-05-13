@@ -1,7 +1,8 @@
 # Roadmap verso `1.0.0`
 
-> **Punto di partenza:** `0.1.8-alpha` (publish del 2026-05-13 — packaging
-> completion + dev warning cleanup; precedente `0.1.7-alpha` del 2026-05-11
+> **Punto di partenza:** `0.1.9-alpha` (publish del 2026-05-13 — test
+> coverage + docs polish; precedente `0.1.8-alpha` del 2026-05-13 con
+> packaging completion + dev warning cleanup; `0.1.7-alpha` del 2026-05-11
 > con MUI v9 slotProps migration; `0.1.6-alpha` del 2026-05-10 con CR fixes
 > #1/#2/#3, per-field subscriptions, auto-reset policy, DateTimePicker
 > time-mode fix).
@@ -86,8 +87,21 @@
   updating time", manca un test esplicito che esercita il fallback `||` quando
   il bridge ritorna `''`.
 
-- [ ] **OTPField in browser smoke** — è coperto da unit test ma non c'è il
-  consumer-side stress (mount, paste OTP, blur). Aggiungere a `TestForm.tsx`.
+- [x] **OTPField in browser smoke** — ✅ chiuso nella preparazione di
+  `0.1.9-alpha` (2026-05-13). Aggiunto Step 9 nel `TestForm.tsx` del
+  testbed consumer con `<OTPField name="otp" length={6} mode="numeric">`,
+  `rules={{ required, minLength: 6 }}` e `onComplete` callback.
+  Validati: fill (bridge cattura "123456"), required validation
+  (`"Code is required"` quando vuoto), submit bloccato in stato invalid.
+
+- [x] **`useDashFieldArray` browser smoke** — ✅ chiuso nella fase di
+  preparazione di `0.1.9-alpha` (2026-05-13). Aggiunto Step 8 (`SkillsListField`)
+  in `~/projects/web/learn/dash/src/pages/TestForm.tsx` come testbed
+  permanente. Validati: append / remove / move / edit (text + radio dentro
+  array) / validation array-level (`rules={{ required }}` su
+  `skills.N.name`) / submit payload pulito / stable id `field.id` per
+  React key (no remount tra rerender). 26 unit test esistenti +
+  consumer smoke = feature production-grade per i casi standard.
 
 ---
 
@@ -419,7 +433,7 @@
 | `0.1.6-alpha`    | ✅ rilasciata (CR fixes + per-field subs + auto-reset)                    |
 | `0.1.7-alpha`    | ✅ MUI v9 slotProps migration (peer dep ^9.0.0, console pulita)           |
 | `0.1.8-alpha`    | ✅ packaging completion (CHANGELOG.md nei tarball) + stringa stantia Autocomplete corretta |
-| `0.1.9-alpha`    | bridge.unregister test + lastValidIsoRef test + OTPField smoke + naming  |
+| `0.1.9-alpha`    | ✅ rilasciata (bridge.unregister test + lastValidIsoRef test + OTPField smoke + JSDoc decision tree + Opzione A typecheck cleanup) |
 | `0.2.0-beta`     | public-API freeze + bridge interface non-optional + 7 README + MIGRATION  |
 | `0.3.0-beta`     | docs-lab: doc per versione + CodeSandbox sulle demo + esempi Zod/FieldArray |
 | `0.4.0-rc`       | GitHub Actions CI + bundle budget + cleanup monorepo (rimuovi `web`)      |

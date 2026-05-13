@@ -9,6 +9,14 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.1.9-alpha] — 2026-05-13
+
+- Version bump only. No source change.
+- See the
+  [top-level 0.1.9-alpha notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#019-alpha--2026-05-13)
+  for the cross-package release context (test coverage + docs polish;
+  zero functional changes).
+
 ## [0.1.8-alpha] — 2026-05-13
 
 - Packaging: the published tarball now includes `CHANGELOG.md`.

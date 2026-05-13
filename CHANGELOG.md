@@ -10,6 +10,83 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [0.1.9-alpha] — 2026-05-13
+
+> **Test coverage + docs polish release.** Zero functional changes. Adds
+> 8 new unit tests across two areas, applies Option A typecheck cleanup
+> in test files, and ships a "hook decision tree" JSDoc block on the
+> three field-scoped hooks so consumers can pick the right one at a
+> glance. All previously published behavior is preserved verbatim.
+
+Affected packages (all bumped to `0.1.9-alpha`):
+
+| Package                | Notes                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `@dashforge/tokens`    | Version bump only (no source change).                                                          |
+| `@dashforge/theme-core`| Version bump only (no source change).                                                          |
+| `@dashforge/theme-mui` | Version bump only (no source change).                                                          |
+| `@dashforge/ui-core`   | Version bump only (no source change).                                                          |
+| `@dashforge/rbac`      | Version bump only (no source change).                                                          |
+| `@dashforge/forms`     | New: 5 unit tests for `bridge.unregister`. JSDoc decision tree on 3 hooks. Test cleanup.       |
+| `@dashforge/ui`        | New: 3 unit tests for `DateTimePicker` `lastValidIsoRef` fallback (time-mode editing).         |
+
+### Added
+
+- **`@dashforge/forms` — 5 new unit tests for `bridge.unregister` (CR fix #3 verification).**
+  `libs/dashforge/forms/src/core/DashFormProvider.unregister.test.tsx`
+  covers the full lifecycle: API exposure, mount registration, direct
+  unregister (clears engine node + RHF value), real-unmount via the
+  deferred-microtask cleanup pattern used by every UI form component
+  (`TextField`, `Textarea`, `Checkbox`, `Switch`, `Select`, `Autocomplete`,
+  `RadioGroup`, `NumberField`, `DateTimePicker`, `OTPField`), and
+  mount → unmount → remount of the same field name leaving no stale
+  engine state. Locks in the cleanup pattern introduced in `0.1.6-alpha`.
+- **`@dashforge/ui` — 3 new unit tests for `DateTimePicker.lastValidIsoRef`
+  fallback.** `libs/dashforge/ui/src/components/DateTimePicker/DateTimePicker.unit.test.tsx`
+  now documents the time-mode editing behavior: the picker preserves the
+  last valid ISO when the bridge briefly returns an empty string mid-edit,
+  the ref stays at the last NON-EMPTY ISO across multiple edit cycles, and
+  with no previous valid ISO the fallback degrades to "today" without
+  crashing. Pure behavioral lockdown of existing code.
+
+### Changed
+
+- **JSDoc decision tree on `useDashFieldMeta` / `useDashFieldNode` /
+  `useDashRegister`.** All three hooks now carry the same comparative
+  table in their JSDoc plus `@see` cross-references. The intent is to
+  collapse the choice from "search docs" to "hover the symbol" — Meta
+  for subscribing to per-field RHF state, Node for reading Engine node
+  visibility/disabled, Register for wiring a custom input not built on
+  the Dashforge UI wrappers. Pure documentation; no runtime change.
+- **Test file cleanup (Option A — non-null assertion).** 5 `bridge.register`
+  call sites and 1 `bridge.isTouched` call site in
+  `DashFormProvider.resolver.test.tsx` now use non-null assertion (`!`)
+  to silence the "possibly undefined" typecheck noise that came from
+  `bridge.register` being optional on the public `DashFormBridge` type.
+  Each non-null is guarded upstream by an `if (!bridge) throw` so the
+  assertion is provably safe. Unrelated pre-existing typecheck noise
+  (DOM lib in spec config, composite/dist resolution, implicit `any` in
+  pre-existing reaction integration tests) is **not** addressed in this
+  release — it requires Option B/C from the typecheck-cleanup decision
+  tree and will be picked up separately.
+
+### Test totals
+
+- `@dashforge/forms`: **133 / 133** passing (was 128 / 128; +5 from the new
+  `bridge.unregister` suite).
+- `@dashforge/ui`: **484 / 485** passing, 1 skipped (was 481 / 482; +3 from
+  the new `lastValidIsoRef` cases).
+- `@dashforge/rbac`: **264 / 264** passing (unchanged).
+- `@dashforge/ui-core`: passing baseline unchanged.
+
+### Backwards compatibility
+
+No public API change. No behavioral change. No type narrowing or widening
+on any exported symbol. Consumers on `^0.1.8-alpha` can upgrade to
+`0.1.9-alpha` with no code change.
+
+---
+
 ## [0.1.8-alpha] — 2026-05-13
 
 > **Packaging + docs cleanup release.** No functional changes. Two themes:

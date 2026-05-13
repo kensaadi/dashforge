@@ -56,6 +56,28 @@ const EMPTY_META: DashFieldMeta = {
  * Returns a stable-identity object (memoized on inputs) so spreading or
  * destructuring stays cheap.
  *
+ * ## Hook decision tree
+ *
+ * Three field-scoped hooks exist on top of the Dashforge bridge. Pick
+ * one based on what your component actually needs:
+ *
+ * | Hook                | Use when you need...                                          |
+ * |---------------------|---------------------------------------------------------------|
+ * | `useDashFieldMeta`  | **READ** per-field RHF state (value/error/touched/dirty/      |
+ * |                     | submitCount/allowAutoError) and re-render on changes.         |
+ * |                     | → 99% of UI components rendering an input + error message.    |
+ * | `useDashFieldNode`  | **READ** Engine node state (visibility/disabled/value) for    |
+ * |                     | conditional rendering driven by rules / reactions.            |
+ * |                     | → Conditional fields, gated sections, computed visibility.    |
+ * | `useDashRegister`   | **WRITE** field registration (binds RHF.register + adapter    |
+ * |                     | sync) for custom inputs that *don't* use the Dashforge UI     |
+ * |                     | wrappers (TextField, Select, etc.).                           |
+ * |                     | → Building a custom input from scratch; integrating a 3rd-    |
+ * |                     |    party uncontrolled input into the bridge.                  |
+ *
+ * In short: **Meta** = subscribe to state, **Node** = read Engine,
+ * **Register** = wire a new input.
+ *
  * @param name - Field name to subscribe to
  * @returns DashFieldMeta with value / error / touched / dirty / submitCount
  *
@@ -66,6 +88,9 @@ const EMPTY_META: DashFieldMeta = {
  *   // re-renders ONLY when this field's state changes.
  * }
  * ```
+ *
+ * @see {@link useDashFieldNode} for reading Engine node state (visibility/disabled).
+ * @see {@link useDashRegister} for binding a custom input to the bridge.
  */
 export function useDashFieldMeta(name: string): DashFieldMeta {
   const bridge = useContext(DashFormContext);

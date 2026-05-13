@@ -9,6 +9,31 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.1.9-alpha] — 2026-05-13
+
+### Added
+
+- **3 new unit tests for `DateTimePicker` `lastValidIsoRef` fallback.**
+  `src/components/DateTimePicker/DateTimePicker.unit.test.tsx` now
+  documents the time-mode editing behavior: (1) the picker preserves
+  the last valid ISO when the bridge briefly returns an empty string
+  mid-edit (the `||` vs `??` fallback path), (2) the ref stays at the
+  last NON-EMPTY ISO across multiple edit cycles, (3) with no previous
+  valid ISO the fallback degrades gracefully to "today" without
+  crashing. Pure behavioral lockdown of existing code — no source
+  change to `DateTimePicker.tsx`.
+
+### Test totals
+
+- `@dashforge/ui`: **484 / 485** passing, 1 skipped (was 481 / 482;
+  +3 from the new `lastValidIsoRef` cases).
+
+### Backwards compatibility
+
+No public API change. No behavioral change. No prop signature change
+on `DateTimePicker` or any other component. Consumers on `^0.1.8-alpha`
+can upgrade to `0.1.9-alpha` with no code change.
+
 ## [0.1.8-alpha] — 2026-05-13
 
 ### Changed

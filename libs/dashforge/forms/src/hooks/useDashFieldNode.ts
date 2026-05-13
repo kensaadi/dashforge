@@ -17,6 +17,28 @@ import { useDashFormContext } from '../core/useDashFormContext';
  * - Phase 1+: May add automatic field registration
  * - Phase 2+: May add reaction system integration
  *
+ * ## Hook decision tree
+ *
+ * Three field-scoped hooks exist on top of the Dashforge bridge. Pick
+ * one based on what your component actually needs:
+ *
+ * | Hook                | Use when you need...                                          |
+ * |---------------------|---------------------------------------------------------------|
+ * | `useDashFieldMeta`  | **READ** per-field RHF state (value/error/touched/dirty/      |
+ * |                     | submitCount/allowAutoError) and re-render on changes.         |
+ * |                     | → 99% of UI components rendering an input + error message.    |
+ * | `useDashFieldNode`  | **READ** Engine node state (visibility/disabled/value) for    |
+ * |                     | conditional rendering driven by rules / reactions.            |
+ * |                     | → Conditional fields, gated sections, computed visibility.    |
+ * | `useDashRegister`   | **WRITE** field registration (binds RHF.register + adapter    |
+ * |                     | sync) for custom inputs that *don't* use the Dashforge UI     |
+ * |                     | wrappers (TextField, Select, etc.).                           |
+ * |                     | → Building a custom input from scratch; integrating a 3rd-    |
+ * |                     |    party uncontrolled input into the bridge.                  |
+ *
+ * In short: **Meta** = subscribe to state, **Node** = read Engine,
+ * **Register** = wire a new input.
+ *
  * @template TValue - The type of the node's value
  * @param nodeId - The ID of the Engine node to subscribe to
  * @returns The node snapshot (immutable) or undefined if not found
@@ -52,6 +74,9 @@ import { useDashFormContext } from '../core/useDashFormContext';
  *   );
  * }
  * ```
+ *
+ * @see {@link useDashFieldMeta} for subscribing to per-field RHF state (value/error/touched).
+ * @see {@link useDashRegister} for binding a custom input to the bridge.
  */
 export function useDashFieldNode<TValue = unknown>(
   nodeId: string

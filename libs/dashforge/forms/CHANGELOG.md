@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9-alpha] — 2026-05-13
+
+### Added
+
+- **5 new unit tests for `bridge.unregister`** (CR fix #3 verification).
+  `src/core/DashFormProvider.unregister.test.tsx` covers the full
+  lifecycle: bridge surface exposes `unregister(name)`, mount registers
+  an engine node, direct `unregister(name)` removes both the engine
+  node and the RHF value, real-unmount fires the deferred-microtask
+  cleanup exactly once, and mount → unmount → remount of the same
+  field name leaves no stale engine state. Locks in the cleanup pattern
+  used by every UI form component (`TextField`, `Textarea`, `Checkbox`,
+  `Switch`, `Select`, `Autocomplete`, `RadioGroup`, `NumberField`,
+  `DateTimePicker`, `OTPField`) — the `mountedRef + queueMicrotask`
+  guard introduced in `0.1.6-alpha`.
+
+### Changed
+
+- **JSDoc "decision tree" on `useDashFieldMeta`, `useDashFieldNode`,
+  `useDashRegister`.** Each of the three field-scoped hooks now carries
+  the same comparative table in its JSDoc, plus `@see` cross-references
+  to the other two. The intent is to collapse the choice from "search
+  docs" to "hover the symbol" — **Meta** for subscribing to per-field
+  RHF state (`value`/`error`/`touched`/`dirty`/`submitCount`/
+  `allowAutoError`), **Node** for reading Engine node state
+  (`visibility`/`disabled`/`value`) for conditional rendering, **Register**
+  for wiring a custom input that doesn't go through the Dashforge UI
+  wrappers. Pure documentation, no runtime change, no API surface
+  change.
+- **Test cleanup — Option A (non-null assertion).** The 5 call sites of
+  `bridge.register(name)` and the 1 call site of `bridge.isTouched(name)`
+  in `DashFormProvider.resolver.test.tsx` now use the non-null assertion
+  operator (`!`) on the optional bridge method, since `bridge` itself is
+  already guarded by an `if (!bridge) throw` upstream. Drops 11 typecheck
+  errors from the spec compile without touching production code or
+  bridge types.
+
+### Test totals
+
+- `@dashforge/forms`: **133 / 133** passing (was 128 / 128; +5 from the
+  new `bridge.unregister` suite).
+
+### Backwards compatibility
+
+No public API change. No behavioral change. Consumers on `^0.1.8-alpha`
+can upgrade to `0.1.9-alpha` with no code change.
+
 ## [0.1.6-alpha] — 2026-05-10
 
 ### Added

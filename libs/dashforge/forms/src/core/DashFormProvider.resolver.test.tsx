@@ -42,7 +42,10 @@ function TestComponent({ fieldName = 'email' }: { fieldName?: string }) {
   // sufficient on its own).
   const { error } = useDashFieldMeta(fieldName);
 
-  const registration = bridge.register(fieldName);
+  // CR fix #4 (0.1.9-alpha): bridge.register is optional on the type,
+  // so call sites must non-null assert. The `if (!bridge) throw` above
+  // already guarantees `bridge` itself is defined.
+  const registration = bridge.register!(fieldName);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
@@ -61,7 +64,7 @@ function TestComponent({ fieldName = 'email' }: { fieldName?: string }) {
       />
       {error && <span data-testid="error">{error.message}</span>}
       <span data-testid="touched">
-        {bridge.isTouched(fieldName) ? 'touched' : 'untouched'}
+        {bridge.isTouched!(fieldName) ? 'touched' : 'untouched'}
       </span>
     </div>
   );
@@ -151,7 +154,7 @@ describe('DashFormProvider - Resolver Pass-Through', () => {
       // Subscribe to per-field meta so error updates re-render the component.
       const { error } = useDashFieldMeta('email');
 
-      const registration = bridge.register('email', {
+      const registration = bridge.register!('email', {
         required: 'Email required by RegisterOptions',
       });
 
@@ -232,7 +235,7 @@ describe('DashFormProvider - Resolver Pass-Through', () => {
       // Subscribe to per-field meta so error updates re-render the component.
       const { error } = useDashFieldMeta('email');
 
-      const registration = bridge.register('email', {
+      const registration = bridge.register!('email', {
         required: 'RegisterOptions error',
       });
 
@@ -307,7 +310,7 @@ describe('DashFormProvider - Resolver Pass-Through', () => {
       // Spy on syncValueToEngine
       vi.spyOn(adapter, 'syncValueToEngine').mockImplementation(syncSpy);
 
-      const registration = bridge.register('trigger');
+      const registration = bridge.register!('trigger');
 
       const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;
@@ -381,7 +384,7 @@ describe('DashFormProvider - Resolver Pass-Through', () => {
 
       if (!bridge) throw new Error('Bridge not available');
 
-      const registration = bridge.register('trigger');
+      const registration = bridge.register!('trigger');
 
       const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;

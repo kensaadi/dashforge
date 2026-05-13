@@ -486,6 +486,134 @@ describe('DateTimePicker', () => {
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
       );
     });
+
+    // === lastValidIsoRef fallback tests (0.1.6-alpha fix) =====================
+    //
+    // The DateTimePicker keeps a `lastValidIsoRef` that captures the most
+    // recent non-empty ISO seen during render. When the user types a partial
+    // value in `mode="time"`, intermediate keystrokes parse to `null` and the
+    // bridge briefly returns `''` (empty string) instead of a valid base
+    // date. Without the fallback, `inputValueToIso(mode='time', input, '')`
+    // would default to TODAY, silently changing year/month/day.
+    //
+    // Three things have to hold for the fix to work:
+    //   1. The fallback uses `||` (not `??`) so '' coalesces to the ref.
+    //   2. The ref is populated only with NON-EMPTY ISO strings (so it stays
+    //      as the last-known-good).
+    //   3. With no previously-valid ISO at all, the fallback degrades to
+    //      today's date (no crash, just less-useful preservation).
+
+    it('mode="time": lastValidIsoRef fallback preserves the date when bridge briefly returns empty string', async () => {
+      // This scenario triggers the `||` fallback explicitly: between
+      // `user.clear()` (bridge → '') and the first valid `user.type` keystroke,
+      // the only way to recover the original date is through lastValidIsoRef.
+      const user = userEvent.setup();
+
+      const { state } = renderWithBridge(
+        <DateTimePicker name="meetingTime" label="Meeting Time" mode="time" />,
+        {
+          mockBridgeOptions: {
+            // mockBridge.getValue returns '' for null/undefined values
+            // (see test-utils/mockBridge.ts). This is exactly the shape that
+            // would break the previous `?? baseIso` implementation.
+            defaultValues: { meetingTime: '2026-02-25T10:00:00.000Z' },
+          },
+        }
+      );
+
+      const input = screen.getByLabelText('Meeting Time');
+      // First clear (bridge transitions to '' via setValue(null)),
+      // then re-type a full HH:mm string.
+      await user.clear(input);
+      await user.type(input, '08:30');
+
+      const updatedIso = state?.values.meetingTime as string;
+      expect(updatedIso).toBeTruthy();
+
+      const recoveredDate = new Date(updatedIso);
+      const originalDate = new Date('2026-02-25T10:00:00.000Z');
+
+      // The y/m/d MUST come from `lastValidIsoRef.current`, not from today.
+      expect(recoveredDate.getFullYear()).toBe(originalDate.getFullYear());
+      expect(recoveredDate.getMonth()).toBe(originalDate.getMonth());
+      expect(recoveredDate.getDate()).toBe(originalDate.getDate());
+    });
+
+    it('mode="time": lastValidIsoRef stays at last NON-EMPTY ISO across multiple edit cycles', async () => {
+      // The ref must NOT be overwritten by intermediate empty/invalid states.
+      // Concretely: type a valid time, clear, type a new one — the second
+      // submit should still be anchored to the ORIGINAL date.
+      const user = userEvent.setup();
+
+      const { state } = renderWithBridge(
+        <DateTimePicker name="meetingTime" label="Meeting Time" mode="time" />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { meetingTime: '2026-02-25T10:00:00.000Z' },
+          },
+        }
+      );
+
+      const input = screen.getByLabelText('Meeting Time');
+
+      // First edit cycle.
+      await user.clear(input);
+      await user.type(input, '08:30');
+      const firstIso = state?.values.meetingTime as string;
+      expect(firstIso).toBeTruthy();
+
+      // Second edit cycle (clear → empty bridge → type new time).
+      await user.clear(input);
+      await user.type(input, '14:15');
+      const secondIso = state?.values.meetingTime as string;
+      expect(secondIso).toBeTruthy();
+
+      // Both updates must preserve the ORIGINAL date — the ref is stable
+      // through the empty-bridge window.
+      const original = new Date('2026-02-25T10:00:00.000Z');
+      const firstDate = new Date(firstIso);
+      const secondDate = new Date(secondIso);
+      expect(firstDate.getFullYear()).toBe(original.getFullYear());
+      expect(firstDate.getMonth()).toBe(original.getMonth());
+      expect(firstDate.getDate()).toBe(original.getDate());
+      expect(secondDate.getFullYear()).toBe(original.getFullYear());
+      expect(secondDate.getMonth()).toBe(original.getMonth());
+      expect(secondDate.getDate()).toBe(original.getDate());
+    });
+
+    it('mode="time": with NO previous valid ISO the fallback degrades to today (no crash)', async () => {
+      // When the field starts empty and the user types a time directly, there
+      // is nothing in lastValidIsoRef to fall back to. The component must
+      // still produce a valid ISO string — it just won't anchor to a chosen
+      // calendar day. Verify it produces a syntactically valid ISO + matches
+      // today's local date components (best-effort fallback).
+      const user = userEvent.setup();
+
+      const { state } = renderWithBridge(
+        <DateTimePicker name="meetingTime" label="Meeting Time" mode="time" />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { meetingTime: null },
+          },
+        }
+      );
+
+      const input = screen.getByLabelText('Meeting Time');
+      await user.type(input, '09:15');
+
+      const isoStr = state?.values.meetingTime as string;
+      expect(isoStr).toBeTruthy();
+      // Syntactically valid ISO.
+      expect(isoStr).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+      );
+      // Date components match TODAY (local) — degraded fallback path.
+      const produced = new Date(isoStr);
+      const today = new Date();
+      expect(produced.getFullYear()).toBe(today.getFullYear());
+      expect(produced.getMonth()).toBe(today.getMonth());
+      expect(produced.getDate()).toBe(today.getDate());
+    });
   });
 
   describe('Intent C: Error gating (Form Closure v1)', () => {
