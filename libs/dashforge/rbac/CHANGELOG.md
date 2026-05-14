@@ -9,6 +9,14 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.0-beta] — 2026-05-14
+
+- Version bump for peer alignment with the workspace `0.2.0-beta` release.
+- See the
+  [top-level 0.2.0-beta notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#020-beta--2026-05-14).
+  This package has no source change. `useRbacOptional()` and the rest of
+  the public API continue to pass 264 / 264 tests.
+
 ## [0.1.9-alpha] — 2026-05-13
 
 - Version bump only. No source change.

@@ -161,22 +161,12 @@ export function DashFormProvider<
   const dirtyFields = rhf.formState.dirtyFields;
   const submitCount = rhf.formState.submitCount;
 
-  // Watch all form values to ensure reactivity when values change
-  const values = rhf.watch();
-
-  // Safe replacer function to avoid circular structure errors from HTMLElement refs
-  const replacer = (key: string, value: unknown) => {
-    if (key === 'ref') return undefined;
-    if (typeof value === 'function') return undefined;
-    return value;
-  };
-
-  // Derive version strings synchronously from formState
-  // Changes whenever RHF re-renders with new state, triggering consumer re-renders
-  const errorVersion = JSON.stringify(errors ?? {}, replacer);
-  const touchedVersion = JSON.stringify(touchedFields ?? {}, replacer);
-  const dirtyVersion = JSON.stringify(dirtyFields ?? {}, replacer);
-  const valuesVersion = JSON.stringify(values ?? {}, replacer);
+  // Watch all form values to keep this component subscribed to RHF state.
+  // Even though we no longer expose a valuesVersion string on the bridge
+  // (removed in 0.2.0-beta), we still need rhf.watch() here so the provider
+  // re-renders when values change, which in turn drives the per-field
+  // notification effects below.
+  rhf.watch();
 
   // Create adapter instance
   // Memoized to maintain stable reference across renders
@@ -318,28 +308,31 @@ export function DashFormProvider<
   }, [reactions, debug, engine, rhf, runtimeStore]);
 
   // Run diff-and-notify after every render (when RHF formState changes).
-  // We rely on the version strings being recomputed when the underlying
-  // objects change identity, then diff each field individually.
+  // RHF re-creates the errors/touchedFields/dirtyFields object references on
+  // every relevant state change, so depending directly on those objects is
+  // sufficient (pre-0.2.0-beta we depended on stringified version snapshots
+  // for the same effect — the version strings were removed when the
+  // deprecated `*Version` bridge properties were dropped).
   useEffect(() => {
     diffAndNotify(
       prevErrorsRef,
       errors as Record<string, unknown> | undefined
     );
-  }, [errorVersion, errors, diffAndNotify]);
+  }, [errors, diffAndNotify]);
 
   useEffect(() => {
     diffAndNotify(
       prevTouchedRef,
       touchedFields as Record<string, unknown> | undefined
     );
-  }, [touchedVersion, touchedFields, diffAndNotify]);
+  }, [touchedFields, diffAndNotify]);
 
   useEffect(() => {
     diffAndNotify(
       prevDirtyRef,
       dirtyFields as Record<string, unknown> | undefined
     );
-  }, [dirtyVersion, dirtyFields, diffAndNotify]);
+  }, [dirtyFields, diffAndNotify]);
 
   // Stable refs that always point at the latest formState values. The bridge
   // closures read from these refs so they can return current data even though
@@ -352,14 +345,6 @@ export function DashFormProvider<
   dirtyFieldsRef.current = dirtyFields;
   const submitCountRef = useRef(submitCount);
   submitCountRef.current = submitCount;
-  const errorVersionRef = useRef(errorVersion);
-  errorVersionRef.current = errorVersion;
-  const touchedVersionRef = useRef(touchedVersion);
-  touchedVersionRef.current = touchedVersion;
-  const dirtyVersionRef = useRef(dirtyVersion);
-  dirtyVersionRef.current = dirtyVersion;
-  const valuesVersionRef = useRef(valuesVersion);
-  valuesVersionRef.current = valuesVersion;
 
   // Build bridge value for public DashFormContext (minimal API)
   // Used by ui components to detect and integrate with form
@@ -458,15 +443,6 @@ export function DashFormProvider<
 
         return null;
       },
-      // The xxxVersion getters keep the legacy "subscribe via property
-      // access" pattern (`void bridge?.errorVersion`) compiling, but they no
-      // longer cause global re-renders because the bridge identity is now
-      // stable. New code should use `subscribeField(name, listener)` (via
-      // useSyncExternalStore / useDashFieldMeta) for isolated per-field
-      // subscriptions.
-      get errorVersion() {
-        return errorVersionRef.current;
-      },
       isTouched: (name: string): boolean => {
         const touched = getByPath(touchedFieldsRef.current, name);
         return Boolean(touched);
@@ -474,15 +450,6 @@ export function DashFormProvider<
       isDirty: (name: string): boolean => {
         const dirty = getByPath(dirtyFieldsRef.current, name);
         return Boolean(dirty);
-      },
-      get touchedVersion() {
-        return touchedVersionRef.current;
-      },
-      get dirtyVersion() {
-        return dirtyVersionRef.current;
-      },
-      get valuesVersion() {
-        return valuesVersionRef.current;
       },
       get submitCount() {
         return submitCountRef.current;

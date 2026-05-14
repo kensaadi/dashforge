@@ -6,7 +6,7 @@ import { DashFormContext } from '@dashforge/ui-core';
 import type { DashFormBridge } from '@dashforge/ui-core';
 import { createEngine } from '@dashforge/ui-core';
 import { useForm } from 'react-hook-form';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 /**
  * Test wrapper that provides a minimal DashForm context with react-hook-form.
@@ -32,8 +32,11 @@ function TestDashForm({
   const dirtyFields = rhf.formState.dirtyFields;
   const submitCount = rhf.formState.submitCount;
 
-  // Watch all form values to enable values reactivity
-  const formValues = rhf.watch();
+  // Watch all form values: this subscribes the wrapper to RHF state so the
+  // per-field listeners below fire on every value change. The returned array
+  // is intentionally unused (we don't depend on a `valuesVersion` string in
+  // the 0.2.0-beta bridge contract).
+  rhf.watch();
 
   // Helper to get nested values by dot path
   const getByPath = (obj: unknown, path: string): unknown => {
@@ -47,13 +50,31 @@ function TestDashForm({
     return current;
   };
 
-  // Derive version strings
-  const errorVersion = JSON.stringify(errors ?? {});
-  const touchedVersion = JSON.stringify(touchedFields ?? {});
-  const dirtyVersion = JSON.stringify(dirtyFields ?? {});
-  const valuesVersion = JSON.stringify(formValues ?? {});
+  // Per-field subscription registry (0.2.0-beta required surface).
+  // Broadcast model: every state-change cycle (errors / touchedFields /
+  // dirtyFields / values) notifies every registered listener. The
+  // production DashFormProvider does a per-field diff; for this test
+  // wrapper we keep it minimal — Select consumers re-read state via
+  // useSyncExternalStore and only depend on "something changed", not on
+  // "this exact field changed".
+  const listenersRef = useRef<Set<() => void>>(new Set());
+  const notifyAll = useCallback(() => {
+    listenersRef.current.forEach((listener) => listener());
+  }, []);
+  const subscribeField = useCallback(
+    (_name: string, listener: () => void): (() => void) => {
+      listenersRef.current.add(listener);
+      return () => {
+        listenersRef.current.delete(listener);
+      };
+    },
+    []
+  );
+  useEffect(() => {
+    notifyAll();
+  }, [errors, touchedFields, dirtyFields, submitCount, notifyAll]);
 
-  // Build minimal bridge matching DashFormProvider structure
+  // Build minimal bridge matching DashFormProvider's 0.2.0-beta contract.
   const bridgeValue = useMemo<DashFormBridge>(
     () => ({
       engine,
@@ -73,6 +94,9 @@ function TestDashForm({
           ...rhfRegister,
           onChange: wrappedOnChange,
         } as never;
+      },
+      unregister: (name: string) => {
+        rhf.unregister(name as never);
       },
       getError: (name: string) => {
         const err = getByPath(errors, name);
@@ -94,24 +118,25 @@ function TestDashForm({
           shouldTouch: false,
         });
       },
-      errorVersion,
       isTouched: (name: string): boolean => {
         const touched = getByPath(touchedFields, name);
         return Boolean(touched);
       },
-      touchedVersion,
-      dirtyVersion,
-      valuesVersion,
+      isDirty: (name: string): boolean => {
+        const dirty = getByPath(dirtyFields, name);
+        return Boolean(dirty);
+      },
       submitCount,
+      subscribeField,
     }),
     [
       engine,
       rhf,
-      errorVersion,
-      touchedVersion,
-      dirtyVersion,
-      valuesVersion,
+      errors,
+      touchedFields,
+      dirtyFields,
       submitCount,
+      subscribeField,
     ]
   );
 

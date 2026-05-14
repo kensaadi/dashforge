@@ -166,10 +166,12 @@ export function renderWithRuntime(
       };
     }, [state]);
 
-    // CRITICAL: Bridge reference must remain stable for useFieldRuntime
-    // The bridgeWithRuntime object is created once outside this component
-    // Version getters (valuesVersion, etc.) handle reactivity
-    // updateCount is only used to force re-renders, not passed to bridge
+    // CRITICAL: Bridge reference must remain stable for useFieldRuntime.
+    // The bridgeWithRuntime object is created once outside this component.
+    // Reactivity is driven by `subscribeField` listeners fired from state
+    // mutations (see mockBridge.ts), so consumers using the per-field
+    // subscription path re-render correctly. updateCount is the local
+    // re-render trigger for this wrapper, not exposed on the bridge.
     void updateCount; // Satisfy linter - used for re-render trigger only
 
     return (

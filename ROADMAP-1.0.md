@@ -1,9 +1,10 @@
 # Roadmap verso `1.0.0`
 
-> **Punto di partenza:** `0.1.9-alpha` (publish del 2026-05-13 — test
-> coverage + docs polish; precedente `0.1.8-alpha` del 2026-05-13 con
-> packaging completion + dev warning cleanup; `0.1.7-alpha` del 2026-05-11
-> con MUI v9 slotProps migration; `0.1.6-alpha` del 2026-05-10 con CR fixes
+> **Punto di partenza:** `0.2.0-beta` (preparato il 2026-05-14 — public-API
+> freeze su `DashFormBridge`, rimozione dei 4 field deprecated, `@internal`
+> markers, primo `MIGRATION.md`; precedente `0.1.9-alpha` del 2026-05-13
+> con test coverage + docs polish; `0.1.8-alpha` con packaging completion;
+> `0.1.7-alpha` con MUI v9 slotProps migration; `0.1.6-alpha` con CR fixes
 > #1/#2/#3, per-field subscriptions, auto-reset policy, DateTimePicker
 > time-mode fix).
 >
@@ -36,56 +37,72 @@
   `@dashforge/theme-mui`. Console del consumer ora pulita (0 deprecation
   warning). Vedi `CHANGELOG.md` sezione `[0.1.7-alpha]` per il dettaglio.
 
-- [ ] **Stringa stantia in `Autocomplete` `warnUnresolvedValue`** — il messaggio
-  `"...The form value remains unchanged (no automatic reset)"` ora è bugiardo
-  (il reset *avviene*).
-  - File: `libs/dashforge/ui/src/components/Autocomplete/Autocomplete.tsx`
-    (cerca `unresolved value for field`).
-  - Aggiornare anche la stessa funzione in `Select` se replicata.
+- [x] **Stringa stantia in `Autocomplete` `warnUnresolvedValue`** — ✅
+  chiuso in `0.1.8-alpha` (2026-05-13). Messaggio corretto in
+  `Autocomplete.tsx` e `Select.tsx`: ora cita correttamente
+  l'auto-reset introdotto in `0.1.6-alpha`.
 
-- [ ] **Typecheck pulito su tutti i 4 progetti** — oggi 20 errori pre-esistenti in:
-  - `forms/src/core/DashFormProvider.resolver.test.tsx` (`bridge.register`
-    possibly undefined, `HTMLInputElement.value` non risolto)
-  - `forms/src/reactions/__tests__/reactionIntegration.test.tsx` (`ctx`,
-    `trigger` implicit any)
-
-  Decidere: tipizzare i test, o aggiungere `tsconfig` con `lib: ["dom"]` mancante.
+- [x] **Typecheck pulito sui test files (Opzione A + B applicate)** —
+  parzialmente chiuso. In `0.1.9-alpha` (Opzione A: non-null assertion
+  + guards). In `0.1.10-internal` (Opzione B: DOM lib in
+  `tsconfig.spec.json` + annotazioni esplicite `ReactionWhenContext` /
+  `ReactionRunContext` / `HarnessTrigger` in `reactionIntegration.test.tsx`).
+  Risultato: forms typecheck 43 → 20 errori; ui typecheck 86 → 40
+  (gli ultimi 20+40 sono TS6305 "composite/dist mismatch" tra rollup
+  `dist/src/*.d.ts` e `tsconfig.lib.json` `rootDir: src` — Cat 3
+  deferred a una release di rollup/composite cleanup separata; non
+  blocca build/test/release).
 
 ### API freeze
 
-- [ ] **Audit del `DashFormBridge` interface**
-  (`libs/dashforge/ui-core/src/bridge/DashFormBridge.ts`):
-  decidere quali metodi sono **veramente** opzionali (con `?:`) e quali devono
-  diventare obbligatori. Oggi `register?:`, `getValue?:`, `getError?:`,
-  `setValue?:`, `isTouched?:`, `isDirty?:`, `submitCount?:`, `subscribeField?:`,
-  `unregister?:` sono tutti `?:` — significa che ogni consumer deve fare
-  null-check. Per la 1.0 dovrebbero essere `required` (a meno che esista un
-  caso d'uso valido per bridge "parziali").
+- [x] **Audit del `DashFormBridge` interface** — ✅ chiuso in
+  `0.2.0-beta` (2026-05-14, in staged). 9 metodi promossi da `?:`
+  optional a required (`register`, `unregister`, `getValue`, `setValue`,
+  `getError`, `isTouched`, `isDirty`, `submitCount`, `subscribeField`).
+  I 4 field `@deprecated` (`errorVersion`, `touchedVersion`,
+  `dirtyVersion`, `valuesVersion`) rimossi dall'interfaccia E dalla
+  produzione lato `DashFormProvider`. La tier runtime
+  (`getFieldRuntime` / `setFieldRuntime` / `subscribeFieldRuntime`) e
+  `debug` restano opzionali per consentire bridge alternativi. Vedi
+  `MIGRATION.md` sezione `0.1.9-alpha → 0.2.0-beta`.
 
-- [ ] **Public surface audit** — ogni `export` da `src/index.ts` dei 7 package
-  diventa parte del contratto SemVer in 1.0. Marcare come `@internal` ciò che
-  non è destinato all'esterno. Candidate da nascondere:
-  - `FormEngineAdapter` (forms) — è davvero pubblico?
-  - `createRuntimeStore`, `DEFAULT_FIELD_RUNTIME` (forms)
-  - `DependencyTracker`, `RuleEvaluator` (ui-core/core/*)
-  - Internals dell'engine
+- [x] **Public surface audit** — ✅ chiuso in `0.2.0-beta` (2026-05-14,
+  in staged). `@internal` markers JSDoc applicati sui candidati:
+  - `@dashforge/forms`: `FormEngineAdapter`, `IFormEngineAdapter`,
+    `FormEngineAdapterOptions`, `createRuntimeStore`,
+    `DEFAULT_FIELD_RUNTIME`, `RuntimeStore`, `createReactionRegistry`,
+    `ReactionRegistry`.
+  - `@dashforge/ui-core`: `DependencyTracker`, `RuleEvaluator`,
+    `DependencyGraph`, `DependencyTrackerConfig`,
+    `RuleEvaluatorConfig`, `EvaluationStats`, l'intera API store
+    low-level (`createStore`, `resetStore`, depth helpers, `Store`,
+    `StoreConfig`, `StoreMetadata`), `createMockRHFResult` (test-only).
 
-- [ ] **Risolvere conflitti naming** — eventuali API duplicate o ambigue (es.
-  `useDashFieldNode` vs `useDashFieldMeta` vs `useDashRegister`: i consumer si
-  confondono — chiarire con doc i casi d'uso o consolidare).
+  I simboli restano esportati per backward compat — il marker informa
+  che possono spostarsi su subpaths (es. `@dashforge/ui-core/internal`)
+  in `0.3.0-beta` o `1.0.0`.
+
+- [x] **Risolvere conflitti naming** — ✅ chiuso in `0.1.9-alpha`
+  (2026-05-13) con JSDoc "decision tree" identica su
+  `useDashFieldMeta` / `useDashFieldNode` / `useDashRegister` + `@see`
+  cross-references. Riconfermato in `0.2.0-beta` (i 3 hook restano i
+  3 hook canonici, ciascuno con responsabilità ben definita).
 
 ### Test coverage
 
-- [ ] **Aggiungere unit test per `bridge.unregister`** — fix #3 è verificato in
-  browser e nel test "submit doesn't lose values" ma NON c'è un unit test che
-  valida espressamente `engine.getNode(name) === undefined` dopo l'unmount +
-  microtask delay. Va in
-  `forms/src/core/__tests__/DashFormProvider.unregister.test.tsx`.
+- [x] **Aggiungere unit test per `bridge.unregister`** — ✅ chiuso in
+  `0.1.9-alpha` (2026-05-13). 5 nuovi test in
+  `forms/src/core/DashFormProvider.unregister.test.tsx` coprono: API
+  esposta, mount registra engine node, `unregister(name)` diretto
+  rimuove engine node + RHF value, real-unmount via deferred-microtask
+  cleanup pattern, mount → unmount → remount senza stale state.
 
-- [ ] **Aggiungere unit test per il `lastValidIsoRef` di DateTimePicker** (fix
-  della 0.1.6). Coperto indirettamente dal test "preserves base date when
-  updating time", manca un test esplicito che esercita il fallback `||` quando
-  il bridge ritorna `''`.
+- [x] **Aggiungere unit test per il `lastValidIsoRef` di DateTimePicker** —
+  ✅ chiuso in `0.1.9-alpha` (2026-05-13). 3 nuovi test in
+  `ui/src/components/DateTimePicker/DateTimePicker.unit.test.tsx`:
+  fallback preserva la data quando bridge ritorna `''`, ref resta
+  all'ultimo ISO non-vuoto tra cicli di editing, senza ISO precedente
+  il fallback degrada graziosamente a "today".
 
 - [x] **OTPField in browser smoke** — ✅ chiuso nella preparazione di
   `0.1.9-alpha` (2026-05-13). Aggiunto Step 9 nel `TestForm.tsx` del
@@ -109,24 +126,29 @@
 
 ### Documentazione
 
-- [ ] **README per ciascuno dei 7 package** che descriva almeno:
-  - cosa fa il pacchetto in 2-3 frasi
-  - install + peer deps richieste
-  - 1 esempio minimale
-  - link al CHANGELOG.md
+- [x] **README per ciascuno dei 7 package** — ✅ chiuso in `0.2.0-beta`
+  (2026-05-14, in staged). I 7 README esistevano già; in 0.2.0-beta
+  sono stati enhanced con: (a) sezione "Documentation" che linka
+  package CHANGELOG, top-level CHANGELOG, MIGRATION.md e roadmap; (b)
+  peer-dep range corretti (theme-mui e ui ora citano `@mui/material@^9.0.0`
+  invece dello stantio `^7.0.0`); (c) `ui/README.md` riscritto per
+  usare i nomi reali esportati (`TextField`/`Select`/`Checkbox` invece
+  dei fake `DashTextField`/`DashSelect`/`DashButton` del boilerplate);
+  (d) range `@dashforge/* @^0.2.0-beta`.
 
-  Oggi solo `@dashforge/forms` ha un README ricco. Tokens / theme-core /
-  theme-mui / ui-core / rbac / ui ne hanno uno generato da Nx (boilerplate),
-  vanno scritti.
+- [x] **CHANGELOG.md per ogni package** — ✅ chiuso in `0.1.8-alpha`
+  (2026-05-13). Tutti e 7 i pacchetti hanno un CHANGELOG.md root +
+  copia rollup nella dist tarball. In `0.2.0-beta` ogni CHANGELOG ha
+  ricevuto la sua sezione `[0.2.0-beta]` con dettagli scope (`forms`,
+  `ui`, `ui-core` ricchi; gli altri 4 versione bump only).
 
-- [ ] **CHANGELOG.md per ogni package** — solo `forms` ce l'ha. Tokens /
-  theme-core / theme-mui / ui-core / rbac / ui ne hanno bisogno (anche corti).
-
-- [ ] **Migration guide** `MIGRATION.md` al top-level — anche se sei l'unico
-  utente, ti serve per:
-  1. tracciare cosa romperà nelle prossime release
-  2. forzarti a pensare al SemVer ogni volta
-  3. essere pronto se in futuro condividi le librerie
+- [x] **Migration guide `MIGRATION.md` al top-level** — ✅ chiuso in
+  `0.2.0-beta` (2026-05-14, in staged). Primo file `MIGRATION.md` al
+  root del repo con la prima sezione `0.1.9-alpha → 0.2.0-beta`:
+  contract diff table, pattern migrations (version-string →
+  per-field; double-`?.` → single-`?.`; mock bridge pattern), spiega
+  cosa significa `@internal` in questa release, ed elenca cosa NON
+  cambia. Linkato da tutti e 7 i README.
 
 - [ ] ~~**API reference auto-generata** (TypeDoc)~~ — **SPOSTATO A NICE.**
   Cos'è: TypeDoc legge il TypeScript dei sorgenti ed emette
@@ -434,7 +456,7 @@
 | `0.1.7-alpha`    | ✅ MUI v9 slotProps migration (peer dep ^9.0.0, console pulita)           |
 | `0.1.8-alpha`    | ✅ packaging completion (CHANGELOG.md nei tarball) + stringa stantia Autocomplete corretta |
 | `0.1.9-alpha`    | ✅ rilasciata (bridge.unregister test + lastValidIsoRef test + OTPField smoke + JSDoc decision tree + Opzione A typecheck cleanup) |
-| `0.2.0-beta`     | public-API freeze + bridge interface non-optional + 7 README + MIGRATION  |
+| `0.2.0-beta`     | ✅ preparata in staged (DashFormBridge interface freeze: 9 metodi required + 4 deprecated removed; `@internal` markers su FormEngineAdapter / RuntimeStore / ReactionRegistry / DependencyTracker / RuleEvaluator / store helpers; semplificazione `bridge.method?.()` → `bridge.method()` su 14 file; MIGRATION.md primo file al top-level; 7× README enhanced) |
 | `0.3.0-beta`     | docs-lab: doc per versione + CodeSandbox sulle demo + esempi Zod/FieldArray |
 | `0.4.0-rc`       | GitHub Actions CI + bundle budget + cleanup monorepo (rimuovi `web`)      |
 | `0.5.0-rc`       | performance benchmark interattivo nella docs-lab                          |

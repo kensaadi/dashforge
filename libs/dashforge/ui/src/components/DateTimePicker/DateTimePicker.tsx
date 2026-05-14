@@ -355,7 +355,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
     const registration: FieldRegistration = bridge.register(name, rules);
 
     // Resolve ISO value precedence: explicit prop overrides bridge value
-    const bridgeIsoValue = (bridge.getValue?.(name) as string | null) ?? null;
+    const bridgeIsoValue = (bridge.getValue(name) as string | null) ?? null;
     const resolvedIsoValue = value !== undefined ? value : bridgeIsoValue;
 
     // Keep ref in sync with the latest non-null ISO seen during render so it
@@ -368,10 +368,10 @@ export function DateTimePicker(props: DateTimePickerProps) {
     const inputValue = isoToInputValue(mode, resolvedIsoValue);
 
     // Get auto error from form validation
-    const autoErr = bridge.getError?.(name) ?? null;
+    const autoErr = bridge.getError(name) ?? null;
 
     // Get touched state and submit count for error gating
-    const autoTouched = bridge.isTouched?.(name) ?? false;
+    const autoTouched = bridge.isTouched(name) ?? false;
     const submitCount = bridge.submitCount ?? 0;
 
     // Gate error display: only show if field touched OR form submitted

@@ -10,6 +10,150 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [0.2.0-beta] — 2026-05-14
+
+> **Public-API freeze release.** The `DashFormBridge` interface is split
+> into a stable **required core** (`register`, `unregister`, `getValue`,
+> `setValue`, `getError`, `isTouched`, `isDirty`, `submitCount`,
+> `subscribeField`, plus `engine`) and an **optional runtime tier**
+> (`getFieldRuntime` / `setFieldRuntime` / `subscribeFieldRuntime`,
+> `debug`). The four deprecated "version string" properties
+> (`errorVersion` / `touchedVersion` / `dirtyVersion` / `valuesVersion`)
+> are **removed**.
+>
+> All `@dashforge/ui` form components have been simplified from the
+> defensive `bridge?.method?.()` pattern to a single optional chain
+> `bridge?.method()` — the second `?.` is unnecessary now that the bridge
+> exposes those methods unconditionally.
+>
+> Implementation-detail symbols leaked from each package's `src/index.ts`
+> have been flagged `@internal` (still exported for compatibility — they
+> will be moved out of the entry point in a future release).
+>
+> First public **`MIGRATION.md`** at the repo root documents the upgrade
+> path. Each package README now links to it.
+>
+> **Test suite unchanged**: forms 133 / 133, ui 484 / 485 (1 skipped),
+> rbac 264 / 264 — proof that the contract tightening did not regress
+> behavior.
+
+Affected packages (all bumped to `0.2.0-beta`):
+
+| Package                | Notes                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ |
+| `@dashforge/tokens`    | Version bump only (no source change).                                                                  |
+| `@dashforge/theme-core`| Version bump only (no source change).                                                                  |
+| `@dashforge/theme-mui` | Version bump only. README peer-dep line corrected to `@mui/material@^9.0.0`.                           |
+| `@dashforge/ui-core`   | `DashFormBridge` interface freeze. `@internal` markers on `DependencyTracker`/`RuleEvaluator`/store helpers/test-only `createMockRHFResult`. |
+| `@dashforge/rbac`      | Version bump only (no source change).                                                                  |
+| `@dashforge/forms`     | `DashFormProvider` no longer emits the 4 deprecated version strings. `@internal` markers on `FormEngineAdapter`/`createRuntimeStore`/`createReactionRegistry` and their types. `useDashFieldMeta` simplified call sites. |
+| `@dashforge/ui`        | All 10 form components migrated from `bridge?.method?.()` to `bridge?.method()`. `mockBridge.ts` + Select test wrapper updated to the new contract. README brought in line with MUI v9 + new peer-dep ranges. |
+
+### Removed (breaking)
+
+- **`DashFormBridge.errorVersion`** — use `subscribeField(name, listener)` + `getError(name)`.
+- **`DashFormBridge.touchedVersion`** — use `subscribeField` + `isTouched(name)`.
+- **`DashFormBridge.dirtyVersion`** — use `subscribeField` + `isDirty(name)`.
+- **`DashFormBridge.valuesVersion`** — use `subscribeField` + `getValue(name)`.
+
+These four fields were `@deprecated` since `0.1.6-alpha` (when the
+per-field subscription system replaced the version-string subscribe
+trick). The full migration recipe lives in
+[`MIGRATION.md`](./MIGRATION.md#019-alpha--020-beta).
+
+### Changed (contract tightening)
+
+- **`DashFormBridge` required surface**: `register`, `unregister`,
+  `getValue`, `setValue`, `getError`, `isTouched`, `isDirty`,
+  `submitCount`, and `subscribeField` are no longer `?:` optional.
+  Implementations now have to provide them; consumers no longer have to
+  defensively `bridge.method?.(...)` once they've narrowed `bridge` to
+  non-null.
+- **`DashFormBridge` optional surface stays optional**: the runtime API
+  (`getFieldRuntime`, `setFieldRuntime`, `subscribeFieldRuntime`) and
+  the `debug` flag remain `?:`. They are feature-gated by the bridge
+  implementation, and `DashFormProvider` continues to wire them.
+- **Standalone (no-provider) mode is preserved**: a component rendered
+  outside a `DashFormProvider` still gets `bridge === null` from
+  `useContext(DashFormContext)` and falls back to controlled `value` +
+  `onChange`. The freeze affects the `bridge !== null` branch only.
+- **Test fixtures**:
+  - `@dashforge/ui` `createMockBridge` (in `test-utils/mockBridge.ts`)
+    now implements the required surface and broadcasts via
+    `subscribeField`.
+  - `Select.characterization.test.tsx`, `Select.test.tsx` updated to
+    the new contract.
+  - `@dashforge/forms` `useFieldRuntime.test.tsx` adopts a small
+    `createTestBridge(overrides)` helper that stubs the required core
+    so each test only has to declare the runtime-API methods it
+    actually exercises.
+  - `DashFormProvider.tsx` drops the now-unused `errorVersion` /
+    `touchedVersion` / `dirtyVersion` / `valuesVersion` derivation
+    (~30 lines of dead code).
+
+### Added
+
+- **`MIGRATION.md`** at the repo root: collects breaking-change upgrade
+  guides. The `0.1.9-alpha → 0.2.0-beta` section is the first entry; it
+  includes a contract diff table, pattern migrations
+  (version-string → per-field, double-optional-chain simplification,
+  test mock pattern), and an explicit "what did NOT change" list.
+
+- **`@internal` JSDoc markers** flag implementation-detail exports in
+  `@dashforge/forms` and `@dashforge/ui-core`:
+  - **`@dashforge/forms`**: `FormEngineAdapter`, `IFormEngineAdapter`,
+    `FormEngineAdapterOptions`, `createRuntimeStore`,
+    `DEFAULT_FIELD_RUNTIME`, `RuntimeStore`, `createReactionRegistry`,
+    `ReactionRegistry`.
+  - **`@dashforge/ui-core`**: `DependencyTracker`, `RuleEvaluator`,
+    `DependencyGraph`, `DependencyTrackerConfig`, `RuleEvaluatorConfig`,
+    `EvaluationStats`, `createStore`, `resetStore`,
+    `get/increment/decrement/resetEvaluationDepth`, `Store`,
+    `StoreConfig`, `StoreMetadata`, `createMockRHFResult`.
+
+  These symbols are still exported for compatibility but are no longer
+  part of the stable public surface. They may move to subpaths (e.g.
+  `@dashforge/ui-core/internal`) or out of the entry point entirely in
+  a future release.
+
+- **README "Documentation" section** added to all 7 package READMEs,
+  cross-linking the package CHANGELOG, the top-level CHANGELOG,
+  `MIGRATION.md`, and the roadmap.
+
+### Backwards compatibility
+
+For **application code** that uses `@dashforge/ui` components inside a
+`<DashFormProvider>` — i.e. the standard usage of Dashforge — **nothing
+breaks**. The UI components were the only call site of the version-string
+subscribe trick, and they were rewired to `useDashFieldMeta` (per-field
+`subscribeField`) in `0.1.6-alpha`. The bridge-method optional-chain
+simplification is also opaque to application code.
+
+For **custom bridge implementations** — anyone implementing a
+`DashFormBridge` outside of `DashFormProvider` (custom adapters, mock
+bridges in tests, alternative form libraries) — see
+[`MIGRATION.md`](./MIGRATION.md#019-alpha--020-beta).
+
+### Test totals
+
+- `@dashforge/forms`: **133 / 133** passing (unchanged from 0.1.9-alpha).
+- `@dashforge/ui`: **484 / 485** passing, 1 skipped (unchanged).
+- `@dashforge/rbac`: **264 / 264** passing (unchanged).
+
+### Known issues (deferred)
+
+- **20 pre-existing `TS6305` typecheck warnings** in
+  `@dashforge/forms` spec config. Root cause: the rollup build emits
+  `dist/src/<file>.d.ts` while the `tsconfig.lib.json` `rootDir: "src"`
+  / `outDir: "dist"` setup leads `tsc --build` to look for
+  `dist/<file>.d.ts`. The mismatch produces noisy "Output file ... has
+  not been built from source file ..." messages during the test config
+  typecheck, but does NOT block builds, tests, or `.d.ts` emission for
+  consumers. Deferred to a dedicated rollup/composite cleanup release
+  (post-`0.2.0-beta`).
+
+---
+
 ## [0.1.9-alpha] — 2026-05-13
 
 > **Test coverage + docs polish release.** Zero functional changes. Adds

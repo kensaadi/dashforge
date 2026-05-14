@@ -9,6 +9,16 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.0-beta] — 2026-05-14
+
+- Version bump for peer alignment with the workspace `0.2.0-beta` release.
+- README peer-dependency line corrected: now states `@mui/material@^9.0.0`
+  (the MUI v9 migration happened in `0.1.7-alpha`; the README copy had
+  not been updated).
+- See the
+  [top-level 0.2.0-beta notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#020-beta--2026-05-14)
+  for the cross-package release context. No source change to this package.
+
 ## [0.1.9-alpha] — 2026-05-13
 
 - Version bump only. No source change.

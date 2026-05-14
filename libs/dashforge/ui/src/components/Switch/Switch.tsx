@@ -121,10 +121,10 @@ export function Switch(props: SwitchProps) {
     const registration: FieldRegistration = bridge.register(name, rules);
 
     // Get auto error from form validation
-    const autoErr = bridge.getError?.(name) ?? null;
+    const autoErr = bridge.getError(name) ?? null;
 
     // Get touched state and submit count for error gating
-    const autoTouched = bridge.isTouched?.(name) ?? false;
+    const autoTouched = bridge.isTouched(name) ?? false;
     const submitCount = bridge.submitCount ?? 0;
 
     // Gate error display: only show if field touched OR form submitted
@@ -139,7 +139,7 @@ export function Switch(props: SwitchProps) {
       helperText ?? (allowAutoError ? autoErr?.message : undefined);
 
     // Get current checked value from bridge (default to false if undefined)
-    const currentValue = bridge.getValue?.(name);
+    const currentValue = bridge.getValue(name);
     const autoChecked = currentValue === true;
 
     // Compute resolved checked with precedence:
@@ -191,7 +191,7 @@ export function Switch(props: SwitchProps) {
     // Handle blur for touched tracking
     const handleBlur = async (event: unknown) => {
       // Get current checked value at blur time
-      const currentChecked = bridge.getValue?.(name) === true;
+      const currentChecked = bridge.getValue(name) === true;
 
       // Create a synthetic blur event for bridge's touch tracking
       const syntheticEvent = {

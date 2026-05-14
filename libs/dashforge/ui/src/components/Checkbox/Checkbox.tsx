@@ -122,10 +122,10 @@ export function Checkbox(props: CheckboxProps) {
     const registration: FieldRegistration = bridge.register(name, rules);
 
     // Get auto error from form validation
-    const autoErr = bridge.getError?.(name) ?? null;
+    const autoErr = bridge.getError(name) ?? null;
 
     // Get touched state and submit count for error gating
-    const autoTouched = bridge.isTouched?.(name) ?? false;
+    const autoTouched = bridge.isTouched(name) ?? false;
     const submitCount = bridge.submitCount ?? 0;
 
     // Gate error display: only show if field touched OR form submitted
@@ -151,7 +151,7 @@ export function Checkbox(props: CheckboxProps) {
         : undefined;
 
     // Get current checked value from bridge (default to false if undefined)
-    const bridgeValue = bridge.getValue?.(name);
+    const bridgeValue = bridge.getValue(name);
     const resolvedChecked =
       props.checked !== undefined ? props.checked : Boolean(bridgeValue);
 
@@ -200,7 +200,7 @@ export function Checkbox(props: CheckboxProps) {
     // Handle blur for touched tracking
     const handleBlur = async (event: unknown) => {
       // Get current checked value at blur time
-      const currentChecked = bridge.getValue?.(name) === true;
+      const currentChecked = bridge.getValue(name) === true;
 
       // Create a synthetic blur event for bridge's touch tracking
       const syntheticEvent = {

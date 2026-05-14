@@ -38,12 +38,11 @@ describe('Select - Characterization Tests (Type Safety)', () => {
         values[name] = value;
       },
       getError: () => null,
-      errorVersion: '{}',
       isTouched: () => false,
-      touchedVersion: '{}',
-      dirtyVersion: '{}',
-      valuesVersion: JSON.stringify(values),
+      isDirty: () => false,
       submitCount: 0,
+      subscribeField: () => () => undefined,
+      unregister: () => undefined,
     };
 
     render(
@@ -93,12 +92,11 @@ describe('Select - Characterization Tests (Type Safety)', () => {
         values[name] = value;
       },
       getError: () => null,
-      errorVersion: '{}',
       isTouched: () => false,
-      touchedVersion: '{}',
-      dirtyVersion: '{}',
-      valuesVersion: JSON.stringify(values),
+      isDirty: () => false,
       submitCount: 0,
+      subscribeField: () => () => undefined,
+      unregister: () => undefined,
     };
 
     render(
@@ -150,12 +148,11 @@ describe('Select - Characterization Tests (Type Safety)', () => {
         storedValue = String(value);
       },
       getError: () => null,
-      errorVersion: '{}',
       isTouched: () => false,
-      touchedVersion: '{}',
-      dirtyVersion: '{}',
-      valuesVersion: storedValue,
+      isDirty: () => false,
       submitCount: 0,
+      subscribeField: () => () => undefined,
+      unregister: () => undefined,
     };
 
     const { rerender } = render(
@@ -221,12 +218,11 @@ describe('Select - Characterization Tests (Type Safety)', () => {
         formState[name] = value;
       },
       getError: () => null,
-      errorVersion: '{}',
       isTouched: () => false,
-      touchedVersion: '{}',
-      dirtyVersion: '{}',
-      valuesVersion: JSON.stringify(formState),
+      isDirty: () => false,
       submitCount: 0,
+      subscribeField: () => () => undefined,
+      unregister: () => undefined,
     };
 
     render(

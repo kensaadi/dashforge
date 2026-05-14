@@ -218,7 +218,7 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
   const registration: FieldRegistration = bridge.register(name, rules);
 
   // Get current value from bridge (string)
-  const autoValue = bridge.getValue?.(name) as string | undefined;
+  const autoValue = bridge.getValue(name) as string | undefined;
 
   // Convert bridge value to string (handle null/undefined)
   const autoStringValue = typeof autoValue === 'string' ? autoValue : '';
@@ -228,10 +228,10 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
     explicitValue !== undefined ? explicitValue : autoStringValue;
 
   // Get error state from bridge
-  const autoErr = bridge.getError?.(name) ?? null;
+  const autoErr = bridge.getError(name) ?? null;
 
   // Get touched state and submit count for error gating
-  const autoTouched = bridge.isTouched?.(name) ?? false;
+  const autoTouched = bridge.isTouched(name) ?? false;
   const submitCount = bridge.submitCount ?? 0;
 
   // Form Closure v1: Show error only if touched OR submitCount > 0
@@ -286,7 +286,7 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
   const handleBlur = () => {
     if (registration.onBlur) {
       // Use current value from bridge
-      const currentValue = bridge.getValue?.(name) as string | undefined;
+      const currentValue = bridge.getValue(name) as string | undefined;
       const currentStringValue =
         typeof currentValue === 'string' ? currentValue : '';
 

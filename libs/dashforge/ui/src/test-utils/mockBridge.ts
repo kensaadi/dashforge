@@ -57,8 +57,15 @@ export interface MockBridgeState {
  * Creates a minimal mock DashFormBridge for unit testing form-bound components.
  * Does NOT depend on react-hook-form.
  *
- * Key feature: Version strings update reactively when state changes,
- * triggering React re-renders in components that subscribe via void bridge.valuesVersion.
+ * **Reactivity (0.2.0-beta+)**: every state mutation invokes the listeners
+ * registered via `subscribeField(name, listener)` so consumers using the
+ * per-field subscription path (`useDashFieldMeta` → `useSyncExternalStore`)
+ * re-render correctly. The mock fires every listener on any state change —
+ * it does not filter by field name (broadcasting is acceptable for tests
+ * and matches the contract from the consumer's perspective).
+ *
+ * The legacy version-string subscribe path (`void bridge?.valuesVersion`)
+ * was removed in 0.2.0-beta along with the deprecated bridge fields.
  *
  * Usage:
  * ```tsx
@@ -158,23 +165,16 @@ export function createMockBridge(options: MockBridgeOptions = {}): {
       return currentValue !== defaultValue;
     },
 
-    // Reactive getters: these compute fresh values on each access
-    // Components subscribe by reading these in render (via void bridge.valuesVersion)
-    // When state changes, the getter returns a new string, triggering re-render
-    get errorVersion() {
-      return JSON.stringify(state.errors);
-    },
-
-    get touchedVersion() {
-      return JSON.stringify(state.touched);
-    },
-
-    get dirtyVersion() {
-      return JSON.stringify(state.values);
-    },
-
-    get valuesVersion() {
-      return JSON.stringify(state.values);
+    // Per-field subscription (0.2.0-beta required surface).
+    // Broadcast-style: every listener fires on every state mutation. This is
+    // intentionally simpler than the production implementation in
+    // DashFormProvider (which diffs by field name) — for unit tests, an
+    // over-broadcast is harmless since assertions read state directly.
+    subscribeField: (_name: string, listener: () => void) => {
+      state._subscribers.add(listener);
+      return () => {
+        state._subscribers.delete(listener);
+      };
     },
 
     get submitCount() {

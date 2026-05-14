@@ -142,13 +142,13 @@ export function Textarea(props: TextareaProps) {
     const registration: FieldRegistration = bridge.register(name, rules);
 
     // Get current value from bridge (default to empty string)
-    const currentValue = bridge.getValue?.(name) ?? '';
+    const currentValue = bridge.getValue(name) ?? '';
 
     // Get auto error from form validation
-    const autoErr = bridge.getError?.(name) ?? null;
+    const autoErr = bridge.getError(name) ?? null;
 
     // Get touched state and submit count for error gating
-    const autoTouched = bridge.isTouched?.(name) ?? false;
+    const autoTouched = bridge.isTouched(name) ?? false;
     const submitCount = bridge.submitCount ?? 0;
 
     // Gate error display: only show if field touched OR form submitted
@@ -217,7 +217,7 @@ export function Textarea(props: TextareaProps) {
     // Wrap onBlur to mark as touched and call user handler
     const handleBlur = async (event: unknown) => {
       // Get the current value at blur time to avoid stale closure
-      const valueAtBlurTime = bridge.getValue?.(name) ?? '';
+      const valueAtBlurTime = bridge.getValue(name) ?? '';
 
       // Create a synthetic blur event for touch tracking
       const syntheticEvent = {

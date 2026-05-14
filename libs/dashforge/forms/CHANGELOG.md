@@ -7,6 +7,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0-beta] — 2026-05-14
+
+### Removed (breaking)
+
+- `DashFormProvider` no longer emits the four deprecated bridge fields
+  `errorVersion`, `touchedVersion`, `dirtyVersion`, `valuesVersion`. The
+  corresponding interface members are also gone from `DashFormBridge` in
+  `@dashforge/ui-core`. Consumers should subscribe via
+  `subscribeField(name, listener)` + the per-field getters. See
+  [`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md#019-alpha--020-beta)
+  for the upgrade pattern.
+
+### Changed
+
+- **`DashFormProvider`** cleaned up: the now-unused version-string
+  derivation (`JSON.stringify(errors)` etc.) and the matching refs +
+  bridge getters have been removed (~30 lines of dead code). The
+  per-field `subscribeField` notification path (introduced in
+  `0.1.6-alpha`) is the single source of truth for re-renders. The
+  `useEffect` deps for the `diffAndNotify` notifier now depend on the
+  RHF state objects directly (`errors` / `touchedFields` /
+  `dirtyFields`) instead of the version strings — equivalent behavior,
+  shorter chain.
+- **`useDashFieldMeta`** call sites simplified to take advantage of the
+  freeze: `bridge.getValue?.(name)` → `bridge.getValue(name)`, etc.
+  Semantics unchanged.
+
+### Added — `@internal` markers
+
+The following symbols remain exported from `src/index.ts` for
+backwards compatibility but are now flagged `@internal`:
+
+- `FormEngineAdapter` and its two types `IFormEngineAdapter` /
+  `FormEngineAdapterOptions`. Implementation detail used by
+  `DashFormProvider`; not part of the stable public surface.
+- `createRuntimeStore` and `DEFAULT_FIELD_RUNTIME` plus the
+  `RuntimeStore` type. The store is created and owned by
+  `DashFormProvider`; UI consumers use `useFieldRuntime`.
+- `createReactionRegistry` and the `ReactionRegistry` type. Consumers
+  author reactions via the `ReactionDefinition` type and pass them to
+  `DashFormProvider`; the registry itself is internal orchestration.
+
+### Test additions / refactor
+
+- `DashFormProvider.unregister.test.tsx` continues to pass (covers the
+  CR fix #3 unregister deferred-microtask cleanup).
+- `useFieldRuntime.test.tsx` gains a small `createTestBridge(overrides)`
+  helper that fills the now-required core methods with no-op stubs, so
+  each test only has to declare the runtime-API methods it actually
+  exercises.
+- `reactionIntegration.test.tsx` continues to pass with the explicit
+  `ReactionWhenContext` / `ReactionRunContext` annotations introduced
+  in `0.1.9-alpha`.
+
+### Test totals
+
+- `@dashforge/forms`: **133 / 133** passing (unchanged from `0.1.9-alpha`).
+
+### Backwards compatibility
+
+For application code using `@dashforge/ui` components inside a
+`DashFormProvider`, nothing breaks. The only consumers that need
+migration work are custom bridge implementations and custom test
+fixtures. See
+[`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md#019-alpha--020-beta).
+
 ## [0.1.9-alpha] — 2026-05-13
 
 ### Added

@@ -9,6 +9,60 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.0-beta] — 2026-05-14
+
+### Removed (breaking)
+
+- **`DashFormBridge.errorVersion` / `touchedVersion` / `dirtyVersion` /
+  `valuesVersion`**. These four `@deprecated` (since `0.1.6-alpha`)
+  "version string" fields are gone from the bridge interface.
+  Consumers should subscribe via `subscribeField(name, listener)` and
+  read the per-field getters (`getValue` / `getError` / `isTouched` /
+  `isDirty`) instead. See
+  [`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md#019-alpha--020-beta)
+  for the upgrade pattern.
+
+### Changed (contract tightening)
+
+- **`DashFormBridge` required-core surface**: `register`, `unregister`,
+  `getValue`, `setValue`, `getError`, `isTouched`, `isDirty`,
+  `submitCount`, `subscribeField` are no longer optional (`?:`) on the
+  type. Implementations must provide them when the bridge is non-null;
+  the standalone (no-provider) mode is preserved by `bridge === null`
+  from `useContext(DashFormContext)`.
+- **`DashFormBridge` optional runtime tier stays optional**:
+  `getFieldRuntime`, `setFieldRuntime`, `subscribeFieldRuntime`, and
+  `debug` remain `?:`. They are feature-gated by the implementation.
+
+### Added — `@internal` markers
+
+The following symbols remain exported from `src/index.ts` for
+backwards compatibility but are now flagged `@internal` in JSDoc.
+Tooling that respects the marker (TypeDoc, `api-extractor`) will hide
+them; consumers should treat them as unstable.
+
+- **Core**: `DependencyTracker`, `RuleEvaluator`, `DependencyGraph`,
+  `DependencyTrackerConfig`, `RuleEvaluatorConfig`, `EvaluationStats`.
+- **Store**: `createStore`, `resetStore`, `getEvaluationDepth`,
+  `incrementEvaluationDepth`, `decrementEvaluationDepth`,
+  `resetEvaluationDepth`, plus the `Store`, `StoreConfig`,
+  `StoreMetadata` types.
+- **Integrations**: `createMockRHFResult` (test-only helper).
+
+### Documentation
+
+- README enhanced with a "Documentation" section linking the package
+  CHANGELOG, the top-level CHANGELOG, `MIGRATION.md`, and the roadmap.
+
+### Backwards compatibility
+
+- See the
+  [top-level 0.2.0-beta notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#020-beta--2026-05-14)
+  and [`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md#019-alpha--020-beta).
+- For application code using `@dashforge/ui` components in a
+  `DashFormProvider`, nothing breaks. The only consumers that need
+  action are custom bridge implementations.
+
 ## [0.1.9-alpha] — 2026-05-13
 
 - Version bump only. No source change to the bridge or engine.

@@ -25,10 +25,10 @@ export function resolveValidationState(
   explicitHelperText: React.ReactNode | undefined
 ): ValidationState {
   // Get auto error from form validation
-  const autoErr = bridge.getError?.(name) ?? null;
+  const autoErr = bridge.getError(name) ?? null;
 
   // Get touched state and submit count for error gating
-  const autoTouched = bridge.isTouched?.(name) ?? false;
+  const autoTouched = bridge.isTouched(name) ?? false;
   const submitCount = bridge.submitCount ?? 0;
 
   // Gate error display: only show if field touched OR form submitted

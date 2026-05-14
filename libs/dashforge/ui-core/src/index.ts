@@ -54,8 +54,19 @@ export { isNode, isRule } from './types';
 // STORE
 // ============================================================================
 
+/**
+ * Low-level reactive store primitives.
+ *
+ * @internal
+ * The `Store`, `createStore`, and the depth-tracking helpers are
+ * implementation details of the engine. UI consumers and most application
+ * code should NOT use them directly — interact with the engine through
+ * `createEngine` and the React hooks. Exported for tests and custom
+ * engine builds only; not part of the stable public surface.
+ */
 export type { Store, StoreConfig, StoreMetadata } from './store';
 
+/** @internal */
 export {
   createStore,
   resetStore,
@@ -69,6 +80,17 @@ export {
 // CORE
 // ============================================================================
 
+/**
+ * Engine internals: dependency tracker + rule evaluator + their config and
+ * graph types.
+ *
+ * @internal
+ * These are the low-level primitives the engine is built on. Consumers
+ * should use `createEngine` and the React hooks (`useEngineNode`,
+ * `useEngineValue`, etc.) instead. Exported here for tests, advanced
+ * tooling, and the unlikely case of a custom engine — not part of the
+ * stable public surface.
+ */
 export type {
   DependencyGraph,
   DependencyTrackerConfig,
@@ -76,6 +98,7 @@ export type {
   EvaluationStats,
 } from './core';
 
+/** @internal */
 export { DependencyTracker, RuleEvaluator } from './core';
 
 // ============================================================================
@@ -215,6 +238,12 @@ export {
   shouldSyncValue,
   shouldSyncError,
   shouldSyncDisabled,
+  /**
+   * @internal
+   * Test-only helper that mints a stub RHF result for unit tests. Exported
+   * for `@dashforge/ui` test fixtures; consumers should never use this in
+   * production code.
+   */
   createMockRHFResult,
   defaultRHFErrorMapper,
 } from './integrations';

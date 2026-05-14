@@ -271,16 +271,16 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
   const registration: FieldRegistration = bridge.register(name, rules);
 
   // Get current value from bridge (default to empty string if undefined)
-  const autoValue = (bridge.getValue?.(name) as string | undefined) ?? '';
+  const autoValue = (bridge.getValue(name) as string | undefined) ?? '';
 
   // Resolve final value (explicit prop overrides bridge value)
   const resolvedValue = explicitValue !== undefined ? explicitValue : autoValue;
 
   // Get error state from bridge
-  const autoErr = bridge.getError?.(name) ?? null;
+  const autoErr = bridge.getError(name) ?? null;
 
   // Get touched state and submit count for error gating
-  const autoTouched = bridge.isTouched?.(name) ?? false;
+  const autoTouched = bridge.isTouched(name) ?? false;
   const submitCount = bridge.submitCount ?? 0;
 
   // Form Closure v1: Show error only if touched OR submitCount > 0
@@ -335,7 +335,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
     if (registration.onBlur) {
       // Ensure target.value is a string (default to '' if undefined)
       const currentValue =
-        (bridge.getValue?.(name) as string | undefined) ?? '';
+        (bridge.getValue(name) as string | undefined) ?? '';
       registration.onBlur({
         target: {
           name,

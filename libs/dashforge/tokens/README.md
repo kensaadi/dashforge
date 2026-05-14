@@ -33,6 +33,13 @@ This package provides standardized design tokens for:
 
 Full TypeScript type definitions included.
 
+## Documentation
+
+- [Package CHANGELOG](./CHANGELOG.md) — release history for this package.
+- [Top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md) — cross-package release context.
+- [MIGRATION.md](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md) — breaking-change upgrade guides.
+- [Roadmap to 1.0](https://github.com/kensaadi/dashforge/blob/main/ROADMAP-1.0.md).
+
 ## License
 
 MIT

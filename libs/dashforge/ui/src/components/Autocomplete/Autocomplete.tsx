@@ -400,13 +400,13 @@ export function Autocomplete<
     const registration: FieldRegistration = bridge.register(name, rules);
 
     // Get current value from bridge (string | null)
-    const autoValue = (bridge.getValue?.(name) as string | null) ?? null;
+    const autoValue = (bridge.getValue(name) as string | null) ?? null;
 
     // Get auto error from form validation
-    const autoErr = bridge.getError?.(name) ?? null;
+    const autoErr = bridge.getError(name) ?? null;
 
     // Get touched state and submit count for error gating
-    const autoTouched = bridge.isTouched?.(name) ?? false;
+    const autoTouched = bridge.isTouched(name) ?? false;
     const submitCount = bridge.submitCount ?? 0;
 
     // Gate error display: only show if field touched OR form submitted
@@ -513,7 +513,7 @@ export function Autocomplete<
         return null;
       }
 
-      const currentValue = bridge.getValue?.(name);
+      const currentValue = bridge.getValue(name);
       if (currentValue == null || currentValue === '') return null;
 
       const isResolved = normalizedOptions.some(
@@ -635,7 +635,7 @@ export function Autocomplete<
           const typedValue = inputElement.value;
 
           // Get current bridge value
-          const currentBridgeValue = bridge.getValue?.(name) ?? null;
+          const currentBridgeValue = bridge.getValue(name) ?? null;
 
           // Normalize typed value: empty string => null, otherwise cast to TValue
           const valueToSet =
@@ -665,7 +665,7 @@ export function Autocomplete<
       }
 
       // Get the current value at blur time to avoid stale closure
-      const valueAtBlurTime = bridge.getValue?.(name) ?? null;
+      const valueAtBlurTime = bridge.getValue(name) ?? null;
 
       // Create a synthetic blur event for touch tracking
       const blurEvent = {

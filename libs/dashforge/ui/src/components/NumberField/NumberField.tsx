@@ -258,7 +258,7 @@ export function NumberField(
   const registration: FieldRegistration = bridge.register(name, rules);
 
   // Get current value from bridge (number | null | undefined)
-  const autoValue = bridge.getValue?.(name) as number | null | undefined;
+  const autoValue = bridge.getValue(name) as number | null | undefined;
 
   // Convert bridge value to input string
   // number -> String(number), null/undefined -> ''
@@ -281,10 +281,10 @@ export function NumberField(
   }
 
   // Get error state from bridge
-  const autoErr = bridge.getError?.(name) ?? null;
+  const autoErr = bridge.getError(name) ?? null;
 
   // Get touched state and submit count for error gating
-  const autoTouched = bridge.isTouched?.(name) ?? false;
+  const autoTouched = bridge.isTouched(name) ?? false;
   const submitCount = bridge.submitCount ?? 0;
 
   // Form Closure v1: Show error only if touched OR submitCount > 0

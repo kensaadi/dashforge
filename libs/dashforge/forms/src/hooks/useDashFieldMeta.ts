@@ -128,11 +128,11 @@ export function useDashFieldMeta(name: string): DashFieldMeta {
     if (!bridge) {
       return EMPTY_META;
     }
-    const value = bridge.getValue?.(name);
-    const errorObj = bridge.getError?.(name) ?? null;
+    const value = bridge.getValue(name);
+    const errorObj = bridge.getError(name) ?? null;
     const errorMessage = errorObj?.message ?? null;
-    const touched = bridge.isTouched?.(name) ?? false;
-    const dirty = bridge.isDirty?.(name) ?? false;
+    const touched = bridge.isTouched(name) ?? false;
+    const dirty = bridge.isDirty(name) ?? false;
     const submitCount = bridge.submitCount ?? 0;
 
     const prev = cacheRef.primitives;

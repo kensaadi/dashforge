@@ -120,7 +120,7 @@ export function createSelectIntegration(
   availableValues?: (string | number)[]
 ): SelectIntegrationProps {
   // Get current value from bridge for controlled component
-  const rawValue = bridge.getValue?.(name) ?? '';
+  const rawValue = bridge.getValue(name) ?? '';
 
   // Display value sanitization (Step 05b):
   // Use shared helper to sanitize display value
@@ -146,7 +146,7 @@ export function createSelectIntegration(
   // For native select, create onBlur handler
   const handleBlur = isNativeSelect
     ? () => {
-        const valueAtBlurTime = bridge.getValue?.(name) ?? '';
+        const valueAtBlurTime = bridge.getValue(name) ?? '';
         const syntheticEvent = createSyntheticBlurEvent(name, valueAtBlurTime);
 
         if (registration.onBlur) {
@@ -159,7 +159,7 @@ export function createSelectIntegration(
   // MUI Select doesn't properly trigger onBlur on the combobox div
   const handleClose = !isNativeSelect
     ? () => {
-        const valueAtCloseTime = bridge.getValue?.(name) ?? '';
+        const valueAtCloseTime = bridge.getValue(name) ?? '';
         const syntheticEvent = createSyntheticBlurEvent(name, valueAtCloseTime);
 
         if (registration.onBlur) {

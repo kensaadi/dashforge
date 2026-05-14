@@ -9,6 +9,67 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.0-beta] — 2026-05-14
+
+### Changed
+
+- **All 10 form components migrated to the simplified bridge access
+  pattern.** Under the `0.2.0-beta` freeze, `register` / `unregister` /
+  `getValue` / `setValue` / `getError` / `isTouched` / `isDirty` /
+  `subscribeField` are no longer optional on `DashFormBridge`. The
+  defensive `bridge.method?.(...)` double-chain has been simplified to
+  `bridge.method(...)` in:
+  - `TextField`, `Textarea`, `Select`, `Autocomplete`, `RadioGroup`,
+    `Checkbox`, `Switch`, `NumberField`, `DateTimePicker`, `OTPField`.
+  - Helper modules `textField.select.ts` and `textField.validation.ts`.
+
+  Semantics are unchanged (`bridge` itself is still nullable, so the
+  outer `if (!bridge)` / `bridge?.` guard remains; only the second
+  optional chain is dropped).
+
+- **`createMockBridge`** (in `test-utils/mockBridge.ts`) updated to the
+  new contract: implements the now-required `subscribeField` (broadcast
+  style — every listener fires on any state mutation), drops the four
+  removed version-string getters, and updates its JSDoc to describe the
+  new reactivity model.
+
+- **`renderWithRuntime`** test wrapper docstring updated to describe
+  reactivity via `subscribeField` listeners instead of the legacy
+  version getters.
+
+- **`Select.test.tsx`** and **`Select.characterization.test.tsx`** mock
+  bridges updated: removed the four deprecated assertions, added
+  `unregister` / `isDirty` / `subscribeField` to satisfy the required
+  surface. `Select.test.tsx`'s wrapper now uses a per-effect notifier
+  that wakes subscribed listeners on every relevant RHF state change.
+
+### Documentation
+
+- **README rewritten** to reflect the current API surface:
+  - Peer-dep line corrected to `@mui/material@^9.0.0` (was a stale
+    `^7.0.0`).
+  - Peer-dep versions of `@dashforge/*` updated to `^0.2.0-beta`.
+  - Usage example uses the actual exported names (`TextField`,
+    `Select`, `Checkbox` — not the fabricated `DashTextField` /
+    `DashSelect` / `DashButton` from the old boilerplate).
+  - "What you get" section enumerates the real catalog of form inputs
+    + layout + feedback primitives + RBAC integration.
+  - "Documentation" section linking the package CHANGELOG, top-level
+    CHANGELOG, `MIGRATION.md`, and the roadmap.
+
+### Test totals
+
+- `@dashforge/ui`: **484 / 485** passing, 1 skipped (unchanged from
+  `0.1.9-alpha`).
+
+### Backwards compatibility
+
+For application code consuming `@dashforge/ui` form components inside a
+`DashFormProvider`, no migration is required — component public APIs
+are unchanged. Custom test fixtures that rely on a mocked bridge
+should be updated to match the new contract; see
+[`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md#019-alpha--020-beta).
+
 ## [0.1.9-alpha] — 2026-05-13
 
 ### Added

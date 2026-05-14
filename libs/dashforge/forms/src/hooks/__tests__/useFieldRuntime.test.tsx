@@ -10,6 +10,36 @@ import type { SelectFieldRuntimeData } from '../../runtime/runtime.types';
 const waitForValtio = () =>
   new Promise((resolve) => setTimeout(resolve, 0));
 
+/**
+ * Build a minimal `DashFormBridge` suitable for testing a single feature
+ * area (here: the runtime API) without having to hand-implement every
+ * required method on every test.
+ *
+ * Since the 0.2.0-beta freeze, `DashFormBridge` exposes `register`,
+ * `unregister`, `getValue`, `setValue`, `getError`, `isTouched`, `isDirty`,
+ * `submitCount`, and `subscribeField` as required members. These tests only
+ * exercise `getFieldRuntime` / `setFieldRuntime` / `subscribeFieldRuntime`,
+ * so the required core API is stubbed with no-op implementations whose
+ * behavior is irrelevant to the assertions.
+ */
+function createTestBridge(
+  overrides: Partial<DashFormBridge>
+): DashFormBridge {
+  return {
+    engine: {} as DashFormBridge['engine'],
+    register: () => ({ name: '' }),
+    unregister: () => undefined,
+    getValue: () => undefined,
+    setValue: () => undefined,
+    getError: () => null,
+    isTouched: () => false,
+    isDirty: () => false,
+    submitCount: 0,
+    subscribeField: () => () => undefined,
+    ...overrides,
+  };
+}
+
 describe('useFieldRuntime', () => {
   describe('Standalone mode (no provider)', () => {
     it('returns default state when no bridge available', () => {
@@ -32,13 +62,12 @@ describe('useFieldRuntime', () => {
   describe('Form mode (with provider)', () => {
     it('returns runtime state from bridge', () => {
       const runtimeStore = createRuntimeStore();
-      const bridge: DashFormBridge = {
-        engine: {} as any,
+      const bridge = createTestBridge({
         getFieldRuntime: (name) => runtimeStore.getFieldRuntime(name),
         setFieldRuntime: (name, patch) => runtimeStore.setFieldRuntime(name, patch),
         subscribeFieldRuntime: (name, listener) =>
           runtimeStore.subscribeFieldRuntime(name, listener),
-      };
+      });
 
       // Set some runtime state
       runtimeStore.setFieldRuntime('country', { status: 'loading' });
@@ -56,13 +85,12 @@ describe('useFieldRuntime', () => {
 
     it('subscribes to field changes and re-renders', async () => {
       const runtimeStore = createRuntimeStore();
-      const bridge: DashFormBridge = {
-        engine: {} as any,
+      const bridge = createTestBridge({
         getFieldRuntime: (name) => runtimeStore.getFieldRuntime(name),
         setFieldRuntime: (name, patch) => runtimeStore.setFieldRuntime(name, patch),
         subscribeFieldRuntime: (name, listener) =>
           runtimeStore.subscribeFieldRuntime(name, listener),
-      };
+      });
 
       const { result, rerender } = renderHook(() => useFieldRuntime('country'), {
         wrapper: ({ children }) => (
@@ -90,13 +118,12 @@ describe('useFieldRuntime', () => {
 
     it('CRITICAL: subscription isolation - field A change does not re-render field B hook', async () => {
       const runtimeStore = createRuntimeStore();
-      const bridge: DashFormBridge = {
-        engine: {} as any,
+      const bridge = createTestBridge({
         getFieldRuntime: (name) => runtimeStore.getFieldRuntime(name),
         setFieldRuntime: (name, patch) => runtimeStore.setFieldRuntime(name, patch),
         subscribeFieldRuntime: (name, listener) =>
           runtimeStore.subscribeFieldRuntime(name, listener),
-      };
+      });
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <DashFormContext.Provider value={bridge}>
@@ -126,13 +153,12 @@ describe('useFieldRuntime', () => {
 
     it('supports generic type parameter', () => {
       const runtimeStore = createRuntimeStore();
-      const bridge: DashFormBridge = {
-        engine: {} as any,
+      const bridge = createTestBridge({
         getFieldRuntime: (name) => runtimeStore.getFieldRuntime(name),
         setFieldRuntime: (name, patch) => runtimeStore.setFieldRuntime(name, patch),
         subscribeFieldRuntime: (name, listener) =>
           runtimeStore.subscribeFieldRuntime(name, listener),
-      };
+      });
 
       const options = [
         { value: 'us', label: 'United States' },
@@ -160,13 +186,12 @@ describe('useFieldRuntime', () => {
 
     it('cleans up subscription on unmount', () => {
       const runtimeStore = createRuntimeStore();
-      const bridge: DashFormBridge = {
-        engine: {} as any,
+      const bridge = createTestBridge({
         getFieldRuntime: (name) => runtimeStore.getFieldRuntime(name),
         setFieldRuntime: (name, patch) => runtimeStore.setFieldRuntime(name, patch),
         subscribeFieldRuntime: (name, listener) =>
           runtimeStore.subscribeFieldRuntime(name, listener),
-      };
+      });
 
       const { unmount } = renderHook(() => useFieldRuntime('country'), {
         wrapper: ({ children }) => (

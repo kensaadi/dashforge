@@ -37,19 +37,35 @@ export { useDashFormContext } from './core/useDashFormContext';
 
 /**
  * Adapter bridging React Hook Form with Dashforge Engine.
- * Phase 0: Methods are stubs.
+ *
+ * @internal
+ * Implementation detail used by `DashFormProvider`. Exported for advanced
+ * use-cases (custom providers, testing harnesses) but **not part of the
+ * stable public surface** — it can change shape between minor releases.
+ * Most consumers should never reach for this; use `useDashFormContext` or
+ * the field hooks instead.
  */
 export { FormEngineAdapter } from './core/FormEngineAdapter';
 
 /**
  * Type definitions for DashForm infrastructure.
+ *
+ * The `DashFormProviderProps`, `DashFormProps`, `DashFormConfig`,
+ * `DashFormContextValue` types are **public**.
+ *
+ * The `IFormEngineAdapter` and `FormEngineAdapterOptions` types describe
+ * the internal adapter contract — they are exported for consumers that
+ * build a custom provider, but flagged `@internal` for the same reason
+ * `FormEngineAdapter` itself is.
  */
 export type {
   DashFormContextValue,
   DashFormConfig,
   DashFormProps,
   DashFormProviderProps,
+  /** @internal */
   IFormEngineAdapter,
+  /** @internal */
   FormEngineAdapterOptions,
 } from './core/form.types';
 
@@ -119,7 +135,18 @@ export type {
   RuntimeStoreState,
 } from './runtime/runtime.types';
 
+/**
+ * Low-level runtime store factory.
+ *
+ * @internal
+ * `DashFormProvider` creates and owns its own `RuntimeStore` instance.
+ * UI consumers interact with runtime state exclusively via `useFieldRuntime`
+ * (read) and bridge-mediated writes from reactions. The factory is exported
+ * here for testing and advanced custom-provider scenarios only — not part
+ * of the stable public surface.
+ */
 export type { RuntimeStore } from './runtime/createRuntimeStore';
+/** @internal */
 export { createRuntimeStore, DEFAULT_FIELD_RUNTIME } from './runtime/createRuntimeStore';
 
 // ============================================================================
@@ -138,10 +165,17 @@ export type {
 } from './reactions/reaction.types';
 
 /**
- * Reaction registry (advanced/internal use).
- * Typical users only need ReactionDefinition type.
+ * Reaction registry.
+ *
+ * @internal
+ * Internal orchestration primitive. `DashFormProvider` creates a registry
+ * from the `reactions` prop and drives evaluation. Typical consumers only
+ * need the `ReactionDefinition` type to author reactions; they do NOT need
+ * to touch the registry directly. Exported for testing / custom-provider
+ * authoring only — not part of the stable public surface.
  */
 export type { ReactionRegistry } from './reactions/createReactionRegistry';
+/** @internal */
 export { createReactionRegistry } from './reactions/createReactionRegistry';
 
 // ============================================================================

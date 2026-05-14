@@ -11,7 +11,7 @@ npm install @mui/material @emotion/react @emotion/styled
 
 ## Peer Dependencies
 
-- `@mui/material@^7.0.0`
+- `@mui/material@^9.0.0` (since `0.1.7-alpha`)
 - `@emotion/react@^11.0.0`
 - `@emotion/styled@^11.0.0`
 
@@ -36,6 +36,12 @@ function App() {
 - Consistent design system integration
 - Customizable and extensible
 - Full TypeScript support
+
+## Documentation
+
+- [Package CHANGELOG](./CHANGELOG.md) — release history for this package.
+- [Top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md) — cross-package release context.
+- [MIGRATION.md](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md) — breaking-change upgrade guides.
 
 ## License
 
