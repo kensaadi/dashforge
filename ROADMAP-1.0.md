@@ -1,12 +1,16 @@
 # Roadmap verso `1.0.0`
 
-> **Punto di partenza:** `0.2.0-beta` (preparato il 2026-05-14 — public-API
-> freeze su `DashFormBridge`, rimozione dei 4 field deprecated, `@internal`
-> markers, primo `MIGRATION.md`; precedente `0.1.9-alpha` del 2026-05-13
-> con test coverage + docs polish; `0.1.8-alpha` con packaging completion;
-> `0.1.7-alpha` con MUI v9 slotProps migration; `0.1.6-alpha` con CR fixes
-> #1/#2/#3, per-field subscriptions, auto-reset policy, DateTimePicker
-> time-mode fix).
+> **Punto di partenza:** `0.3.0-beta` docs-lab (preparato il 2026-05-14 —
+> VersionBadge + sezione Releases navigabile + StackBlitz "open in
+> sandbox" sulle demo + esempi live Zod/FieldArray) e `0.2.1-beta`
+> dei pacchetti (bug-fix release: `DashForm` resolver passthrough +
+> `DashFormProvider` SSR-safe `useForm()`); precedente `0.2.0-beta` del
+> 2026-05-14 con public-API freeze su `DashFormBridge`, rimozione dei 4
+> field deprecated, `@internal` markers, primo `MIGRATION.md`;
+> `0.1.9-alpha` con test coverage + docs polish; `0.1.8-alpha` con
+> packaging completion; `0.1.7-alpha` con MUI v9 slotProps migration;
+> `0.1.6-alpha` con CR fixes #1/#2/#3, per-field subscriptions,
+> auto-reset policy, DateTimePicker time-mode fix).
 >
 > **Obiettivo:** raggiungere `1.0.0` con API pubblica congelata, debito tecnico
 > pagato, CI che blocca le regressioni e documentazione versionata.
@@ -456,8 +460,9 @@
 | `0.1.7-alpha`    | ✅ MUI v9 slotProps migration (peer dep ^9.0.0, console pulita)           |
 | `0.1.8-alpha`    | ✅ packaging completion (CHANGELOG.md nei tarball) + stringa stantia Autocomplete corretta |
 | `0.1.9-alpha`    | ✅ rilasciata (bridge.unregister test + lastValidIsoRef test + OTPField smoke + JSDoc decision tree + Opzione A typecheck cleanup) |
-| `0.2.0-beta`     | ✅ preparata in staged (DashFormBridge interface freeze: 9 metodi required + 4 deprecated removed; `@internal` markers su FormEngineAdapter / RuntimeStore / ReactionRegistry / DependencyTracker / RuleEvaluator / store helpers; semplificazione `bridge.method?.()` → `bridge.method()` su 14 file; MIGRATION.md primo file al top-level; 7× README enhanced) |
-| `0.3.0-beta`     | docs-lab: doc per versione + CodeSandbox sulle demo + esempi Zod/FieldArray |
+| `0.2.0-beta`     | ✅ rilasciata (DashFormBridge interface freeze: 9 metodi required + 4 deprecated removed; `@internal` markers su FormEngineAdapter / RuntimeStore / ReactionRegistry / DependencyTracker / RuleEvaluator / store helpers; semplificazione `bridge.method?.()` → `bridge.method()` su 14 file; MIGRATION.md primo file al top-level; 7× README enhanced) |
+| `0.2.1-beta`     | ✅ preparata in staged (bug-fix release: `DashForm` resolver passthrough fix + `DashFormProvider` SSR-safe `useForm()` incondizionato; +4 regression test in `DashForm.test.tsx`; entrambi i bug emersi costruendo le demo live della docs-lab) |
+| `0.3.0-beta`     | ✅ preparata in staged — docs-lab versionata (`VersionBadge` component + sezione "Releases" navigabile con 6 pagine MDX dalla 0.1.6 alla 0.2.1 + StackBlitz "open in sandbox" sulle demo `ComponentPreview` + esempi live Zod resolver e `useDashFieldArray`; bump deps docs-lab a 0.2.1-beta; build SSG verde, 42 pagine) |
 | `0.4.0-rc`       | GitHub Actions CI + bundle budget + cleanup monorepo (rimuovi `web`)      |
 | `0.5.0-rc`       | performance benchmark interattivo nella docs-lab                          |
 | **`1.0.0`**      | 🎉 release stabile                                                        |

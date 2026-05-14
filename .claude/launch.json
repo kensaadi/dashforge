@@ -12,6 +12,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "/Users/mcs/projects/web/learn/dash", "dev"],
       "port": 5173
+    },
+    {
+      "name": "docs-lab",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "/Users/mcs/projects/web/dashforge-docs-lab", "dev"],
+      "port": 5173
     }
   ]
 }

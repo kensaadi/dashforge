@@ -116,44 +116,28 @@ export function DashFormProvider<
     return newEngine;
   }, [externalEngine, debug]);
 
-  // Initialize React Hook Form
-  // Skip in SSR/SSG to avoid "Cannot read properties of null (reading 'useRef')" error
-  const isClient = typeof window !== 'undefined';
-  const rhf = isClient ? useForm<TFieldValues>({
+  // Initialize React Hook Form.
+  //
+  // `useForm()` is called UNCONDITIONALLY — it is a regular hook and must
+  // run on every render, including during SSR / SSG. React Hook Form's
+  // `useForm` is fully SSR-safe by design.
+  //
+  // A previous version of this provider wrapped `useForm` in an
+  // `isClient ? useForm() : { ...stub }` ternary to dodge a
+  // "Cannot read properties of null (reading 'useRef')" crash seen during
+  // SSR. That was the wrong fix on two counts:
+  //   1. It violated the Rules of Hooks (a hook behind a condition), and
+  //   2. the SSR stub exposed `control: {}`, which silently broke
+  //      `useFieldArray` (and therefore `useDashFieldArray`) during SSG —
+  //      `control._getFieldArray is not a function`.
+  // The original `useRef` crash is a dual-React-instance symptom; the cure
+  // for that is deduping `react` / `react-dom` in the consumer's bundler
+  // (e.g. Vite `resolve.dedupe`), NOT skipping the hook.
+  const rhf = useForm<TFieldValues>({
     defaultValues: defaultValues as DefaultValues<TFieldValues>,
     mode,
     resolver,
-  }) : ({
-    // SSR mock - minimal API to prevent errors
-    register: () => ({}),
-    unregister: () => {},
-    watch: () => defaultValues ?? {},
-    handleSubmit: (cb: any) => async () => {},
-    reset: () => {},
-    formState: {
-      errors: {},
-      touchedFields: {},
-      dirtyFields: {},
-      submitCount: 0,
-      isSubmitting: false,
-      isValidating: false,
-      isDirty: false,
-      isValid: true,
-    },
-    control: {} as any,
-    getValues: () => defaultValues ?? {},
-    setValue: () => {},
-    getFieldState: () => ({
-      isDirty: false,
-      isTouched: false,
-      invalid: false,
-      error: undefined,
-    }),
-    clearErrors: () => {},
-    setError: () => {},
-    setFocus: () => {},
-    trigger: async () => true,
-  }) as any;
+  });
 
   // Subscribe to formState fields to ensure reactivity
   const errors = rhf.formState.errors;

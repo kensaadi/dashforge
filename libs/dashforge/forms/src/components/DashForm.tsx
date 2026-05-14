@@ -116,6 +116,7 @@ export function DashForm<TFieldValues extends FieldValues = FieldValues>({
   debug,
   mode,
   reactions,
+  resolver,
   ...formProps
 }: DashFormProps<TFieldValues>) {
   return (
@@ -125,6 +126,7 @@ export function DashForm<TFieldValues extends FieldValues = FieldValues>({
       debug={debug}
       mode={mode}
       reactions={reactions}
+      resolver={resolver}
     >
       <DashFormInner<TFieldValues> onSubmit={onSubmit} {...formProps}>
         {children}

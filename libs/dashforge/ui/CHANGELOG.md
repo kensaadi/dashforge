@@ -9,6 +9,13 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.1-beta] — 2026-05-14
+
+- Version bump for lockstep peer alignment with the workspace `0.2.1-beta`
+  bug-fix release (`@dashforge/forms` `DashForm` `resolver` passthrough fix).
+  This package has no source change. See the
+  [top-level 0.2.1-beta notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#021-beta--2026-05-14).
+
 ## [0.2.0-beta] — 2026-05-14
 
 ### Changed

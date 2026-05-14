@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1-beta] — 2026-05-14
+
+### Fixed
+
+- **`DashForm` dropped the `resolver` prop.** The `DashForm` convenience
+  wrapper destructured `engine` / `defaultValues` / `debug` / `mode` /
+  `reactions` and spread the rest onto the `<form>` element — but
+  `resolver` was not in that list, so it landed on the raw `<form>` DOM
+  node instead of reaching React Hook Form. `<DashForm resolver={...}>`
+  (schema-based validation via Zod / Yup / etc.) silently validated
+  nothing. The fix destructures `resolver` and forwards it to
+  `DashFormProvider`. `DashFormProvider` itself was never affected.
+
+- **`DashFormProvider` skipped `useForm()` during SSR.** The provider
+  wrapped `useForm()` in an `isClient ? useForm() : { ...stub }` ternary
+  to dodge a *"Cannot read properties of null (reading 'useRef')"* crash
+  during server-side rendering. This violated the Rules of Hooks (a hook
+  behind a condition) and — worse — the SSR stub exposed `control: {}`,
+  which broke `useFieldArray` / `useDashFieldArray` under SSG with
+  *"control._getFieldArray is not a function"*. `useForm()` is now called
+  unconditionally (it is SSR-safe by design); `useDashFieldArray` works
+  correctly under SSR / SSG. The original `useRef` crash is a
+  dual-React-instance symptom — dedupe `react` / `react-dom` in the
+  consumer's bundler instead.
+
+### Added
+
+- **`src/components/DashForm.test.tsx`** — 4 regression tests: no
+  `resolver` attribute leaks onto `<form>`, submit invokes the resolver,
+  resolver errors block `onSubmit`, children render inside the form.
+
+### Test totals
+
+- `@dashforge/forms`: **137 / 137** passing (+4 from the new `DashForm`
+  regression suite).
+
+### Upgrade notes
+
+- If `<DashForm resolver={...}>` appeared to do nothing on `0.2.0-beta`,
+  this release fixes it — upgrade with no code change.
+- If you render Dashforge forms with SSR / SSG, `useForm()` now runs
+  during the server pass as it should. Ensure your bundler dedupes
+  `react` / `react-dom` to a single instance.
+
 ## [0.2.0-beta] — 2026-05-14
 
 ### Removed (breaking)

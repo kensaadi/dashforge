@@ -10,6 +10,83 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [0.2.1-beta] — 2026-05-14
+
+> **Bug-fix release.** Two form-layer correctness fixes in
+> `@dashforge/forms`, both surfaced while building the documentation site's
+> live examples: (1) `<DashForm resolver={...}>` silently ignored the
+> resolver, and (2) `DashFormProvider` skipped `useForm()` during SSR,
+> violating the Rules of Hooks and breaking `useDashFieldArray` under
+> server-side rendering. No public API change.
+
+Affected packages (all bumped to `0.2.1-beta`):
+
+| Package                | Notes                                                                   |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `@dashforge/forms`     | **Two bug fixes** — `DashForm` `resolver` passthrough + `DashFormProvider` unconditional `useForm()`. |
+| `@dashforge/tokens` · `theme-core` · `theme-mui` · `ui-core` · `rbac` · `ui` | Version bump only (lockstep peer alignment). |
+
+### Fixed
+
+- **`DashForm` dropped the `resolver` prop.** `DashForm` destructured its
+  config props (`engine` / `defaultValues` / `debug` / `mode` /
+  `reactions`) and spread the rest (`...formProps`) onto the underlying
+  `<form>` element. `resolver` was **not** in the destructured list, so it
+  fell through into `...formProps` and was spread onto the raw `<form>`
+  DOM node — React rejected it with *"Invalid value for prop `resolver` on
+  `form` tag"* and, critically, the resolver never reached React Hook
+  Form. Schema-based validation via `<DashForm resolver={...}>` silently
+  validated nothing.
+
+  The fix adds `resolver` to the destructured props and forwards it to
+  `DashFormProvider` (which already accepted and wired it correctly).
+  `DashFormProvider` was never affected — only the `DashForm` convenience
+  wrapper.
+
+- **`DashFormProvider` skipped `useForm()` during SSR.** The provider
+  wrapped React Hook Form's `useForm()` in an
+  `isClient ? useForm() : { ...stub }` ternary to dodge a
+  *"Cannot read properties of null (reading 'useRef')"* crash seen during
+  server-side rendering. That was wrong on two counts:
+  1. it **violated the Rules of Hooks** — `useForm` is a hook and must run
+     unconditionally on every render; and
+  2. the SSR stub exposed `control: {}`, which silently broke
+     `useFieldArray` (and therefore `useDashFieldArray`) under SSG with
+     *"control._getFieldArray is not a function"*.
+
+  `useForm()` is now called unconditionally — it is SSR-safe by design.
+  The original `useRef` crash is a dual-React-instance symptom; the cure
+  for that is deduping `react` / `react-dom` in the consumer's bundler
+  (e.g. Vite `resolve.dedupe`), not skipping the hook. `useDashFieldArray`
+  now works correctly under SSR / SSG.
+
+### Added
+
+- **Regression test suite** `forms/src/components/DashForm.test.tsx`
+  (4 tests): the `<form>` element carries no `resolver` attribute,
+  submitting the form actually invokes the resolver, resolver errors block
+  the `onSubmit` handler, and children render inside the form.
+
+### Test totals
+
+- `@dashforge/forms`: **137 / 137** passing (was 133 / 133; +4 from the new
+  `DashForm` regression suite).
+- `@dashforge/ui`: **484 / 485** passing, 1 skipped (unchanged).
+- `@dashforge/rbac`: **264 / 264** passing (unchanged).
+
+### Upgrade notes
+
+- If `<DashForm resolver={...}>` appeared to do nothing on `0.2.0-beta` —
+  this is why. Upgrade to `0.2.1-beta` and it works with no code change.
+  If you worked around it with `<DashFormProvider resolver={...}>`
+  directly, that path was always correct and continues to work.
+- If you render Dashforge forms with SSR / SSG and hit a `useRef` null
+  crash, make sure your bundler dedupes `react` and `react-dom` to a
+  single instance (Vite: `resolve.dedupe: ['react', 'react-dom']`).
+  `useForm()` itself is SSR-safe.
+
+---
+
 ## [0.2.0-beta] — 2026-05-14
 
 > **Public-API freeze release.** The `DashFormBridge` interface is split
