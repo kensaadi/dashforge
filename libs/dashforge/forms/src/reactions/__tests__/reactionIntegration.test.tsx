@@ -1,11 +1,24 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { DashFormProvider } from '../../core/DashFormProvider';
-import type { ReactionDefinition } from '../reaction.types';
+import type {
+  ReactionDefinition,
+  ReactionRunContext,
+  ReactionWhenContext,
+} from '../reaction.types';
 import type { ReactNode } from 'react';
 import { useDashFormContext } from '../../core/useDashFormContext';
 import { useFieldRuntime } from '../../hooks/useFieldRuntime';
 import { TestFieldHarness } from './testHarness';
+
+/**
+ * Local alias for the trigger callback exposed by `TestFieldHarness` —
+ * mirrors the prop signature there. Defined once for explicit annotation
+ * of the many `onRegistered={(trigger: HarnessTrigger) => ...}` callbacks below (avoids
+ * 6× TS7006 "implicit any" warnings without forcing the harness API to
+ * re-export its own type).
+ */
+type HarnessTrigger = (value: unknown) => void;
 
 describe('Reaction Integration Tests', () => {
   beforeEach(() => {
@@ -22,8 +35,8 @@ describe('Reaction Integration Tests', () => {
         {
           id: 'update-status',
           watch: ['trigger'],
-          when: (ctx) => Boolean(ctx.getValue('trigger')),
-          run: (ctx) => {
+          when: (ctx: ReactionWhenContext) => Boolean(ctx.getValue('trigger')),
+          run: (ctx: ReactionRunContext) => {
             ctx.setRuntime('target', { status: 'loading', data: null });
           },
         },
@@ -38,7 +51,7 @@ describe('Reaction Integration Tests', () => {
         >
           <TestFieldHarness
             name="trigger"
-            onRegistered={(trigger) => {
+            onRegistered={(trigger: HarnessTrigger) => {
               triggerField = trigger;
             }}
           />
@@ -77,8 +90,8 @@ describe('Reaction Integration Tests', () => {
         {
           id: 'init-runtime',
           watch: ['country'],
-          when: (ctx) => Boolean(ctx.getValue('country')),
-          run: (ctx) => {
+          when: (ctx: ReactionWhenContext) => Boolean(ctx.getValue('country')),
+          run: (ctx: ReactionRunContext) => {
             const country = ctx.getValue<string>('country');
             ctx.setRuntime('city', {
               status: 'ready',
@@ -171,7 +184,7 @@ describe('Reaction Integration Tests', () => {
         >
           <TestFieldHarness
             name="trigger"
-            onRegistered={(trigger) => {
+            onRegistered={(trigger: HarnessTrigger) => {
               triggerField = trigger;
             }}
           />
@@ -215,8 +228,8 @@ describe('Reaction Integration Tests', () => {
         {
           id: 'fetch-data',
           watch: ['query'],
-          when: (ctx) => Boolean(ctx.getValue('query')),
-          run: async (ctx) => {
+          when: (ctx: ReactionWhenContext) => Boolean(ctx.getValue('query')),
+          run: async (ctx: ReactionRunContext) => {
             const query = ctx.getValue<string>('query');
             const requestId = ctx.beginAsync('fetch-data');
 
@@ -244,7 +257,7 @@ describe('Reaction Integration Tests', () => {
         >
           <TestFieldHarness
             name="query"
-            onRegistered={(trigger) => {
+            onRegistered={(trigger: HarnessTrigger) => {
               triggerField = trigger;
             }}
           />
@@ -309,7 +322,7 @@ describe('Reaction Integration Tests', () => {
         {
           id: 'read-unmounted',
           watch: ['trigger'],
-          when: (ctx) => Boolean(ctx.getValue('trigger')),
+          when: (ctx: ReactionWhenContext) => Boolean(ctx.getValue('trigger')),
           run: runSpy,
         },
       ];
@@ -327,7 +340,7 @@ describe('Reaction Integration Tests', () => {
         >
           <TestFieldHarness
             name="trigger"
-            onRegistered={(trigger) => {
+            onRegistered={(trigger: HarnessTrigger) => {
               triggerField = trigger;
             }}
           />
@@ -403,7 +416,7 @@ describe('Reaction Integration Tests', () => {
         <DashFormProvider defaultValues={defaultValues} reactions={reactions}>
           <TestFieldHarness
             name="test-field"
-            onRegistered={(trigger) => {
+            onRegistered={(trigger: HarnessTrigger) => {
               triggerField = trigger;
             }}
           />
