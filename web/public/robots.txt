@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://dashforge-ui.com/sitemap.xml
