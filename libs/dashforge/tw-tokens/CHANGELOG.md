@@ -18,6 +18,29 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **`TWThemeMeta` interface** (in `types.ts`) — carries identity + active
+  mode (`name`, `version`, `mode: 'light' | 'dark'`). Defined parallel
+  to the MUI side's `DashforgeThemeMeta` but **without** importing from
+  MUI tokens — full isolation per architecture plan v2.
+- **`defaultTWThemeLight` + `defaultTWThemeDark`** named defaults
+  shipped from `defaults.ts`. The dark variant inverts only the
+  `neutral` scale along the tonal axis (50 ↔ 950, 100 ↔ 900, …);
+  brand roles (primary/secondary/success/warning/danger/info) and
+  non-color tokens (spacing/radius/fontSize) are shared between modes.
+  This is the simplest defensible default that lets `setMode('dark')`
+  in `@dashforge/tw-theme` demonstrate the full "two themes swap"
+  semantics end-to-end without committing to brand-tone shifts that
+  belong to design.
+- **`TWTheme.meta`** field is now required on the root theme object —
+  carries the active mode for runtime swap detection.
+
+### Changed
+
+- **`defaultTWTheme`** is now a back-compat alias for
+  `defaultTWThemeLight`. F1 callers continue to compile unchanged.
+
 ## [0.0.1] — 2026-05-15
 
 ### Added

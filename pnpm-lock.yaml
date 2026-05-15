@@ -227,8 +227,8 @@ importers:
   libs/dashforge/forms:
     dependencies:
       '@dashforge/ui-core':
-        specifier: ^0.2.1-beta
-        version: 0.2.1-beta(@types/react@19.2.14)(react@19.2.5)
+        specifier: ^0.2.2-beta
+        version: 0.2.2-beta(@types/react@19.2.14)(react@19.2.5)
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -245,8 +245,8 @@ importers:
   libs/dashforge/theme-core:
     dependencies:
       '@dashforge/tokens':
-        specifier: ^0.2.1-beta
-        version: 0.2.1-beta
+        specifier: ^0.2.2-beta
+        version: 0.2.2-beta
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -257,11 +257,11 @@ importers:
   libs/dashforge/theme-mui:
     dependencies:
       '@dashforge/theme-core':
-        specifier: ^0.2.1-beta
-        version: 0.2.1-beta(@types/react@19.2.14)(react@19.2.5)
+        specifier: ^0.2.2-beta
+        version: 0.2.2-beta(@types/react@19.2.14)(react@19.2.5)
       '@dashforge/tokens':
-        specifier: ^0.2.1-beta
-        version: 0.2.1-beta
+        specifier: ^0.2.2-beta
+        version: 0.2.2-beta
       '@emotion/react':
         specifier: ^11.0.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.5)
@@ -325,6 +325,9 @@ importers:
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
+      valtio:
+        specifier: ^2.3.0
+        version: 2.3.0(@types/react@19.2.14)(react@19.2.5)
 
   libs/dashforge/tw-tokens:
     dependencies:
@@ -335,14 +338,14 @@ importers:
   libs/dashforge/ui:
     dependencies:
       '@dashforge/forms':
-        specifier: ^0.2.1-beta
-        version: 0.2.1-beta(@dashforge/ui-core@0.2.1-beta(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+        specifier: ^0.2.2-beta
+        version: 0.2.2-beta(@dashforge/ui-core@0.2.2-beta(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
       '@dashforge/rbac':
-        specifier: ^0.2.1-beta
-        version: 0.2.1-beta(react@19.2.5)
+        specifier: ^0.2.2-beta
+        version: 0.2.2-beta(react@19.2.5)
       '@dashforge/ui-core':
-        specifier: ^0.2.1-beta
-        version: 0.2.1-beta(@types/react@19.2.14)(react@19.2.5)
+        specifier: ^0.2.2-beta
+        version: 0.2.2-beta(@types/react@19.2.14)(react@19.2.5)
       motion:
         specifier: ^12.34.3
         version: 12.34.3(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -1102,25 +1105,25 @@ packages:
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
 
-  '@dashforge/forms@0.2.1-beta':
-    resolution: {integrity: sha512-VSplQzJbdLUOvHmpnYj+HDsmlH9a6NC8EZ5Sw7NIEWaM2L/WkSXwy8ss4c2AWJkLHFPQDenRJ6N4zCSGCIjuYg==}
+  '@dashforge/forms@0.2.2-beta':
+    resolution: {integrity: sha512-7FbuvwulCCzu3f3YkmgsFq07QVtPpIX8svrhx4JYPYBdhol4Sz1vXX6yLekV2J5ixA8RIJAG2uHxZqgon8DPEA==}
     peerDependencies:
-      '@dashforge/ui-core': ^0.2.1-beta
+      '@dashforge/ui-core': ^0.2.2-beta
       react: ^19.2.5
 
-  '@dashforge/rbac@0.2.1-beta':
-    resolution: {integrity: sha512-O+G36yxwm1ROQdD8/a2T8hvdQCNxhVK5YdnG3iecNKLRhmxvMasyWtcxwvSLe+w/6/iuKojyf6+IaoP98FQFwQ==}
+  '@dashforge/rbac@0.2.2-beta':
+    resolution: {integrity: sha512-S77326ywNzlyFi0yqTqIWpjRKu0X+7eygvvhXgp20iCKhES7T0eGe8504uayxxXsf/sRfSqAqiL2SNf3AUpepA==}
     peerDependencies:
       react: ^19.2.5
 
-  '@dashforge/theme-core@0.2.1-beta':
-    resolution: {integrity: sha512-2VT1nPD8hYUpZjK6P6qOx0HjVK+0zDHlMzS74qfi8gSMvyvswxW+JA0hRCUbXdhLrSOj5GPPZQjpWbaMK8elpA==}
+  '@dashforge/theme-core@0.2.2-beta':
+    resolution: {integrity: sha512-Jdu0op7D0BDcuoTG39lsIcLMqDmhG4I23xWmUBIwT+AHSwhosvfEg6OsmvcalyS9n2+M0Q4xp7eTEQl1chx9Iw==}
 
-  '@dashforge/tokens@0.2.1-beta':
-    resolution: {integrity: sha512-j+9QF/mn0GGIVHdT7yvNcXI8ug/Vgo2x/0n2aftuCL4EBGLUQPCASmbOe/TixOo492fhntfiagRcB8rQbi8CPQ==}
+  '@dashforge/tokens@0.2.2-beta':
+    resolution: {integrity: sha512-OOS/+d0GWE2zNp5IbSPan+wIdSnIvzr9DKYuYx/VAIpsH5ImdBi8+IwqkW6fkEv3vfeCRfIWJyQCCH91rgPsbA==}
 
-  '@dashforge/ui-core@0.2.1-beta':
-    resolution: {integrity: sha512-O/OAWP3/aqtj06bbIF5sxliSiENLZgtuAZfvWItjWuwsv1MLDPbyo+vr6gZaxZTyGzqO8aP4V26XS8fbhe+imw==}
+  '@dashforge/ui-core@0.2.2-beta':
+    resolution: {integrity: sha512-PGeszoM6/Y1YjEwjbbzXjlxEqhPeXFAX1ydl1F/cnqtPQGM3AEGapKOSYTp16QIwfLYK0dbw4otLtm2mTTbtTw==}
     peerDependencies:
       react: ^19.2.5
 
@@ -7994,30 +7997,30 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
-  '@dashforge/forms@0.2.1-beta(@dashforge/ui-core@0.2.1-beta(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)':
+  '@dashforge/forms@0.2.2-beta(@dashforge/ui-core@0.2.2-beta(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)':
     dependencies:
-      '@dashforge/ui-core': 0.2.1-beta(@types/react@19.2.14)(react@19.2.5)
+      '@dashforge/ui-core': 0.2.2-beta(@types/react@19.2.14)(react@19.2.5)
       react: 19.2.5
       react-hook-form: 7.71.1(react@19.2.5)
 
-  '@dashforge/rbac@0.2.1-beta(react@19.2.5)':
+  '@dashforge/rbac@0.2.2-beta(react@19.2.5)':
     dependencies:
       react: 19.2.5
 
-  '@dashforge/theme-core@0.2.1-beta(@types/react@19.2.14)(react@19.2.5)':
+  '@dashforge/theme-core@0.2.2-beta(@types/react@19.2.14)(react@19.2.5)':
     dependencies:
-      '@dashforge/tokens': 0.2.1-beta
+      '@dashforge/tokens': 0.2.2-beta
       tslib: 2.8.1
       valtio: 2.3.0(@types/react@19.2.14)(react@19.2.5)
     transitivePeerDependencies:
       - '@types/react'
       - react
 
-  '@dashforge/tokens@0.2.1-beta':
+  '@dashforge/tokens@0.2.2-beta':
     dependencies:
       tslib: 2.8.1
 
-  '@dashforge/ui-core@0.2.1-beta(@types/react@19.2.14)(react@19.2.5)':
+  '@dashforge/ui-core@0.2.2-beta(@types/react@19.2.14)(react@19.2.5)':
     dependencies:
       react: 19.2.5
       tslib: 2.8.1

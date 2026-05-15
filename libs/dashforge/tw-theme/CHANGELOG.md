@@ -18,12 +18,101 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Planned for F2
+### Added — F2 (reactive runtime, 2026-05-15)
 
-- Valtio-backed reactive theme store local to the tw ecosystem.
-- Runtime CSS-vars injection (`--df-color-*`, `--df-radius-*`, etc.) for
-  light/dark theme swap without page reload.
-- Dark mode via `data-dash-theme="dark"` selector on `<html>`.
+- **Valtio-backed reactive theme store** local to the tw ecosystem.
+  Isolated from `@dashforge/theme-core` (MUI side) — separate proxy,
+  separate localStorage key (`dashforge:tw-theme:mode`), separate
+  cross-tab event scope.
+- **`useDashTWTheme()` reactive hook** returns `DeepReadonly<TWTheme>`.
+  Type signature does NOT leak `Snapshot<T>` from `valtio` — consumer
+  never needs to know Valtio is the runtime backbone.
+- **Imperative actions**: `setTheme(theme)`, `setMode('light'|'dark')`,
+  `toggleMode()`, `replaceTheme(theme)` (alias of setTheme),
+  `patchTheme(deepPartial)` for runtime brand overrides without
+  rebuilding Tailwind.
+- **`<DashforgeTailwindProvider>` rewritten** to:
+  - Subscribe to the store via `useDashTWTheme`
+  - Inject the resolved CSS variables on `document.documentElement`
+    (`--df-tw-color-*`, `--df-tw-spacing-*`, etc.) via
+    `setProperty` on every theme mutation
+  - Mirror `theme.meta.mode` to a `data-dash-tw-theme` attribute on
+    `<html>` so Tailwind's
+    `darkMode: ['selector', '[data-dash-tw-theme="dark"]']` resolves
+  - Apply optional one-shot `initialTheme` / `initialMode` overrides
+    on mount (StrictMode-safe via a ref guard)
+- **`dashforgePreset()` rewritten** to emit **CSS variable references**
+  with `<alpha-value>` support, not literal hex values. Pattern:
+  `rgb(var(--df-tw-color-primary-500) / <alpha-value>)` → keeps
+  modifier syntax (`bg-primary-500/50`) working while letting the
+  runtime swap the theme without rebuilding Tailwind. Spacing, radius,
+  and fontSize tokens point at the corresponding `var(--df-tw-…)`
+  refs too.
+- **`twThemeCssVars(theme)`** pure-function CSS-var map builder
+  (exported for advanced consumers — e.g. theme-aware SSR helpers
+  that need to inject vars by hand).
+- **`hexToRgbTriplet(hex)`** pure helper that converts `'#3b82f6'` /
+  `'3b82f6'` to the `'59 130 246'` triplet required by Tailwind's
+  alpha-value format. Throws on shorthand or invalid hex (surface the
+  defect at first paint, not deep inside Tailwind's class resolver).
+- **`serverSideStyleTag(theme)` SSR helper** renders a complete
+  inline `<style id="dashforge-tw-init">:root[data-dash-tw-theme="<mode>"]{…}</style>`
+  block ready to drop into the document `<head>`. Prevents FOUC on
+  first paint of SSR apps (Next.js, Remix, Astro).
+- **Priority cascade for initial mode**: `localStorage` →
+  `matchMedia('(prefers-color-scheme: dark)')` → `'light'`. Hardened
+  against Safari private-mode storage exceptions and missing
+  `matchMedia` (graceful degradation).
+- **Cross-tab sync** via the `storage` window event. Mode changes in
+  one tab propagate to all others without explicit wiring on the
+  consumer side.
+
+### Changed
+
+- **Dependencies**: added `valtio ^2.3.0` as a regular `dependencies`
+  entry (NOT a peer). Consumers never need to install or import
+  Valtio — the type leak is also eliminated, see
+  `useDashTWTheme.d.ts` final signature.
+- **`@vitejs/plugin-react`** wired in `vite.config.ts` +
+  `vitest.config.mts` so the Provider spec can mount React via
+  `@testing-library/react`.
+- **`DashforgeTailwindProviderProps`**: `theme` + `mode` (F1
+  placeholder names) renamed to `initialTheme` + `initialMode` to
+  reflect that they are one-shot overrides on mount, not reactive
+  bindings. Reactive control lives in the store actions.
+
+### Tests
+
+- 65 new unit tests across 6 new spec files:
+  - `store/tw-theme.store.spec.ts` — 14 tests (cascade, persistence,
+    cross-tab, isolation from MUI key)
+  - `store/tw-theme.actions.spec.ts` — 7 tests (deep merge, sibling
+    preservation, null safety, replaceTheme equivalence)
+  - `hooks/useDashTWTheme.spec.ts` — 4 tests (snapshot, re-render
+    triggers, immutability)
+  - `runtime/cssVars.spec.ts` — 16 tests (hex→RGB triplet, full
+    color/spacing/radius/fontSize keyspace, light↔dark snapshot)
+  - `runtime/serverSideStyleTag.spec.ts` — 7 tests (output shape,
+    selector scope, light vs dark)
+  - `provider/DashforgeTailwindProvider.spec.tsx` — 10 tests (mount,
+    DOM injection, reactive swap, initialTheme/initialMode
+    precedence, StrictMode safety)
+- `adapter/dashforgePreset.spec.ts` extended from 2 → 9 tests to
+  cover CSS-var refs, alpha-value format, key parity.
+
+### Verified
+
+- Smoke test in `~/projects/web/learn/dash` (`/test-tw` route):
+  Vite bundle green, 0 console errors / warnings, full toggle &
+  patch flow exercised in browser. `data-dash-tw-theme` flips, CSS
+  vars re-inject, `neutral-50` correctly inverts on mode swap
+  (`250 250 250` ↔ `10 10 10`), brand colors stay constant.
+- Cross-package isolation confirmed at runtime: TW and MUI providers
+  write to **separate** localStorage keys (`dashforge:tw-theme:mode`
+  vs `dashforge:theme:mode`) and never collide.
+- Full monorepo regression: 0 changes in the 7 published packages'
+  test suites; `@dashforge/ui` MUI still at 484 + 1 skipped, byte-
+  unchanged.
 
 ## [0.0.1] — 2026-05-15
 

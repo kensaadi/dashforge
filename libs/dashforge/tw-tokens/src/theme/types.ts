@@ -79,13 +79,36 @@ export interface TWFontSizeTokens {
 }
 
 /**
+ * Theme metadata. Carries identity + active mode so the runtime store
+ * can model "two themes swap" semantics symmetrically to the MUI side
+ * (`@dashforge/tokens` `DashforgeThemeMeta`) — but **without** importing
+ * from MUI tokens. The two ecosystems are deliberately isolated; this
+ * interface is a parallel, independent definition.
+ *
+ * Architecture plan v2 (2026-05-15): isolamento totale tra MUI e TW.
+ */
+export interface TWThemeMeta {
+  /** Human-readable theme name, e.g. "Dashforge TW Light". */
+  name: string;
+  /** Semver version of the theme definition (not the package). */
+  version: string;
+  /** Active mode. The two default themes shipped by this package have
+   * `mode: 'light'` and `mode: 'dark'` respectively; a runtime store
+   * swap (`setMode('dark')`) replaces the entire theme. */
+  mode: 'light' | 'dark';
+}
+
+/**
  * Top-level Dashforge TW theme object.
  *
- * Concrete defaults exposed by `defaultTWTheme` in `defaults.ts`.
- * Consumers extend/override via `@dashforge/tw-theme` augmentation API
- * (F2 deliverable).
+ * Concrete defaults exposed by `defaultTWThemeLight` / `defaultTWThemeDark`
+ * in `defaults.ts` (`defaultTWTheme` is a back-compat alias for the light
+ * default). Consumers extend/override via `@dashforge/tw-theme`
+ * augmentation API (F2 deliverable: `setTheme`, `patchTheme`).
  */
 export interface TWTheme {
+  /** Identity + active mode. */
+  meta: TWThemeMeta;
   color: TWColorTokens;
   spacing: TWSpacingScale;
   radius: TWRadiusTokens;

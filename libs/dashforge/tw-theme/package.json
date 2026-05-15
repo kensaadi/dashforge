@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "@dashforge/tw-tokens": "workspace:*",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "valtio": "^2.3.0"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
