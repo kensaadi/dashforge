@@ -17,17 +17,37 @@ npm install @mui/material @emotion/react @emotion/styled
 
 ## Usage
 
-```typescript
-import { createDashforgeMuiTheme } from '@dashforge/theme-mui';
-import { ThemeProvider } from '@mui/material/styles';
+`DashforgeThemeProvider` wraps MUI's `ThemeProvider` and (optionally) `CssBaseline` for you, and reads the active Dashforge theme from `@dashforge/theme-core`. You don't need to construct the MUI theme yourself.
 
-const theme = createDashforgeMuiTheme();
+```tsx
+import { DashforgeThemeProvider } from '@dashforge/theme-mui';
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>{/* Your MUI components */}</ThemeProvider>
+    <DashforgeThemeProvider>
+      {/* Your MUI components */}
+    </DashforgeThemeProvider>
   );
 }
+```
+
+Pass a custom Dashforge theme explicitly if you want to override the one resolved by `@dashforge/theme-core`:
+
+```tsx
+import { DashforgeThemeProvider } from '@dashforge/theme-mui';
+import type { DashforgeTheme } from '@dashforge/tokens';
+
+const customTheme: DashforgeTheme = /* ... */;
+
+<DashforgeThemeProvider theme={customTheme} withCssBaseline={false}>
+  {children}
+</DashforgeThemeProvider>
+```
+
+For the low-level MUI theme object (e.g. to merge with another MUI provider), use the adapter directly:
+
+```ts
+import { createMuiThemeFromDashTheme } from '@dashforge/theme-mui';
 ```
 
 ## Features
