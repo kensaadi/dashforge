@@ -1,0 +1,11 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "@dashforge/forms",
+  "targets": {
+    "typecheck": {
+      "options": {
+        "command": "tsc --build tsconfig.lib.json --emitDeclarationOnly"
+      }
+    }
+  }
+}
