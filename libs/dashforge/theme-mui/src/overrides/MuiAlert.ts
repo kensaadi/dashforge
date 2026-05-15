@@ -34,17 +34,45 @@ export function getMuiAlertOverrides(
             },
           },
         },
-
-        standardSuccess: standardStyle(dash.color.intent.success),
-        standardWarning: standardStyle(dash.color.intent.warning),
-        standardError: standardStyle(dash.color.intent.danger),
-        standardInfo: standardStyle(infoColor),
-
-        filledSuccess: filledStyle(dash.color.intent.success),
-        filledWarning: filledStyle(dash.color.intent.warning),
-        filledError: filledStyle(dash.color.intent.danger),
-        filledInfo: filledStyle(infoColor),
       },
+      // MUI v9 removed the compound `standard{Severity}` / `filled{Severity}`
+      // override slots from `styleOverrides`. Per-severity styling now goes
+      // through the `variants` array (MUI v6+ pattern), matched on the
+      // `severity` + `variant` props.
+      variants: [
+        {
+          props: { severity: 'success' as const, variant: 'standard' as const },
+          style: standardStyle(dash.color.intent.success),
+        },
+        {
+          props: { severity: 'warning' as const, variant: 'standard' as const },
+          style: standardStyle(dash.color.intent.warning),
+        },
+        {
+          props: { severity: 'error' as const, variant: 'standard' as const },
+          style: standardStyle(dash.color.intent.danger),
+        },
+        {
+          props: { severity: 'info' as const, variant: 'standard' as const },
+          style: standardStyle(infoColor),
+        },
+        {
+          props: { severity: 'success' as const, variant: 'filled' as const },
+          style: filledStyle(dash.color.intent.success),
+        },
+        {
+          props: { severity: 'warning' as const, variant: 'filled' as const },
+          style: filledStyle(dash.color.intent.warning),
+        },
+        {
+          props: { severity: 'error' as const, variant: 'filled' as const },
+          style: filledStyle(dash.color.intent.danger),
+        },
+        {
+          props: { severity: 'info' as const, variant: 'filled' as const },
+          style: filledStyle(infoColor),
+        },
+      ],
     },
   };
 }
