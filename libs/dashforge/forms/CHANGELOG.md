@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2-beta] — 2026-05-15
+
+- Version bump for lockstep peer alignment with the workspace `0.2.2-beta`
+  maintenance release. This package has no source change.
+- See the
+  [top-level 0.2.2-beta notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#022-beta--2026-05-15)
+  for cross-package context (`@dashforge/theme-mui` `MuiAlert` v9 fix +
+  F1 scaffolding of the `@dashforge/tw-*` Tailwind ecosystem as private,
+  unpublished packages — the new `@dashforge/tw` consumes the same
+  `DashFormProvider` from this package).
+
 ## [0.2.1-beta] — 2026-05-14
 
 ### Fixed

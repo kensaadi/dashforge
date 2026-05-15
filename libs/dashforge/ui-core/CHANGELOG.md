@@ -9,6 +9,17 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.2-beta] — 2026-05-15
+
+- Version bump for lockstep peer alignment with the workspace `0.2.2-beta`
+  maintenance release. This package has no source change.
+- See the
+  [top-level 0.2.2-beta notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#022-beta--2026-05-15)
+  for cross-package context (`@dashforge/theme-mui` `MuiAlert` v9 fix +
+  F1 scaffolding of the `@dashforge/tw-*` Tailwind ecosystem as private,
+  unpublished packages — the bridge interface in this package is the
+  same shared contract the new `@dashforge/tw` consumes).
+
 ## [0.2.1-beta] — 2026-05-14
 
 - Version bump for lockstep peer alignment with the workspace `0.2.1-beta`

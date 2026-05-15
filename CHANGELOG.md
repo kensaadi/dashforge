@@ -10,6 +10,118 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [0.2.2-beta] — 2026-05-15
+
+> **Maintenance release.** One runtime correctness fix in
+> `@dashforge/theme-mui` (per-severity `MuiAlert` styling silently lost
+> under MUI v9 due to removed compound override slots), plus the F1
+> scaffolding of the **`@dashforge/tw-*` Tailwind ecosystem** as three
+> new private packages (`tw-tokens`, `tw-theme`, `tw`) that ship with the
+> monorepo but are **deliberately excluded from the publish set** until
+> F2/F3 stabilises them. Tooling/cleanup: `nx.json` `release.projects`
+> scoped explicitly to the 7 publishable packages, two unused playground
+> apps removed, per-project `typecheck → build` serialization to
+> eliminate a `nx run-many` race.
+>
+> **No public API change** on any of the 7 published packages.
+
+Affected packages (all bumped to `0.2.2-beta`):
+
+| Package                | Notes                                                                   |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `@dashforge/theme-mui` | **Runtime fix** — `MuiAlert` per-severity overrides migrated to the MUI v6+ `variants` array (MUI v9 removed the compound `standard{Severity}` / `filled{Severity}` slots from `styleOverrides`). |
+| `@dashforge/tokens` · `theme-core` · `ui-core` · `rbac` · `forms` · `ui` | Version bump only (lockstep peer alignment). No source change. |
+
+New (unpublished, scaffolding only — not part of the published release):
+
+| Package                | Version  | Status                                                                |
+| ---------------------- | -------- | --------------------------------------------------------------------- |
+| `@dashforge/tw-tokens` | `0.0.1`  | `private: true`. Tailwind-shaped tokens (50-950 color scales, spacing, radius, fontSize tiers). TS-only build. |
+| `@dashforge/tw-theme`  | `0.0.1`  | `private: true`. `dashforgePreset()` Tailwind preset factory + `DashforgeTailwindProvider` React shell (Valtio store + CSS-vars injection arrives in F2). |
+| `@dashforge/tw`        | `0.0.1`  | `private: true`. Components package with `cn()` (clsx wrapper) + `tv` re-export from tailwind-variants. F1 scaffold only — first components (Button, TextField, Checkbox, Switch) arrive in F3. |
+
+### Fixed
+
+- **`@dashforge/theme-mui` — `MuiAlert` per-severity styling lost under
+  MUI v9.** The previous overrides used the compound
+  `standardSuccess` / `filledWarning` / etc. keys inside
+  `MuiAlert.styleOverrides`, which were valid under MUI v5 but **removed
+  from `MuiAlert`'s `styleOverrides` type in MUI v9**. The keys passed
+  silently at runtime (no per-severity colors applied) and produced a
+  `TS2353` typecheck error on `src/overrides/MuiAlert.ts:38`.
+
+  The fix replaces the eight compound-slot entries with a `variants`
+  array matched on `{ severity, variant }` — the MUI v6+ idiomatic
+  pattern. Runtime visual effect restored, TS2353 cleared. Public API of
+  `getMuiAlertOverrides()` is unchanged and the emitted `.d.ts` is
+  byte-identical.
+
+### Added
+
+- **`@dashforge/tw-tokens`, `@dashforge/tw-theme`, `@dashforge/tw`
+  (private, unpublished).** F1 of the *dashforge-tw* roadmap: scaffolding
+  for a Tailwind-first variant of the Dashforge UI, built as a fully
+  isolated ecosystem sharing only the bridge layer
+  (`@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/rbac`) with
+  the MUI side. Tokens, theme runtime, and components are duplicated
+  intentionally — there is no shared "lowest common denominator"
+  headless layer.
+
+  All three packages ship with `private: true` and are excluded from
+  `nx.json` `release.projects`, so they are versioned independently
+  (`0.0.x`) and **will not** be bumped or published by the publish set's
+  release cadence until they're ready to leave scaffolding. When F2/F3
+  stabilises the API, they re-join the fixed group from a coherent
+  starting point. Repository workspace devDeps gained
+  `tailwind-variants`, `tailwind-merge`, and `clsx`.
+
+  Smoke-tested in `~/projects/web/learn/dash` via `pnpm link`. Browser
+  build green. Plan in [`/Users/mcs/.claude/plans/voglio-estendere-dashforge-con-shiny-parnas.md`](#)
+  (local).
+
+### Changed
+
+- **`nx.json` `release.projects` scoped to the 7 published packages
+  explicitly.** Was `["@dashforge/*"]`. Now lists the 7 publishable
+  packages by name (`tokens`, `theme-core`, `theme-mui`, `ui-core`,
+  `forms`, `rbac`, `ui`). Reason: the glob also matched the three new
+  scaffolding-only `@dashforge/tw-*` packages, which would have been
+  swept into every `nx release version` bump and dragged out of their
+  narrative `0.0.x` scaffolding versioning. When the tw ecosystem
+  stabilises (F2/F3), the entries get re-added and `private: true` is
+  removed from the manifests so they join the fixed group from a
+  coherent starting point.
+
+- **Per-project `typecheck → build` serialization** to eliminate a
+  `nx run-many` race where `typecheck` and `build` of the same project
+  could observe transiently inconsistent `tsbuildinfo` state. `typecheck`
+  is now scoped to `tsconfig.lib.json` for `@dashforge/forms` and
+  `@dashforge/theme-mui` (consistent with the other 5 publishable
+  packages) — this also unblocks `@dashforge/forms` from picking up its
+  spec configs as part of the public typecheck.
+
+- **`@dashforge/theme-mui` README** — example now imports the real
+  `DashforgeThemeProvider` export (was a hypothetical name in the docs
+  snippet, never matched a published symbol).
+
+### Removed
+
+- **Unused `docs/` playground app.** Replaced by the
+  `~/projects/web/dashforge-docs-lab` external repo as the canonical
+  docs surface. The in-monorepo playground was no longer wired into any
+  task and only added clutter.
+
+- **Unused `web/` (dashforge-web) playground app.** Same reason; never
+  promoted past internal scratchpad.
+
+### Internal
+
+- **`tsbuildinfo` artifacts untracked.** Already covered by
+  `.gitignore`, but had been committed in earlier alpha cycles. Removed
+  from history-going-forward (existing tracking dropped).
+
+---
+
 ## [0.2.1-beta] — 2026-05-14
 
 > **Bug-fix release.** Two form-layer correctness fixes in

@@ -9,6 +9,37 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.2-beta] — 2026-05-15
+
+### Fixed
+
+- **`MuiAlert` per-severity overrides migrated to the MUI v6+ `variants`
+  array.** The previous `styleOverrides` used compound slots
+  (`standardSuccess`, `standardWarning`, `standardError`, `standardInfo`,
+  `filledSuccess`, `filledWarning`, `filledError`, `filledInfo`). These
+  keys were valid under MUI v5 but **removed from `MuiAlert`'s
+  `styleOverrides` type in MUI v9**. Effect: the keys silently failed at
+  runtime (no per-severity background / text color applied) and produced
+  a `TS2353` typecheck error on `src/overrides/MuiAlert.ts:38`.
+
+  The fix replaces the eight compound entries with a `variants` array
+  matched on `{ severity, variant }` props — the MUI v6+ idiomatic
+  pattern. Runtime visual effect for
+  `<Alert severity="success|warning|error|info" variant="standard|filled">`
+  restored; TS2353 cleared. Public API of `getMuiAlertOverrides()`
+  unchanged, emitted `.d.ts` byte-identical with the previous release.
+
+### Changed
+
+- **README example** now imports the real `DashforgeThemeProvider`
+  export (was a hypothetical name in the docs snippet, never matched a
+  published symbol).
+
+- See the
+  [top-level 0.2.2-beta notes](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#022-beta--2026-05-15)
+  for cross-package context (also includes the F1 scaffolding of the
+  `@dashforge/tw-*` Tailwind ecosystem as private, unpublished packages).
+
 ## [0.2.1-beta] — 2026-05-14
 
 - Version bump for lockstep peer alignment with the workspace `0.2.1-beta`
