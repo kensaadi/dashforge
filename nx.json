@@ -101,7 +101,15 @@
     }
   },
   "release": {
-    "projects": ["@dashforge/*"],
+    "projects": [
+      "@dashforge/tokens",
+      "@dashforge/theme-core",
+      "@dashforge/theme-mui",
+      "@dashforge/ui-core",
+      "@dashforge/forms",
+      "@dashforge/rbac",
+      "@dashforge/ui"
+    ],
     "projectsRelationship": "fixed",
     "version": {
       "conventionalCommits": false,
