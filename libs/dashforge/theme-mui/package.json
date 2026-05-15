@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/theme-mui",
-  "version": "0.2.1-beta",
+  "version": "0.2.2-beta",
   "description": "Material-UI theme integration for Dashforge design system",
   "license": "MIT",
   "keywords": [
@@ -34,8 +34,8 @@
     }
   },
   "dependencies": {
-    "@dashforge/tokens": "^0.2.1-beta",
-    "@dashforge/theme-core": "^0.2.1-beta"
+    "@dashforge/tokens": "^0.2.2-beta",
+    "@dashforge/theme-core": "^0.2.2-beta"
   },
   "peerDependencies": {
     "@emotion/react": "^11.0.0",
