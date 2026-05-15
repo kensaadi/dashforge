@@ -6,6 +6,9 @@
       "options": {
         "command": "tsc --build tsconfig.lib.json --emitDeclarationOnly"
       }
+    },
+    "build": {
+      "dependsOn": ["typecheck", "^build"]
     }
   }
 }
