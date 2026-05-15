@@ -4,9 +4,6 @@
   "files": [],
   "references": [
     {
-      "path": "./docs"
-    },
-    {
       "path": "./api"
     },
     {
