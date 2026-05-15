@@ -53,6 +53,7 @@
     "nx": "22.5.0",
     "prettier": "^2.6.2",
     "rollup": "^4.14.0",
+    "swc-loader": "0.1.15",
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
@@ -66,10 +67,13 @@
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/server": "^11.11.0",
+    "clsx": "^2.1.1",
     "express": "^4.21.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "6.30.3",
+    "tailwind-merge": "^2.5.0",
+    "tailwind-variants": "^3.2.2",
     "valtio": "2.3.0"
   },
   "pnpm": {

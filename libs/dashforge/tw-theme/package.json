@@ -1,0 +1,25 @@
+{
+  "name": "@dashforge/tw-theme",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.esm.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@dashforge/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "default": "./dist/index.esm.js"
+    }
+  },
+  "dependencies": {
+    "@dashforge/tw-tokens": "workspace:*",
+    "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  }
+}

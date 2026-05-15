@@ -26,6 +26,15 @@
     },
     {
       "path": "./libs/dashforge/rbac"
+    },
+    {
+      "path": "./libs/dashforge/tw-tokens"
+    },
+    {
+      "path": "./libs/dashforge/tw-theme"
+    },
+    {
+      "path": "./libs/dashforge/tw"
     }
   ]
 }

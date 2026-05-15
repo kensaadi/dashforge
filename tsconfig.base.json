@@ -5,7 +5,9 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["es2022"],
+    "lib": [
+      "es2022"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmitOnError": true,
@@ -17,15 +19,40 @@
     "strict": true,
     "target": "es2022",
     "baseUrl": ".",
-    "customConditions": ["@dashforge/source"],
+    "customConditions": [
+      "@dashforge/source"
+    ],
     "paths": {
-      "@dashforge/tokens": ["libs/dashforge/tokens/src/index.ts"],
-      "@dashforge/theme-core": ["libs/dashforge/theme-core/src/index.ts"],
-      "@dashforge/theme-mui": ["libs/dashforge/theme-mui/src/index.ts"],
-      "@dashforge/ui": ["libs/dashforge/ui/src/index.ts"],
-      "@dashforge/ui-core": ["libs/dashforge/ui-core/src/index.ts"],
-      "@dashforge/forms": ["libs/dashforge/forms/src/index.ts"],
-      "@dashforge/rbac": ["libs/dashforge/rbac/src/index.ts"]
+      "@dashforge/tokens": [
+        "libs/dashforge/tokens/src/index.ts"
+      ],
+      "@dashforge/theme-core": [
+        "libs/dashforge/theme-core/src/index.ts"
+      ],
+      "@dashforge/theme-mui": [
+        "libs/dashforge/theme-mui/src/index.ts"
+      ],
+      "@dashforge/ui": [
+        "libs/dashforge/ui/src/index.ts"
+      ],
+      "@dashforge/ui-core": [
+        "libs/dashforge/ui-core/src/index.ts"
+      ],
+      "@dashforge/forms": [
+        "libs/dashforge/forms/src/index.ts"
+      ],
+      "@dashforge/rbac": [
+        "libs/dashforge/rbac/src/index.ts"
+      ],
+      "@dashforge/tw-tokens": [
+        "libs/dashforge/tw-tokens/src/index.ts"
+      ],
+      "@dashforge/tw-theme": [
+        "libs/dashforge/tw-theme/src/index.ts"
+      ],
+      "@dashforge/tw": [
+        "libs/dashforge/tw/src/index.ts"
+      ]
     }
   }
 }
