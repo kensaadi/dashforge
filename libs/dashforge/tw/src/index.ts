@@ -67,6 +67,23 @@ export type {
 } from './components/Textarea/textarea.types.js';
 export { textareaVariants } from './components/Textarea/textarea.variants.js';
 
+// F4-B tier-2 final: numeric input + segmented OTP
+
+export { NumberField } from './components/NumberField/NumberField.js';
+export type {
+  NumberFieldProps,
+  NumberFieldSlotProps,
+} from './components/NumberField/numberField.types.js';
+export { numberFieldVariants } from './components/NumberField/numberField.variants.js';
+
+export { OTPField } from './components/OTPField/OTPField.js';
+export type {
+  OTPFieldProps,
+  OTPFieldSlotProps,
+  OTPFieldMode,
+} from './components/OTPField/otpField.types.js';
+export { otpFieldVariants } from './components/OTPField/otpField.variants.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
