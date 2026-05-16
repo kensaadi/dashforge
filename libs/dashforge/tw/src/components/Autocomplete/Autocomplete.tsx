@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   ComboBox,
   Input,
@@ -102,9 +102,35 @@ export function Autocomplete(props: AutocompleteProps) {
     };
   }, []);
 
-  // Build a stable filtered-options accessor. F5-A uses the React Aria
-  // default `defaultFilter` (`contains`) — no custom filtering yet.
-  const items = useMemo<AutocompleteOption[]>(() => options, [options]);
+  // Controlled inputValue + manual filtering. React Aria's `ComboBox`
+  // does NOT filter automatically when `items` is provided (the
+  // `defaultFilter` prop documented in v1.x is undocumented or
+  // unreliable in current versions), so we control both halves
+  // ourselves — the canonical pattern from the react-aria-components
+  // docs for filtered comboboxes.
+  //
+  //   inputValue   = state we own, fed back to ComboBox
+  //   onInputChange = updates inputValue (fires for typing AND for
+  //                   programmatic selection — Aria writes the picked
+  //                   option's textValue back through this callback)
+  //   filteredItems = items.filter(label contains inputValue)
+  //
+  // The filter is case-insensitive substring match on the option's
+  // string label (or its `value` if label is a non-string node — rare).
+  const [inputValue, setInputValue] = useState('');
+  const filteredItems = useMemo<AutocompleteOption[]>(() => {
+    if (!inputValue) return options;
+    const query = inputValue.toLowerCase();
+    return options.filter((opt) => {
+      const text =
+        typeof opt.label === 'string' ? opt.label : String(opt.value);
+      return text.toLowerCase().includes(query);
+    });
+  }, [options, inputValue]);
+
+  const handleInputChange = useCallback((next: string) => {
+    setInputValue(next);
+  }, []);
 
   if (!isVisible) return null;
   if (!accessState.visible) return null;
@@ -193,8 +219,10 @@ export function Autocomplete(props: AutocompleteProps) {
         isRequired={required}
         isInvalid={Boolean(resolvedError)}
         allowsCustomValue={false}
-        menuTrigger="focus"
-        items={items}
+        menuTrigger="input"
+        items={filteredItems}
+        inputValue={inputValue}
+        onInputChange={handleInputChange}
         aria-labelledby={label ? labelId : undefined}
         aria-describedby={resolvedHelperText ? helperId : undefined}
       >
