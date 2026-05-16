@@ -152,16 +152,27 @@ swap" because the surface stack stays light end-to-end.
 language wants:
 
 1. **Elevation-style dark mode** (recommended for app dashboards):
-   keep `bg-white` on components, switch your *page* background to a
-   dark neutral. Inputs stay as visible white cards on a dark canvas.
+   keep `bg-white` on components, set your *page* background to
+   `bg-neutral-50`. The `neutral` scale **inverts automatically**
+   in `defaultTWThemeDark` (`neutral-50` ↔ `neutral-950`), so the
+   SAME class resolves to a light surface in light mode and a dark
+   surface in dark mode — no `dark:` variant or manual swap needed.
+   Inputs stay as visible white cards on a dark canvas.
 
    ```tsx
    <DashforgeTailwindProvider>
-     <main className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+     <main className="min-h-screen bg-neutral-50">
+       {/* page bg: #fafafa in light, #0a0a0a in dark — automatic */}
        <Card className="bg-white">{/* form here */}</Card>
      </main>
    </DashforgeTailwindProvider>
    ```
+
+   ⚠ **Known limitation of this strategy**: form labels and
+   helperText use `text-neutral-900` which ALSO inverts (becomes a
+   light shade in dark mode). On a literal-white card the label
+   contrast drops. For a fully dark-friendly form on a white card,
+   move to strategy 2 or 3.
 
 2. **Fully-dark surfaces** (recommended for content-heavy sites):
    override each component's input surface via `slotProps`:
