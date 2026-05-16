@@ -1,4 +1,13 @@
 const { withNx } = require('@nx/rollup/with-nx');
+const { flattenDts } = require('./scripts/flat-dts.cjs');
+
+/** See `libs/dashforge/forms/rollup.config.cjs` for the rationale. */
+const flatDtsPlugin = () => ({
+  name: 'flat-dts',
+  writeBundle() {
+    flattenDts(__dirname);
+  },
+});
 
 module.exports = withNx(
   {
@@ -20,5 +29,6 @@ module.exports = withNx(
     output: {
       sourcemap: true,
     },
+    plugins: [flatDtsPlugin()],
   }
 );

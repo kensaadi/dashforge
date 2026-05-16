@@ -1,6 +1,22 @@
 const { withNx } = require('@nx/rollup/with-nx');
 const url = require('@rollup/plugin-url');
 const svg = require('@svgr/rollup');
+const { flattenDts } = require('./scripts/flat-dts.cjs');
+
+/**
+ * Rollup plugin: post-build flatten the dist `.d.ts` wrapper to
+ * explicit re-exports. See `scripts/flat-dts.cjs` for the why.
+ *
+ * Hooks into `writeBundle` (Rollup output phase) so it fires AFTER
+ * all output files are written — the moment `dist/index.d.ts` and
+ * `dist/src/index.d.ts` both exist on disk.
+ */
+const flatDtsPlugin = () => ({
+  name: 'flat-dts',
+  writeBundle() {
+    flattenDts(__dirname);
+  },
+});
 
 module.exports = withNx(
   {
@@ -31,6 +47,7 @@ module.exports = withNx(
       url({
         limit: 10000, // 10kB
       }),
+      flatDtsPlugin(),
     ],
   }
 );
