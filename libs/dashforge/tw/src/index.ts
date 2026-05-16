@@ -50,6 +50,23 @@ export type {
 } from './components/Switch/switch.types.js';
 export { switchVariants } from './components/Switch/switch.variants.js';
 
+// F4 tier-2: bridge-integrated multi-choice + multi-line input
+
+export { RadioGroup } from './components/RadioGroup/RadioGroup.js';
+export type {
+  RadioGroupProps,
+  RadioGroupOption,
+  RadioGroupSlotProps,
+} from './components/RadioGroup/radioGroup.types.js';
+export { radioGroupVariants } from './components/RadioGroup/radioGroup.variants.js';
+
+export { Textarea } from './components/Textarea/Textarea.js';
+export type {
+  TextareaProps,
+  TextareaSlotProps,
+} from './components/Textarea/textarea.types.js';
+export { textareaVariants } from './components/Textarea/textarea.variants.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
