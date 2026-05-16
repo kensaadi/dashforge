@@ -13,7 +13,8 @@ export const numberFieldVariants = tv({
     requiredMark: 'text-danger-500 ml-0.5',
     inputWrapper: [
       'relative flex items-center',
-      'rounded-md border bg-white',
+      // bg-neutral-50 inverts via @dashforge/tw-tokens — dark-mode aware.
+      'rounded-md border bg-neutral-50',
       'border-neutral-300',
       'transition-colors',
       'focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/30',
@@ -77,7 +78,7 @@ export const numberFieldVariants = tv({
     },
     disabled: {
       true: {
-        inputWrapper: 'opacity-60 cursor-not-allowed bg-neutral-50',
+        inputWrapper: 'opacity-60 cursor-not-allowed bg-neutral-200',
       },
     },
   },

@@ -28,7 +28,8 @@ export const otpFieldVariants = tv({
     slotsRow: 'relative inline-flex items-center gap-2',
     slot: [
       'flex items-center justify-center',
-      'rounded-md border bg-white',
+      // bg-neutral-50 inverts — dark-mode aware via the dashforge preset.
+      'rounded-md border bg-neutral-50',
       'border-neutral-300',
       'text-neutral-900 font-mono',
       'transition-colors',

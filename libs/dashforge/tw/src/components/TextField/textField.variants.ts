@@ -19,7 +19,9 @@ export const textFieldVariants = tv({
     requiredMark: 'text-danger-500 ml-0.5',
     inputWrapper: [
       'relative flex items-center',
-      'rounded-md border bg-white',
+      // bg-neutral-50 inverts via @dashforge/tw-tokens: #fafafa in light,
+      // #0a0a0a in dark. Same class, dark-mode aware automatically.
+      'rounded-md border bg-neutral-50',
       'border-neutral-300',
       'transition-colors',
       'focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/30',
@@ -66,7 +68,10 @@ export const textFieldVariants = tv({
     },
     disabled: {
       true: {
-        inputWrapper: 'opacity-60 cursor-not-allowed bg-neutral-50',
+        // neutral-200 is a darker shade of the default neutral-50 surface
+        // — visually distinguishes the disabled input from the active one
+        // in both light and dark modes.
+        inputWrapper: 'opacity-60 cursor-not-allowed bg-neutral-200',
       },
     },
   },

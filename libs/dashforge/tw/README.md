@@ -130,69 +130,70 @@ The library does **not** add `text-left` defensively to its variants:
 this is a deliberate choice — components inherit normal text-align,
 which is what a neutral parent provides.
 
-### 2. Dark mode "doesn't work" visually
+### 2. Dark mode looks broken — surface ladder mismatch
 
 **Symptom.** You call `setMode('dark')` (or `toggleMode()`) from
 `@dashforge/tw-theme`, the `data-dash-tw-theme="dark"` attribute flips
-on `<html>`, but the form looks broken — inputs and checkboxes remain
-on white surfaces while the text turns light, causing low/no contrast.
+on `<html>`, but the form looks washed-out — labels are barely visible
+on the card, or the card itself stays bright white while everything
+around it goes dark.
 
-**Root cause.** TW components use `bg-white` (a Tailwind built-in
-literal, NOT a CSS variable) as the surface for inputs and checkbox
-controls. This is **intentional**: white is the "elevated surface"
-contract — the assumption is that elevated surfaces stand out against
-the page background even in dark mode (the same convention you find in
-Material Design's elevation system).
+**Root cause.** This is a **page-level setup problem**, not a library
+bug. All `@dashforge/tw` components use neutral-scale tokens
+(`bg-neutral-50` for input surfaces, `text-neutral-900` for text)
+which the `@dashforge/tw-tokens` dark theme inverts automatically
+(`neutral-50` ↔ `neutral-950`, `neutral-100` ↔ `neutral-900`, etc.).
+The library is fully dark-aware out of the box.
 
-When your host page also uses `bg-white` for its content cards, the
-components blend into the card and there's no visible "dark mode
-swap" because the surface stack stays light end-to-end.
+What goes wrong: the host page (or card container) uses literal
+classes like `bg-white` or `text-black` that **don't** invert. The
+ladder then breaks — components swap but the surrounding container
+doesn't.
 
-**Fix.** Pick one of three strategies depending on what your design
-language wants:
+**Fix — use a 3-level elevation ladder of inverting neutral tokens
+for page, card, and inputs.** All `bg-neutral-*` classes invert
+automatically through the dashforge preset, so the same JSX produces
+a coherent light AND dark layout without any `dark:` variant:
 
-1. **Elevation-style dark mode** (recommended for app dashboards):
-   keep `bg-white` on components, set your *page* background to
-   `bg-neutral-50`. The `neutral` scale **inverts automatically**
-   in `defaultTWThemeDark` (`neutral-50` ↔ `neutral-950`), so the
-   SAME class resolves to a light surface in light mode and a dark
-   surface in dark mode — no `dark:` variant or manual swap needed.
-   Inputs stay as visible white cards on a dark canvas.
+```tsx
+<DashforgeTailwindProvider>
+  {/* page = neutral-200  → #e5e5e5 light  /  #262626 dark */}
+  <main className="min-h-screen bg-neutral-200 p-8">
+    {/* card = neutral-100 → #f5f5f5 light  /  #171717 dark */}
+    <div className="rounded-lg bg-neutral-100 p-8 shadow-md border border-neutral-200">
+      {/* inputs = neutral-50 (built into the component variants)
+          → #fafafa light  /  #0a0a0a dark */}
+      <TextField name="email" label="Email" />
+      <Checkbox name="terms" label="Accept" />
+    </div>
+  </main>
+</DashforgeTailwindProvider>
+```
 
-   ```tsx
-   <DashforgeTailwindProvider>
-     <main className="min-h-screen bg-neutral-50">
-       {/* page bg: #fafafa in light, #0a0a0a in dark — automatic */}
-       <Card className="bg-white">{/* form here */}</Card>
-     </main>
-   </DashforgeTailwindProvider>
-   ```
+The same JSX renders correctly in light AND dark mode. In light the
+ladder goes outer-grayer → inner-brighter (standard elevation, "higher
+surface = brighter"). In dark the ladder inverts to outer-lighter →
+inner-darker ("inset feel"), which is the macOS Big Sur / modern dark-UI
+convention.
 
-   ⚠ **Known limitation of this strategy**: form labels and
-   helperText use `text-neutral-900` which ALSO inverts (becomes a
-   light shade in dark mode). On a literal-white card the label
-   contrast drops. For a fully dark-friendly form on a white card,
-   move to strategy 2 or 3.
+**Anti-pattern to AVOID**: do NOT mix literal `bg-white` / `text-black`
+into the elevation ladder, and do NOT use Tailwind's `dark:` variant
+in your page — the dashforge preset handles dark mode through CSS
+variable inversion, not through the standard Tailwind dark selector.
+Adding `dark:bg-neutral-900` actually picks the WRONG end of the
+inversion in dark mode (`neutral-900` inverts to `neutral-100` =
+light grey) and breaks the layout.
 
-2. **Fully-dark surfaces** (recommended for content-heavy sites):
-   override each component's input surface via `slotProps`:
+**Alternative override (advanced):** if you need a specific input
+on a non-standard surface, use `slotProps` to override that single
+slot:
 
-   ```tsx
-   <TextField
-     name="email"
-     slotProps={{
-       inputWrapper: { className: 'dark:bg-neutral-900 dark:border-neutral-700' },
-     }}
-   />
-   ```
-
-3. **Introduce a project-wide surface token** (recommended if you
-   build many forms): extend the Tailwind preset with a custom
-   `surface` color whose CSS variable changes between modes, then
-   set a single `data-app-surface` class your components use. This is
-   an application-level decision; the library doesn't ship a
-   `surface.input` token (yet — under discussion for a post-1.0
-   release).
+```tsx
+<TextField
+  name="email"
+  slotProps={{ inputWrapper: { className: 'bg-neutral-100' } }}
+/>
+```
 
 ---
 

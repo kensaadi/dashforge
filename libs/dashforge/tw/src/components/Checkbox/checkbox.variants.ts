@@ -20,7 +20,8 @@ export const checkboxVariants = tv({
     root: 'inline-flex items-start gap-2',
     control: [
       'inline-flex items-center justify-center shrink-0',
-      'rounded border bg-white',
+      // bg-neutral-50 inverts — dark-mode aware via the dashforge preset.
+      'rounded border bg-neutral-50',
       'border-neutral-300',
       'transition-colors',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary-500',
