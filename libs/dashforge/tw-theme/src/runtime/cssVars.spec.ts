@@ -43,16 +43,18 @@ describe('twThemeCssVars', () => {
       expect(colorVars).toHaveLength(7 * 11);
     });
 
-    it('emits spacing/radius/fontSize vars matching token keys', () => {
+    it('emits spacing/radius/fontSize vars matching slugified token keys', () => {
+      // CSS-ident-safe slug: '.' → '_' (see slugifyCssVarKey)
+      const slug = (k: string) => k.replace(/\./g, '_');
       const vars = twThemeCssVars(defaultTWThemeLight);
       for (const key of Object.keys(defaultTWThemeLight.spacing)) {
-        expect(vars).toHaveProperty(`--df-tw-spacing-${key}`);
+        expect(vars).toHaveProperty(`--df-tw-spacing-${slug(key)}`);
       }
       for (const key of Object.keys(defaultTWThemeLight.radius)) {
-        expect(vars).toHaveProperty(`--df-tw-radius-${key}`);
+        expect(vars).toHaveProperty(`--df-tw-radius-${slug(key)}`);
       }
       for (const key of Object.keys(defaultTWThemeLight.fontSize)) {
-        expect(vars).toHaveProperty(`--df-tw-fontSize-${key}`);
+        expect(vars).toHaveProperty(`--df-tw-fontSize-${slug(key)}`);
       }
     });
   });
@@ -80,6 +82,16 @@ describe('twThemeCssVars', () => {
       const vars = twThemeCssVars(defaultTWThemeLight);
       expect(vars['--df-tw-spacing-0']).toBe('0rem');
       expect(vars['--df-tw-spacing-4']).toBe('1rem');
+    });
+
+    it('slugifies dot-containing spacing keys (CSS-ident-safe)', () => {
+      const vars = twThemeCssVars(defaultTWThemeLight);
+      // Original token key '0.5' → '--df-tw-spacing-0_5' (dot replaced
+      // with underscore so the identifier is valid in CSS).
+      expect(vars).toHaveProperty('--df-tw-spacing-0_5');
+      expect(vars['--df-tw-spacing-0_5']).toBe('0.125rem');
+      // The unsafe variant must NOT appear in the output.
+      expect(vars).not.toHaveProperty('--df-tw-spacing-0.5');
     });
 
     it('preserves radius values including "full" → "9999px"', () => {

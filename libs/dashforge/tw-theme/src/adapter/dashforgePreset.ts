@@ -7,6 +7,7 @@ import type {
   TWFontSizeTokens,
 } from '@dashforge/tw-tokens';
 import { defaultTWThemeLight } from '@dashforge/tw-tokens';
+import { slugifyCssVarKey } from '../runtime/cssVars.js';
 
 /**
  * Result shape returned by `dashforgePreset()`. Loose-typed by design —
@@ -80,7 +81,11 @@ function mapKeysToCssVarRefs<T>(
 ): T {
   const out: Record<string, string> = {};
   for (const key of Object.keys(keys as Record<string, unknown>)) {
-    out[key] = `var(--df-tw-${group}-${key})`;
+    // OUTPUT key preserves the original token name (so Tailwind
+    // still generates classes like `p-0.5`), but the CSS-var REFERENCE
+    // uses the slugified form (`--df-tw-spacing-0_5`) — matches the
+    // names emitted by `twThemeCssVars`.
+    out[key] = `var(--df-tw-${group}-${slugifyCssVarKey(key)})`;
   }
   return out as unknown as T;
 }

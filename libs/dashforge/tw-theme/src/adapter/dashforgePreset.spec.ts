@@ -38,11 +38,16 @@ describe('dashforgePreset — CSS var references (alpha-value support)', () => {
     );
   });
 
-  it('spacing values are var(--df-tw-spacing-<key>) refs', () => {
+  it('spacing values are var(--df-tw-spacing-<slugifiedKey>) refs', () => {
     const preset = dashforgePreset();
     const spacing = preset.theme.extend.spacing as Record<string, string>;
     for (const key of Object.keys(spacing)) {
-      expect(spacing[key]).toBe(`var(--df-tw-spacing-${key})`);
+      // CSS custom property identifiers cannot contain dots — token
+      // keys like '0.5' MUST be slugified to '0_5' in the var
+      // reference, while the preset OUTPUT key keeps the original
+      // dotted form so Tailwind generates the right class name.
+      const slug = key.replace(/\./g, '_');
+      expect(spacing[key]).toBe(`var(--df-tw-spacing-${slug})`);
     }
   });
 

@@ -1,6 +1,21 @@
 import type { TWTheme } from '@dashforge/tw-tokens';
 
 /**
+ * CSS custom property identifiers allow `[a-zA-Z0-9-_]` only — dots
+ * are NOT allowed, but Tailwind's native spacing token keys (`'0.5'`,
+ * `'1.5'`) contain dots. Slugify the key by replacing `.` with `_`
+ * so a token keyed `'0.5'` becomes the CSS variable
+ * `--df-tw-spacing-0_5`. The `dashforgePreset()` applies the same
+ * substitution when emitting `var(...)` references, so the round-trip
+ * stays consistent.
+ *
+ * @internal
+ */
+export function slugifyCssVarKey(key: string): string {
+  return key.replace(/\./g, '_');
+}
+
+/**
  * Convert a 6-digit hex color (`#3b82f6` or `3b82f6`) to a raw RGB
  * triplet (`"59 130 246"`). This format is required by Tailwind v3's
  * `<alpha-value>` pattern — the generated preset wraps each shade with
@@ -67,15 +82,17 @@ export function twThemeCssVars(theme: TWTheme): Record<string, string> {
     }
   }
 
-  // Spacing / radius / fontSize → native CSS values
+  // Spacing / radius / fontSize → native CSS values. Token keys are
+  // slugified (`.` → `_`) because dots are not valid in CSS custom
+  // property identifiers — see `slugifyCssVarKey`.
   for (const [key, val] of Object.entries(theme.spacing)) {
-    out[`--df-tw-spacing-${key}`] = val;
+    out[`--df-tw-spacing-${slugifyCssVarKey(key)}`] = val;
   }
   for (const [key, val] of Object.entries(theme.radius)) {
-    out[`--df-tw-radius-${key}`] = val;
+    out[`--df-tw-radius-${slugifyCssVarKey(key)}`] = val;
   }
   for (const [key, val] of Object.entries(theme.fontSize)) {
-    out[`--df-tw-fontSize-${key}`] = val;
+    out[`--df-tw-fontSize-${slugifyCssVarKey(key)}`] = val;
   }
 
   return out;
