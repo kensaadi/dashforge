@@ -15,4 +15,4 @@ export * from './theme/index.js';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.0.0';
+export const VERSION = '0.1.0-beta';

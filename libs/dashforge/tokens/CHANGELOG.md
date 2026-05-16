@@ -9,6 +9,16 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.3-beta] — 2026-05-16
+
+- Lockstep version bump aligning the `fixed`-relationship release group
+  with the patch released for `@dashforge/forms`, `@dashforge/ui-core`,
+  and `@dashforge/rbac` (post-build `.d.ts` flattener + minor lint
+  cleanup). **This package has no source change.**
+- For context on the parallel `@dashforge/tw 0.1.0-beta` first public
+  beta of the Tailwind ecosystem, see the
+  [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
+
 ## [0.2.2-beta] — 2026-05-15
 
 - Version bump for lockstep peer alignment with the workspace `0.2.2-beta`

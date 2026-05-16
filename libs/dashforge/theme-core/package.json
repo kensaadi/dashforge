@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/theme-core",
-  "version": "0.2.2-beta",
+  "version": "0.2.3-beta",
   "description": "Core theming system for Dashforge",
   "license": "MIT",
   "private": false,
@@ -18,9 +18,10 @@
     }
   },
   "dependencies": {
-    "@dashforge/tokens": "^0.2.2-beta",
+    "@dashforge/tokens": "^0.2.3-beta",
     "tslib": "^2.3.0",
-    "valtio": "^2.3.0"
+    "valtio": "^2.3.0",
+    "vitest": "*"
   },
   "files": [
     "dist",

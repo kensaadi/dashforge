@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3-beta] — 2026-05-16
+
+Workspace patch — surfaced together with the public beta of the
+`@dashforge/tw-*` ecosystem (`@dashforge/tw 0.1.0-beta`).
+
+### Added
+
+- **`scripts/flat-dts.cjs`** + Rollup `writeBundle` plugin — post-build
+  rewrites `dist/index.d.ts` from `export * from "./src/index"` to an
+  explicit re-export of every symbol. Works around a TS bundler-resolution
+  bug where `export *` in a dist wrapper drops a subset of re-exports
+  (most visibly `useDashFieldMeta`) when downstream packages compile
+  with `references` set. `@dashforge/tw`'s typecheck depends on this.
+
+### Fixed
+
+- **`DashForm.tsx`**: replaced the inline `onSubmit || (() => {})`
+  noop with a named `noopSubmit` constant — clears
+  `@typescript-eslint/no-empty-function` once the upgraded ESLint
+  config takes effect, and makes the intent visible to readers.
+- **`useDashFieldMeta.ts`**, **`useFieldRuntime.ts`**: extracted the
+  inline `return () => {}` no-op unsubscribes into module-level
+  `noopUnsubscribe` constants. **Bonus perf:** the subscribe callback
+  now returns the same reference across renders, which keeps
+  `useSyncExternalStore`'s identity check happy and avoids a small
+  re-subscription churn in standalone (no-provider) mode.
+
+### Quality
+
+- ESLint workspace config now scopes `eslint-plugin-react-hooks` to
+  `@dashforge/tw` (the only package that explicitly opted in) and
+  relaxes 3 noisy-in-tests rules
+  (`no-empty-function` / `no-non-null-assertion` / `no-explicit-any`)
+  for `**/*.{test,spec}.*` + `**/__tests__/**`. Production code
+  remains strictly checked.
+- Workspace-wide `lint`, `typecheck`, `test`, `build` all green
+  across the seven `fixed`-relationship packages.
+
 ## [0.2.2-beta] — 2026-05-15
 
 - Version bump for lockstep peer alignment with the workspace `0.2.2-beta`

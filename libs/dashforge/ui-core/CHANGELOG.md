@@ -9,6 +9,25 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.3-beta] — 2026-05-16
+
+Workspace patch — shipped alongside `@dashforge/tw 0.1.0-beta`.
+
+### Added
+
+- **`scripts/flat-dts.cjs`** + Rollup `writeBundle` plugin — same
+  post-build `.d.ts` flattener added across the three "wrapped"
+  bridge packages (`forms`, `ui-core`, `rbac`). Fixes a TS bundler
+  resolution bug where `export *` in the dist wrapper silently drops
+  re-exports under `references`. The `@dashforge/tw` typecheck
+  depends on this for `DashFormBridge`, `FieldRegistration`, and
+  related context types to be visible downstream.
+
+### Quality
+
+- Workspace lint + typecheck + test + build all green across the
+  seven `fixed`-relationship packages.
+
 ## [0.2.2-beta] — 2026-05-15
 
 - Version bump for lockstep peer alignment with the workspace `0.2.2-beta`

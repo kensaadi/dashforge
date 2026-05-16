@@ -5,16 +5,29 @@ All notable changes to `@dashforge/tw-theme` are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> **Status: scaffolding (`private: true`, not yet published to npm).** This
-> package is part of the **`@dashforge/tw-*` Tailwind ecosystem**, built as
-> a fully isolated stack sharing only the bridge layer
-> (`@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/rbac`) with the
-> MUI side of Dashforge. Tokens, theme runtime, and components are
-> duplicated intentionally — no shared "lowest common denominator" headless
-> layer.
+> This package is part of the **`@dashforge/tw-*` Tailwind ecosystem**,
+> built as a fully isolated stack sharing only the bridge layer
+> (`@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/rbac`) with
+> the MUI side of Dashforge.
 
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
+
+## [0.1.0-beta] — 2026-05-16
+
+First public beta, aligned with `@dashforge/tw 0.1.0-beta`.
+
+### Added
+
+- **`DashforgeTailwindProvider`** stable entry point: mount once near
+  the app root, exposes the reactive theme runtime via context.
+- Production-tested with the F3 → F7 component surface (16 components
+  in `@dashforge/tw`): every component reads CSS variables the
+  provider injects, so light/dark toggle reflows instantly with no
+  per-component re-mount.
+- **`flat-dts.cjs`** post-build wrapper (mirrors the same workaround
+  added to `@dashforge/forms` / `@dashforge/ui-core` / `@dashforge/rbac`)
+  for the TS bundler `export *` regression under project references.
 
 ## [Unreleased]
 

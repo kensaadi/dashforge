@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/tokens",
-  "version": "0.2.2-beta",
+  "version": "0.2.3-beta",
   "description": "Design tokens for Dashforge UI framework",
   "license": "MIT",
   "private": false,
@@ -18,7 +18,8 @@
     }
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "vitest": "*"
   },
   "files": [
     "dist",

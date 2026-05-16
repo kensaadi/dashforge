@@ -1,11 +1,10 @@
 # @dashforge/tw
 
-> ⚠ **Status**: scaffolding — `private: true`, not yet published to npm.
-> Available locally via `pnpm pack` / `pnpm link` while the
-> `@dashforge/tw-*` ecosystem stabilises (sprint *dashforge-tw* F3–F8).
-> The MUI side of Dashforge (`@dashforge/ui`, `@dashforge/theme-mui`,
-> `@dashforge/theme-core`) is **fully isolated** from this package — the
-> two ecosystems share only the bridge layer (`@dashforge/forms` +
+> **Status**: `0.1.0-beta` — first public beta. Sixteen components
+> shipped across forms, layout, and providers. The MUI side of
+> Dashforge (`@dashforge/ui`, `@dashforge/theme-mui`,
+> `@dashforge/theme-core`) is **fully isolated** from this package —
+> the two ecosystems share only the bridge layer (`@dashforge/forms` +
 > `@dashforge/ui-core` + `@dashforge/rbac`).
 
 Tailwind-rendered UI components for the Dashforge ecosystem.
@@ -14,6 +13,34 @@ Components are **props-driven** (every Tailwind utility that matters
 for the public API becomes a typed prop — `size`, `color`, `variant`,
 `layout`, …). Raw `className` / `sx` / `slotProps` exist as escape
 hatches for the cases the prop surface doesn't cover.
+
+## Component catalog
+
+### Form components (10)
+
+`Button` · `TextField` · `Checkbox` · `Switch` · `RadioGroup` ·
+`Textarea` · `NumberField` · `OTPField` · `Autocomplete` ·
+`DateTimePicker`
+
+All bridge-integrated, RBAC-aware (`access` prop), Form Closure v1
+error gating, StrictMode-safe.
+
+### Layout components (4)
+
+`Breadcrumbs` · `LeftNav` · `TopBar` · `AppShell`
+
+Router-agnostic — pass a `linkComponent` prop for SPA navigation
+(React Router, Next, TanStack Router, …). Mobile-responsive shell
+with drawer + body scroll lock.
+
+### Providers (2)
+
+`ConfirmDialogProvider` + `useConfirm()` · `SnackbarProvider` +
+`useSnackbar()`
+
+Imperative APIs (`await confirm({...})`, `enqueue({...})`) backed by
+queues, FIFO ordering, and dedup. Built on native `<dialog>` for AAA
+a11y where possible.
 
 ## Quick start
 

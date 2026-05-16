@@ -5,16 +5,30 @@ All notable changes to `@dashforge/tw-tokens` are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> **Status: scaffolding (`private: true`, not yet published to npm).** This
-> package is part of the **`@dashforge/tw-*` Tailwind ecosystem**, built as
-> a fully isolated stack sharing only the bridge layer
-> (`@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/rbac`) with the
-> MUI side of Dashforge. Tokens, theme runtime, and components are
-> duplicated intentionally — no shared "lowest common denominator" headless
-> layer.
+> This package is part of the **`@dashforge/tw-*` Tailwind ecosystem**,
+> built as a fully isolated stack sharing only the bridge layer
+> (`@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/rbac`) with
+> the MUI side of Dashforge.
 
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
+
+## [0.1.0-beta] — 2026-05-16
+
+First public beta, aligned with `@dashforge/tw 0.1.0-beta`.
+
+### Added
+
+- **Stable token surface**: `default*ThemeLight` / `default*ThemeDark`
+  named exports, plus the `dashforgePreset()` Tailwind preset consumed
+  by `@dashforge/tw`'s `tailwind.config`.
+- **Neutral scale inversion**: dark mode swaps `neutral-50 ↔ neutral-950`,
+  `neutral-100 ↔ neutral-900`, etc., so the same `bg-neutral-50` class
+  used by every component renders the appropriate elevation in both
+  modes (no per-component dark variants in the source).
+- Brand role colors (`primary` / `secondary` / `success` / `warning` /
+  `danger` / `info`) intentionally NOT inverted — brand identity is
+  mode-stable across the catalog.
 
 ## [Unreleased]
 
