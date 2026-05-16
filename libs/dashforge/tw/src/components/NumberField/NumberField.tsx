@@ -104,7 +104,7 @@ export function NumberField(props: NumberFieldProps) {
   const unregisterRef = useRef({ bridge, name });
   unregisterRef.current = { bridge, name };
   const isMountedRef = useRef(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -116,9 +116,7 @@ export function NumberField(props: NumberFieldProps) {
     };
   }, []);
 
-  if (!isVisible) return null;
-  if (!accessState.visible) return null;
-
+  // ───── Derived (every hook MUST be called above the early returns) ─────
   const effectiveDisabled = Boolean(disabled) || accessState.disabled;
   const effectiveReadOnly = accessState.readonly;
 
@@ -144,14 +142,6 @@ export function NumberField(props: NumberFieldProps) {
         ? formatForDisplay(userValue)
         : formatForDisplay(defaultValue);
   }
-
-  const v = numberFieldVariants({
-    size,
-    layout,
-    error: resolvedError,
-    fullWidth,
-    disabled: effectiveDisabled,
-  });
 
   const writeToBridge = (parsed: number | null | undefined) => {
     if (!isFormMode || !bridge) return;
@@ -202,6 +192,18 @@ export function NumberField(props: NumberFieldProps) {
     },
     [registrationRefFn]
   );
+
+  // ───── Render-time guards (after all hooks) ─────
+  if (!isVisible) return null;
+  if (!accessState.visible) return null;
+
+  const v = numberFieldVariants({
+    size,
+    layout,
+    error: resolvedError,
+    fullWidth,
+    disabled: effectiveDisabled,
+  });
 
   return (
     <div className={cn(v.root(), sx, slotProps?.root?.className)}>

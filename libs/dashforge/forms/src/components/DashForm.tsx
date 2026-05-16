@@ -18,8 +18,10 @@ function DashFormInner<TFieldValues extends FieldValues = FieldValues>({
   const { rhf } = useDashFormContext<TFieldValues>();
 
   // Wrap onSubmit with RHF's handleSubmit for validation
-  // If no onSubmit provided, use noop function
-  const handleSubmit = rhf.handleSubmit(onSubmit || (() => {}));
+  // If no onSubmit provided, use noop function (named so the lint rule
+  // against empty arrows doesn't trip on the intentional no-op).
+  const noopSubmit = () => undefined;
+  const handleSubmit = rhf.handleSubmit(onSubmit || noopSubmit);
 
   return (
     <form {...formProps} onSubmit={handleSubmit}>

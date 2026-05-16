@@ -60,7 +60,7 @@ export function Textarea(props: TextareaProps) {
   const unregisterRef = useRef({ bridge, name });
   unregisterRef.current = { bridge, name };
   const isMountedRef = useRef(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -72,9 +72,7 @@ export function Textarea(props: TextareaProps) {
     };
   }, []);
 
-  if (!isVisible) return null;
-  if (!accessState.visible) return null;
-
+  // ───── Derived (every hook MUST be called above the early returns) ─────
   const effectiveDisabled = Boolean(disabled) || accessState.disabled;
   const effectiveReadOnly = accessState.readonly;
 
@@ -95,15 +93,6 @@ export function Textarea(props: TextareaProps) {
       resolvedValue = bv == null ? '' : String(bv);
     }
   }
-
-  const v = textareaVariants({
-    size,
-    layout,
-    resize,
-    error: resolvedError,
-    fullWidth,
-    disabled: effectiveDisabled,
-  });
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (isFormMode && bridge) {
@@ -129,6 +118,19 @@ export function Textarea(props: TextareaProps) {
     },
     [registrationRefFn]
   );
+
+  // ───── Render-time guards (after all hooks) ─────
+  if (!isVisible) return null;
+  if (!accessState.visible) return null;
+
+  const v = textareaVariants({
+    size,
+    layout,
+    resize,
+    error: resolvedError,
+    fullWidth,
+    disabled: effectiveDisabled,
+  });
 
   return (
     <div className={cn(v.root(), sx, slotProps?.root?.className)}>

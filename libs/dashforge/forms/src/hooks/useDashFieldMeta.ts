@@ -7,6 +7,10 @@ import {
 import { DashFormContext } from '@dashforge/ui-core';
 import type { BridgeFieldError } from '@dashforge/ui-core';
 
+/** Module-level no-op so the subscribe callback returns the same
+ * reference across re-renders (no allocation per render). */
+const noopUnsubscribe = () => undefined;
+
 /**
  * Aggregated per-field meta state surfaced to UI components.
  *
@@ -99,7 +103,7 @@ export function useDashFieldMeta(name: string): DashFieldMeta {
     (onStoreChange: () => void) => {
       if (!bridge?.subscribeField) {
         // Provider not present (standalone/plain mode): no-op subscription.
-        return () => {};
+        return noopUnsubscribe;
       }
       return bridge.subscribeField(name, onStoreChange);
     },

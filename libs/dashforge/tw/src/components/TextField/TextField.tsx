@@ -72,7 +72,7 @@ export function TextField(props: TextFieldProps) {
   const unregisterRef = useRef({ bridge, name });
   unregisterRef.current = { bridge, name };
   const isMountedRef = useRef(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -84,9 +84,7 @@ export function TextField(props: TextFieldProps) {
     };
   }, []);
 
-  if (!isVisible) return null;
-  if (!accessState.visible) return null;
-
+  // ───── Derived (every hook MUST be called above the early returns) ─────
   const effectiveDisabled =
     Boolean(disabled) || accessState.disabled;
   const effectiveReadOnly = accessState.readonly;
@@ -118,15 +116,6 @@ export function TextField(props: TextFieldProps) {
     }
   }
 
-
-  const v = textFieldVariants({
-    size,
-    layout,
-    error: resolvedError,
-    fullWidth,
-    disabled: effectiveDisabled,
-  });
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isFormMode && bridge) {
       bridge.setValue?.(name, e.target.value);
@@ -156,6 +145,18 @@ export function TextField(props: TextFieldProps) {
     },
     [registrationRefFn]
   );
+
+  // ───── Render-time guards (after all hooks) ─────
+  if (!isVisible) return null;
+  if (!accessState.visible) return null;
+
+  const v = textFieldVariants({
+    size,
+    layout,
+    error: resolvedError,
+    fullWidth,
+    disabled: effectiveDisabled,
+  });
 
   return (
     <div className={cn(v.root(), sx, slotProps?.root?.className)}>

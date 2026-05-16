@@ -10,7 +10,7 @@ import type { Permission } from './types';
 export class RbacError extends Error {
   public readonly code: string;
 
-  constructor(message: string, code: string = 'RBAC_ERROR') {
+  constructor(message: string, code = 'RBAC_ERROR') {
     super(message);
     this.name = 'RbacError';
     this.code = code;

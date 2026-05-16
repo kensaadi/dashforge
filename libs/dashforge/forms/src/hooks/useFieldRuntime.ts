@@ -2,6 +2,9 @@ import { useContext, useSyncExternalStore, useCallback } from 'react';
 import { DashFormContext } from '@dashforge/ui-core';
 import type { FieldRuntimeState } from '../runtime/runtime.types';
 
+/** Stable no-op unsubscribe — keeps the subscribe ref identity steady. */
+const noopUnsubscribe = () => undefined;
+
 /**
  * Default runtime state for standalone mode.
  * Constant reference prevents infinite re-renders.
@@ -58,7 +61,7 @@ export function useFieldRuntime<TData = unknown>(
     (onStoreChange: () => void) => {
       if (!bridge?.subscribeFieldRuntime) {
         // No runtime store - return no-op unsubscribe
-        return () => {};
+        return noopUnsubscribe;
       }
 
       // Subscribe to this specific field (via subscribe internally)
