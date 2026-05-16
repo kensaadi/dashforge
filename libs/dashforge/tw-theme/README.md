@@ -93,6 +93,17 @@ vars on `<html>`, and Tailwind's `data-dash-tw-theme="dark"` selector
 flips. No page reload. The new mode is persisted to localStorage and
 synced across tabs via the `storage` event.
 
+> 📘 **Surface contract note.** Components from
+> [`@dashforge/tw`](../tw/README.md) use `bg-white` as the *elevated
+> surface* for inputs/checkboxes — a deliberate "white card on dark
+> canvas" choice à la Material elevation. If you expect the input
+> background to track the dark mode automatically and find it stays
+> white, you're hitting the documented surface contract, not a bug.
+> See *Common consumer pitfalls → Dark mode "doesn't work" visually*
+> in the [`@dashforge/tw` README](../tw/README.md#2-dark-mode-doesnt-work-visually)
+> for the three resolution strategies (elevation-style, full-dark
+> override, project surface token).
+
 ### 4. Runtime brand override (no Tailwind rebuild)
 
 ```tsx
