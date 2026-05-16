@@ -10,6 +10,106 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [0.2.3-beta] + [tw 0.1.0-beta] — 2026-05-16
+
+> **Two coordinated releases shipped from the same commit set.**
+>
+> 1. **`@dashforge/tw 0.1.0-beta`** (and `tw-theme`, `tw-tokens`) —
+>    **first public beta** of the Tailwind ecosystem. Sixteen
+>    components across forms (10), layout (4), and providers (2);
+>    317 tests; lint / typecheck / build all green. Packages go from
+>    `private: true` to publishable.
+>
+> 2. **`v0.2.3-beta`** — fixed-group patch on the seven existing
+>    published packages. Source change in `forms` / `ui-core` / `rbac`
+>    (post-build `.d.ts` flattener required by the new tw downstream
+>    typecheck, plus minor cleanups). `tokens` / `theme-core` /
+>    `theme-mui` / `ui` are lockstep bumps with no source change.
+
+### Affected packages
+
+| Package                | Version       | Kind                                                                |
+| ---------------------- | ------------- | ------------------------------------------------------------------- |
+| `@dashforge/tw`        | `0.1.0-beta`  | **First public beta** — 16 components (F3 → F7).                    |
+| `@dashforge/tw-theme`  | `0.1.0-beta`  | **First public beta** — `DashforgeTailwindProvider` stable.         |
+| `@dashforge/tw-tokens` | `0.1.0-beta`  | **First public beta** — token surface + Tailwind preset stable.     |
+| `@dashforge/forms`     | `0.2.3-beta`  | flat-dts script + noop refactors (no API change).                   |
+| `@dashforge/ui-core`   | `0.2.3-beta`  | flat-dts script (no API change).                                    |
+| `@dashforge/rbac`      | `0.2.3-beta`  | flat-dts script + minor cleanup (no API change).                    |
+| `@dashforge/tokens`    | `0.2.3-beta`  | Lockstep bump. No source change.                                    |
+| `@dashforge/theme-core`| `0.2.3-beta`  | Lockstep bump. No source change.                                    |
+| `@dashforge/theme-mui` | `0.2.3-beta`  | Lockstep bump. No source change.                                    |
+| `@dashforge/ui`        | `0.2.3-beta`  | Lockstep bump + scoped eslint debt doc (no runtime change).         |
+
+### `@dashforge/tw 0.1.0-beta` — 16 components shipped
+
+**Forms (10)**: `Button` · `TextField` · `Checkbox` · `Switch` ·
+`RadioGroup` · `Textarea` · `NumberField` · `OTPField` ·
+`Autocomplete` · `DateTimePicker`.
+
+**Layout (4)**: `Breadcrumbs` · `LeftNav` · `TopBar` · `AppShell`.
+
+**Providers (2)**: `ConfirmDialogProvider` + `useConfirm()` ·
+`SnackbarProvider` + `useSnackbar()`.
+
+All bridge-integrated (DashFormProvider), RBAC-aware (`access`
+prop on every form field), Form Closure v1 error gating,
+StrictMode-safe unregister-on-unmount. Re-render guardrails
+locked in by per-component perf tests: typing into one field
+never re-renders an unrelated sibling.
+
+### `v0.2.3-beta` — patch detail
+
+#### Added (tooling)
+
+- **`scripts/flat-dts.cjs` + Rollup `writeBundle` plugin** in
+  `@dashforge/forms`, `@dashforge/ui-core`, `@dashforge/rbac`.
+  Rewrites the auto-generated `dist/index.d.ts`
+  (`export * from "./src/index"`) into explicit re-exports that
+  survive TS bundler resolution under project references. Without
+  this, the `@dashforge/tw` typecheck cannot see `useDashFieldMeta`
+  (and friends) from the wrapped distribution.
+
+#### Fixed (source — small, no public API impact)
+
+- **`@dashforge/forms`**: noop submit / unsubscribe callbacks
+  promoted to module-level constants. Bonus perf: the subscribe
+  callback returned by `useDashFieldMeta` / `useFieldRuntime` keeps
+  the same reference across renders, which lets `useSyncExternalStore`
+  bail out without re-subscribing on each render in standalone
+  (no-provider) mode.
+- **`@dashforge/rbac`**: dropped a trivially-inferable
+  `code: string = …` annotation on `RbacError`.
+
+#### Lint config + known debt
+
+- `eslint-plugin-react-hooks` scoped to `@dashforge/tw` (the
+  package that explicitly opted in). Test files (`**/*.{test,spec}.*`
+  + `**/__tests__/**`) get a relaxed override for three rules that
+  are noisy on legitimate test patterns (`no-empty-function` /
+  `no-non-null-assertion` / `no-explicit-any`); production code
+  remains strictly checked.
+- **`@dashforge/ui/src/components/Autocomplete/Autocomplete.tsx`**:
+  seven pre-existing rules-of-hooks violations (hooks after
+  early-return guards). Component works in production — `visibleWhen`
+  decisions are stable per mount — but lint requires a ~200 LoC
+  restructure to lift all hooks above the guards. Scoped `off`
+  ONLY for that one file via the package's `eslint.config.mjs`;
+  rest of `@dashforge/ui` remains strictly checked. Tracked as a
+  dedicated follow-up in the package's CHANGELOG.
+
+#### Workspace gate
+
+```
+$ pnpm nx run-many -t lint typecheck test build
+  -p @dashforge/{tw,tw-theme,tw-tokens,forms,ui-core,rbac,tokens,theme-core,theme-mui,ui}
+
+✓ NX  Successfully ran targets lint, typecheck, test, build
+      for 10 projects
+```
+
+---
+
 ## [0.2.2-beta] — 2026-05-15
 
 > **Maintenance release.** One runtime correctness fix in
