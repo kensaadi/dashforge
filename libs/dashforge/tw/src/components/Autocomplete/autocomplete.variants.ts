@@ -17,6 +17,9 @@ import { tv, type VariantProps } from 'tailwind-variants';
  *   - `emptyState`   — fallback when no options match the filter
  *   - `helperText`   — descriptive line below the input
  *   - `errorText`    — semantic counterpart for error mode
+ *   - `chipsList`    — wrapper around selected chips (multi-select only)
+ *   - `chip`         — individual selected chip
+ *   - `chipRemove`   — `×` button on a chip
  */
 export const autocompleteVariants = tv({
   slots: {
@@ -63,6 +66,19 @@ export const autocompleteVariants = tv({
     emptyState: 'px-3 py-2 text-sm text-neutral-500',
     helperText: 'mt-1 text-sm text-neutral-600',
     errorText: 'mt-1 text-sm text-danger-600',
+    chipsList: 'flex flex-wrap items-center gap-1 px-1 py-1',
+    chip: [
+      'inline-flex items-center gap-1 shrink-0',
+      'rounded-md bg-primary-100 text-primary-900',
+      'px-2 py-0.5 text-xs font-medium',
+      'border border-primary-200',
+    ],
+    chipRemove: [
+      'inline-flex items-center justify-center',
+      'rounded-sm w-4 h-4 text-primary-700',
+      'hover:bg-primary-200 hover:text-primary-900',
+      'transition-colors',
+    ],
   },
   variants: {
     size: {
