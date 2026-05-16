@@ -64,7 +64,7 @@ export function useAccessState(
 
     if (!rbac) {
       if (process.env.NODE_ENV !== 'production') {
-        // eslint-disable-next-line no-console
+         
         console.warn(
           '[useAccessState] No RbacProvider found but access requirement was provided. ' +
             'Defaulting to full access. Wrap your component tree with <RbacProvider> to enable RBAC. ' +

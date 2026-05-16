@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { RbacProvider } from '@dashforge/rbac';
 import type { RbacPolicy, Subject } from '@dashforge/rbac';
 import { DashFormProvider } from '@dashforge/forms';

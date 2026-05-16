@@ -21,23 +21,6 @@
   // dropped re-exports under `bundler` module resolution. The build
   // chain still runs the deps' `build` targets before this one via
   // `dependsOn: ["typecheck", "^build"]` so `nx` order is preserved.
-  "references": [
-    {
-      "path": "../rbac/tsconfig.lib.json"
-    },
-    {
-      "path": "../forms/tsconfig.lib.json"
-    },
-    {
-      "path": "../ui-core/tsconfig.lib.json"
-    },
-    {
-      "path": "../tw-theme/tsconfig.lib.json"
-    },
-    {
-      "path": "../tw-tokens/tsconfig.lib.json"
-    }
-  ],
   "exclude": [
     "vite.config.ts",
     "vite.config.mts",
@@ -51,5 +34,22 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx"
+  ],
+  "references": [
+    {
+      "path": "../ui-core/tsconfig.lib.json"
+    },
+    {
+      "path": "../tw-tokens/tsconfig.lib.json"
+    },
+    {
+      "path": "../tw-theme/tsconfig.lib.json"
+    },
+    {
+      "path": "../rbac/tsconfig.lib.json"
+    },
+    {
+      "path": "../forms/tsconfig.lib.json"
+    }
   ]
 }
