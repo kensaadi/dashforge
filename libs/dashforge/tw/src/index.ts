@@ -3,26 +3,57 @@
  *
  * Tailwind-rendered UI components for the Dashforge ecosystem.
  *
- * Architectural contract (per plan v2 — 2026-05-15):
- * - **Props-driven, not className-driven.** Each Tailwind utility that
- *   matters for the public API becomes a typed prop. `className` and
- *   `sx`/`slotProps` exist only as escape hatches.
- * - **Tokens as source of truth.** Consumes `@dashforge/tw-tokens` via
- *   the `dashforgePreset()` from `@dashforge/tw-theme`. No hardcoded
- *   color/spacing values inside components.
- * - **Shared bridge with @dashforge/ui (MUI).** Both ecosystems consume
- *   `@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/rbac`.
- *   No styling code is shared between MUI and TW.
- * - **Variant API via tailwind-variants (TV).** Multi-slot components
- *   leverage TV's `slots` + `compoundVariants` natively.
+ * Architectural contract (plan v2 — 2026-05-15):
+ *  - **Props-driven**: each Tailwind utility that matters for the public
+ *    API becomes a typed prop. `sx` + `slotProps` are escape hatches.
+ *  - **Tokens as source of truth**: components reference colors /
+ *    spacing / radius / fontSize through `@dashforge/tw-tokens` via the
+ *    `dashforgePreset()` from `@dashforge/tw-theme`.
+ *  - **Shared bridge with MUI side**: both ecosystems consume
+ *    `@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/rbac`.
+ *    No styling code is shared.
+ *  - **Variant API**: `tailwind-variants` (TV) with `slots` +
+ *    `compoundVariants`.
  *
- * F1 surface: scaffolding only. Real components arrive in F3 (Button,
- * TextField, Checkbox, Switch as the tier-1 set per the sprint plan).
+ * F3 surface (tier-1, this release):
+ *  - `<Button>` (action, RBAC only, `asChild` polymorphism)
+ *  - `<TextField>` (bridge-integrated, 7 slots)
+ *  - `<Checkbox>` (bridge-integrated, Radix Checkbox primitive)
+ *  - `<Switch>` (bridge-integrated, Radix Switch primitive)
  *
  * @module @dashforge/tw
  */
 
-// Utilities (stable)
+// ───── Components ─────
+export { Button } from './components/Button/Button.js';
+export type { ButtonProps } from './components/Button/button.types.js';
+export { buttonVariants } from './components/Button/button.variants.js';
+
+export { TextField } from './components/TextField/TextField.js';
+export type {
+  TextFieldProps,
+  TextFieldSlotProps,
+} from './components/TextField/textField.types.js';
+export { textFieldVariants } from './components/TextField/textField.variants.js';
+
+export { Checkbox } from './components/Checkbox/Checkbox.js';
+export type {
+  CheckboxProps,
+  CheckboxSlotProps,
+} from './components/Checkbox/checkbox.types.js';
+export { checkboxVariants } from './components/Checkbox/checkbox.variants.js';
+
+export { Switch } from './components/Switch/Switch.js';
+export type {
+  SwitchProps,
+  SwitchSlotProps,
+} from './components/Switch/switch.types.js';
+export { switchVariants } from './components/Switch/switch.variants.js';
+
+// ───── Hooks ─────
+export { useAccessState } from './hooks/useAccessState.js';
+
+// ───── Utilities ─────
 export { cn } from './utils/cn.js';
 
 // Re-export tailwind-variants for consumers building app-level variants
@@ -33,4 +64,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.0.0';
+export const VERSION = '0.0.1';

@@ -1,19 +1,29 @@
 import clsx, { type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 /**
- * className composition helper.
+ * className composition helper for Dashforge TW components.
  *
- * Thin wrapper around `clsx` exposed as the canonical entry point for
- * Dashforge TW components. Using a stable workspace-internal export
- * means we can later swap to `tailwind-merge` (or a Dashforge-specific
- * merger that knows the `dashforgePreset` namespaces) without forcing
- * a breaking change on consumers.
+ * Wraps `clsx` (for boolean / object / array compaction) with
+ * `tailwind-merge` (for last-wins conflict resolution between
+ * conflicting Tailwind utilities). This is the override contract
+ * that powers `sx` and `slotProps`:
+ *
+ * ```tsx
+ * cn(buttonVariants({ variant: 'solid', color: 'primary' }), sx)
+ * // sx="bg-red-500" beats the variant's `bg-primary-500`.
+ * ```
+ *
+ * Without `tailwind-merge`, Tailwind's stylesheet output order decides
+ * who wins, which is unpredictable for consumers and breaks the
+ * documented "override always wins" semantics.
  *
  * @example
  * ```tsx
  * <button className={cn('px-4 py-2', isPrimary && 'bg-primary-500')}>
+ * cn(['inline-flex', { 'opacity-50': disabled }], extra);
  * ```
  */
 export function cn(...inputs: ClassValue[]): string {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }

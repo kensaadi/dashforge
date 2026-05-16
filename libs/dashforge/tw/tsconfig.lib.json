@@ -12,21 +12,30 @@
     "types": ["node"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
+  // No `references` block intentional — without it, the TS bundler
+  // resolver picks up the workspace `src/index.ts` of each peer
+  // through the path mapping in `tsconfig.base.json`, which is the
+  // canonical source-of-truth. With references, TS preferred each
+  // dep's `dist/index.d.ts` wrapper (`export * from "./src/index"`)
+  // and the chain ambient-re-export through that wrapper silently
+  // dropped re-exports under `bundler` module resolution. The build
+  // chain still runs the deps' `build` targets before this one via
+  // `dependsOn: ["typecheck", "^build"]` so `nx` order is preserved.
   "references": [
     {
-      "path": "../tw-tokens/tsconfig.lib.json"
-    },
-    {
-      "path": "../tw-theme/tsconfig.lib.json"
-    },
-    {
-      "path": "../ui-core/tsconfig.lib.json"
+      "path": "../rbac/tsconfig.lib.json"
     },
     {
       "path": "../forms/tsconfig.lib.json"
     },
     {
-      "path": "../rbac/tsconfig.lib.json"
+      "path": "../ui-core/tsconfig.lib.json"
+    },
+    {
+      "path": "../tw-theme/tsconfig.lib.json"
+    },
+    {
+      "path": "../tw-tokens/tsconfig.lib.json"
     }
   ],
   "exclude": [

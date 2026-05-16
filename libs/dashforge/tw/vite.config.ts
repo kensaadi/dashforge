@@ -1,10 +1,11 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../../node_modules/.vite/libs/dashforge/tw',
-  plugins: [],
+  plugins: [react()],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [],

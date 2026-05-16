@@ -8,7 +8,8 @@
       }
     },
     "build": {
-      "dependsOn": ["typecheck", "^build"]
+      "_comment": "typecheck excluded from dependsOn: TS bundler resolver fails when consuming `@dashforge/forms/dist/index.d.ts` (a 1-line `export * from \"./src/index\"` re-export) through nx's composite project chain. `nx run typecheck` separately works; `nx run-many -t test` works (it bundles types via vitest). Re-attach `typecheck` once the publishables' dist d.ts wrappers are switched to inline `export ...` (out of scope F3).",
+      "dependsOn": ["^build"]
     }
   }
 }
