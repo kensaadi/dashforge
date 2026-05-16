@@ -115,9 +115,24 @@ export function Autocomplete(props: AutocompleteProps) {
   //                   option's textValue back through this callback)
   //   filteredItems = items.filter(label contains inputValue)
   //
-  // The filter is case-insensitive substring match on the option's
-  // string label (or its `value` if label is a non-string node — rare).
-  const [inputValue, setInputValue] = useState('');
+  // Initial value: seed `inputValue` with the label of the option
+  // matching the initial bridge/default value. Without this seed the
+  // input would briefly show empty on the first paint before Aria's
+  // selection effect runs.
+  const [inputValue, setInputValue] = useState<string>(() => {
+    let initialKey: string | null = null;
+    if (explicitValue !== undefined) {
+      initialKey = explicitValue;
+    } else if (defaultValue !== undefined) {
+      initialKey = defaultValue ?? null;
+    } else if (bridge?.register) {
+      const bv = bridge.getValue(name);
+      initialKey = bv == null ? null : String(bv);
+    }
+    if (initialKey == null) return '';
+    const found = options.find((opt) => opt.value === initialKey);
+    return found && typeof found.label === 'string' ? found.label : '';
+  });
   const filteredItems = useMemo<AutocompleteOption[]>(() => {
     if (!inputValue) return options;
     const query = inputValue.toLowerCase();
@@ -131,6 +146,36 @@ export function Autocomplete(props: AutocompleteProps) {
   const handleInputChange = useCallback((next: string) => {
     setInputValue(next);
   }, []);
+
+  // Sync `inputValue` with the option label whenever the underlying
+  // selected value changes from OUTSIDE the component (e.g., RHF's
+  // `defaultValues` committing after the first render, or another
+  // component calling `bridge.setValue(name, ...)`). Without this,
+  // the input would show stale text when the bridge value updates
+  // independently of user typing.
+  //
+  // We compare against the option matching the LAST inputValue to
+  // avoid stomping the user mid-type — only re-seed if the resolved
+  // value's label doesn't match what we already display.
+  const previousSelectedKeyRef = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (!isFormMode || !bridge) return;
+    const bv = bridge.getValue(name);
+    const key = bv == null ? null : String(bv);
+    if (key === previousSelectedKeyRef.current) return;
+    previousSelectedKeyRef.current = key;
+    if (key == null) {
+      setInputValue('');
+      return;
+    }
+    const found = options.find((opt) => opt.value === key);
+    if (found && typeof found.label === 'string') {
+      setInputValue(found.label);
+    }
+    // Dependency on the field-meta hook output keeps this effect alive
+    // for per-field state mutations from the bridge.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
 
   if (!isVisible) return null;
   if (!accessState.visible) return null;
