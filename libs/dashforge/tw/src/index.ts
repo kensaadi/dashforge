@@ -91,8 +91,88 @@ export type {
   AutocompleteProps,
   AutocompleteOption,
   AutocompleteSlotProps,
+  AutocompleteValue,
 } from './components/Autocomplete/autocomplete.types.js';
 export { autocompleteVariants } from './components/Autocomplete/autocomplete.variants.js';
+
+// F5-B tier-3: native HTML5 date / time / datetime picker, bridge-integrated.
+
+export {
+  DateTimePicker,
+  isoToInputValue,
+} from './components/DateTimePicker/DateTimePicker.js';
+export type {
+  DateTimePickerProps,
+  DateTimePickerMode,
+  DateTimePickerSlotProps,
+} from './components/DateTimePicker/dateTimePicker.types.js';
+export { dateTimePickerVariants } from './components/DateTimePicker/dateTimePicker.variants.js';
+
+// F6 layout: router-agnostic navigation primitives.
+
+export { Breadcrumbs } from './components/Breadcrumbs/Breadcrumbs.js';
+export type {
+  BreadcrumbsProps,
+  BreadcrumbItem,
+  BreadcrumbsSlotProps,
+  BreadcrumbLinkComponent,
+} from './components/Breadcrumbs/breadcrumbs.types.js';
+export { breadcrumbsVariants } from './components/Breadcrumbs/breadcrumbs.variants.js';
+
+export { LeftNav } from './components/LeftNav/LeftNav.js';
+export type {
+  LeftNavProps,
+  LeftNavNode,
+  LeftNavItem,
+  LeftNavGroup,
+  LeftNavSlotProps,
+  LeftNavLinkComponent,
+} from './components/LeftNav/leftNav.types.js';
+export { leftNavVariants } from './components/LeftNav/leftNav.variants.js';
+
+export { TopBar } from './components/TopBar/TopBar.js';
+export type {
+  TopBarProps,
+  TopBarSlotProps,
+} from './components/TopBar/topBar.types.js';
+export { topBarVariants } from './components/TopBar/topBar.variants.js';
+
+export { AppShell } from './components/AppShell/AppShell.js';
+export type {
+  AppShellProps,
+  AppShellSlotProps,
+} from './components/AppShell/appShell.types.js';
+export { appShellVariants } from './components/AppShell/appShell.variants.js';
+
+// F7 providers: imperative dialogs + transient notifications.
+
+export {
+  ConfirmDialogProvider,
+  useConfirm,
+} from './components/ConfirmDialog/ConfirmDialog.js';
+export type {
+  ConfirmDialogProviderProps,
+  ConfirmDialogSlotProps,
+  ConfirmFn,
+  ConfirmOptions,
+  ConfirmSeverity,
+} from './components/ConfirmDialog/confirmDialog.types.js';
+export { confirmDialogVariants } from './components/ConfirmDialog/confirmDialog.variants.js';
+
+export {
+  SnackbarProvider,
+  useSnackbar,
+} from './components/Snackbar/Snackbar.js';
+export type {
+  SnackbarProviderProps,
+  SnackbarApi,
+  SnackbarOptions,
+  SnackbarRecord,
+  SnackbarSeverity,
+  SnackbarPosition,
+  SnackbarSlotProps,
+} from './components/Snackbar/snackbar.types.js';
+export { snackbarVariants } from './components/Snackbar/snackbar.variants.js';
 
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
@@ -108,4 +188,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.0.1';
+export const VERSION = '0.1.0-beta';
