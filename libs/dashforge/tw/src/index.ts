@@ -84,6 +84,16 @@ export type {
 } from './components/OTPField/otpField.types.js';
 export { otpFieldVariants } from './components/OTPField/otpField.variants.js';
 
+// F5-A tier-3: AAA-grade single-select combobox via React Aria
+
+export { Autocomplete } from './components/Autocomplete/Autocomplete.js';
+export type {
+  AutocompleteProps,
+  AutocompleteOption,
+  AutocompleteSlotProps,
+} from './components/Autocomplete/autocomplete.types.js';
+export { autocompleteVariants } from './components/Autocomplete/autocomplete.variants.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
