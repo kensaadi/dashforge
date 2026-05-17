@@ -201,6 +201,28 @@ export type {
 } from './components/Grid/grid.types.js';
 export { gridVariants } from './components/Grid/grid.variants.js';
 
+// F10 foundation completions: Container, Divider, AspectRatio, VisuallyHidden.
+// The page-root chrome + visual separators + content-shape primitives +
+// the a11y baseline. With these, the foundation layer matches what
+// Chakra/Mantine/Joy ship for layout-level primitives.
+
+export { Container } from './components/Container/Container.js';
+export type { ContainerProps } from './components/Container/container.types.js';
+export { containerVariants } from './components/Container/container.variants.js';
+
+export { Divider } from './components/Divider/Divider.js';
+export type { DividerProps } from './components/Divider/divider.types.js';
+export {
+  dividerVariants,
+  dividerLineVariants,
+} from './components/Divider/divider.variants.js';
+
+export { AspectRatio } from './components/AspectRatio/AspectRatio.js';
+export type { AspectRatioProps } from './components/AspectRatio/aspectRatio.types.js';
+
+export { VisuallyHidden } from './components/VisuallyHidden/VisuallyHidden.js';
+export type { VisuallyHiddenProps } from './components/VisuallyHidden/visuallyHidden.types.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
