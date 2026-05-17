@@ -109,6 +109,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     sx
   );
 
+  /*
+   * `aria-busy` announces the loading state to assistive tech.
+   * `disabled` alone hides the reason (perm-denied vs loading vs
+   * intrinsic), so SR users only hear "dimmed/inactive" without
+   * knowing why. Adding `aria-busy={true}` while loading distinguishes
+   * "wait for the action to finish" from "you can't do this".
+   */
+  const ariaBusy = loading ? true : undefined;
+
   // `asChild` renders through Radix Slot: the immediate child element
   // gets the resolved className, no extra Button DOM is emitted.
   if (asChild) {
@@ -118,6 +127,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         className={classes}
         data-disabled={effectiveDisabled || undefined}
         aria-disabled={effectiveDisabled || undefined}
+        aria-busy={ariaBusy}
       >
         {children}
       </Slot>
@@ -129,6 +139,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type={rest.type ?? 'button'}
       disabled={effectiveDisabled}
+      aria-busy={ariaBusy}
       className={classes}
       {...rest}
     >
