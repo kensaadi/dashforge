@@ -193,11 +193,35 @@ export function Checkbox(props: CheckboxProps) {
         ref={registration?.ref as React.Ref<HTMLButtonElement> | undefined}
         className={cn(v.control(), slotProps?.control?.className)}
       >
+        {/*
+         * Radix.Indicator natively mounts only when `data-state` is
+         * `checked` or `indeterminate` — i.e. it tracks Radix's
+         * internal state directly, no React state dependency.
+         *
+         * The previous implementation used `forceMount` + a React
+         * conditional `{resolvedChecked === true ? <CheckIcon /> : null}`,
+         * which broke standalone uncontrolled mode: Radix would flip
+         * its internal `data-state` on click (turning the control blue
+         * via `data-[state=checked]:bg-primary-500`) but the React
+         * snapshot for `resolvedChecked` stayed stale, so the
+         * `<CheckIcon />` never mounted. Result: blue box with no
+         * tick after user interaction.
+         *
+         * Dropping forceMount + the conditional defers the mount
+         * decision to Radix (the single source of truth in all three
+         * modes — controlled, uncontrolled, bridge). Indicator mounts
+         * exactly when the checkbox is checked OR indeterminate.
+         *
+         * Indeterminate caveat: this renders the check glyph for
+         * BOTH checked AND indeterminate states. Previously
+         * indeterminate rendered nothing inside the blue square
+         * (same level of broken). A future improvement would render
+         * a dash for indeterminate — out of scope here.
+         */}
         <RadixCheckbox.Indicator
           className={cn(v.indicator(), slotProps?.indicator?.className)}
-          forceMount
         >
-          {resolvedChecked === true ? <CheckIcon className="h-full w-full" /> : null}
+          <CheckIcon className="h-full w-full" />
         </RadixCheckbox.Indicator>
       </RadixCheckbox.Root>
 
