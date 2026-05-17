@@ -200,9 +200,31 @@ export function RadioGroup(props: RadioGroupProps) {
         </div>
       )}
 
+      {/*
+       * Radix RadioGroup mode discrimination — mirrors the same fix
+       * applied to <Checkbox>:
+       *
+       *   - Form mode (bridge.register present): controlled — `value`
+       *     comes from the reactive bridge snapshot, `handleValueChange`
+       *     writes back through bridge.setValue.
+       *   - Standalone controlled (consumer passes `value`): controlled —
+       *     consumer owns state, `handleValueChange` forwards via
+       *     `onValueChange`.
+       *   - Standalone uncontrolled (only `defaultValue`): UNCONTROLLED —
+       *     Radix owns the state. Previously this code passed
+       *     `value={resolvedValue}` in this branch too, putting Radix
+       *     in controlled mode with a stale snapshot that never updated,
+       *     so user clicks fired Radix's onValueChange but the controlled
+       *     prop never changed and the selection snapped right back.
+       *
+       * Picking exactly one of `{ value, ... }` or `{ defaultValue, ... }`
+       * lets Radix track its own state correctly when nobody else can.
+       */}
       <RadixRadioGroup.Root
         name={name}
-        value={resolvedValue}
+        {...(isFormMode || explicitValue !== undefined
+          ? { value: resolvedValue }
+          : { defaultValue: defaultValue ?? undefined })}
         onValueChange={handleValueChange}
         onBlur={handleBlur}
         disabled={groupEffectiveDisabled}
