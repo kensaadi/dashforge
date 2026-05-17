@@ -15,108 +15,161 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.2.0-beta] — 2026-05-17
 
 **Foundation release.** Eight layout / structural primitives added on top of
-the F3–F7 component catalogue, plus extensive edge-case test hardening across
-the whole package.
+the F3–F7 component catalogue (16 components → 24), plus a coverage
+hardening pass bringing the package from **460 → 592 unit tests** across
+**32 files**. End-to-end validated in the `dash` consumer app: mount
+**12.1 ms** / re-render **7–8.6 ms** for a page with 50+ primitive
+instances.
 
-This is a strictly additive minor bump — no breaking changes to the existing
-16 components. Consumers upgrading from `0.1.0-beta` can adopt the new
-primitives incrementally; existing code keeps working unchanged.
+**No public API change** on any of the 16 previously-shipped components
+— strictly additive minor bump. Consumers upgrading from `0.1.0-beta`
+can adopt the new primitives incrementally; existing code keeps working
+unchanged.
 
 ### Added — Foundation primitives (F9)
 
 The `Box ≠ flex`, `Stack = flex 1D`, `Grid = flex 2D` rule is the spine of
 this layer: each primitive has a single, non-overlapping responsibility so
-"which one do I use?" has one answer per scenario.
+"which one do I use?" has one answer per scenario. The rule is enforced at
+the TypeScript prop type level — `<Box direction="row">` is a compile error.
 
-- **`Typography`** — semantic typed text. Twelve variants (h1–h6,
-  subtitle1/2, body1/2, caption, overline) × nine intent colors × five
-  weight overrides + alignment + truncate / noWrap / gutterBottom. Default
-  HTML tag inferred from variant (h1→`<h1>`, body1→`<p>`, …), overridable
-  via `as` or `asChild` (Radix Slot). Reads color from a parent `<Box>` via
-  `color="inherit"`.
+- **`Typography`** — semantic typed text. Twelve variants (`h1`–`h6`,
+  `subtitle1/2`, `body1/2`, `caption`, `overline`) × nine intent colors ×
+  five weight overrides + alignment + truncate / noWrap / gutterBottom.
+  Default HTML tag inferred from variant (h1→`<h1>`, body1→`<p>`, …),
+  overridable via `as` or `asChild` (Radix Slot). Reads color from a
+  parent `<Box>` via `color="inherit"`.
+  Source: `src/components/Typography/{Typography.tsx, typography.types.ts, typography.variants.ts}`.
+
 - **`Box`** — surface primitive consolidating MUI's Box + Paper + Card +
-  Surface into one. Five variants (`plain` · `outlined` · `elevated` ·
-  `soft` · `solid`) × seven intent colors = 21 compound visuals + six
-  elevation levels (0–5) + token-scale spacing (`p`/`px`/`py`/`m`/`mx`/`my`)
-  + rounded scale + `fullWidth`/`fullHeight`. Strictly no flex / no grid by
-  design — wrap in Stack/Grid for layout.
-- **`Stack`** — the **only** flex container in `@dashforge/tw`. Direction +
-  align + justify + token-scale gap + wrap, plus a runtime `divider` prop
-  that inserts N-1 separators between children (Children.toArray semantics
-  documented; Fragments count as one child).
+  Joy Surface into one. Five variants (`plain` · `outlined` · `elevated` ·
+  `soft` · `solid`) × seven intent colors = **21 compound visuals**
+  emitted by the TV recipe + six elevation levels (`0`–`5`) + token-scale
+  spacing (`p`/`px`/`py`/`m`/`mx`/`my`) + rounded scale +
+  `fullWidth`/`fullHeight`. Strictly no flex / no grid by design — wrap
+  in Stack/Grid for layout.
+  Source: `src/components/Box/box.variants.ts` (compound matrix lives here).
+
+- **`Stack`** — the **only** flex container in `@dashforge/tw`.
+  `direction` + `align` + `justify` + token-scale `gap` + `wrap`, plus a
+  runtime `divider` prop that inserts N-1 separators between children
+  (`React.Children.toArray` semantics: Fragments count as one child —
+  documented in `Stack.tsx` header + asserted in the test suite).
+  Source: `src/components/Stack/{Stack.tsx, stack.types.ts, stack.variants.ts}`.
+
 - **`Grid`** — CSS Grid container + item, polymorphic in role. MUI v2 API
-  surface (`<Grid container>` + `<Grid xs={6}>`) backed by real CSS Grid
-  (`display: grid` + `col-span-*`), not flexbox. Discriminated-union
-  TypeScript — `<Grid container xs={6}>` is a compile error. 70-entry
-  responsive col-span mapping (xs/sm/md/lg/xl × 1..12/auto/full).
+  surface (`<Grid container>` + `<Grid xs={6}>`) backed by **real CSS
+  Grid** (`display: grid` + `col-span-*`), not flexbox like MUI v2's own
+  internals. Discriminated-union TypeScript: `<Grid container xs={6}>`
+  fails compilation. 70-entry responsive `col-span` mapping (xs/sm/md/lg/xl
+  × `1..12/auto/full`) in the TV recipe.
+  Source: `src/components/Grid/{Grid.tsx, grid.types.ts, grid.variants.ts}`.
 
 ### Added — Foundation completions (F10)
 
-Closes the foundation surface to match what Chakra/Mantine/Joy ship at the
-layout-primitive level.
+Closes the foundation surface to match what Chakra/Mantine/Joy ship at
+the layout-primitive level.
 
 - **`Container`** — centered max-width page wrapper with the canonical
   responsive padding ramp (`px-4 sm:px-6 lg:px-8`). Six sizes
-  (sm/md/lg/xl/2xl/fluid) mapped to Tailwind's screen breakpoints +
-  `centerContent` opt-in for marketing/sign-in layouts.
-- **`Divider`** — visual separator with two rendering modes. Line-only
-  renders `<hr>` with `role="separator"` + `aria-orientation`; labeled
-  mode (with children) renders the "OR" separator pattern as two flex
-  segments around the label. orientation / variant (solid/dashed/dotted)
-  / color (7 intents) / align (start/center/end) axes.
-- **`AspectRatio`** — content-shape primitive using the native CSS
-  `aspect-ratio` property (supported since 2021, ~98% browser coverage).
+  (`sm` / `md` / `lg` / `xl` / `2xl` / `fluid`) mapped to Tailwind's
+  `max-w-screen-*` aliases + `centerContent` opt-in for marketing /
+  sign-in layouts.
+  Source: `src/components/Container/{Container.tsx, container.types.ts, container.variants.ts}`.
+
+- **`Divider`** — visual separator with two rendering modes selected by
+  `children` presence. Line-only renders `<hr>` with `role="separator"` +
+  `aria-orientation`; labeled mode renders the "OR" separator pattern as
+  two flex segments around the label, with a 32 px stub on the squashed
+  side for `align="start"` / `"end"`. orientation × variant
+  (solid/dashed/dotted) × color (7 intents) × align (3) axes.
+  Source: `src/components/Divider/{Divider.tsx, divider.types.ts, divider.variants.ts}`.
+
+- **`AspectRatio`** — content-shape primitive using the **native CSS
+  `aspect-ratio` property** (supported since 2021, ~98% browser coverage).
   Number or CSS-string ratio. Pairs with `sx="rounded-xl overflow-hidden"`
-  for the canonical clipped media pattern (documented as the #1 gotcha).
+  for the canonical clipped media pattern (documented as the #1 gotcha
+  in `AspectRatio.tsx` header and the public MDX docs).
+  Source: `src/components/AspectRatio/{AspectRatio.tsx, aspectRatio.types.ts}`.
+
 - **`VisuallyHidden`** — the a11y primitive. Uses Tailwind's `sr-only`
-  (WebAIM clip technique). Hides children from sighted users while keeping
-  them in the accessibility tree — icon button labels, status announcers,
-  skip links. Default tag is `<span>` for the 99% case (inline label).
+  utility (WebAIM clip technique). Hides children from sighted users
+  while keeping them in the accessibility tree — icon button labels,
+  status announcers (`aria-live="polite"`), skip links. Default tag is
+  `<span>` for the 99% case (inline label inside a button or link).
+  Source: `src/components/VisuallyHidden/{VisuallyHidden.tsx, visuallyHidden.types.ts}`.
 
-### Added — Test coverage hardening (F11-bis)
+### Internal
 
-- **+132 new edge case tests** across the eight Foundation primitives,
-  bringing total package coverage from **460 → 592 tests** (32 files).
-- **Box (+33)**: all 21 compound variants (outlined / soft / solid × 7
-  intents) asserted explicitly with light + dark pairs; plain / elevated
-  color-agnostic invariants; spacing axis coexistence; elevation × variant
-  interaction; rounded edge values.
-- **Grid (+38)**: every responsive breakpoint × representative span (5 ×
-  5 = 25), full cascade test (xs→xl), every `autoFlow` value, every `cols`
-  value, `spacingX`/`spacingY` independence, empty container + orphan item
-  handling, deep nesting.
-- **Stack (+29)**: array divider, conditional / null children, mixed
-  text + element children, nested Stack with divider key stability, every
-  gap step (11 token values), every align/justify value (11), empty Stack
-  with and without divider.
-- **Typography, Container, Divider, AspectRatio, VisuallyHidden (+32)**:
-  multi-axis combinations, full variant catalogues, extreme ratio values,
-  nested fluid/capped Container pattern, aria-live announcement pattern.
+- **+132 edge case unit tests** added (`460 → 592` total across `32`
+  files). Reorganised here under `Internal` rather than `Added` because
+  the tests are not part of the public API surface.
 
-### Validated
+  - **Box (+33)** — every one of the 21 compound surface variants
+    (outlined / soft / solid × 7 intents) asserted explicitly with the
+    light + dark pair; plain / elevated color-agnostic invariants;
+    spacing axis coexistence (`p` + `px` + `py` × tailwind-merge
+    precedence); `elevation` × `variant` interaction; rounded edge
+    values. File: `src/components/Box/Box.test.tsx`.
 
-End-to-end smoke test in the `dash` consumer app (linked via `file:`
-override): all eight primitives mount + render correctly in light and dark
-modes; React Profiler shows **mount 12.1 ms / re-render 7–8.6 ms** for a
-page with 50+ primitive instances — well within the 60 fps frame budget.
-No `React.memo` needed because the primitives are pure (no internal state,
-no `useEffect`, only className resolution).
+  - **Grid (+38)** — every responsive breakpoint × representative span
+    enumeration (5 × 5 = 25), full cascade test (`xs={12} sm={6} md={4}
+    lg={3} xl={2}`), every `autoFlow` value, every `cols` value,
+    `spacingX` / `spacingY` independence, empty container + orphan item
+    handling, deep nesting (Grid inside Grid item). File:
+    `src/components/Grid/Grid.test.tsx`.
 
-### Architecture note
+  - **Stack (+29)** — array divider, conditional / null children, mixed
+    text + element children, nested Stack with divider, divider key
+    stability across re-renders, every gap step (11 token values),
+    every `align`/`justify` value (11), empty Stack with and without
+    divider. File: `src/components/Stack/Stack.test.tsx`.
 
-The `Box ≠ flex` / `Stack = flex` / `Grid = 2D` separation is intentional
-and enforced at the type level: passing flex/grid props to `Box` is a
-compile error. This rules out the "Box is universal, every `<div>` ends up
-as a `<Box display="flex">`" failure mode that drowns the surface-vs-layout
-distinction in MUI codebases.
+  - **Typography / Container / Divider / AspectRatio / VisuallyHidden
+    (+32)** — multi-axis combinations (`variant` + `color` + `weight` +
+    `align` + `truncate` + `gutterBottom`), full variant catalogues
+    iterated with `it.each`, extreme ratio values (21/9, 9/16, 0.5, 3),
+    nested fluid/capped Container pattern, `aria-live="polite"`
+    announcer pattern.
+
+- **End-to-end consumer validation.** New page
+  `~/projects/web/learn/dash/src/pages/TestFoundation.tsx` (linked into
+  the `dash` consumer app via a `file:` package override) mounts all
+  eight primitives inside `<DashforgeTailwindProvider>` wrapped in a
+  React `<Profiler>` with `onRender` logger. Measured: **mount 12.1 ms,
+  update 7–8.6 ms** for a page with 50+ primitive instances — within the
+  60 fps frame budget. No `React.memo` applied — the primitives are
+  pure (no `useState`, no `useEffect`, only className resolution), so
+  React's reconciler trivially handles the re-render.
+
+### Architecture
+
+- **`Box ≠ flex`, `Stack = flex 1D`, `Grid = flex 2D`** — single
+  responsibility per primitive, enforced at the TypeScript prop type
+  level. `Box` exposes no `display` / `flex*` / `grid*` props at all —
+  trying to pass them fails compilation. The rule rules out the MUI
+  failure mode where every `<Box display="flex" gap={2}>` quietly becomes
+  the de facto flex container of the codebase, drowning the
+  surface-vs-layout distinction. When you read `<Stack>` in a JSX tree
+  you know it's flex without reading any further.
 
 ### Compatibility
 
 - **Peer deps unchanged**: `@dashforge/tw-theme@^0.1.0-beta` and
-  `@dashforge/tw-tokens@^0.1.0-beta` (neither was modified).
-- **Bridge layer unchanged**: still pinned to `@dashforge/forms` +
-  `@dashforge/ui-core` + `@dashforge/rbac` at the workspace version.
-- **No breaking changes**: existing 16 components' APIs are byte-identical.
+  `@dashforge/tw-tokens@^0.1.0-beta` (neither package was modified in
+  this cycle). Bridge layer (`@dashforge/forms`, `@dashforge/ui-core`,
+  `@dashforge/rbac`) likewise unchanged at the workspace `0.2.3-beta`
+  version.
+
+- **No breaking changes**: the public API of the 16 previously-shipped
+  components is byte-identical. Diff `0.1.0-beta..0.2.0-beta` against
+  `src/index.ts` shows only additive exports (the new Foundation
+  primitives + their `*Variants` recipes + their `*Props` types).
+
+- **Bundle size impact** (gzipped, when fully exercised):
+  `dist/index.esm.js` grew from 255 KB to 272 KB (+17 KB / +6.7%) for
+  the eight new primitives. Tree-shaking unaffected — consumers only
+  pay for what they import.
 
 ---
 

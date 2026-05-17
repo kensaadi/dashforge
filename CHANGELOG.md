@@ -12,68 +12,94 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ## [tw 0.2.0-beta] — 2026-05-17
 
-> **Single-package release.** Only `@dashforge/tw` is published in this
-> cycle — the bridge group (`forms` / `rbac` / `ui-core` / MUI side) and
-> the TW companion packages (`tw-theme` / `tw-tokens`) are unchanged
-> and stay at their current versions.
+> **Foundation release for `@dashforge/tw`.** Eight layout / structural
+> primitives added (Typography, Box, Stack, Grid, Container, Divider,
+> AspectRatio, VisuallyHidden) plus an extensive test coverage hardening
+> pass (+132 edge case tests, package total 460 → 592 across 32 files).
+> End-to-end validated in the `dash` consumer app: mount **12.1 ms** /
+> re-render **7–8.6 ms** for a page with 50+ primitive instances —
+> within the 60 fps frame budget without `React.memo`.
+>
+> **Single-package release**: only `@dashforge/tw` bumps. Companion
+> packages (`tw-theme`, `tw-tokens`) and the bridge / MUI side stay
+> at their current versions per the architectural-plan-v2 commitment to
+> independent versioning.
+>
+> **No public API change** on the previously-published 16 components —
+> strictly additive minor bump.
 
-**Foundation release** for the Tailwind ecosystem. Eight new layout /
-structural primitives added on top of the F3–F7 catalogue, plus a major
-test coverage hardening pass (+132 edge case tests, total 460 → 592).
+Affected package (bumped):
 
-### `@dashforge/tw 0.2.0-beta`
+| Package         | Notes                                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `@dashforge/tw` | Eight Foundation primitives added (F9 + F10). +132 internal tests (460 → 592). Existing 16 components' public API byte-identical. |
 
-Adds eight Foundation primitives (Typography · Box · Stack · Grid ·
-Container · Divider · AspectRatio · VisuallyHidden) and closes the
-layout/structural surface to parity with Chakra/Mantine/Joy.
+Unchanged (independent versioning, per architectural plan v2):
 
-Highlights of the architectural rules baked into the new primitives:
+| Package                                              | Version (unchanged) | Why                                                  |
+| ---------------------------------------------------- | ------------------- | ---------------------------------------------------- |
+| `@dashforge/tw-theme`                                | `0.1.0-beta`        | No source change — peer dep stays at `^0.1.0-beta`.  |
+| `@dashforge/tw-tokens`                               | `0.1.0-beta`        | No source change — peer dep stays at `^0.1.0-beta`.  |
+| Bridge (`forms`, `rbac`, `ui-core`)                  | `0.2.3-beta`        | Shared with MUI side; no source change.              |
+| MUI side (`ui`, `theme-mui`, `theme-core`, `tokens`) | `0.2.3-beta`        | Separate ecosystem; untouched.                       |
+
+### Added
+
+- **Eight Foundation primitives in `@dashforge/tw`** — Typography (semantic
+  typed text with the full MUI-equivalent type scale), Box (surface
+  primitive consolidating MUI's Box + Paper + Card + Joy Surface into one
+  component, 21 compound visuals from 5 variants × 7 intents), Stack (the
+  package's sole flex container, with a runtime `divider` prop), Grid
+  (CSS Grid engine behind the MUI v2 `<Grid container>` + `<Grid xs={6}>`
+  API, discriminated-union TypeScript so `<Grid container xs={6}>` is a
+  compile error), Container, Divider, AspectRatio, VisuallyHidden.
+
+  Full per-component API surface, props tables, and architectural
+  rationale: see [`libs/dashforge/tw/CHANGELOG.md`](./libs/dashforge/tw/CHANGELOG.md#020-beta--2026-05-17).
+  Source: `libs/dashforge/tw/src/components/{Typography,Box,Stack,Grid,Container,Divider,AspectRatio,VisuallyHidden}/`.
+
+### Internal
+
+- **+132 edge case unit tests** added across the eight Foundation
+  components. Package coverage grows **460 → 592** across **32 files**.
+  Breakdown: Box +33 (all 21 compound surface variants asserted
+  explicitly with light + dark pairs), Grid +38 (every responsive
+  breakpoint × representative span via the 70-entry
+  `grid.variants.ts` mapping table), Stack +29 (Fragment counting,
+  conditional/null children, array divider, every gap step), Typography
+  / Container / Divider / AspectRatio / VisuallyHidden +32 (multi-axis
+  combinations, full variant catalogues, extreme ratio values, nested
+  Container pattern, `aria-live` announcement pattern).
+
+- **End-to-end consumer validation** via `file:` link from
+  `~/projects/web/learn/dash` to the local monorepo dist. New page
+  `dash/src/pages/TestFoundation.tsx` mounts all eight primitives inside
+  `<DashforgeTailwindProvider>` wrapped in a React `<Profiler>`. Measured:
+  mount **12.1 ms**, update **7–8.6 ms** for a page with 50+ primitive
+  instances. Foundation primitives are pure (no internal state, no
+  `useEffect`) — re-render cost is the className resolution alone.
+
+### Architecture
 
 - **`Box ≠ flex`, `Stack = flex 1D`, `Grid = flex 2D`** — single
-  responsibility per primitive. Passing flex/grid props to `Box` is a
-  compile error.
-- **`Box` consolidates Box + Paper + Card + Surface** into one component
-  with five visual variants (plain / outlined / elevated / soft / solid)
-  × seven intent colors = 21 compound visuals + elevation 0–5.
-- **`Grid` uses CSS Grid internally** (not flexbox like MUI v2) with
-  the same `<Grid container>` + `<Grid xs={6}>` API. Discriminated-union
-  TypeScript blocks `<Grid container xs={6}>` at compile time.
-- **`AspectRatio`** uses the native CSS property (~98% browser coverage)
-  — no padding-bottom hack.
-- **`VisuallyHidden`** ships the WebAIM clip technique with a discoverable
-  component name (vs scattered `className="sr-only"` across the codebase).
-
-End-to-end validated in the `dash` consumer app: mount **12.1 ms** /
-re-render **7–8.6 ms** for a page with 50+ primitive instances. No
-`React.memo` needed — the primitives are pure (no internal state, no
-`useEffect`).
-
-Full per-package changelog: see [`libs/dashforge/tw/CHANGELOG.md`](./libs/dashforge/tw/CHANGELOG.md).
-
-### Compatibility matrix
-
-| Package | This release | Previous |
-|---|---|---|
-| `@dashforge/tw` | **`0.2.0-beta`** | `0.1.0-beta` |
-| `@dashforge/tw-theme` | `0.1.0-beta` (unchanged) | `0.1.0-beta` |
-| `@dashforge/tw-tokens` | `0.1.0-beta` (unchanged) | `0.1.0-beta` |
-| Bridge layer (`forms`, `rbac`, `ui-core`) | `0.2.3-beta` (unchanged) | `0.2.3-beta` |
-| MUI side (`ui`, `theme-mui`, `theme-core`, `tokens`) | `0.2.3-beta` (unchanged) | `0.2.3-beta` |
-
-Independent versioning by design (per architectural plan v2): a
-component-package bump doesn't force tokens/theme upgrades, and vice
-versa. Consumers can pin each axis separately.
+  responsibility per primitive, enforced at the TypeScript prop type
+  level. `<Box direction="row">` is a compile error: there is no
+  `direction` prop on `Box`. The rule rules out the MUI failure mode
+  where every `<Box display="flex" gap={2}>` quietly becomes the de
+  facto flex container of the codebase, drowning the surface-vs-layout
+  distinction. When you read `<Stack>` in a JSX tree, you know it's
+  flex without reading further.
 
 ### Migration
 
-No migration steps required. Adopt the new primitives incrementally:
+No migration steps required for consumers of the previously-published
+16 components. Adopt the new Foundation primitives incrementally:
 
 ```bash
 pnpm add @dashforge/tw@^0.2.0-beta
 ```
 
-Existing import paths and APIs of the 16 previously-shipped components
-are byte-identical.
+Existing import paths and APIs are byte-identical.
 
 ---
 
