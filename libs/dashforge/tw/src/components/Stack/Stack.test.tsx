@@ -185,4 +185,125 @@ describe('<Stack>', () => {
     expect(el?.getAttribute('data-testid')).toBe('s');
     expect(el?.getAttribute('aria-label')).toBe('settings');
   });
+
+  // ─── F11-bis edge cases: divider with array / null / mixed children ─
+  describe('divider edge cases', () => {
+    it('children passed as an array still gets N-1 dividers', () => {
+      // Children.toArray handles arrays the same as iterated siblings —
+      // the divider count is items.length - 1 regardless of how the
+      // children were passed in.
+      const items = ['a', 'b', 'c', 'd'];
+      const { container } = render(
+        <Stack divider={<hr data-testid="div" />}>
+          {items.map((t) => <span key={t}>{t}</span>)}
+        </Stack>,
+      );
+      expect(container.querySelectorAll('[data-testid="div"]').length).toBe(3);
+    });
+
+    it('null children are stripped before divider insertion', () => {
+      // React's Children.toArray filters out null/undefined/false before
+      // returning the flat array — so a conditional child collapses to
+      // nothing and dividers are sized to the remaining set.
+      const showB = false;
+      const { container } = render(
+        <Stack divider={<hr data-testid="div" />}>
+          <span>a</span>
+          {showB && <span>b</span>}
+          <span>c</span>
+        </Stack>,
+      );
+      // After stripping `false`: 2 effective children → 1 divider
+      expect(container.querySelectorAll('[data-testid="div"]').length).toBe(1);
+    });
+
+    it('mixed text + element children — divider between EVERY pair', () => {
+      const { container } = render(
+        <Stack divider={<hr data-testid="div" />}>
+          {'plain string'}
+          <span>element child</span>
+          {42}
+          <span>last</span>
+        </Stack>,
+      );
+      // 4 effective children (Children.toArray wraps primitives) → 3 dividers
+      expect(container.querySelectorAll('[data-testid="div"]').length).toBe(3);
+    });
+
+    it('nested Stack inside Stack with divider — inner Stack counts as 1 child', () => {
+      const { container } = render(
+        <Stack gap={2} divider={<hr data-testid="outer-div" />}>
+          <span>top</span>
+          <Stack gap={1} direction="row">
+            <span>nested-a</span>
+            <span>nested-b</span>
+          </Stack>
+          <span>bottom</span>
+        </Stack>,
+      );
+      // Outer has 3 effective children → 2 outer dividers
+      expect(container.querySelectorAll('[data-testid="outer-div"]').length).toBe(2);
+    });
+
+    it('divider key is stable across re-renders (no key warning)', () => {
+      // Re-rendering with the same children + divider shouldn't produce
+      // React key warnings. We assert nothing throws + the structure is
+      // identical to a single render.
+      const { container, rerender } = render(
+        <Stack divider={<hr data-testid="d" />}>
+          <span>a</span>
+          <span>b</span>
+        </Stack>,
+      );
+      const firstRender = container.innerHTML;
+      rerender(
+        <Stack divider={<hr data-testid="d" />}>
+          <span>a</span>
+          <span>b</span>
+        </Stack>,
+      );
+      expect(container.innerHTML).toBe(firstRender);
+    });
+  });
+
+  // ─── F11-bis edge cases: gap value coverage ─────────────────────────
+  describe('gap — every token step', () => {
+    const GAPS = [0, '0.5', 1, 2, 3, 4, 6, 8, 12, 16, 24] as const;
+    it.each(GAPS)('gap=%s emits gap-%s', (g) => {
+      const { container } = render(<Stack gap={g}>x</Stack>);
+      expect(container.firstElementChild?.className).toContain(`gap-${g}`);
+    });
+  });
+
+  // ─── F11-bis edge cases: align / justify all values ─────────────────
+  describe('align + justify — all valid values', () => {
+    const ALIGNS = ['start', 'center', 'end', 'stretch', 'baseline'] as const;
+    const JUSTIFIES = ['start', 'center', 'end', 'between', 'around', 'evenly'] as const;
+
+    it.each(ALIGNS)('align="%s"', (v) => {
+      const { container } = render(<Stack align={v}>x</Stack>);
+      expect(container.firstElementChild?.className).toContain(`items-${v}`);
+    });
+
+    it.each(JUSTIFIES)('justify="%s"', (v) => {
+      const { container } = render(<Stack justify={v}>x</Stack>);
+      expect(container.firstElementChild?.className).toContain(`justify-${v}`);
+    });
+  });
+
+  // ─── F11-bis edge cases: empty Stack ────────────────────────────────
+  describe('empty Stack', () => {
+    it('renders an empty div with flex classes', () => {
+      const { container } = render(<Stack gap={4} />);
+      const el = container.firstElementChild;
+      expect(el?.children.length).toBe(0);
+      expect(el?.className).toContain('flex');
+      expect(el?.className).toContain('gap-4');
+    });
+
+    it('empty Stack with divider does NOT render the divider', () => {
+      const { container } = render(<Stack divider={<hr data-testid="d" />} />);
+      expect(container.querySelectorAll('[data-testid="d"]').length).toBe(0);
+    });
+  });
 });

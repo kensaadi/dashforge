@@ -145,4 +145,65 @@ describe('<Container>', () => {
       expect(el?.getAttribute('aria-label')).toBe('page');
     });
   });
+
+  // ─── F11-bis edge cases ─────────────────────────────────────────────
+  describe('axis coexistence', () => {
+    it('size + centerContent + px=true (all three combine)', () => {
+      const { container } = render(
+        <Container size="md" centerContent px>x</Container>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('max-w-screen-md');
+      expect(cls).toContain('flex');
+      expect(cls).toContain('flex-col');
+      expect(cls).toContain('items-center');
+      expect(cls).toContain('px-4');
+    });
+
+    it('fluid + centerContent (full-bleed centered hero pattern)', () => {
+      const { container } = render(
+        <Container size="fluid" centerContent>x</Container>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).not.toContain('max-w-screen');
+      expect(cls).toContain('flex-col');
+      expect(cls).toContain('items-center');
+    });
+
+    it('fluid + px=false (full-bleed edge-to-edge — hero image pattern)', () => {
+      const { container } = render(
+        <Container size="fluid" px={false}>x</Container>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).not.toContain('max-w-screen');
+      expect(cls).not.toContain('px-4');
+      // still has mx-auto + w-full baseline
+      expect(cls).toContain('mx-auto');
+    });
+  });
+
+  describe('nested fluid-outer + capped-inner pattern', () => {
+    it('outer fluid colored band + inner capped content renders both', () => {
+      const { container } = render(
+        <Container size="fluid" px={false} sx="bg-primary-50 py-16">
+          <Container size="lg">
+            <p>inner</p>
+          </Container>
+        </Container>,
+      );
+      const outer = container.firstElementChild;
+      const inner = outer?.querySelector('div');
+      expect(outer?.className).toContain('bg-primary-50');
+      expect(outer?.className).not.toContain('max-w-screen');
+      expect(inner?.className).toContain('max-w-screen-lg');
+    });
+  });
+
+  describe('every size value', () => {
+    const SIZES = ['sm', 'md', 'lg', 'xl', '2xl'] as const;
+    it.each(SIZES)('size="%s" emits max-w-screen-%s', (s) => {
+      const { container } = render(<Container size={s}>x</Container>);
+      expect(container.firstElementChild?.className).toContain(`max-w-screen-${s}`);
+    });
+  });
 });

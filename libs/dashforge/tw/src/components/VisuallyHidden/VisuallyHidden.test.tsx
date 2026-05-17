@@ -56,4 +56,31 @@ describe('<VisuallyHidden>', () => {
     const hidden = btn?.querySelector('.sr-only');
     expect(hidden?.textContent).toBe('Close');
   });
+
+  // ─── F11-bis edge cases ─────────────────────────────────────────────
+  it('empty children renders empty element with sr-only', () => {
+    const { container } = render(<VisuallyHidden>{''}</VisuallyHidden>);
+    const el = container.firstElementChild;
+    expect(el?.className).toContain('sr-only');
+    expect(el?.textContent).toBe('');
+  });
+
+  it('aria-live="polite" pattern for status announcements', () => {
+    const { container } = render(
+      <VisuallyHidden aria-live="polite">Saved successfully</VisuallyHidden>,
+    );
+    const el = container.firstElementChild;
+    expect(el?.getAttribute('aria-live')).toBe('polite');
+    expect(el?.textContent).toBe('Saved successfully');
+  });
+
+  it('as="div" renders block element (consumer choice for block hidden content)', () => {
+    const { container } = render(
+      <VisuallyHidden as="div">
+        Block content hidden from sight but readable by AT
+      </VisuallyHidden>,
+    );
+    expect(container.firstElementChild?.tagName).toBe('DIV');
+    expect(container.firstElementChild?.className).toContain('sr-only');
+  });
 });

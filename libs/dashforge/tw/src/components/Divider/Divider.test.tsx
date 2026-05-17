@@ -183,4 +183,59 @@ describe('<Divider>', () => {
       expect(container.firstElementChild?.getAttribute('data-testid')).toBe('d');
     });
   });
+
+  // ─── F11-bis edge cases ─────────────────────────────────────────────
+  describe('color — every intent', () => {
+    const INTENTS = ['secondary', 'success', 'warning', 'danger', 'info'] as const;
+    it.each(INTENTS)('color="%s" emits border-%s-300 with dark pair', (color) => {
+      const { container } = render(<Divider color={color} />);
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain(`border-${color}-300`);
+      expect(cls).toContain(`dark:border-${color}-700`);
+    });
+  });
+
+  describe('vertical labeled mode', () => {
+    it('vertical + label renders all 3 children with vertical layout', () => {
+      const { container } = render(
+        <Divider orientation="vertical">section</Divider>,
+      );
+      const root = container.firstElementChild;
+      expect(root?.tagName).toBe('DIV');
+      expect(root?.getAttribute('aria-orientation')).toBe('vertical');
+      expect(root?.className).toContain('flex-col');
+      expect(root?.children.length).toBe(3);
+    });
+  });
+
+  describe('label edge values', () => {
+    it('numeric label (0) renders correctly', () => {
+      const { container } = render(<Divider>{0}</Divider>);
+      // 0 is a valid React child, should render as "0"
+      expect(container.firstElementChild?.textContent).toBe('0');
+    });
+
+    it('JSX with multiple elements as label', () => {
+      const { container } = render(
+        <Divider>
+          <strong>bold</strong>
+          <em> italic</em>
+        </Divider>,
+      );
+      const root = container.firstElementChild;
+      // root has 3 children (line + label-span + line); label-span has 2 nested
+      expect(root?.children.length).toBe(3);
+      expect(root?.querySelector('strong')?.textContent).toBe('bold');
+      expect(root?.querySelector('em')?.textContent).toBe(' italic');
+    });
+  });
+
+  describe('flexItem (no-op forward-compat hook)', () => {
+    it('flexItem prop does not crash or leak as attribute', () => {
+      const { container } = render(<Divider flexItem />);
+      const el = container.firstElementChild as HTMLElement;
+      expect(el.hasAttribute('flexitem')).toBe(false);
+      expect(el.hasAttribute('flexItem')).toBe(false);
+    });
+  });
 });

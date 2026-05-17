@@ -166,4 +166,65 @@ describe('<Typography>', () => {
       expect(container.firstElementChild?.getAttribute('aria-label')).toBe('heading');
     });
   });
+
+  // ─── F11-bis edge cases ─────────────────────────────────────────────
+  describe('multi-axis combinations', () => {
+    it('variant=h2 + color=primary + weight=normal + align=center + truncate + gutterBottom', () => {
+      const { container } = render(
+        <Typography
+          variant="h2"
+          color="primary"
+          weight="normal"
+          align="center"
+          truncate
+          gutterBottom
+        >
+          x
+        </Typography>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('text-4xl');           // h2 size
+      expect(cls).toContain('text-primary-700');   // color intent
+      expect(cls).toContain('font-normal');        // weight override (vs h2 default font-bold)
+      expect(cls).not.toContain('font-bold');      // overridden
+      expect(cls).toContain('text-center');        // align
+      expect(cls).toContain('truncate');           // truncate
+      expect(cls).toContain('mb-3');               // gutterBottom
+    });
+
+    it('noWrap + truncate: truncate wins (later in chain, tailwind-merge collapses whitespace-nowrap)', () => {
+      const { container } = render(<Typography noWrap truncate>x</Typography>);
+      // truncate utility already includes whitespace-nowrap — tailwind-merge
+      // collapses the redundant nowrap from noWrap
+      expect(container.firstElementChild?.className).toContain('truncate');
+    });
+
+    it('every variant maps to its expected default tag', () => {
+      const cases: Array<[Parameters<typeof Typography>[0]['variant'], string]> = [
+        ['h1', 'H1'], ['h2', 'H2'], ['h3', 'H3'], ['h4', 'H4'], ['h5', 'H5'], ['h6', 'H6'],
+        ['subtitle1', 'P'], ['subtitle2', 'P'],
+        ['body1', 'P'], ['body2', 'P'],
+        ['caption', 'SPAN'], ['overline', 'SPAN'],
+      ];
+      cases.forEach(([variant, tag]) => {
+        const { container } = render(<Typography variant={variant}>x</Typography>);
+        expect(container.firstElementChild?.tagName).toBe(tag);
+      });
+    });
+  });
+
+  describe('color edge cases', () => {
+    const INTENTS = ['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'muted'] as const;
+    it.each(INTENTS)('color="%s" emits the right text-* + dark pair', (color) => {
+      const { container } = render(<Typography color={color}>x</Typography>);
+      const cls = container.firstElementChild?.className ?? '';
+      if (color === 'muted') {
+        expect(cls).toContain('text-neutral-600');
+        expect(cls).toContain('dark:text-neutral-400');
+      } else {
+        expect(cls).toContain(`text-${color}-700`);
+        expect(cls).toContain(`dark:text-${color}-400`);
+      }
+    });
+  });
 });

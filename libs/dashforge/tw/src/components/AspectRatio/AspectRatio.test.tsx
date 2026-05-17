@@ -134,4 +134,40 @@ describe('<AspectRatio>', () => {
     expect(el?.getAttribute('data-testid')).toBe('ar');
     expect(el?.getAttribute('aria-label')).toBe('hero');
   });
+
+  // ─── F11-bis edge cases ─────────────────────────────────────────────
+  describe('extreme ratio values', () => {
+    it('ratio="21 / 9" (ultrawide cinema) passes through verbatim', () => {
+      const { container } = render(<AspectRatio ratio="21 / 9">x</AspectRatio>);
+      expect((container.firstElementChild as HTMLElement).style.aspectRatio).toBe('21 / 9');
+    });
+
+    it('ratio="9 / 16" (portrait video) passes through verbatim', () => {
+      const { container } = render(<AspectRatio ratio="9 / 16">x</AspectRatio>);
+      expect((container.firstElementChild as HTMLElement).style.aspectRatio).toBe('9 / 16');
+    });
+
+    it('numeric tiny ratio (0.5) formats as "0.5 / 1"', () => {
+      const { container } = render(<AspectRatio ratio={0.5}>x</AspectRatio>);
+      expect((container.firstElementChild as HTMLElement).style.aspectRatio).toBe('0.5 / 1');
+    });
+
+    it('numeric large ratio (3) formats as "3 / 1"', () => {
+      const { container } = render(<AspectRatio ratio={3}>x</AspectRatio>);
+      expect((container.firstElementChild as HTMLElement).style.aspectRatio).toBe('3 / 1');
+    });
+  });
+
+  describe('rounded clipped media pattern (the #1 doc gotcha)', () => {
+    it('rounded + overflow-hidden both end up on the className', () => {
+      const { container } = render(
+        <AspectRatio ratio={16 / 9} sx="rounded-2xl overflow-hidden">
+          <img src="x.jpg" alt="" className="w-full h-full object-cover" />
+        </AspectRatio>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('rounded-2xl');
+      expect(cls).toContain('overflow-hidden');
+    });
+  });
 });

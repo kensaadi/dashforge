@@ -10,6 +10,73 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 0.2.0-beta] — 2026-05-17
+
+> **Single-package release.** Only `@dashforge/tw` is published in this
+> cycle — the bridge group (`forms` / `rbac` / `ui-core` / MUI side) and
+> the TW companion packages (`tw-theme` / `tw-tokens`) are unchanged
+> and stay at their current versions.
+
+**Foundation release** for the Tailwind ecosystem. Eight new layout /
+structural primitives added on top of the F3–F7 catalogue, plus a major
+test coverage hardening pass (+132 edge case tests, total 460 → 592).
+
+### `@dashforge/tw 0.2.0-beta`
+
+Adds eight Foundation primitives (Typography · Box · Stack · Grid ·
+Container · Divider · AspectRatio · VisuallyHidden) and closes the
+layout/structural surface to parity with Chakra/Mantine/Joy.
+
+Highlights of the architectural rules baked into the new primitives:
+
+- **`Box ≠ flex`, `Stack = flex 1D`, `Grid = flex 2D`** — single
+  responsibility per primitive. Passing flex/grid props to `Box` is a
+  compile error.
+- **`Box` consolidates Box + Paper + Card + Surface** into one component
+  with five visual variants (plain / outlined / elevated / soft / solid)
+  × seven intent colors = 21 compound visuals + elevation 0–5.
+- **`Grid` uses CSS Grid internally** (not flexbox like MUI v2) with
+  the same `<Grid container>` + `<Grid xs={6}>` API. Discriminated-union
+  TypeScript blocks `<Grid container xs={6}>` at compile time.
+- **`AspectRatio`** uses the native CSS property (~98% browser coverage)
+  — no padding-bottom hack.
+- **`VisuallyHidden`** ships the WebAIM clip technique with a discoverable
+  component name (vs scattered `className="sr-only"` across the codebase).
+
+End-to-end validated in the `dash` consumer app: mount **12.1 ms** /
+re-render **7–8.6 ms** for a page with 50+ primitive instances. No
+`React.memo` needed — the primitives are pure (no internal state, no
+`useEffect`).
+
+Full per-package changelog: see [`libs/dashforge/tw/CHANGELOG.md`](./libs/dashforge/tw/CHANGELOG.md).
+
+### Compatibility matrix
+
+| Package | This release | Previous |
+|---|---|---|
+| `@dashforge/tw` | **`0.2.0-beta`** | `0.1.0-beta` |
+| `@dashforge/tw-theme` | `0.1.0-beta` (unchanged) | `0.1.0-beta` |
+| `@dashforge/tw-tokens` | `0.1.0-beta` (unchanged) | `0.1.0-beta` |
+| Bridge layer (`forms`, `rbac`, `ui-core`) | `0.2.3-beta` (unchanged) | `0.2.3-beta` |
+| MUI side (`ui`, `theme-mui`, `theme-core`, `tokens`) | `0.2.3-beta` (unchanged) | `0.2.3-beta` |
+
+Independent versioning by design (per architectural plan v2): a
+component-package bump doesn't force tokens/theme upgrades, and vice
+versa. Consumers can pin each axis separately.
+
+### Migration
+
+No migration steps required. Adopt the new primitives incrementally:
+
+```bash
+pnpm add @dashforge/tw@^0.2.0-beta
+```
+
+Existing import paths and APIs of the 16 previously-shipped components
+are byte-identical.
+
+---
+
 ## [0.2.3-beta] + [tw 0.1.0-beta] — 2026-05-16
 
 > **Two coordinated releases shipped from the same commit set.**
