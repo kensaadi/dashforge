@@ -117,21 +117,32 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
 }
 
 // ───── 4. Build the package ─────
+// `--skip-build` short-circuits the rebuild — useful on retry (e.g.
+// when the previous `pnpm publish` failed for OTP timing reasons and
+// the dist is still fresh). Caveat: ONLY use when you're sure the
+// existing dist matches the version about to be published; the script
+// asserts the dist exists but doesn't re-verify the embedded VERSION.
 {
-  const buildCmd = `pnpm nx build ${pkg.name} --skip-nx-cache`;
-  if (dryRun) {
-    console.log(`${c.yellow('[dry-run]')} would run: ${c.cyan(buildCmd)}`);
-  } else {
-    console.log(`${c.cyan('$')} ${buildCmd}`);
-    execSync(buildCmd, { cwd: REPO_ROOT, stdio: 'inherit' });
-  }
-
   const distEsm = path.join(pkg.dir, 'dist', 'index.esm.js');
   const distDts = path.join(pkg.dir, 'dist', 'index.d.ts');
-  if (!dryRun) {
-    if (!existsSync(distEsm)) die(`Build did not emit ${distEsm}`);
-    if (!existsSync(distDts)) die(`Build did not emit ${distDts}`);
-    console.log(`${c.green('✓')} dist artifacts present.`);
+
+  if (args['skip-build']) {
+    if (!existsSync(distEsm)) die(`--skip-build given but ${distEsm} missing.`);
+    if (!existsSync(distDts)) die(`--skip-build given but ${distDts} missing.`);
+    console.log(`${c.yellow('!')} ${c.bold('Build skipped')} (--skip-build). Existing dist will be published.`);
+  } else {
+    const buildCmd = `pnpm nx build ${pkg.name} --skip-nx-cache`;
+    if (dryRun) {
+      console.log(`${c.yellow('[dry-run]')} would run: ${c.cyan(buildCmd)}`);
+    } else {
+      console.log(`${c.cyan('$')} ${buildCmd}`);
+      execSync(buildCmd, { cwd: REPO_ROOT, stdio: 'inherit' });
+    }
+    if (!dryRun) {
+      if (!existsSync(distEsm)) die(`Build did not emit ${distEsm}`);
+      if (!existsSync(distDts)) die(`Build did not emit ${distDts}`);
+      console.log(`${c.green('✓')} dist artifacts present.`);
+    }
   }
 }
 
