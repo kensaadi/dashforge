@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useId, useRef } from 'react';
+import { useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
@@ -98,6 +98,22 @@ export function NumberField(props: NumberFieldProps) {
   const accessState = useAccessState(access);
 
   const inputId = useId();
+
+  /*
+   * Local state for the STANDALONE UNCONTROLLED case (no bridge, no
+   * `value` prop, only `defaultValue`). Mirrors OTPField. Without this,
+   * `resolvedDisplayValue` would be a snapshot computed ONCE from
+   * `defaultValue` and the controlled `<input value={...}>` would
+   * snap user input back on every keystroke / stepper click — same
+   * trap that hit Checkbox + RadioGroup in this package.
+   *
+   * In form mode the bridge owns state. In standalone CONTROLLED mode
+   * (consumer passes `value`) the consumer owns state. Only this
+   * branch needs the local hook.
+   */
+  const [uncontrolledValue, setUncontrolledValue] = useState<string>(() =>
+    formatForDisplay(defaultValue)
+  );
   const helperId = `${inputId}-help`;
 
   // StrictMode-safe unregister-on-unmount
@@ -140,7 +156,7 @@ export function NumberField(props: NumberFieldProps) {
     resolvedDisplayValue =
       userValue !== undefined
         ? formatForDisplay(userValue)
-        : formatForDisplay(defaultValue);
+        : uncontrolledValue;
   }
 
   const writeToBridge = (parsed: number | null | undefined) => {
@@ -156,6 +172,13 @@ export function NumberField(props: NumberFieldProps) {
       // Forward to RHF — pass through the original event so RHF's
       // internal logic still sees the raw string change.
       void registration.onChange(e);
+    }
+    // Standalone uncontrolled mode: mirror the raw input string so the
+    // controlled `<input value={...}>` reflects what the user typed.
+    // Partial states (e.g. "-", "1.") are kept verbatim — `parseFromInput`
+    // returns `undefined` for them so `writeToBridge` is a no-op above.
+    if (!isFormMode && userValue === undefined) {
+      setUncontrolledValue(e.target.value);
     }
     userOnChange?.(e);
   };
@@ -176,6 +199,11 @@ export function NumberField(props: NumberFieldProps) {
     if (typeof min === 'number') next = Math.max(min, next);
     if (typeof max === 'number') next = Math.min(max, next);
     writeToBridge(next);
+    // Standalone uncontrolled: also persist the new value to local
+    // state so the visible display tracks the stepper click.
+    if (!isFormMode && userValue === undefined) {
+      setUncontrolledValue(formatForDisplay(next));
+    }
   };
 
   const canIncrement =
