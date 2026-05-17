@@ -174,6 +174,33 @@ export type {
 } from './components/Snackbar/snackbar.types.js';
 export { snackbarVariants } from './components/Snackbar/snackbar.variants.js';
 
+// F9 foundation: typography + layout primitives. These sit BENEATH
+// every other component (Button's label, TextField's helper text, the
+// surface of an AppShell card) and are what app-level code reaches for
+// before it reaches for any specific UI atom.
+
+export { Typography } from './components/Typography/Typography.js';
+export type { TypographyProps } from './components/Typography/typography.types.js';
+export { typographyVariants } from './components/Typography/typography.variants.js';
+
+export { Box } from './components/Box/Box.js';
+export type { BoxProps } from './components/Box/box.types.js';
+export { boxVariants } from './components/Box/box.variants.js';
+
+export { Stack } from './components/Stack/Stack.js';
+export type { StackProps } from './components/Stack/stack.types.js';
+export { stackVariants } from './components/Stack/stack.variants.js';
+
+export { Grid } from './components/Grid/Grid.js';
+export type {
+  GridProps,
+  GridContainerProps,
+  GridItemProps,
+  ColSpan,
+  GridSpacingStep,
+} from './components/Grid/grid.types.js';
+export { gridVariants } from './components/Grid/grid.variants.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
