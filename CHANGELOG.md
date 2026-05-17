@@ -10,6 +10,42 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 0.2.1-beta] — 2026-05-17
+
+> **Hardening patch for `@dashforge/tw`.** Three runtime fixes on form
+> controls (Checkbox / RadioGroup / NumberField), one accessibility
+> enhancement on Button (`aria-busy={loading}`). All four issues were
+> surfaced while building the live-preview demos for the docs site —
+> the same demo registry now serves as a regression catch.
+>
+> **Same root cause across the three form-control fixes**:
+> "controlled-without-an-owner" — each component sat in controlled mode
+> in standalone uncontrolled scenarios (no `DashFormProvider`, no
+> explicit `value` / `checked` prop, only `defaultValue` /
+> `defaultChecked`), with no setter to update the controlled prop on
+> user input. React would snap the input right back. The fixes differ
+> in shape (Radix indicator → drop `forceMount`; Radix root →
+> discriminated spread of `value` vs `defaultValue`; native `<input>` →
+> local `useState`) but the diagnosis is identical. See A11Y.md for the
+> broader audit (24/24 components, only Button needed an enhancement).
+>
+> **No public API change** — drop-in upgrade from `0.2.0-beta`.
+
+Affected package (bumped):
+
+| Package         | Notes                                                                                                                                                                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@dashforge/tw` | 4 fixes (3 form-control runtime, 1 Button a11y). No public API change. 52 component tests across 4 files re-validate (Checkbox 14, RadioGroup 11, NumberField 8, Button 19) — all green. A11Y.md added at package root with WAI-ARIA APG mapping. |
+
+Unchanged (independent versioning):
+
+| Package                                              | Version (unchanged) | Why                                                  |
+| ---------------------------------------------------- | ------------------- | ---------------------------------------------------- |
+| `@dashforge/tw-theme`                                | `0.1.0-beta`        | No source change — peer dep stays at `^0.1.0-beta`.  |
+| `@dashforge/tw-tokens`                               | `0.1.0-beta`        | No source change — peer dep stays at `^0.1.0-beta`.  |
+| Bridge (`forms`, `rbac`, `ui-core`)                  | `0.2.3-beta`        | No source change.                                    |
+| MUI side (`ui`, `theme-mui`, `theme-core`, `tokens`) | `0.2.3-beta`        | Separate ecosystem; untouched.                       |
+
 ## [tw 0.2.0-beta] — 2026-05-17
 
 > **Foundation release for `@dashforge/tw`.** Eight layout / structural

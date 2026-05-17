@@ -12,6 +12,76 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.2.1-beta] — 2026-05-17
+
+**Hardening release.** Four targeted fixes — three in form-control
+runtime behaviour, one in the Button accessibility contract — surfaced
+while building live-preview demos for the docs site. No public API
+change on any component; strictly additive on the `<Button>` props
+contract (a new `aria-busy` attribute is emitted automatically when
+`loading` is true). Drop-in upgrade from `0.2.0-beta`.
+
+Theme of the three form-control fixes: the **same root cause** —
+"controlled-without-an-owner" — under three different surface
+appearances. In standalone uncontrolled mode (no `DashFormProvider`,
+no `value` / `checked` prop, only `defaultValue` / `defaultChecked`),
+each component was sitting in a controlled mode without anyone able
+to update the controlled prop on the user's keystrokes / clicks, so
+React would snap the input right back. The fixes vary by component
+implementation (Radix-backed → discriminated spread of `value` vs
+`defaultValue`; Radix indicator → drop `forceMount` + React
+conditional; native `<input>` → local `useState` for the uncontrolled
+case) but the pattern is identical. A11Y.md (new doc, separate
+commit) documents the broader pattern audit.
+
+### Fixed
+
+- **Checkbox** — the indicator's check glyph never appeared when the
+  user clicked a Checkbox that was rendered standalone-uncontrolled
+  (no `DashFormProvider`, no `checked` prop). The control turned blue
+  via `data-[state=checked]:bg-primary-500` but the React-conditional
+  `<CheckIcon />` was gated on a stale `resolvedChecked` snapshot.
+  Dropped `forceMount` + the conditional; the Radix `Indicator` now
+  owns the mount decision, tracking Radix's internal `data-state`
+  directly. Mounts in all three modes (controlled, uncontrolled,
+  bridge). 14/14 tests pass.
+- **RadioGroup** — clicking a different radio in standalone-uncontrolled
+  mode had no visible effect (the selection snapped back to
+  `defaultValue`). `<RadixRadioGroup.Root>` was passed `value={…}`
+  always, putting Radix in controlled mode against a never-updated
+  snapshot. Discriminated spread now picks `value` only in form mode
+  or when the consumer explicitly passes `value`; standalone-with-only-
+  `defaultValue` uses `defaultValue` so Radix manages its own state.
+  11/11 tests pass.
+- **NumberField** — typing into the input or clicking the +/− stepper
+  had no visible effect in standalone-uncontrolled mode, for the same
+  reason (controlled `<input value={…}>` with no setter). Added a
+  local `useState<string>` seeded from `defaultValue` (mirrors the
+  OTPField pattern); `handleChange` + `stepBy` now both update it.
+  8/8 tests pass.
+- **Button** — sets `aria-busy={true}` while `loading`, so assistive
+  tech distinguishes "wait for the action to finish" from plain
+  "disabled" (which previously was the only signal — same DOM
+  attribute regardless of whether the disable came from `loading`,
+  `disabled={true}`, or RBAC). 19/19 tests pass.
+
+### Internal
+
+- A11Y.md added at package root — per-component status table mapped
+  to WCAG 2.1 AA / WAI-ARIA APG. Documents that 23 of 24 components
+  were already conformant pre-release (only Button needed the
+  `aria-busy` enhancement above). Known non-blocking limitations
+  filed: AppShell mobile drawer focus trap, `prefers-reduced-motion`
+  pass, color-contrast CI suite, lighthouse/axe automated scan.
+
+### Compatibility
+
+| Compatibility axis | Pre-`0.2.1` | Post-`0.2.1` |
+|---|---|---|
+| Public API surface  | unchanged | unchanged + `aria-busy` auto-emitted on `<Button loading>` |
+| Peer deps           | `react ^18 \|\| ^19`, `tw-theme workspace`, `tw-tokens workspace` | unchanged |
+| Bridge deps         | `forms` / `rbac` / `ui-core` `workspace:*` | unchanged |
+
 ## [0.2.0-beta] — 2026-05-17
 
 **Foundation release.** Eight layout / structural primitives added on top of
