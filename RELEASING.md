@@ -37,8 +37,9 @@ git add -p
 git commit -m "release: @dashforge/tw 0.2.1-beta"
 
 # Step 4 — publish (dry-run by default; add --confirm to actually ship)
-node scripts/publish-prepared.mjs --package=@dashforge/tw                # dry-run
-node scripts/publish-prepared.mjs --package=@dashforge/tw --confirm       # live
+node scripts/publish-prepared.mjs --package=@dashforge/tw                            # dry-run
+node scripts/publish-prepared.mjs --package=@dashforge/tw --confirm                  # live
+node scripts/publish-prepared.mjs --package=@dashforge/tw --confirm --otp=123456     # live w/ npm 2FA (account has 2FA → required)
 
 # Step 5 — push the tag if you want (NEVER auto-pushed)
 git push origin "@dashforge/tw@0.2.1-beta"

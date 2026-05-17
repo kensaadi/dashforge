@@ -139,7 +139,11 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
 {
   const npmrc = path.join(REPO_ROOT, '.npmrc');
   const npmrcBackup = path.join(REPO_ROOT, '.npmrc.during-publish.bak');
-  const publishCmd = 'pnpm publish --no-git-checks';
+  // Pass `--otp=<code>` through to pnpm publish when the user provides
+  // one (npm 2FA accounts require this). If omitted and the account
+  // has 2FA on, the publish fails fast with EOTP — re-run with --otp.
+  const otp = args.otp ? ` --otp=${args.otp}` : '';
+  const publishCmd = `pnpm publish --no-git-checks${otp}`;
 
   if (dryRun) {
     console.log(`${c.yellow('[dry-run]')} would temporarily move ${c.cyan('.npmrc → .npmrc.during-publish.bak')}`);
