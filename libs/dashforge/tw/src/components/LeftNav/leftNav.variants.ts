@@ -24,7 +24,10 @@ export const leftNavVariants = tv({
     root: [
       'flex flex-col h-full',
       'bg-neutral-50 border-r border-neutral-200',
-      'transition-[width] duration-200',
+      // Width transition (rail-mode toggle) — gated on
+      // prefers-reduced-motion (WCAG 2.3.3). The new width still
+      // applies, just without the animated tween.
+      'transition-[width] duration-200 motion-reduce:transition-none motion-reduce:duration-0',
     ],
     brand: [
       'flex items-center gap-2 px-3 h-14 shrink-0',

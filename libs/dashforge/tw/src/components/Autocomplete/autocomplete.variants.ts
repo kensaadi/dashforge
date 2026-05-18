@@ -45,9 +45,11 @@ export const autocompleteVariants = tv({
       'disabled:cursor-not-allowed disabled:opacity-40',
       'transition-colors',
       // Chevron flip on open — targets the SVG child via the aria-
-      // expanded state on the button itself (set by React).
+      // expanded state on the button itself (set by React). Smooth
+      // rotate gated on prefers-reduced-motion (WCAG 2.3.3); the
+      // 180° state still applies, just without the animated tween.
       '[&[aria-expanded=true]>svg]:rotate-180',
-      '[&>svg]:transition-transform [&>svg]:duration-150',
+      '[&>svg]:transition-transform [&>svg]:duration-150 motion-reduce:[&>svg]:transition-none',
     ],
     clearButton: [
       'flex items-center justify-center shrink-0 px-2',

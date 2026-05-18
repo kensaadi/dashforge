@@ -25,7 +25,12 @@ export const switchVariants = tv({
     ],
     thumb: [
       'pointer-events-none inline-block rounded-full bg-white shadow ring-0',
-      'transition-transform',
+      // Slide animation gated on `prefers-reduced-motion: no-preference`
+      // (WCAG 2.3.3). The thumb still moves between positions instantly
+      // for users who request reduced motion — the data-state change
+      // applies the translate-x rule unconditionally, only the smooth
+      // transition between the two is suppressed.
+      'transition-transform motion-reduce:transition-none',
       'data-[state=unchecked]:translate-x-0',
     ],
     label: 'select-none cursor-pointer text-neutral-900',

@@ -23,8 +23,10 @@ export const snackbarVariants = tv({
       'rounded-lg border shadow-lg',
       'text-sm bg-neutral-50 text-neutral-900',
       // Subtle enter transition — opacity + translate, kept short so a
-      // burst of snackbars feels snappy.
-      'transition-all duration-200',
+      // burst of snackbars feels snappy. Gated on motion-reduce
+      // (WCAG 2.3.3) — users who request reduced motion see snackbars
+      // pop in instantly without the slide animation.
+      'transition-all duration-200 motion-reduce:transition-none motion-reduce:duration-0',
       'data-[state=entered]:opacity-100 data-[state=exited]:opacity-0',
     ],
     icon: 'shrink-0 mt-0.5 w-5 h-5 inline-flex items-center justify-center',
