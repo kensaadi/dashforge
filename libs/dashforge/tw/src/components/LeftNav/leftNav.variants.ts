@@ -39,6 +39,14 @@ export const leftNavVariants = tv({
       'transition-colors w-full',
       'aria-disabled:opacity-50 aria-disabled:cursor-not-allowed',
       'aria-disabled:hover:bg-transparent',
+      // Defensive `no-underline` — Tailwind's preflight removes the
+      // default browser anchor underline globally, but environments
+      // that DISABLE preflight (e.g. our docs-lab, where the tw
+      // section coexists with MUI's chrome) get raw browser defaults
+      // back. Without this, `<a>` items in the nav render underlined
+      // in those contexts. Explicit `no-underline` + `hover:no-underline`
+      // keeps the appearance consistent regardless of preflight state.
+      'no-underline hover:no-underline',
     ],
     itemActive: 'bg-primary-100 text-primary-900 font-medium',
     itemIcon: 'shrink-0 w-5 h-5 flex items-center justify-center',

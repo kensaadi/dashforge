@@ -23,6 +23,11 @@ export const breadcrumbsVariants = tv({
       'rounded-sm outline-none',
       'focus-visible:ring-2 focus-visible:ring-primary-500/50',
       'transition-colors',
+      // Defensive `no-underline` — see the matching comment in
+      // LeftNav itemLink slot. The Breadcrumbs root cause covers
+      // TopBar too because Breadcrumbs is typically rendered in
+      // TopBar's center slot.
+      'no-underline hover:no-underline',
     ],
     current: [
       'inline-flex items-center gap-1 truncate',
