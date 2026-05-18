@@ -10,8 +10,8 @@ import { checkboxVariants } from './checkbox.variants.js';
 import type { CheckboxProps } from './checkbox.types.js';
 
 /**
- * Inline checkmark SVG used by `Radix.Indicator`. Stroke uses
- * `currentColor` so the parent's `text-white` propagates correctly.
+ * Inline checkmark SVG used by `Radix.Indicator` when fully checked.
+ * Stroke uses `currentColor` so the parent's `text-white` propagates.
  *
  * @internal
  */
@@ -29,6 +29,37 @@ function CheckIcon({ className }: { className?: string }) {
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Inline dash SVG used by `Radix.Indicator` when the checkbox is in
+ * the `indeterminate` tri-state ("some, but not all, children
+ * selected" — the canonical "select all" partial state).
+ *
+ * Pre-0.2.2-beta the indicator rendered the CheckIcon for BOTH
+ * checked and indeterminate (Radix mounts the Indicator for either
+ * state). We now discriminate via the `data-state` attribute Radix
+ * sets on the Indicator element itself — see the parent `Indicator`
+ * rendering below for the CSS toggle.
+ *
+ * @internal
+ */
+function DashIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M3 8h10"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -212,16 +243,19 @@ export function Checkbox(props: CheckboxProps) {
          * modes — controlled, uncontrolled, bridge). Indicator mounts
          * exactly when the checkbox is checked OR indeterminate.
          *
-         * Indeterminate caveat: this renders the check glyph for
-         * BOTH checked AND indeterminate states. Previously
-         * indeterminate rendered nothing inside the blue square
-         * (same level of broken). A future improvement would render
-         * a dash for indeterminate — out of scope here.
+         * Per-state glyph (Sprint 2 P4): when Indicator is mounted we
+         * render BOTH glyphs and toggle visibility via the Indicator's
+         * own `data-state` attribute. The `group` class on Indicator
+         * lets the SVG children target the parent's state with
+         * `group-data-[state=checked]:hidden` / `…:indeterminate:hidden`.
+         * No React state required — Radix's data-state attribute is
+         * the single source of truth.
          */}
         <RadixCheckbox.Indicator
-          className={cn(v.indicator(), slotProps?.indicator?.className)}
+          className={cn(v.indicator(), 'group', slotProps?.indicator?.className)}
         >
-          <CheckIcon className="h-full w-full" />
+          <CheckIcon className="h-full w-full group-data-[state=indeterminate]:hidden" />
+          <DashIcon className="h-full w-full group-data-[state=checked]:hidden" />
         </RadixCheckbox.Indicator>
       </RadixCheckbox.Root>
 

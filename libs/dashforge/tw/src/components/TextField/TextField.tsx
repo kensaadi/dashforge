@@ -178,6 +178,22 @@ export function TextField(props: TextFieldProps) {
       )}
 
       <div className={cn(v.inputWrapper(), slotProps?.inputWrapper?.className)}>
+        {/*
+         * Prefix slot (Sprint 2 P4.1) — inline adornment rendered
+         * BEFORE the input. Mounts only when `slotProps.prefix.children`
+         * is provided so empty configs don't add layout cost. Common
+         * use: currency symbols (`$`, `€`), units (`@`, `#`), status
+         * icons. The slot wrapper carries `pointer-events-none` to
+         * avoid stealing focus from the input on click.
+         */}
+        {slotProps?.prefix?.children !== undefined && (
+          <span
+            aria-hidden="true"
+            className={cn(v.prefix(), slotProps.prefix.className)}
+          >
+            {slotProps.prefix.children}
+          </span>
+        )}
         <input
           {...rest}
           id={inputId}
@@ -196,6 +212,19 @@ export function TextField(props: TextFieldProps) {
           ref={inputRef}
           className={cn(v.input(), slotProps?.input?.className)}
         />
+        {/*
+         * Suffix slot (Sprint 2 P4.1) — same pattern as prefix,
+         * rendered AFTER the input. Typical use: unit labels (`USD`,
+         * `kg`, `%`), trailing icons, length counters.
+         */}
+        {slotProps?.suffix?.children !== undefined && (
+          <span
+            aria-hidden="true"
+            className={cn(v.suffix(), slotProps.suffix.className)}
+          >
+            {slotProps.suffix.children}
+          </span>
+        )}
       </div>
 
       {resolvedHelperText && (

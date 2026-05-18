@@ -6,9 +6,27 @@ import type { TextFieldVariants } from './textField.variants.js';
 /**
  * Per-slot overrides for `<TextField>`.
  *
- * Each slot accepts `{ className: string }` so the override path is
- * extensible (style / aria-* / data-* can be added without a breaking
- * change). Mirrors the MUI-side `slotProps` shape.
+ * Each slot accepts `{ className: string }` (and, for `prefix` /
+ * `suffix`, a `children` node) so the override path is extensible —
+ * extra fields like `style`, `aria-*`, `data-*` can be added without
+ * a breaking change. Mirrors the MUI-side `slotProps` shape.
+ *
+ * **`prefix` / `suffix`** are inline adornments rendered INSIDE the
+ * `inputWrapper`, before / after the `<input>` element. Typical use:
+ * currency symbols, units, status icons. Passing only `className`
+ * (no `children`) is allowed but renders an empty slot — usually
+ * you'll always pair the two.
+ *
+ *   ```tsx
+ *   <TextField
+ *     name="price"
+ *     type="number"
+ *     slotProps={{
+ *       prefix: { children: '$' },
+ *       suffix: { children: 'USD' },
+ *     }}
+ *   />
+ *   ```
  */
 export interface TextFieldSlotProps {
   root?: { className?: string };
@@ -18,6 +36,8 @@ export interface TextFieldSlotProps {
   input?: { className?: string };
   helperText?: { className?: string };
   errorText?: { className?: string };
+  prefix?: { children?: ReactNode; className?: string };
+  suffix?: { children?: ReactNode; className?: string };
 }
 
 /**

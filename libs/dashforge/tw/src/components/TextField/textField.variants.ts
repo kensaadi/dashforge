@@ -34,6 +34,24 @@ export const textFieldVariants = tv({
     ],
     helperText: 'mt-1 text-sm text-neutral-600',
     errorText: 'mt-1 text-sm text-danger-600',
+    /*
+     * `prefix` / `suffix` slot — inline adornment rendered before /
+     * after the input INSIDE the inputWrapper. `shrink-0` keeps the
+     * adornment width fixed so it doesn't compete for space with the
+     * input; `select-none` + `pointer-events-none` avoids
+     * accidentally stealing focus from the input on click (the
+     * inputWrapper handles focus via `focus-within`).
+     */
+    prefix: [
+      'shrink-0 inline-flex items-center select-none pointer-events-none',
+      'text-neutral-500',
+      'mr-2',
+    ],
+    suffix: [
+      'shrink-0 inline-flex items-center select-none pointer-events-none',
+      'text-neutral-500',
+      'ml-2',
+    ],
   },
   variants: {
     size: {
