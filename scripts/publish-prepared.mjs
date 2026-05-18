@@ -22,21 +22,42 @@
  *   - Validates the dist exists after the build step.
  *   - Aborts if the version is already published on npm
  *     (`npm view <pkg>@<version> version`).
+ *   - Validates the user is authenticated against npm via global
+ *     `~/.npmrc` (`pnpm whoami` from `/tmp` — bypasses the repo's
+ *     own `.npmrc` that uses `${NPM_TOKEN}` placeholders).
  *
- * .npmrc workaround:
- *   The repo `.npmrc` uses `${NPM_TOKEN}` which pnpm v10 doesn't
- *   expand. We side-step by temporarily moving the file out of the
- *   way so `pnpm publish` falls back to the user's global
- *   `~/.npmrc`, then restore it afterwards (try/finally).
+ * Publishing from `/tmp` (Sprint 2 P5 simplification):
+ *   The previous implementation moved the repo `.npmrc` aside before
+ *   calling `pnpm publish`, then restored it in `finally`. That was a
+ *   workaround for pnpm v10 not expanding `${NPM_TOKEN}` in the repo's
+ *   committed `.npmrc`. Sprint 1 publish hell taught us a simpler way:
+ *   `cd /tmp && pnpm publish /abs/path/to/package` — running pnpm from
+ *   OUTSIDE the repo means it never reads the repo's `.npmrc` in the
+ *   first place. Only `~/.npmrc` (with the real bypass-2FA automation
+ *   token) is consulted. Cleaner, fewer moving parts, no restore
+ *   needed if the publish crashes mid-flight.
+ *
+ * Skip-build behaviour:
+ *   - `--skip-build` (manual override) — never rebuilds; asserts dist
+ *     exists.
+ *   - `--force-build` (manual override) — always rebuilds, even if
+ *     dist looks fresh.
+ *   - Otherwise: auto-detect. If `dist/index.esm.js` mtime is newer
+ *     than the newest file in `src/`, skip the build (saves the
+ *     30-second build window during OTP retries — Sprint 1 pain
+ *     point).
  *
  * Usage:
  *   node scripts/publish-prepared.mjs --package=@dashforge/tw
  *   node scripts/publish-prepared.mjs --package=@dashforge/tw --confirm
+ *   node scripts/publish-prepared.mjs --package=@dashforge/tw --confirm --otp=123456
+ *   node scripts/publish-prepared.mjs --package=@dashforge/tw --confirm --force-build
  */
 
 import { execSync } from 'node:child_process';
-import { existsSync, readFileSync, renameSync } from 'node:fs';
+import { existsSync, readFileSync, statSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import process from 'node:process';
 import {
   REPO_ROOT,
@@ -116,29 +137,83 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
   console.log(`${c.green('✓')} ${pkg.name}@${version} not yet on npm.`);
 }
 
-// ───── 4. Build the package ─────
-// `--skip-build` short-circuits the rebuild — useful on retry (e.g.
-// when the previous `pnpm publish` failed for OTP timing reasons and
-// the dist is still fresh). Caveat: ONLY use when you're sure the
-// existing dist matches the version about to be published; the script
-// asserts the dist exists but doesn't re-verify the embedded VERSION.
+// ───── 4. Auth probe (npm whoami via ~/.npmrc) ─────
+//
+// Run `pnpm whoami` from /tmp so pnpm doesn't read the repo's
+// committed `.npmrc` (which uses `${NPM_TOKEN}` placeholders that
+// pnpm v10 won't expand). This validates that the user has a working
+// global auth setup BEFORE we try to publish — better to fail fast
+// here with a clear message than to discover it mid-`pnpm publish`.
+{
+  if (dryRun) {
+    console.log(`${c.yellow('[dry-run]')} would probe: ${c.cyan('cd /tmp && pnpm whoami')}`);
+  } else {
+    let whoami;
+    try {
+      whoami = execSync('pnpm whoami', { cwd: os.tmpdir(), encoding: 'utf-8' }).trim();
+    } catch (e) {
+      die(
+        `Auth probe failed. Your ~/.npmrc isn't authenticated to npm.\n` +
+        `  Fix: run ${c.cyan('npm login')} (interactive) OR put an automation\n` +
+        `       token in ~/.npmrc — see RELEASING.md for details.`
+      );
+    }
+    console.log(`${c.green('✓')} Authenticated to npm as ${c.cyan(whoami)} (via ~/.npmrc).`);
+  }
+}
+
+// ───── 5. Build the package (auto-skip if fresh) ─────
+//
+// Build decision tree:
+//   --skip-build flag        → never build, assert dist exists
+//   --force-build flag       → always build
+//   (auto, default)          → build only if dist mtime ≤ newest src mtime
+//
+// The auto-skip exists because of the Sprint 1 OTP-window pain:
+// a 30-second rebuild between "user reads OTP" and "pnpm publish
+// sends it to npm" routinely caused EOTP. If the user has already
+// run `pnpm nx build` to validate in dev, the dist is fresh and a
+// rebuild would just waste the OTP window for nothing.
 {
   const distEsm = path.join(pkg.dir, 'dist', 'index.esm.js');
   const distDts = path.join(pkg.dir, 'dist', 'index.d.ts');
 
+  const distExists = existsSync(distEsm) && existsSync(distDts);
+  let shouldBuild;
+  let reason;
+
   if (args['skip-build']) {
-    if (!existsSync(distEsm)) die(`--skip-build given but ${distEsm} missing.`);
-    if (!existsSync(distDts)) die(`--skip-build given but ${distDts} missing.`);
-    console.log(`${c.yellow('!')} ${c.bold('Build skipped')} (--skip-build). Existing dist will be published.`);
+    if (!distExists) die(`--skip-build given but ${distEsm} or ${distDts} missing.`);
+    shouldBuild = false;
+    reason = '--skip-build flag set';
+  } else if (args['force-build']) {
+    shouldBuild = true;
+    reason = '--force-build flag set';
+  } else if (!distExists) {
+    shouldBuild = true;
+    reason = 'no dist found';
+  } else {
+    const distMtime = statSync(distEsm).mtimeMs;
+    const srcDir = path.join(pkg.dir, 'src');
+    const newestSrcMtime = existsSync(srcDir) ? findNewestMtime(srcDir) : 0;
+    if (newestSrcMtime > distMtime) {
+      shouldBuild = true;
+      reason = `src/ has newer files than dist/ (dist=${new Date(distMtime).toISOString().slice(0,19)}, src=${new Date(newestSrcMtime).toISOString().slice(0,19)})`;
+    } else {
+      shouldBuild = false;
+      reason = `dist is fresh (mtime=${new Date(distMtime).toISOString().slice(0,19)}, newer than src)`;
+    }
+  }
+
+  if (!shouldBuild) {
+    console.log(`${c.green('✓')} Skipping build — ${reason}.`);
   } else {
     const buildCmd = `pnpm nx build ${pkg.name} --skip-nx-cache`;
     if (dryRun) {
-      console.log(`${c.yellow('[dry-run]')} would run: ${c.cyan(buildCmd)}`);
+      console.log(`${c.yellow('[dry-run]')} would run: ${c.cyan(buildCmd)} (${reason})`);
     } else {
-      console.log(`${c.cyan('$')} ${buildCmd}`);
+      console.log(`${c.cyan('$')} ${buildCmd}  (${reason})`);
       execSync(buildCmd, { cwd: REPO_ROOT, stdio: 'inherit' });
-    }
-    if (!dryRun) {
       if (!existsSync(distEsm)) die(`Build did not emit ${distEsm}`);
       if (!existsSync(distDts)) die(`Build did not emit ${distDts}`);
       console.log(`${c.green('✓')} dist artifacts present.`);
@@ -146,41 +221,37 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
   }
 }
 
-// ───── 5. Publish (with .npmrc workaround) ─────
+// ───── 6. Publish (from /tmp, no .npmrc swap) ─────
+//
+// `cd /tmp && pnpm publish <abs-path>` works because:
+//   • pnpm walks UP from the cwd looking for an `.npmrc`. From /tmp,
+//     it never crosses our repo, so the committed `.npmrc` with
+//     `${NPM_TOKEN}` placeholder is never read — pnpm uses ONLY
+//     `~/.npmrc` (which has the real automation token).
+//   • Passing the absolute package path as a positional arg tells
+//     pnpm what to publish. Identical effect to `cd <pkg> && pnpm publish`
+//     except the cwd doesn't taint .npmrc resolution.
+//   • No need to rename / restore the repo `.npmrc`. The publish is
+//     atomic from our side; if it crashes, nothing is left in an
+//     inconsistent state.
 {
-  const npmrc = path.join(REPO_ROOT, '.npmrc');
-  const npmrcBackup = path.join(REPO_ROOT, '.npmrc.during-publish.bak');
-  // Pass `--otp=<code>` through to pnpm publish when the user provides
-  // one (npm 2FA accounts require this). If omitted and the account
-  // has 2FA on, the publish fails fast with EOTP — re-run with --otp.
+  // Pass `--otp=<code>` through when the user provides one. With a
+  // bypass-2FA automation token in ~/.npmrc, --otp is NOT needed at
+  // all — see RELEASING.md "Token type matters" section.
   const otp = args.otp ? ` --otp=${args.otp}` : '';
-  const publishCmd = `pnpm publish --no-git-checks${otp}`;
+  const publishCmd = `pnpm publish ${pkg.dir} --no-git-checks${otp}`;
+  const cwd = os.tmpdir();
 
   if (dryRun) {
-    console.log(`${c.yellow('[dry-run]')} would temporarily move ${c.cyan('.npmrc → .npmrc.during-publish.bak')}`);
-    console.log(`${c.yellow('[dry-run]')} would run (from ${pkg.dir}): ${c.cyan(publishCmd)}`);
-    console.log(`${c.yellow('[dry-run]')} would restore .npmrc`);
+    console.log(`${c.yellow('[dry-run]')} would run (cwd=${cwd}): ${c.cyan(publishCmd)}`);
   } else {
-    let moved = false;
-    try {
-      if (existsSync(npmrc)) {
-        renameSync(npmrc, npmrcBackup);
-        moved = true;
-        console.log(`${c.dim('(moved .npmrc out of the way so ~/.npmrc auth wins)')}`);
-      }
-      console.log(`${c.cyan('$')} ${publishCmd}  (cwd=${path.relative(REPO_ROOT, pkg.dir)})`);
-      execSync(publishCmd, { cwd: pkg.dir, stdio: 'inherit' });
-      console.log(`${c.green('✓')} Published ${pkg.name}@${version}.`);
-    } finally {
-      if (moved && existsSync(npmrcBackup)) {
-        renameSync(npmrcBackup, npmrc);
-        console.log(`${c.dim('(.npmrc restored)')}`);
-      }
-    }
+    console.log(`${c.cyan('$')} ${publishCmd}  (cwd=${cwd})`);
+    execSync(publishCmd, { cwd, stdio: 'inherit' });
+    console.log(`${c.green('✓')} Published ${pkg.name}@${version}.`);
   }
 }
 
-// ───── 6. Local git tag (no push) ─────
+// ───── 7. Local git tag (no push) ─────
 {
   const tag = `${pkg.name}@${version}`;
   const tagCmd = `git tag -a "${tag}" -m "Release ${pkg.name} ${version}"`;
@@ -206,4 +277,36 @@ console.log();
 
 function escapeRe(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Walk a directory tree and return the newest `mtimeMs` across all
+ * regular files. Ignores `node_modules/` and `dist/`.
+ *
+ * Used by the auto-skip-build heuristic: if every src file is older
+ * than the current dist, the dist is up-to-date and we can skip the
+ * 30-second rebuild.
+ */
+function findNewestMtime(dir) {
+  let newest = 0;
+  const walk = (d) => {
+    let entries;
+    try {
+      entries = readdirSync(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.name === 'node_modules' || entry.name === 'dist') continue;
+      const full = path.join(d, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile()) {
+        const m = statSync(full).mtimeMs;
+        if (m > newest) newest = m;
+      }
+    }
+  };
+  walk(dir);
+  return newest;
 }

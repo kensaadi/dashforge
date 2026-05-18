@@ -72,14 +72,20 @@ no publish, no push. You review the diff and commit manually.
    `CHANGELOG.md` (or the TW release MDX) still contains the
    `TODO: fill in` marker.
 3. **npm view** — refuses to publish if the version is already on npm.
-4. **`pnpm nx build <pkg> --skip-nx-cache`** — fresh build, then asserts
-   `dist/index.esm.js` and `dist/index.d.ts` exist.
-5. **`.npmrc` workaround** — the repo `.npmrc` uses
-   `_authToken=${NPM_TOKEN}` which pnpm v10 doesn't expand. The script
-   temporarily renames the file out of the way so `pnpm publish` falls
-   back to the user's global `~/.npmrc` (with the real token), then
-   restores it in a `finally` block (even if publish errors).
-6. **`pnpm publish --no-git-checks`** from the package directory.
+4. **Auth probe** — `pnpm whoami` from `/tmp` (so the repo `.npmrc`
+   is never read). Fails fast with a clear message if `~/.npmrc` is
+   unauthenticated, before any build / publish happens.
+5. **Build (auto-skip if fresh)**:
+    - `--skip-build` flag → never rebuild, assert dist exists.
+    - `--force-build` flag → always rebuild.
+    - Otherwise, auto-detect: skip the rebuild if `dist/index.esm.js`
+      mtime is newer than the newest file under `src/`. Saves the
+      ~30-second build during OTP retries (Sprint 1 pain point).
+6. **`cd /tmp && pnpm publish <abs/path/to/pkg> --no-git-checks`** —
+    publishes from outside the repo so the committed `.npmrc` (with
+    `${NPM_TOKEN}` placeholder) is never read. Only `~/.npmrc` is
+    consulted. No file rename, no try/finally, no `.bak` cleanup
+    needed.
 7. **Local git tag** `@dashforge/<pkg>@<version>` (annotated, NOT pushed).
 
 Dry-run mode (the default — no `--confirm` flag) prints every command
@@ -94,18 +100,46 @@ coordinated bump of the bridge layer + a consumer package), prepare each
 package separately, then collapse the two top-level pointer scaffolds
 into a single combined entry by hand before committing.
 
-## Handling the .npmrc auth token
+## Token type matters
+
+This is the **single most important thing** to know about Dashforge
+publishing, learned the hard way during the Sprint 1 `0.2.1-beta`
+publish attempt (8 OTP codes burned, 20-minute rate-limit timeout).
+
+npm offers two token shapes:
+
+| Token type        | OTP required per publish? | Use case |
+| ----------------- | :-: | -- |
+| **Publish (classic)** | Yes, unless "Bypass 2FA" is checked | Default when you click "Generate new token" — DO NOT use as-is for our publish script. |
+| **Automation**    | No (bypasses 2FA for write actions) | The right choice for CLI / CI / our `publish-prepared.mjs`. |
+
+The Sprint 1 publish hell was caused by `~/.npmrc` holding a
+**Publish token without bypass** — the script worked correctly, but
+every OTP we passed was rate-limited / timed out because the round-trip
+"read OTP → invoke script → script builds → script sends to npm"
+took longer than npm's 30-second OTP window.
+
+**Setup once, forget about OTP forever**:
+  1. Go to <https://www.npmjs.com/settings/<your-user>/tokens>.
+  2. Generate New Token → **Automation** (yes, even for manual local
+     publishes — "automation" just means "no 2FA challenge", not
+     "must run in CI").
+  3. Paste it into `~/.npmrc` as:
+     ```
+     //registry.npmjs.org/:_authToken=npm_xxxxxxxxxxxxxxxxxxxxxx
+     ```
+  4. `publish-prepared.mjs --confirm` now works in one shot, no `--otp`
+     flag needed.
 
 The repo `.npmrc` is committed with `_authToken=${NPM_TOKEN}` so it's
-safe in version control (no secret leaked). For CI to publish without
-the workaround, set the `NPM_TOKEN` env var to a valid npm token before
-running `publish-prepared.mjs --confirm`; pnpm + npm will expand it as
-documented in
-[the npmrc reference](https://docs.npmjs.com/cli/v10/configuring-npm/npmrc#auth-related-configuration).
+safe in version control (no secret leaked). `publish-prepared.mjs`
+publishes from `/tmp` so this committed `.npmrc` is never read — only
+`~/.npmrc` is consulted.
 
-For local interactive publishes, the script's `.npmrc` rename
-workaround means a working `~/.npmrc` (with `_authToken=…` resolved to
-a real value) is sufficient.
+If you DON'T want to use an automation token (e.g. you want 2FA on
+every publish), pass `--otp=<code>` and have a stopwatch ready —
+the script auto-skips the build phase when dist is fresh, which
+should be enough to stay inside the OTP window.
 
 ## Why two scripts (not one)
 
