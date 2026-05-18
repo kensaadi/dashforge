@@ -10,6 +10,46 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 0.3.0-beta] — 2026-05-18
+
+> **Sprint 2 release for `@dashforge/tw`.** Nine fixes across seven
+> components + one new public API (TextField inline adornments).
+> Two of the fixes close WCAG gaps identified in the 0.2.1 A11Y
+> audit (AppShell mobile drawer focus trap + `prefers-reduced-motion`
+> gates on substantial motions). End-to-end validation in the
+> `dash` consumer app caught the highest-severity functional bug
+> (Autocomplete `loadOptions` mode failing to commit selections)
+> — invisible to both unit tests and the docs lab because both
+> used static option arrays.
+>
+> **Minor bump** because of the additive TextField `slotProps.prefix /
+> suffix` API. All other changes would be patch-level in isolation.
+> Existing TextField usages keep working byte-identical.
+
+Affected package (bumped):
+
+| Package         | Notes |
+| --------------- | ----- |
+| `@dashforge/tw` | 9 fixes across Autocomplete (2), LeftNav, Breadcrumbs/TopBar, AppShell (focus trap + motion-reduce), Snackbar (motion-reduce), Switch (motion-reduce), Checkbox (indeterminate dash glyph) + new TextField `slotProps.prefix/suffix` API. 591/592 functional tests pass (1 perf-timing flake unrelated). |
+
+Unchanged (independent versioning):
+
+| Package | Version (unchanged) | Why |
+| --- | --- | --- |
+| `@dashforge/tw-theme` | `0.1.0-beta` | No source change — peer dep stays at `^0.1.0-beta`. |
+| `@dashforge/tw-tokens` | `0.1.0-beta` | No source change — peer dep stays at `^0.1.0-beta`. |
+| Bridge (`forms`, `rbac`, `ui-core`) | `0.2.3-beta` | No source change. |
+| MUI side (`ui`, `theme-mui`, `theme-core`, `tokens`) | `0.2.3-beta` | Separate ecosystem; untouched. |
+
+### Migration
+
+Drop-in upgrade: `pnpm up @dashforge/tw@^0.3.0-beta`. Zero code
+changes required.
+
+To adopt the new TextField inline adornments (currency/units/etc.),
+opt in via the new `slotProps` keys — fully additive, no impact
+on existing usages.
+
 ## [tw 0.2.1-beta] — 2026-05-17
 
 > **Hardening patch for `@dashforge/tw`.** Three runtime fixes on form

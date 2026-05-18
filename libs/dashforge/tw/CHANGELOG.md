@@ -12,6 +12,140 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.3.0-beta] — 2026-05-18
+
+**Sprint 2 release.** Bundle of 9 fixes across 7 components + 1 new
+public API (TextField inline adornments). Two WCAG enhancements
+close known a11y gaps from the 0.2.1 A11Y audit. End-to-end
+consumer validation in the `dash` app (`/test-{foundation,tw,layout,
+providers}`) caught 1 functional bug + 1 cosmetic gap on Autocomplete
+that were both invisible to unit tests + docs lab.
+
+**Minor bump because of TextField `slotProps.prefix/suffix`** — new
+public API on the existing `slotProps` surface, strictly additive
+(empty configs add zero layout cost; existing TextField usages keep
+working byte-identical). All other changes are patches that would
+have shipped as `0.2.2-beta` in isolation.
+
+### Added
+
+- **TextField inline adornments via `slotProps.prefix` + `slotProps.suffix`** —
+  closes a long-standing doc/lib drift where the
+  `text-field.mdx` already documented this API but the lib didn't
+  expose it. New shape:
+  ```tsx
+  <TextField
+    name="price"
+    type="number"
+    slotProps={{
+      prefix: { children: '$' },
+      suffix: { children: 'USD' },
+    }}
+  />
+  ```
+  Both slots accept `{ children?: ReactNode; className?: string }`.
+  Rendered inside the inputWrapper with `aria-hidden="true"` +
+  `pointer-events-none` (purely visual decoration — input remains
+  the labeled control, click on adornment doesn't steal focus).
+  21/21 TextField tests still pass.
+
+- **AppShell mobile drawer focus trap** (WCAG 2.4.3 Focus Order).
+  Hand-rolled (no `focus-trap-react` dep). On drawer open: captures
+  `document.activeElement`, moves focus to first focusable inside
+  drawer, intercepts `Tab` / `Shift+Tab` to wrap focus within the
+  drawer subtree. On close: restores focus to the captured element
+  (typically the hamburger toggle). Plus `role="dialog"` +
+  `aria-modal="true"` on the drawer `<aside>` while open so screen
+  readers announce it as a modal overlay. Verified end-to-end in
+  dash: all 5 check points (closed ARIA, open ARIA, focus in,
+  tab-wrap, Esc-close) pass.
+
+- **`prefers-reduced-motion` gates** on six substantial motions
+  (WCAG 2.3.3 Animation from Interactions): Switch thumb slide,
+  AppShell drawer slide-in + backdrop fade, Snackbar item enter,
+  Autocomplete chevron flip, LeftNav rail-mode width transition.
+  Uses Tailwind's `motion-reduce:` variant — the animated end-state
+  still applies, only the smooth tween is suppressed for users who
+  request reduced motion. Color fades (`transition-colors` on hover
+  states) are NOT gated — out of WCAG 2.3.3 scope (vestibular
+  concern is translate/rotate/major-state-change, not micro fades).
+
+- **Checkbox indeterminate dash glyph**. Previously the Indicator
+  rendered `<CheckIcon />` for BOTH the `checked` and `indeterminate`
+  Radix states. Now renders `<DashIcon />` (horizontal stroke) for
+  indeterminate and `<CheckIcon />` for fully checked. Toggle via
+  Tailwind `group-data-[state=…]:hidden` selectors on the Indicator
+  — pure CSS, zero React state, Radix `data-state` remains the
+  single source of truth. Closes a cosmetic regression introduced
+  in 0.2.1-beta when we dropped `forceMount` to fix the indicator
+  mount bug.
+
+### Fixed
+
+- **Autocomplete `loadOptions` mode — selection now commits** the
+  clicked option's label to the input. Previously, in async-loaded
+  mode, clicking an option closed the popover but the input kept
+  showing the user's search query instead of the selected label.
+  Root cause: `commitSelection` searched only the static `options`
+  prop (empty `[]` when `loadOptions` is configured) for the label
+  lookup, not the effective pool (`asyncOptions` when the fetch
+  resolved). The fix uses
+  `loadOptions && asyncOptions !== null ? asyncOptions : options`
+  and adds those refs to the `useCallback` deps. 38/40 Autocomplete
+  tests pass (2 perf-timing flakes unrelated, both >100ms over
+  threshold on loaded machine).
+
+- **Autocomplete chip remove (×), clear (×), and dropdown caret (▾)
+  icons replaced with inline SVG** (`CloseIcon` + `ChevronDownIcon`,
+  mirroring CheckIcon's pattern). Previously rendered as Unicode
+  glyphs that came out as chunky font characters inconsistent with
+  the rest of the design system. Bonus: chevron flips 180° on
+  popover open via `[&[aria-expanded=true]>svg]:rotate-180` (CSS-
+  only, no React state). Zero icon-library dep added.
+
+- **LeftNav `itemLink` + Breadcrumbs `link` slots no longer
+  underline by default**. Tailwind's preflight removes the browser-
+  default anchor underline globally, but environments that disable
+  preflight (e.g. apps coexisting with MUI in the same page tree —
+  this is exactly how our docs lab is set up) get the underline
+  back. Explicit `no-underline hover:no-underline` on both slots
+  makes the appearance consistent regardless of preflight state.
+  Same root cause fix covers TopBar too — TopBar typically renders
+  Breadcrumbs in its center slot, so fixing the Breadcrumbs link
+  fixes TopBar transitively.
+
+### Internal
+
+- **`libs/dashforge/tw/CONSUMER-VALIDATION.md`** — Sprint 2 P1
+  deliverable. Per-component status table for the dash-consumer
+  end-to-end validation pass (24 components, 7-point check each).
+  Records the pattern lesson that motivated the Autocomplete
+  async fix: the bug was invisible to both unit tests (using
+  static `options`) and the docs lab (static demo) — only a real
+  consumer with `loadOptions` configured exposed it.
+
+### Compatibility
+
+| Compatibility axis | Pre-`0.3.0` | Post-`0.3.0` |
+|---|---|---|
+| Public API surface | unchanged | **+ TextField `slotProps.prefix` / `slotProps.suffix`** (additive — opt-in via slotProps, zero impact on existing usages) |
+| Peer deps | `react ^18 \|\| ^19`, `tw-theme workspace`, `tw-tokens workspace` | unchanged |
+| Bridge deps | `forms` / `rbac` / `ui-core` `workspace:*` | unchanged |
+| Behavior changes that consumers might observe | — | Autocomplete chip remove + clear + caret render as crisp SVG instead of Unicode glyphs (cosmetic); LeftNav + Breadcrumbs links no longer underline in preflight-off environments; Switch / drawer / snackbar / chevron animations respect `prefers-reduced-motion: reduce`; Checkbox indeterminate now shows a dash glyph instead of check |
+
+### Migration
+
+No code changes required. Drop-in upgrade from `0.2.1-beta`:
+
+```bash
+pnpm up @dashforge/tw@^0.3.0-beta
+```
+
+To adopt the new TextField adornments, no migration — opt in by
+adding `slotProps={{ prefix: { children: '$' } }}` to any existing
+TextField usage. The two slots are independent (you can use one
+without the other).
+
 ## [0.2.1-beta] — 2026-05-17
 
 **Hardening release.** Four targeted fixes — three in form-control
