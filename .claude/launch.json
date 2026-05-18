@@ -10,8 +10,8 @@
     {
       "name": "dash-consumer",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "/Users/mcs/projects/web/learn/dash", "dev"],
-      "port": 5173
+      "runtimeArgs": ["--dir", "/Users/mcs/projects/web/learn/dash", "dev", "--port", "5176", "--strictPort"],
+      "port": 5176
     },
     {
       "name": "docs-lab",

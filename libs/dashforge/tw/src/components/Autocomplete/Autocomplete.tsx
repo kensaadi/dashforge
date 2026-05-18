@@ -24,6 +24,61 @@ import type {
 } from './autocomplete.types.js';
 
 /**
+ * Inline SVG icons used by the Autocomplete chrome (chip remove, clear,
+ * dropdown caret). Stroke uses `currentColor` so the parent's `text-*`
+ * propagates — same pattern as Checkbox's CheckIcon.
+ *
+ * Why inline SVG (not lucide / heroicons / unicode glyphs):
+ *  - Zero icon-library dependency: keeps `@dashforge/tw` self-contained.
+ *  - Crisp at every size (the unicode `×` / `▾` glyphs we shipped pre-
+ *    0.2.2 rendered as chunky font characters that looked unpolished
+ *    next to the rest of the design system).
+ *  - SVG scales with parent font-size cleanly via `width="1em" height="1em"`.
+ *
+ * @internal
+ */
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      width="1em"
+      height="1em"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M4 4l8 8M12 4l-8 8"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function ChevronDownIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      width="1em"
+      height="1em"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M4 6l4 4 4-4"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
  * Coerce a raw value (from bridge / props) into a canonical shape:
  *
  *  - Multi-select: returns `string[]` (empty for null/undefined)
@@ -402,7 +457,17 @@ export function Autocomplete<TOption = AutocompleteOption>(
         if (next == null) {
           setInputValue('');
         } else {
-          const found = options.find((opt) => getOptionValue(opt) === next);
+          // Look up the label in the EFFECTIVE option pool (static
+          // `options` + async `asyncOptions` when `loadOptions` is
+          // configured). Looking only at the static `options` here
+          // means async-loaded picks never update the input — the
+          // user sees their search query stick instead of the
+          // selected label after click. Same lookup logic mirrored in
+          // `displayInputValue` so the two paths can't drift.
+          const pool = loadOptions && asyncOptions !== null
+            ? asyncOptions
+            : options;
+          const found = pool.find((opt) => getOptionValue(opt) === next);
           const found_label = found ? labelAsString(found) : undefined;
           if (found_label !== undefined) {
             setInputValue(found_label);
@@ -434,6 +499,8 @@ export function Autocomplete<TOption = AutocompleteOption>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       options,
+      asyncOptions,
+      loadOptions,
       isFormMode,
       bridge,
       name,
@@ -837,7 +904,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
                         slotProps?.chipRemove?.className
                       )}
                     >
-                      ×
+                      <CloseIcon />
                     </button>
                   )}
                 </span>
@@ -893,7 +960,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
             tabIndex={-1}
             className={cn(v.clearButton(), slotProps?.clearButton?.className)}
           >
-            ×
+            <CloseIcon />
           </button>
         )}
 
@@ -908,7 +975,13 @@ export function Autocomplete<TOption = AutocompleteOption>(
           disabled={effectiveDisabled}
           className={cn(v.trigger(), slotProps?.trigger?.className)}
         >
-          ▾
+          {/*
+           * Chevron flips up when popover is open (CSS-only, driven by
+           * the `aria-expanded` attribute selector on the parent
+           * `<button>`). See autocomplete.variants.ts → `trigger` slot
+           * for the `aria-expanded:rotate-180` rule.
+           */}
+          <ChevronDownIcon />
         </button>
 
         {isOpen && (

@@ -44,6 +44,10 @@ export const autocompleteVariants = tv({
       'text-neutral-600 hover:text-neutral-900',
       'disabled:cursor-not-allowed disabled:opacity-40',
       'transition-colors',
+      // Chevron flip on open — targets the SVG child via the aria-
+      // expanded state on the button itself (set by React).
+      '[&[aria-expanded=true]>svg]:rotate-180',
+      '[&>svg]:transition-transform [&>svg]:duration-150',
     ],
     clearButton: [
       'flex items-center justify-center shrink-0 px-2',
