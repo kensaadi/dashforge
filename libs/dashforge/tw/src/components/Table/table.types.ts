@@ -288,13 +288,11 @@ export interface TableLabels {
   densityCompact?: string;
   densityComfortable?: string;
   densitySpacious?: string;
-  /** Column visibility dialog. */
+  /** Column visibility menu (Popover-based, auto-commit). */
   columnsButton?: string;
   columnsTitle?: string;
-  columnsDescription?: string;
   columnsShowAll?: string;
   columnsHideAll?: string;
-  columnsDone?: string;
 }
 
 // ───── Slot props ─────

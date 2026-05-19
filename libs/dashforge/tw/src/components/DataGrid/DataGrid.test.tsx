@@ -667,11 +667,11 @@ describe('DataGrid — column visibility', () => {
     expect(screen.queryByRole('button', { name: 'Columns' })).toBeNull();
   });
 
-  it('opens dialog with one checkbox per hideable column', () => {
+  it('opens a popover menu with one checkbox per hideable column', () => {
     const cols: TableColumn<User>[] = [
       { field: 'name', header: 'Name' },
       { field: 'email', header: 'Email' },
-      // hideable: false → not shown in the dialog (structurally required)
+      // hideable: false → not shown in the menu (structurally required)
       { field: 'age', header: 'Age', hideable: false },
     ];
     render(
@@ -684,16 +684,13 @@ describe('DataGrid — column visibility', () => {
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    // Radix Popover content has role="dialog" too.
     expect(screen.queryByRole('dialog')).not.toBeNull();
-    // The dialog should expose checkboxes for Name + Email (not Age).
-    const labels = screen.getAllByText(/Name|Email|Age/);
-    // Name + Email appear in BOTH the table header and the dialog; Age
-    // appears only in the header (hideable=false → excluded from dialog).
-    const dialog = screen.getByRole('dialog');
-    expect(dialog.textContent).toContain('Name');
-    expect(dialog.textContent).toContain('Email');
-    expect(dialog.textContent).not.toContain('Age');
-    void labels;
+    // The menu should expose checkboxes for Name + Email (not Age).
+    const menu = screen.getByRole('dialog');
+    expect(menu.textContent).toContain('Name');
+    expect(menu.textContent).toContain('Email');
+    expect(menu.textContent).not.toContain('Age');
   });
 
   it('respects col.defaultHidden on first render', () => {
@@ -716,7 +713,7 @@ describe('DataGrid — column visibility', () => {
     expect(screen.queryByText('Name')).not.toBeNull();
   });
 
-  it('toggling a column hides it from the table after Done', () => {
+  it('toggling a column auto-commits via onHiddenColumnsChange (no Done button)', () => {
     const onHiddenColumnsChange = vi.fn();
     render(
       <DataGrid
@@ -729,18 +726,17 @@ describe('DataGrid — column visibility', () => {
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
-    // Uncheck "Email" inside the dialog
-    const dialog = screen.getByRole('dialog');
+    // Uncheck "Email" inside the popover menu
+    const menu = screen.getByRole('dialog');
     const emailCheckbox = Array.from(
-      dialog.querySelectorAll('input[type="checkbox"]'),
+      menu.querySelectorAll('input[type="checkbox"]'),
     ).find((el) => {
       const li = el.closest('label');
       return li?.textContent?.includes('Email');
     }) as HTMLInputElement | undefined;
     expect(emailCheckbox).toBeDefined();
     fireEvent.click(emailCheckbox!);
-    // Commit via Done
-    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    // Auto-commit on toggle — no Done button anymore
     expect(onHiddenColumnsChange).toHaveBeenCalledWith(['email']);
   });
 

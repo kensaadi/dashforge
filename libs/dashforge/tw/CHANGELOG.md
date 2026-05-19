@@ -12,6 +12,68 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.8.1-beta] — 2026-05-19
+
+**UX swap on `DataGrid` column visibility.** The "Columns" toolbar
+button now opens a lightweight **`<Popover>` menu** anchored to the
+button instead of a modal `<Dialog>`. Toggles **auto-commit on
+click** — no draft state, no "Done" button, dismissed via
+outside-click / Esc. Matches the AG-Grid / MUI DataGrid v6 / TanStack
+pattern for the same affordance.
+
+Rationale: the previous Dialog was too heavyweight for a settings
+toggle. A modal interrupts the user's interaction with the grid
+(the very thing they're configuring), traps focus, and requires an
+explicit commit step. The Popover variant reads as a "settings
+panel": the user can keep referring to the grid while picking
+columns, and changes flow into the model immediately.
+
+### Changed
+
+- **`ColumnVisibilityTrigger`** (internal component used by
+  `<DataGrid enableColumnVisibility>`) — switched from `<Dialog>` to
+  `<Popover>`. Public DataGrid API surface unchanged: the
+  `enableColumnVisibility` flag, `hiddenColumns` /
+  `onHiddenColumnsChange` controllable state, and per-column
+  `hideable` / `defaultHidden` axes work identically.
+
+- **`TableLabels`** — two now-unused keys removed:
+  - `columnsDescription` (the Dialog had a description line; the
+    Popover doesn't need one)
+  - `columnsDone` (no explicit commit step anymore — toggles
+    auto-commit)
+  The remaining four keys (`columnsButton`, `columnsTitle`,
+  `columnsShowAll`, `columnsHideAll`) are unchanged. Default for
+  `columnsTitle` adjusted from `"Manage columns"` to
+  `"Toggle columns"` (the action is now lighter).
+
+### Migration
+
+```bash
+pnpm up @dashforge/tw@^0.8.1-beta
+```
+
+If you customized the column-visibility labels via the `labels`
+prop, drop the two removed keys:
+
+```diff
+  <DataGrid
+    rows={rows}
+    cols={cols}
+    labels={{
+      columnsButton: 'Colonne',
+      columnsTitle: 'Mostra colonne',
+-     columnsDescription: 'Mostra o nascondi colonne…',
+      columnsShowAll: 'Mostra tutte',
+      columnsHideAll: 'Nascondi tutte',
+-     columnsDone: 'Fatto',
+    }}
+  />
+```
+
+If you don't customize the labels (>99% of consumers), no action
+required — the visual swap happens automatically.
+
 ## [0.8.0-beta] — 2026-05-19
 
 **Sprint 4.2-bis — DataGrid v1-bis.** Ships the five power-user

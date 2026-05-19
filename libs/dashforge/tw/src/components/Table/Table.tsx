@@ -52,12 +52,9 @@ const DEFAULT_LABELS: Required<TableLabels> = {
   densityComfortable: 'Comfortable',
   densitySpacious: 'Spacious',
   columnsButton: 'Columns',
-  columnsTitle: 'Manage columns',
-  columnsDescription:
-    'Show or hide columns. Required columns cannot be toggled.',
+  columnsTitle: 'Toggle columns',
   columnsShowAll: 'Show all',
   columnsHideAll: 'Hide all',
-  columnsDone: 'Done',
 };
 
 const DEFAULT_GET_ROW_ID = <T extends object>(_row: T, index: number) => String(index);

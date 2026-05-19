@@ -33,7 +33,7 @@ import type {
 } from '../Table/table.types.js';
 import type { DataGridProps } from './dataGrid.types.js';
 import { ColumnFilterTrigger } from './filters/ColumnFilters.js';
-import { ColumnVisibilityTrigger } from './visibility/ColumnVisibilityDialog.js';
+import { ColumnVisibilityTrigger } from './visibility/ColumnVisibilityMenu.js';
 import { useColumnResize } from './resize/useColumnResize.js';
 import {
   useColumnReorder,
@@ -68,12 +68,9 @@ const DEFAULT_LABELS: Required<TableLabels> = {
   densityComfortable: 'Comfortable',
   densitySpacious: 'Spacious',
   columnsButton: 'Columns',
-  columnsTitle: 'Manage columns',
-  columnsDescription:
-    'Show or hide columns. Required columns cannot be toggled.',
+  columnsTitle: 'Toggle columns',
   columnsShowAll: 'Show all',
   columnsHideAll: 'Hide all',
-  columnsDone: 'Done',
 };
 
 /**
@@ -414,7 +411,7 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
             <ColumnVisibilityTrigger
               cols={cols.filter(
                 (c) =>
-                  // RBAC-hidden columns are never offered in the dialog.
+                  // RBAC-hidden columns are never offered in the menu.
                   !c.access || c.access.onUnauthorized !== 'hide',
               )}
               hiddenColumns={hiddenColumns}
@@ -423,10 +420,8 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
               labels={{
                 columnsButton: labels.columnsButton,
                 columnsTitle: labels.columnsTitle,
-                columnsDescription: labels.columnsDescription,
                 columnsShowAll: labels.columnsShowAll,
                 columnsHideAll: labels.columnsHideAll,
-                columnsDone: labels.columnsDone,
               }}
             />
           )}
