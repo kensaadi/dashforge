@@ -262,6 +262,23 @@ export type {
 } from './components/Accordion/accordion.types.js';
 export { accordionVariants } from './components/Accordion/accordion.variants.js';
 
+// F12 utilities: loading placeholder + pagination control.
+
+export { Skeleton } from './components/Skeleton/Skeleton.js';
+export type {
+  SkeletonProps,
+  SkeletonSlotProps,
+} from './components/Skeleton/skeleton.types.js';
+export { skeletonVariants } from './components/Skeleton/skeleton.variants.js';
+
+export { Pagination } from './components/Pagination/Pagination.js';
+export type {
+  PaginationProps,
+  PaginationSlotProps,
+  PaginationLabels,
+} from './components/Pagination/pagination.types.js';
+export { paginationVariants } from './components/Pagination/pagination.variants.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
@@ -276,4 +293,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.4.0-beta';
+export const VERSION = '0.5.0-beta';

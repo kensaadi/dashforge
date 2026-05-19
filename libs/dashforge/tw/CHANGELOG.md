@@ -12,6 +12,129 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.5.0-beta] — 2026-05-19
+
+**Sprint 4 release.** Two TW-only utility primitives — `<Skeleton>`
+and `<Pagination>` — that were missing from the catalog and are
+prerequisite visuals for the upcoming Sprint 4.1 (Table + DataGrid).
+Both are pure-UI, no bridge integration, no RBAC sensible — they
+exist to compose with the data layer arriving next sprint.
+
+**MUI side note.** Neither component ships in `@dashforge/ui`:
+`@mui/material/Skeleton` and `@mui/material/Pagination` already
+cover the bridge-free use case fully. Per the Dashforge design rule
+(`@dashforge/ui` wraps MUI only when adding bridge / RBAC /
+validation / custom-behavior value), MUI consumers reach for the
+upstream components directly.
+
+**Minor bump** for 2 new public exports. Strictly additive — zero
+breaking changes. Drop-in upgrade from `0.4.0-beta`.
+
+### Added
+
+- **`<Skeleton>`** — loading placeholder primitive.
+  Three shapes (`text` default · `rectangle` · `circle`), three
+  animations (`pulse` default · `wave` · `none`). Width / height as
+  inline CSS lengths; circle's height defaults to its width.
+  Rendered as `<span aria-hidden="true" role="presentation">` — screen
+  readers skip it; the surrounding container is responsible for
+  `aria-busy` / `aria-live` announcements. **WCAG 2.3.3**: both
+  animations gated on `prefers-reduced-motion: reduce`. Compose
+  multiple `<Skeleton>`s to mimic card / row shapes during fetch.
+  19 unit tests covering variants × animations × sizing × sx +
+  slotProps override + a11y attributes.
+- **`<Pagination>`** — controlled pagination primitive. Three
+  variants:
+    - `default` — summary + page numbers + first/prev/next/last +
+      page-size selector + direct jump input
+    - `compact` — page numbers + nav buttons only
+    - `minimal` — "Page X of Y" + prev/next (mobile-friendly)
+  Three sizes (`sm` / `md` / `lg`). Configurable
+  `siblingCount` / `boundaryCount` for the ellipsis range
+  algorithm — small totals (≤ `2·boundary + 2·sibling + 3` pages)
+  short-circuit to the full range, no ellipsis. Full i18n via
+  `labels` prop (English defaults). A11Y: `<nav aria-label="Pagination">`
+  landmark, `aria-current="page"` on the active button, native
+  `<select>` for page size, native `<input type="number">` for
+  the jump input (commit on Enter / blur, clamped to range).
+  Page-size selector hidden when `onPageSizeChange` is omitted.
+  Jump input toggle via `showJumpInput`. 28 unit tests covering
+  the range helper (7) + rendering / interactions / variants /
+  i18n / disabled / overrides / edge cases (21).
+
+### Internal
+
+- **47 new unit tests** for the 2 components — full TW suite at
+  **681/681 passing** (39 files).
+- **`TestUtilities.tsx`** added to the `dash` consumer
+  (`/test-utilities`) as the Sprint 4 smoke-test page: variant
+  matrix for both components + card-placeholder compose pattern +
+  Pagination i18n / size / variant / edge cases + a 50-instance
+  Skeleton stress test wrapped in `React.Profiler`. Validated
+  end-to-end before docs were written (per Dashforge workflow
+  policy: dash smoke test PRECEDES docs).
+- **Sidebar entries** for the new `Skeleton` + `Pagination` doc
+  pages added to `dashforge-docs-lab/src/tw-docs/sidebar.model.ts`.
+
+### Compatibility
+
+| Axis | Pre-`0.5.0` | Post-`0.5.0` |
+|---|---|---|
+| Public API surface | 29 components | **+ 2 (`Skeleton`, `Pagination`)** + their `*Props` / `*SlotProps` types + `*Variants` recipes + `PaginationLabels` i18n type |
+| Peer deps | `react ^18 \|\| ^19`, `tw-theme workspace`, `tw-tokens workspace` | unchanged |
+| Bridge deps | `forms` / `rbac` / `ui-core` `workspace:*` | unchanged |
+| New runtime deps | — | **none** (no new external libraries — constraint honored) |
+| Breaking changes | — | Zero |
+| Bundle size | 312 KB raw / 68.85 KB gzipped | **336 KB raw / 73.9 KB gzipped** (+24 KB raw / +5.05 KB gz / **+7.3% gz**) |
+| Migration | — | Drop-in. Zero code changes required on existing usages. |
+
+> **Bundle regression note**: the +7.3% gzipped delta is **above
+> the 5% threshold** documented in `PERFORMANCE.md`. Justification:
+> Pagination contributes ~4 KB gz (3 variants × 3 sizes × i18n
+> surface + range-computation helper + jump-input commit logic);
+> Skeleton contributes ~1 KB gz. The delta sits well under the
+> 10% reviewer-sign-off threshold and is the necessary cost of
+> adding two new public components. Filed as informational per
+> the regression policy.
+
+### Migration
+
+No code changes required:
+
+```bash
+pnpm up @dashforge/tw@^0.5.0-beta
+```
+
+To adopt the new components:
+
+```tsx
+import { Skeleton, Pagination } from '@dashforge/tw';
+
+// Loading placeholder while fetching
+{isLoading ? (
+  <Skeleton variant="text" width="200px" />
+) : (
+  <UserName>{user.name}</UserName>
+)}
+
+// Paginated list (controlled — wire to your data slice)
+const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(20);
+
+<Pagination
+  page={page}
+  pageSize={pageSize}
+  totalCount={users.length}
+  onPageChange={setPage}
+  onPageSizeChange={setPageSize}
+/>
+```
+
+MUI consumers: continue using `@mui/material/Skeleton` and
+`@mui/material/Pagination` directly. `@dashforge/ui` will NOT ship
+wrappers for these (per the design rule documented in
+`PARITY.md` — no value-add wrappers).
+
 ## [0.4.0-beta] — 2026-05-19
 
 **Sprint 3 release.** Five new Tier-4 overlay & disclosure

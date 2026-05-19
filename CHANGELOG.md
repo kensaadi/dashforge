@@ -10,6 +10,31 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 0.5.0-beta] — 2026-05-19
+
+> **Sprint 4 release for `@dashforge/tw`.** Two TW-only utility
+> primitives — `<Skeleton>` (3 shapes × 3 animations, WCAG 2.3.3
+> reduced-motion safe) and `<Pagination>` (3 variants, full i18n,
+> A11Y `nav` landmark + `aria-current`). Both pure-UI, no bridge
+> integration, zero new runtime deps (constraint honored). Pre-doc
+> validated end-to-end in the `dash` consumer at `/test-utilities`.
+> Bundle delta +7.3% gz (24 KB raw / 5 KB gz) — above the 5%
+> threshold, motivated in the per-package CHANGELOG. Strictly
+> additive: 681/681 tests passing; drop-in upgrade from
+> `0.4.0-beta`. Detailed per-package entry: see
+> `libs/dashforge/tw/CHANGELOG.md`.
+>
+> MUI side note: `@dashforge/ui` does NOT ship Skeleton or
+> Pagination wrappers — `@mui/material` already covers the
+> bridge-free use case fully. Design rule documented in
+> `PARITY.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | +2 utility components (Skeleton · Pagination). Bundle 336 KB raw / 73.9 KB gzipped. Drop-in upgrade from `0.4.0-beta`. |
+
 ## [tw 0.4.0-beta] — 2026-05-19
 
 > **Sprint 3 release for `@dashforge/tw`.** Five new Tier-4
