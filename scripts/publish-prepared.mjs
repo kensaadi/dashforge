@@ -271,7 +271,39 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
 
 console.log(`\n${c.bold('Done.')} ${dryRun ? c.yellow('Dry run — nothing changed.') : ''}`);
 if (!dryRun) {
-  console.log(`To push the tag (NOT done automatically): ${c.cyan(`git push origin ${pkg.name}@${version}`)}`);
+  const tag = `${pkg.name}@${version}`;
+  // Path to per-package CHANGELOG (relative to repo root) so the
+  // gh-release template can point at the section we just published.
+  const pkgRel = path.relative(REPO_ROOT, path.dirname(pkg.path));
+  const changelogPath = `${pkgRel}/CHANGELOG.md`;
+
+  console.log();
+  console.log(c.bold('Next steps (manual):'));
+  console.log();
+  console.log(`  1. Push the git tag:`);
+  console.log(`     ${c.cyan(`git push origin "${tag}"`)}`);
+  console.log();
+  console.log(`  2. Create a GitHub Release for the tag — descriptive title + pre-release flag.`);
+  console.log(`     Pattern: ${c.cyan(`<pkg> <version> — <short subtitle>`)}`);
+  console.log(`     Example: ${c.cyan(`${pkg.name} ${version} — Sprint N bundle (X fixes + Y feature)`)}`);
+  console.log();
+  console.log(`     Template (extract the section from ${c.cyan(changelogPath)} into a tmp file,`);
+  console.log(`     then create the release with --prerelease):`);
+  console.log();
+  console.log(c.cyan(`     # Extract the [${version}] section from ${changelogPath} into /tmp/release-notes.md`));
+  console.log(c.cyan(`     awk '/^## \\[${version}\\]/,/^## \\[/{ if (/^## \\[/ && !/^## \\[${version}\\]/) exit; print }' \\`));
+  console.log(c.cyan(`       ${changelogPath} > /tmp/release-notes.md`));
+  console.log();
+  console.log(c.cyan(`     # Edit the title subtitle below, then run:`));
+  console.log(c.cyan(`     gh release create "${tag}" \\`));
+  console.log(c.cyan(`       --repo kensaadi/dashforge \\`));
+  console.log(c.cyan(`       --prerelease \\`));
+  console.log(c.cyan(`       --title "${pkg.name} ${version} — <FILL IN SHORT SUBTITLE>" \\`));
+  console.log(c.cyan(`       --notes-file /tmp/release-notes.md`));
+  console.log();
+  console.log(c.dim(`     (Strict precedent: every per-package release on GitHub uses the descriptive`));
+  console.log(c.dim(`      title pattern and is marked Pre-release until 1.0.0. The repo-root`));
+  console.log(c.dim(`      RELEASING.md documents the same flow.)`));
 }
 console.log();
 

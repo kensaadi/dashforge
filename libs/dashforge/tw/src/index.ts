@@ -223,6 +223,45 @@ export type { AspectRatioProps } from './components/AspectRatio/aspectRatio.type
 export { VisuallyHidden } from './components/VisuallyHidden/VisuallyHidden.js';
 export type { VisuallyHiddenProps } from './components/VisuallyHidden/visuallyHidden.types.js';
 
+// F11 tier-4: overlay + disclosure primitives.
+
+export { Dialog } from './components/Dialog/Dialog.js';
+export type {
+  DialogProps,
+  DialogSlotProps,
+} from './components/Dialog/dialog.types.js';
+export { dialogVariants } from './components/Dialog/dialog.variants.js';
+
+export { Tabs } from './components/Tabs/Tabs.js';
+export type {
+  TabsProps,
+  TabsSlotProps,
+  TabItem,
+} from './components/Tabs/tabs.types.js';
+export { tabsVariants } from './components/Tabs/tabs.variants.js';
+
+export { Tooltip } from './components/Tooltip/Tooltip.js';
+export type {
+  TooltipProps,
+  TooltipSlotProps,
+} from './components/Tooltip/tooltip.types.js';
+export { tooltipVariants } from './components/Tooltip/tooltip.variants.js';
+
+export { Popover } from './components/Popover/Popover.js';
+export type {
+  PopoverProps,
+  PopoverSlotProps,
+} from './components/Popover/popover.types.js';
+export { popoverVariants } from './components/Popover/popover.variants.js';
+
+export { Accordion } from './components/Accordion/Accordion.js';
+export type {
+  AccordionProps,
+  AccordionSlotProps,
+  AccordionItem,
+} from './components/Accordion/accordion.types.js';
+export { accordionVariants } from './components/Accordion/accordion.variants.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
@@ -237,4 +276,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.3.0-beta';
+export const VERSION = '0.4.0-beta';

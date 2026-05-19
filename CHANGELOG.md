@@ -10,6 +10,17 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 0.4.0-beta] — 2026-05-19
+
+> TODO: 1-paragraph summary of this release for the top-level changelog.
+> Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | (one-line summary) |
+
 ## [tw 0.3.0-beta] — 2026-05-18
 
 > **Sprint 2 release for `@dashforge/tw`.** Nine fixes across seven

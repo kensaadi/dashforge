@@ -9,17 +9,19 @@ two stages so the human stays in control of the destructive bits
 (commit + publish + push).
 
 ```
-┌─ prepare-release.mjs ─┐    ┌─ (you, manually)  ─┐    ┌─ publish-prepared.mjs ─┐
-│  bump version         │    │  fill CHANGELOG    │    │  npmrc workaround       │
-│  bump VERSION const   │ →  │  fill release MDX  │ →  │  nx build + verify dist │
-│  scaffold CHANGELOG   │    │  git commit        │    │  pnpm publish (--confirm)│
-│  scaffold release MDX │    │                    │    │  git tag (LOCAL)        │
-└───────────────────────┘    └────────────────────┘    └─────────────────────────┘
+┌─ prepare-release.mjs ─┐  ┌─ (you, manually) ─┐  ┌─ publish-prepared.mjs ─┐  ┌─ (you, manually)        ─┐
+│  bump version         │  │  fill CHANGELOG   │  │  auth + freshness check │  │  git push origin <tag>    │
+│  bump VERSION const   │→ │  fill release MDX │→ │  nx build (auto-skip)   │→ │  gh release create        │
+│  scaffold CHANGELOG   │  │  git commit       │  │  pnpm publish (/tmp)    │  │    --prerelease           │
+│  scaffold release MDX │  │                   │  │  git tag (LOCAL)        │  │    --title "<descriptive>"│
+└───────────────────────┘  └───────────────────┘  └─────────────────────────┘  └───────────────────────────┘
 ```
 
-No step is automated end-to-end on purpose. Either script can be run
-in isolation: prepare modifies files only, publish reads the result
-and ships it.
+No step is automated end-to-end on purpose. Each script can be run
+in isolation: prepare modifies files only, publish ships them. The
+final manual step (push tag + create GitHub release) is intentionally
+not scripted — the publish step prints a ready-to-paste template at
+the end so you can review the title/body before going public.
 
 ## Quick reference
 
@@ -43,7 +45,57 @@ node scripts/publish-prepared.mjs --package=@dashforge/tw --confirm --otp=123456
 
 # Step 5 — push the tag if you want (NEVER auto-pushed)
 git push origin "@dashforge/tw@0.2.1-beta"
+
+# Step 6 — create the GitHub Release for the pushed tag (NEVER auto-created).
+#          Pattern: descriptive title + --prerelease flag until 1.0.0.
+#          publish-prepared.mjs prints a ready-to-paste template at the end
+#          of step 4; example:
+awk '/^## \[0.2.1-beta\]/,/^## \[/{ if (/^## \[/ && !/^## \[0.2.1-beta\]/) exit; print }' \
+  libs/dashforge/tw/CHANGELOG.md > /tmp/release-notes.md
+
+gh release create "@dashforge/tw@0.2.1-beta" \
+  --repo kensaadi/dashforge \
+  --prerelease \
+  --title "@dashforge/tw 0.2.1-beta — Hardening (Checkbox/RadioGroup/NumberField uncontrolled + Button aria-busy)" \
+  --notes-file /tmp/release-notes.md
 ```
+
+## GitHub Release naming convention
+
+**Every per-package release on GitHub uses a descriptive title** —
+the tag name alone (e.g. `@dashforge/tw@0.2.1-beta`) is not enough to
+tell at a glance what shipped. The format is:
+
+```
+@dashforge/<pkg> <version> — <short subtitle>
+```
+
+Examples from the wild:
+
+| Tag | Title |
+| --- | --- |
+| `@dashforge/tw@0.3.0-beta` | `@dashforge/tw 0.3.0-beta — Sprint 2 bundle (9 fixes + TextField adornments + WCAG hardening)` |
+| `@dashforge/tw@0.2.1-beta` | `@dashforge/tw 0.2.1-beta — Hardening (Checkbox/RadioGroup/NumberField uncontrolled + Button aria-busy)` |
+| `@dashforge/tw@0.2.0-beta` | `@dashforge/tw 0.2.0-beta — Foundation primitives (Typography/Box/Stack/Grid/Container/Divider/AspectRatio/VisuallyHidden) + 132 edge case tests` |
+
+Rules:
+
+1. **Always mark as `--prerelease`** until we ship `1.0.0`. Anything in
+   `0.x.y-beta` is still a pre-release — even if it's the newest version
+   on npm, marking it "Latest" on GitHub misleads consumers about
+   stability. (Sprint 2 P5 cleanup: we found `0.2.0-beta` had wrongly
+   been promoted to "Latest" — fixed via `gh release edit`.)
+2. **Subtitle is a short summary of the headline change** — sprint
+   bundle theme, the primary feature added, the highest-severity fix.
+   Match the per-package CHANGELOG.md section's framing.
+3. **Notes body is the corresponding `[<version>]` section from the
+   per-package CHANGELOG.md**, extracted as-is. The `awk` recipe above
+   pulls the right slice; `publish-prepared.mjs` prints the same
+   recipe at the end of a `--confirm` run.
+4. **Use the per-package tag**, never a monorepo-wide `vVERSION` tag,
+   for per-package releases (e.g. `@dashforge/tw@…`, not `v…`). The
+   old `v0.x.y-beta` tags in the repo predate independent versioning
+   and are kept for history only.
 
 ## What `prepare-release.mjs` does
 
@@ -87,6 +139,9 @@ no publish, no push. You review the diff and commit manually.
     consulted. No file rename, no try/finally, no `.bak` cleanup
     needed.
 7. **Local git tag** `@dashforge/<pkg>@<version>` (annotated, NOT pushed).
+8. **Prints next-steps template** for the manual `git push origin <tag>`
+   + `gh release create --prerelease --title "<descriptive>"` step.
+   See "GitHub Release naming convention" above for the title pattern.
 
 Dry-run mode (the default — no `--confirm` flag) prints every command
 it WOULD run and validates the preconditions, but never invokes

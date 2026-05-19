@@ -12,6 +12,129 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.4.0-beta] — 2026-05-19
+
+**Sprint 3 release.** Five new Tier-4 overlay & disclosure
+components (Dialog, Tabs, Tooltip, Popover, Accordion) + the
+internal **MUI ↔ TW parity audit** (`PARITY.md`) + the
+**customization escape hatch playbook** in the docs lab + the
+first **performance baseline** (`PERFORMANCE.md`). Strictly
+additive — zero breaking changes on the existing 24-component
+surface.
+
+**Minor bump** for the 5 new public exports + new types. All
+existing usages keep working byte-identical. Drop-in upgrade from
+`0.3.0-beta`.
+
+### Added
+
+- **`<Dialog>`** — declarative modal dialog (Radix `Dialog`-backed).
+  Three size variants (`sm` / `md` / `lg`), controlled `open` /
+  `onOpenChange`, optional title + description (wired to
+  `aria-labelledby` / `aria-describedby`), `showCloseButton` toggle,
+  `disableBackdropClose` / `disableEscapeClose` escapes. APG dialog
+  pattern out of the box: focus trap, restore focus on close, Esc
+  dismissal, scroll lock. Portal-rendered.
+- **`<Tabs>`** — declarative tab navigation (Radix `Tabs`-backed).
+  Two variants (`underline` default / `pill`), two orientations
+  (`horizontal` default / `vertical`), controlled / uncontrolled
+  modes. APG tabs pattern: arrow-key navigation,
+  `role="tablist"` / `role="tab"` / `role="tabpanel"` wiring,
+  `aria-orientation`.
+- **`<Tooltip>`** — hover/focus tooltip (Radix `Tooltip`-backed).
+  Per-component provider for delay configuration (default 200ms),
+  four placement sides, alignment options, optional arrow
+  indicator. APG tooltip pattern: `role="tooltip"`,
+  `aria-describedby` wired automatically.
+- **`<Popover>`** — clickable floating panel (Radix
+  `Popover`-backed). For richer floating UI than tooltip — action
+  menus, color pickers, settings panels. Focus trap inside,
+  outside-click + Escape dismiss, portal-rendered.
+- **`<Accordion>`** — collapsible section list (Radix
+  `Accordion`-backed). Two modes (`single` default with
+  `collapsible: true` / `multiple`), per-item disabled flag,
+  CSS-only chevron flip via `data-state=open` selector. APG
+  accordion pattern: arrow-key navigation between triggers,
+  `aria-expanded` on triggers, `role="region"` on panels.
+- **`PARITY.md`** — internal parity audit between `@dashforge/tw`
+  and `@dashforge/ui` (MUI line). Covers the 10 bridge-integrated
+  components. Documents intentional deltas (Radix callback
+  signatures `onCheckedChange` / `onValueChange` vs MUI
+  `onChange(event, value)`; variant taxonomy `solid` / `outline` /
+  `soft` / `ghost` vs MUI's `contained` / `outlined` / `text`;
+  TW-only features like `loadOptions` async loader on Autocomplete,
+  `slotProps.prefix` / `suffix` on TextField, `showStepper` on
+  NumberField). Motivation: internal consistency + foundation for
+  Sprint 5 starter kits. Not a customer migration document — the
+  switch story was scrapped as a non-existent use case.
+- **`/docs/guides/customization.mdx`** — customization escape
+  hatch playbook. Three sections: `sx` vs `slotProps` decision
+  tree with 4 canonical examples (outer wrapper styling, slot
+  styling, conflict resolution, combining both), preset extension
+  recipes (`extendPreset({ colors: { brand: { … } } })` + custom
+  intent augmentation + custom font stack), and a custom-component
+  tutorial (`PhoneInput` built on `useDashFieldMeta` +
+  `useAccessState`).
+- **`PERFORMANCE.md`** — first formal performance baseline. Bundle
+  raw + gzipped (312 KB / 68.85 KB for 29 components),
+  per-component source size proxy, representative bundle subsets
+  (form / layout / foundation / tier-4 / full), render perf table
+  (12.1 ms mount / 7-8.6 ms update from `dash` consumer). Sets
+  the regression budget policy: any PR with >+5% gzipped delta
+  requires a justification line in the CHANGELOG; >+10% requires
+  explicit reviewer sign-off.
+
+### Internal
+
+- **MUI ↔ TW parity audit pact.** Every release that touches a
+  bridge-integrated component on either line MUST re-run the
+  parity audit (low cost — ~30 min per component-level diff). The
+  pact is documented at the end of `PARITY.md`.
+- **Performance regression budget.** 5% / 10% gzipped thresholds
+  documented in `PERFORMANCE.md`. To be enforced via CI in Sprint
+  4+ (out of scope for Sprint 3 — the policy is the foundation).
+- **Sidebar entry** for the new `Customization` guide added to
+  `dashforge-docs-lab/src/tw-docs/sidebar.model.ts`.
+- **42 new unit tests** for the 5 Tier-4 components — full TW suite
+  now at 634/634 passing (37 files).
+
+### Compatibility
+
+| Axis | Pre-`0.4.0` | Post-`0.4.0` |
+|---|---|---|
+| Public API surface | 24 components + foundation + bridge hooks | **+5 components + their `*Props` / `*SlotProps` types + their `*Variants` recipes** |
+| Peer deps | `react ^18 \|\| ^19`, `tw-theme workspace`, `tw-tokens workspace` | unchanged |
+| Bridge deps | `forms` / `rbac` / `ui-core` `workspace:*` | unchanged |
+| New runtime deps | — | `@radix-ui/react-dialog ^1.1.0` · `@radix-ui/react-tabs ^1.1.0` · `@radix-ui/react-tooltip ^1.1.0` · `@radix-ui/react-popover ^1.1.0` · `@radix-ui/react-accordion ^1.2.0` |
+| Breaking changes | — | **Zero**. The `sx` + `slotProps` design discussion concluded with "keep both, document only" — no rename. |
+| Bundle size | 272 KB raw / ~60 KB gzipped | **312 KB raw / 68.85 KB gzipped** (+40 KB raw / +8.85 KB gz; within the projected 14% budget for 5 Radix-backed components) |
+| Migration | — | Drop-in. Zero code changes required on existing usages. |
+
+### Migration
+
+No code changes required:
+
+```bash
+pnpm up @dashforge/tw@^0.4.0-beta
+```
+
+To adopt the new Tier-4 components:
+
+```tsx
+import { Dialog, Tabs, Tooltip, Popover, Accordion } from '@dashforge/tw';
+
+<Tooltip content="Delete this item">
+  <Button variant="ghost"><TrashIcon /></Button>
+</Tooltip>
+
+<Tabs items={[
+  { value: 'overview', label: 'Overview', content: <OverviewPanel /> },
+  { value: 'details',  label: 'Details',  content: <DetailsPanel /> },
+]} />
+
+<Accordion items={faqItems} type="single" defaultValue="q-1" />
+```
+
 ## [0.3.0-beta] — 2026-05-18
 
 **Sprint 2 release.** Bundle of 9 fixes across 7 components + 1 new
