@@ -131,10 +131,19 @@ export interface TableColumn<T extends object> {
   searchable?: boolean;
 
   /**
-   * Enable per-column quick filter (text-based in v1).
+   * Enable per-column quick filter UI in the column header.
    * @default false
    */
   filterable?: boolean;
+
+  /**
+   * Override the filter UI type. By default the type is auto-detected
+   * from `useColumnAutoDetect` (number → range, date → range,
+   * boolean → select, anything else → text contains). Force a
+   * specific UI when the autodetect picks the wrong one — e.g. an
+   * ID column stored as a number that should filter by text contains.
+   */
+  filterType?: TableFilterType;
 
   /**
    * Custom cell renderer. Receives the full row + the resolved
@@ -160,9 +169,32 @@ export interface TableColumn<T extends object> {
    */
   sticky?: 'left' | 'right';
 
-  /** Reserved for v1-bis (column-visibility dialog). */
+  /**
+   * Allow user to hide this column from the column-visibility dialog.
+   * Pass `false` for structurally required columns (e.g. an ID column).
+   * @default true
+   */
   hideable?: boolean;
+  /** Hidden on first render (the user can re-show via the dialog). */
   defaultHidden?: boolean;
+
+  /**
+   * Allow user to resize this column by dragging the right edge of
+   * its header. Pass `false` to opt out per-column. The grid-level
+   * `enableColumnResize` flag must also be on (default `true`).
+   * @default true
+   */
+  resizable?: boolean;
+  /** Maximum width (px) honored by the resize drag. */
+  maxWidth?: number;
+
+  /**
+   * Allow user to reorder this column by dragging its header. Pass
+   * `false` to pin its position. The grid-level `enableColumnReorder`
+   * flag must also be on (default `true`).
+   * @default true
+   */
+  reorderable?: boolean;
 }
 
 // ───── State models ─────
@@ -181,14 +213,35 @@ export interface TableSortItem {
  */
 export type TableSortModel = TableSortItem[];
 
+/**
+ * Filter operator. The value shape depends on the operator:
+ *  - `contains` → `value: string` (text substring match)
+ *  - `equals` → `value: unknown` (exact match, used for booleans)
+ *  - `between` → `value: [min, max]` where each end can be `null`
+ *    for an open range. Used for number ranges (`value: [10, 50]`)
+ *    and date ranges (`value: ['2024-01-01', '2024-12-31']` as ISO).
+ */
+export type TableFilterOperator = 'contains' | 'equals' | 'between';
+
 export interface TableFilterItem {
   field: string;
-  /** Text substring match. Future ops: `equals`, `in`, `gte`, `lte`, `between`. */
-  op: 'contains';
-  value: string;
+  op: TableFilterOperator;
+  value: unknown;
 }
 
 export type TableFilterModel = TableFilterItem[];
+
+/**
+ * Column-level filter type hint. Determines which filter UI to
+ * render in the column header Popover. Auto-detected from
+ * `useColumnAutoDetect` when omitted:
+ *
+ *  - `number` → number range filter
+ *  - `date` → date range filter
+ *  - `boolean` → true/false/all select
+ *  - `string` (or anything else) → text contains
+ */
+export type TableFilterType = 'text' | 'number' | 'boolean' | 'date';
 
 export type TableRowSelectionMode = 'none' | 'single' | 'multiple';
 
@@ -221,11 +274,27 @@ export interface TableLabels {
   filterColumn?: string;
   filterApply?: string;
   filterClear?: string;
+  /** Number / date range filter inputs. */
+  filterMin?: string;
+  filterMax?: string;
+  filterFrom?: string;
+  filterTo?: string;
+  /** Boolean filter radio options. */
+  filterAll?: string;
+  filterTrue?: string;
+  filterFalse?: string;
   /** Density toggle. */
   density?: string;
   densityCompact?: string;
   densityComfortable?: string;
   densitySpacious?: string;
+  /** Column visibility dialog. */
+  columnsButton?: string;
+  columnsTitle?: string;
+  columnsDescription?: string;
+  columnsShowAll?: string;
+  columnsHideAll?: string;
+  columnsDone?: string;
 }
 
 // ───── Slot props ─────

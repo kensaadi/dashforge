@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import * as React from 'react';
-import { describe, it, expect, afterEach, beforeAll } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { DataGrid } from './DataGrid.js';
 import type { TableColumn } from '../Table/table.types.js';
@@ -492,5 +492,426 @@ describe('DataGrid — i18n', () => {
       />,
     );
     expect(screen.queryByLabelText('Seleziona tutto')).not.toBeNull();
+  });
+});
+
+describe('DataGrid — per-column filter UI', () => {
+  it('renders a filter trigger button only for filterable columns', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', filterable: true },
+      { field: 'email', header: 'Email' },
+      { field: 'age', header: 'Age', filterable: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    // 2 filterable cols → 2 filter buttons
+    const triggers = screen.getAllByRole('button', { name: 'Filter' });
+    expect(triggers).toHaveLength(2);
+  });
+
+  it('shows active state (aria-pressed=true) when a filter is applied', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', filterable: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        filterModel={[{ field: 'name', op: 'contains', value: 'User 1' }]}
+      />,
+    );
+    const trigger = screen.getByRole('button', { name: 'Filter' });
+    expect(trigger.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('opens a text input when filterable string column is clicked', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', filterable: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    // Apply button means the Popover opened
+    expect(screen.queryByRole('button', { name: 'Apply' })).not.toBeNull();
+  });
+
+  it('opens Min/Max inputs for filterable number column', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'age', header: 'Age', filterable: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    expect(screen.queryByText('Min')).not.toBeNull();
+    expect(screen.queryByText('Max')).not.toBeNull();
+  });
+
+  it('explicit col.filterType="text" overrides number autodetect', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'age', header: 'Age', filterable: true, filterType: 'text' },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    // Text filter has Apply but no Min/Max
+    expect(screen.queryByRole('button', { name: 'Apply' })).not.toBeNull();
+    expect(screen.queryByText('Min')).toBeNull();
+  });
+
+  it('emits onFilterChange when Apply is clicked', () => {
+    const onFilterChange = vi.fn();
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', filterable: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        onFilterChange={onFilterChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    const input = screen.getByPlaceholderText('…') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'User 2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    expect(onFilterChange).toHaveBeenCalledWith([
+      { field: 'name', op: 'contains', value: 'User 2' },
+    ]);
+  });
+
+  it('translates filter labels via the labels prop', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'age', header: 'Età', filterable: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        labels={{
+          filterColumn: 'Filtra',
+          filterApply: 'Applica',
+          filterClear: 'Pulisci',
+          filterMin: 'Min',
+          filterMax: 'Max',
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Filtra' }));
+    expect(screen.queryByRole('button', { name: 'Applica' })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: 'Pulisci' })).not.toBeNull();
+  });
+});
+
+describe('DataGrid — column visibility', () => {
+  it('renders the Columns toolbar button by default', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Columns' })).not.toBeNull();
+  });
+
+  it('does NOT render the Columns button when enableColumnVisibility=false', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        enableColumnVisibility={false}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Columns' })).toBeNull();
+  });
+
+  it('opens dialog with one checkbox per hideable column', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name' },
+      { field: 'email', header: 'Email' },
+      // hideable: false → not shown in the dialog (structurally required)
+      { field: 'age', header: 'Age', hideable: false },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    expect(screen.queryByRole('dialog')).not.toBeNull();
+    // The dialog should expose checkboxes for Name + Email (not Age).
+    const labels = screen.getAllByText(/Name|Email|Age/);
+    // Name + Email appear in BOTH the table header and the dialog; Age
+    // appears only in the header (hideable=false → excluded from dialog).
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.textContent).toContain('Name');
+    expect(dialog.textContent).toContain('Email');
+    expect(dialog.textContent).not.toContain('Age');
+    void labels;
+  });
+
+  it('respects col.defaultHidden on first render', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name' },
+      { field: 'email', header: 'Email', defaultHidden: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    // Email column header should NOT be rendered initially.
+    expect(screen.queryByText('Email')).toBeNull();
+    // Name column header SHOULD be rendered.
+    expect(screen.queryByText('Name')).not.toBeNull();
+  });
+
+  it('toggling a column hides it from the table after Done', () => {
+    const onHiddenColumnsChange = vi.fn();
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        onHiddenColumnsChange={onHiddenColumnsChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    // Uncheck "Email" inside the dialog
+    const dialog = screen.getByRole('dialog');
+    const emailCheckbox = Array.from(
+      dialog.querySelectorAll('input[type="checkbox"]'),
+    ).find((el) => {
+      const li = el.closest('label');
+      return li?.textContent?.includes('Email');
+    }) as HTMLInputElement | undefined;
+    expect(emailCheckbox).toBeDefined();
+    fireEvent.click(emailCheckbox!);
+    // Commit via Done
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    expect(onHiddenColumnsChange).toHaveBeenCalledWith(['email']);
+  });
+
+  it('controlled hiddenColumns hides the matching columns', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        hiddenColumns={['email']}
+      />,
+    );
+    expect(screen.queryByText('Email')).toBeNull();
+    expect(screen.queryByText('Name')).not.toBeNull();
+  });
+});
+
+describe('DataGrid — column resize', () => {
+  it('renders a resize handle (separator) for each column by default', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    // One separator per column (4 columns).
+    const handles = screen.getAllByRole('separator');
+    expect(handles.length).toBe(baseCols.length);
+  });
+
+  it('omits resize handles when enableColumnResize=false', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        enableColumnResize={false}
+      />,
+    );
+    expect(screen.queryAllByRole('separator')).toHaveLength(0);
+  });
+
+  it('omits resize handle for col.resizable=false', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name' },
+      { field: 'email', header: 'Email', resizable: false },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    // Only 1 separator (Name); Email opted out via resizable=false.
+    expect(screen.getAllByRole('separator')).toHaveLength(1);
+  });
+
+  it('applies columnWidths to <th> style.width', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', width: 100 },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        columnWidths={{ name: 250 }}
+      />,
+    );
+    const th = screen.getByText('Name').closest('th');
+    expect(th?.style.width).toBe('250px');
+  });
+
+  it('falls back to col.width when no resize state for the column', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', width: 100 },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    const th = screen.getByText('Name').closest('th');
+    expect(th?.style.width).toBe('100px');
+  });
+});
+
+describe('DataGrid — column reorder', () => {
+  it('applies the columnOrder prop to header order', () => {
+    const { container } = render(
+      <DataGrid
+        rows={generateUsers(3)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        columnOrder={['age', 'name', 'email', 'meta.city']}
+      />,
+    );
+    const headerTexts = Array.from(
+      container.querySelectorAll('thead th'),
+    ).map((th) => th.textContent?.trim() ?? '');
+    // First three column headers should match the order
+    expect(headerTexts[0]).toContain('Age');
+    expect(headerTexts[1]).toContain('Name');
+    expect(headerTexts[2]).toContain('Email');
+  });
+
+  it('headers are draggable by default', () => {
+    const { container } = render(
+      <DataGrid
+        rows={generateUsers(3)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    const draggableThs = container.querySelectorAll('thead th[draggable="true"]');
+    expect(draggableThs.length).toBe(baseCols.length);
+  });
+
+  it('does NOT make headers draggable when enableColumnReorder=false', () => {
+    const { container } = render(
+      <DataGrid
+        rows={generateUsers(3)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        enableColumnReorder={false}
+      />,
+    );
+    expect(
+      container.querySelectorAll('thead th[draggable="true"]'),
+    ).toHaveLength(0);
+  });
+
+  it('respects col.reorderable=false per-column', () => {
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', reorderable: false },
+      { field: 'email', header: 'Email' },
+    ];
+    const { container } = render(
+      <DataGrid
+        rows={generateUsers(3)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    // Only the Email th should be draggable.
+    const draggableThs = container.querySelectorAll('thead th[draggable="true"]');
+    expect(draggableThs.length).toBe(1);
+    expect(draggableThs[0]?.textContent).toContain('Email');
   });
 });

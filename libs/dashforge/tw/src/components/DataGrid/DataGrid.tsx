@@ -1,4 +1,9 @@
-import { useMemo, type ReactNode, type MouseEvent } from 'react';
+import {
+  useMemo,
+  type ReactNode,
+  type MouseEvent,
+  type PointerEvent as RPointerEvent,
+} from 'react';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { Skeleton } from '../Skeleton/Skeleton.js';
@@ -20,11 +25,20 @@ import {
 } from '../_shared/data/useColumnAutoDetect.js';
 import type {
   TableColumn,
+  TableColumnInferredType,
+  TableFilterType,
   TableSortModel,
   TableFilterModel,
   TableLabels,
 } from '../Table/table.types.js';
 import type { DataGridProps } from './dataGrid.types.js';
+import { ColumnFilterTrigger } from './filters/ColumnFilters.js';
+import { ColumnVisibilityTrigger } from './visibility/ColumnVisibilityDialog.js';
+import { useColumnResize } from './resize/useColumnResize.js';
+import {
+  useColumnReorder,
+  type ColumnReorderHandlers,
+} from './reorder/useColumnReorder.js';
 
 const DEFAULT_LABELS: Required<TableLabels> = {
   searchPlaceholder: 'Search...',
@@ -42,10 +56,24 @@ const DEFAULT_LABELS: Required<TableLabels> = {
   filterColumn: 'Filter',
   filterApply: 'Apply',
   filterClear: 'Clear',
+  filterMin: 'Min',
+  filterMax: 'Max',
+  filterFrom: 'From',
+  filterTo: 'To',
+  filterAll: 'All',
+  filterTrue: 'True',
+  filterFalse: 'False',
   density: 'Density',
   densityCompact: 'Compact',
   densityComfortable: 'Comfortable',
   densitySpacious: 'Spacious',
+  columnsButton: 'Columns',
+  columnsTitle: 'Manage columns',
+  columnsDescription:
+    'Show or hide columns. Required columns cannot be toggled.',
+  columnsShowAll: 'Show all',
+  columnsHideAll: 'Hide all',
+  columnsDone: 'Done',
 };
 
 /**
@@ -101,6 +129,18 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
     onFilterChange,
     serverSideFilter = false,
 
+    hiddenColumns: hiddenColumnsProp,
+    onHiddenColumnsChange,
+    enableColumnVisibility = true,
+
+    columnWidths: columnWidthsProp,
+    onColumnWidthsChange,
+    enableColumnResize = true,
+
+    columnOrder: columnOrderProp,
+    onColumnOrderChange,
+    enableColumnReorder = true,
+
     rowSelection = 'none',
     selectedRowIds: selectedRowIdsProp,
     onSelectionChange,
@@ -147,23 +187,115 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
     defaultValue: '',
     onChange: onSearchQueryChange,
   });
-  // filterModel: read-only in v1 (no in-table filter UI; deferred to
-  // v1-bis). Consumer wires it via filterModelProp + onFilterChange.
-  void onFilterChange;
-  const filterModel: TableFilterModel = filterModelProp ?? [];
+  // filterModel: in v1-bis the per-column header UI commits filter
+  // items to this controllable state. Consumer can lift it via
+  // filterModelProp + onFilterChange to drive server-side filtering.
+  const [filterModel, setFilterModel] = useControllableState<TableFilterModel>({
+    controlledValue: filterModelProp,
+    defaultValue: [],
+    onChange: onFilterChange,
+  });
   const [selectedRowIds, setSelectedRowIds] = useControllableState<string[]>({
     controlledValue: selectedRowIdsProp,
     defaultValue: [],
     onChange: onSelectionChange,
   });
 
-  // ───── RBAC: filter columns ─────
+  // ───── Column visibility ─────
+  // Seed default hidden set from `defaultHidden` flag on columns.
+  // Memoized to avoid the seed shifting on every render — the
+  // controllable state keeps internal state stable thereafter.
+  const defaultHiddenColumns = useMemo(
+    () =>
+      cols
+        .filter((c) => c.defaultHidden === true)
+        .map((c) => c.field as string),
+    [cols],
+  );
+  const [hiddenColumns, setHiddenColumns] = useControllableState<string[]>({
+    controlledValue: hiddenColumnsProp,
+    defaultValue: defaultHiddenColumns,
+    onChange: onHiddenColumnsChange,
+  });
+
+  // ───── Column widths (resize state) ─────
+  // Seed from any `col.width` declared statically. Internal state is
+  // applied only when the user actually starts dragging; until then
+  // we fall back to the static width from the column def.
+  const defaultColumnWidths = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const c of cols) {
+      if (typeof c.width === 'number') {
+        map[c.field as string] = c.width;
+      }
+    }
+    return map;
+  }, [cols]);
+  const [columnWidths, setColumnWidths] = useControllableState<
+    Record<string, number>
+  >({
+    controlledValue: columnWidthsProp,
+    defaultValue: defaultColumnWidths,
+    onChange: onColumnWidthsChange,
+  });
+  const { startResize } = useColumnResize({
+    widths: columnWidths,
+    onChange: setColumnWidths,
+  });
+
+  // ───── Column order (reorder state) ─────
+  const defaultColumnOrder = useMemo(
+    () => cols.map((c) => c.field as string),
+    [cols],
+  );
+  const [columnOrder, setColumnOrder] = useControllableState<string[]>({
+    controlledValue: columnOrderProp,
+    defaultValue: defaultColumnOrder,
+    onChange: onColumnOrderChange,
+  });
+  const reorderHandlers = useColumnReorder({
+    order: columnOrder,
+    onChange: setColumnOrder,
+  });
+
+  // Apply the active order to the columns list. Cols not in the
+  // order array (e.g. newly-added columns at runtime) are appended
+  // in their original position from `cols`.
+  const orderedCols = useMemo(() => {
+    if (!columnOrder || columnOrder.length === 0) return cols;
+    const byField = new Map(
+      cols.map((c) => [c.field as string, c] as const),
+    );
+    const seen = new Set<string>();
+    const result: typeof cols = [];
+    for (const field of columnOrder) {
+      const c = byField.get(field);
+      if (c) {
+        result.push(c);
+        seen.add(field);
+      }
+    }
+    for (const c of cols) {
+      if (!seen.has(c.field as string)) result.push(c);
+    }
+    return result;
+  }, [cols, columnOrder]);
+
+  // ───── RBAC + visibility + reorder: derive final column list ─────
+  //  - `access.onUnauthorized === 'hide'` removes a column entirely.
+  //  - `hiddenColumns` is the user-toggled hidden set from the
+  //    column-visibility dialog.
+  //  - `orderedCols` is the user-reordered version of `cols`.
+  // NOTE: filtering happens on `orderedCols` so the active order is
+  // preserved through visibility changes.
   const visibleCols = useMemo(
     () =>
-      cols.filter(
-        (col) => !col.access || col.access.onUnauthorized !== 'hide',
-      ),
-    [cols],
+      orderedCols.filter((col) => {
+        if (col.access && col.access.onUnauthorized === 'hide') return false;
+        if (hiddenColumns.includes(col.field as string)) return false;
+        return true;
+      }),
+    [orderedCols, hiddenColumns],
   );
 
   // ───── Smart-default column types ─────
@@ -257,25 +389,47 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
       data-disabled={!isInteractive ? 'true' : undefined}
     >
       {/* ───── Toolbar ───── */}
-      {enableSearch && (
+      {(enableSearch || enableColumnVisibility) && (
         <div className={cn(v.toolbar(), slotProps?.toolbar?.className)}>
-          <label className={cn(v.search(), slotProps?.search?.className)}>
-            <span className="sr-only">{labels.searchPlaceholder}</span>
-            <SearchIcon className="ml-2 shrink-0 text-neutral-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={searchPlaceholder ?? labels.searchPlaceholder}
-              disabled={!isInteractive}
-              className={cn(
-                'flex-1 bg-transparent border-0 outline-none',
-                'px-2 py-1.5',
-                'placeholder:text-neutral-400',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+          {enableSearch && (
+            <label className={cn(v.search(), slotProps?.search?.className)}>
+              <span className="sr-only">{labels.searchPlaceholder}</span>
+              <SearchIcon className="ml-2 shrink-0 text-neutral-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={searchPlaceholder ?? labels.searchPlaceholder}
+                disabled={!isInteractive}
+                className={cn(
+                  'flex-1 bg-transparent border-0 outline-none',
+                  'px-2 py-1.5',
+                  'placeholder:text-neutral-400',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                )}
+              />
+            </label>
+          )}
+          {enableColumnVisibility && (
+            <ColumnVisibilityTrigger
+              cols={cols.filter(
+                (c) =>
+                  // RBAC-hidden columns are never offered in the dialog.
+                  !c.access || c.access.onUnauthorized !== 'hide',
               )}
+              hiddenColumns={hiddenColumns}
+              onChange={setHiddenColumns}
+              disabled={!isInteractive}
+              labels={{
+                columnsButton: labels.columnsButton,
+                columnsTitle: labels.columnsTitle,
+                columnsDescription: labels.columnsDescription,
+                columnsShowAll: labels.columnsShowAll,
+                columnsHideAll: labels.columnsHideAll,
+                columnsDone: labels.columnsDone,
+              }}
             />
-          </label>
+          )}
         </div>
       )}
 
@@ -336,10 +490,22 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
                     handleSortClick(col, e, sortModel, setSortModel)
                   }
                   inferredType={columnTypes.get(col.field as string)}
+                  filterModel={filterModel}
+                  onFilterChange={setFilterModel}
+                  effectiveWidth={resolveColumnWidth(col, columnWidths)}
+                  resizable={
+                    enableColumnResize && col.resizable !== false
+                  }
+                  startResize={startResize}
+                  reorderable={
+                    enableColumnReorder && col.reorderable !== false
+                  }
+                  reorderHandlers={reorderHandlers}
                   labels={labels}
                   className={cn(
                     v.headerCell(),
                     col.sticky === 'left' && v.stickyLeftHeaderCell(),
+                    col.sticky === 'right' && v.stickyRightHeaderCell(),
                     slotProps?.headerCell?.className,
                   )}
                   buttonClassName={v.headerCellButton()}
@@ -389,6 +555,7 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
                     renderedRows,
                     visibleCols,
                     columnTypes,
+                    columnWidths,
                     selection,
                     rowSelection,
                     showSelectionColumn,
@@ -409,6 +576,7 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
                         slotProps?.selectionCell?.className,
                       ),
                       stickyLeftCell: v.stickyLeftCell(),
+                      stickyRightCell: v.stickyRightCell(),
                       rowActionsCell: cn(
                         v.cell(),
                         v.rowActionsCell(),
@@ -475,6 +643,18 @@ function HeaderCell<T extends object>(props: {
   sortModel: TableSortModel;
   onSortClick: (e: MouseEvent<HTMLButtonElement>) => void;
   inferredType: string | undefined;
+  filterModel: TableFilterModel;
+  onFilterChange: (model: TableFilterModel) => void;
+  effectiveWidth: number | undefined;
+  resizable: boolean;
+  startResize: (
+    field: string,
+    startWidth: number,
+    clampMin: number,
+    clampMax: number,
+  ) => (e: RPointerEvent<HTMLElement>) => void;
+  reorderable: boolean;
+  reorderHandlers: ColumnReorderHandlers;
   labels: Required<TableLabels>;
   className: string;
   buttonClassName: string;
@@ -485,6 +665,13 @@ function HeaderCell<T extends object>(props: {
     sortModel,
     onSortClick,
     inferredType,
+    filterModel,
+    onFilterChange,
+    effectiveWidth,
+    resizable,
+    startResize,
+    reorderable,
+    reorderHandlers,
     labels,
     className,
     buttonClassName,
@@ -507,48 +694,211 @@ function HeaderCell<T extends object>(props: {
     typeof col.header === 'function' ? col.header() : col.header;
 
   const cellStyle = {
-    width: col.width != null ? `${col.width}px` : undefined,
+    width: effectiveWidth != null ? `${effectiveWidth}px` : undefined,
     minWidth: col.minWidth != null ? `${col.minWidth}px` : undefined,
-    flex: col.flex,
+    flex: effectiveWidth != null ? undefined : col.flex,
+    position: resizable || reorderable ? ('relative' as const) : undefined,
   };
 
+  // Drop indicator for reorder: a 2px vertical bar at the LEFT or
+  // RIGHT edge of this th when it's the active drop target.
+  const dropTarget = reorderHandlers.dropTarget;
+  const dropIndicatorClass =
+    dropTarget != null && dropTarget.field === (col.field as string)
+      ? dropTarget.side === 'left'
+        ? 'before:absolute before:top-0 before:bottom-0 before:left-0 before:w-0.5 before:bg-primary-500'
+        : 'after:absolute after:top-0 after:bottom-0 after:right-0 after:w-0.5 after:bg-primary-500'
+      : '';
+
+  const isDragging = reorderHandlers.draggingField === (col.field as string);
+
+  // Drag attributes only attach when reorderable; we DO NOT make the
+  // entire th `draggable` if it isn't — keeps the keyboard focus
+  // behavior unchanged.
+  const dragAttrs = reorderable
+    ? {
+        draggable: true,
+        onDragStart: reorderHandlers.dragStart(col.field as string),
+        onDragOver: reorderHandlers.dragOver(col.field as string),
+        onDrop: reorderHandlers.drop(col.field as string),
+        onDragEnd: reorderHandlers.dragEnd,
+      }
+    : {};
+
+  const resizeHandle = resizable ? (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={`Resize ${typeof col.header === 'string' ? col.header : col.field}`}
+      onPointerDown={(e) => {
+        const handle = e.currentTarget;
+        const th = handle.parentElement as HTMLElement | null;
+        const startWidth =
+          effectiveWidth ?? th?.getBoundingClientRect().width ?? 120;
+        const min = col.minWidth ?? 40;
+        const max = col.maxWidth ?? 1200;
+        startResize(col.field as string, startWidth, min, max)(e);
+      }}
+      className={cn(
+        'absolute top-0 bottom-0 right-0 w-1.5',
+        'cursor-col-resize select-none touch-none',
+        'hover:bg-primary-300 active:bg-primary-400',
+        'transition-colors motion-reduce:transition-none',
+      )}
+    />
+  ) : null;
+
+  const filterType = col.filterable
+    ? resolveFilterType(col, inferredType as TableColumnInferredType | undefined)
+    : null;
+
+  const filterTrigger =
+    col.filterable && filterType ? (
+      <ColumnFilterTrigger
+        field={col.field as string}
+        filterType={filterType}
+        filterModel={filterModel}
+        onFilterChange={onFilterChange}
+        disabled={disabled}
+        labels={{
+          filterColumn: labels.filterColumn,
+          filterApply: labels.filterApply,
+          filterClear: labels.filterClear,
+          filterMin: labels.filterMin,
+          filterMax: labels.filterMax,
+          filterFrom: labels.filterFrom,
+          filterTo: labels.filterTo,
+          filterAll: labels.filterAll,
+          filterTrue: labels.filterTrue,
+          filterFalse: labels.filterFalse,
+        }}
+      />
+    ) : null;
+
+  // Layout strategy:
+  //  - sortable only → sort button is the cell content
+  //  - filterable only → header text + filter trigger in a flex row
+  //  - both → sort button + filter trigger in a flex row
+  //  - neither → plain header text
+  const wrapperJustify =
+    align === 'right'
+      ? 'justify-end'
+      : align === 'center'
+        ? 'justify-center'
+        : 'justify-start';
+
   if (col.sortable) {
+    const sortButton = (
+      <button
+        type="button"
+        onClick={onSortClick}
+        disabled={disabled}
+        aria-label={
+          ariaSort === 'ascending'
+            ? labels.ariaSortAscending
+            : ariaSort === 'descending'
+              ? labels.ariaSortDescending
+              : labels.ariaSortNone
+        }
+        className={cn(
+          buttonClassName,
+          align === 'right' && 'flex-row-reverse',
+          'disabled:cursor-not-allowed disabled:opacity-50',
+        )}
+      >
+        <span>{headerContent}</span>
+        <SortIcon direction={sortEntry?.direction} />
+      </button>
+    );
     return (
       <th
         scope="col"
         aria-sort={ariaSort}
-        className={cn(className, alignClass)}
+        className={cn(
+          className,
+          alignClass,
+          dropIndicatorClass,
+          isDragging && 'opacity-50',
+        )}
         style={cellStyle}
+        {...dragAttrs}
       >
-        <button
-          type="button"
-          onClick={onSortClick}
-          disabled={disabled}
-          aria-label={
-            ariaSort === 'ascending'
-              ? labels.ariaSortAscending
-              : ariaSort === 'descending'
-                ? labels.ariaSortDescending
-                : labels.ariaSortNone
-          }
-          className={cn(
-            buttonClassName,
-            align === 'right' && 'flex-row-reverse',
-            'disabled:cursor-not-allowed disabled:opacity-50',
-          )}
-        >
-          <span>{headerContent}</span>
-          <SortIcon direction={sortEntry?.direction} />
-        </button>
+        {filterTrigger ? (
+          <div className={cn('flex items-center gap-1', wrapperJustify)}>
+            {sortButton}
+            {filterTrigger}
+          </div>
+        ) : (
+          sortButton
+        )}
+        {resizeHandle}
       </th>
     );
   }
 
   return (
-    <th scope="col" className={cn(className, alignClass)} style={cellStyle}>
-      {headerContent}
+    <th
+      scope="col"
+      className={cn(
+        className,
+        alignClass,
+        dropIndicatorClass,
+        isDragging && 'opacity-50',
+      )}
+      style={cellStyle}
+      {...dragAttrs}
+    >
+      {filterTrigger ? (
+        <div className={cn('flex items-center gap-1', wrapperJustify)}>
+          <span>{headerContent}</span>
+          {filterTrigger}
+        </div>
+      ) : (
+        headerContent
+      )}
+      {resizeHandle}
     </th>
   );
+}
+
+/**
+ * Resolve the effective width (px) for a column. User-driven resize
+ * (`columnWidths[field]`) wins over the static `col.width`. Returns
+ * `undefined` if neither source has a width set — the consumer falls
+ * back to the column's `flex` value or browser auto-layout.
+ */
+function resolveColumnWidth<T extends object>(
+  col: TableColumn<T>,
+  columnWidths: Record<string, number>,
+): number | undefined {
+  const resized = columnWidths[col.field as string];
+  if (resized != null) return resized;
+  return col.width;
+}
+
+/**
+ * Resolve the filter UI type for a column. Explicit `col.filterType`
+ * wins; otherwise we map the auto-detected primitive type:
+ *  - `number` → number range
+ *  - `boolean` → true/false/all select
+ *  - `date` → date range
+ *  - anything else (string / unknown) → text contains
+ */
+function resolveFilterType<T extends object>(
+  col: TableColumn<T>,
+  inferred: TableColumnInferredType | undefined,
+): TableFilterType {
+  if (col.filterType) return col.filterType;
+  switch (inferred) {
+    case 'number':
+      return 'number';
+    case 'boolean':
+      return 'boolean';
+    case 'date':
+      return 'date';
+    default:
+      return 'text';
+  }
 }
 
 // ───── Virtualized body ─────
@@ -559,6 +909,7 @@ function renderVirtualizedBody<T extends object>(args: {
   renderedRows: T[];
   visibleCols: TableColumn<T>[];
   columnTypes: Map<string, string>;
+  columnWidths: Record<string, number>;
   selection: ReturnType<typeof useTableSelection>;
   rowSelection: 'none' | 'single' | 'multiple';
   showSelectionColumn: boolean;
@@ -573,6 +924,7 @@ function renderVirtualizedBody<T extends object>(args: {
     cell: string;
     selectionCell: string;
     stickyLeftCell: string;
+    stickyRightCell: string;
     rowActionsCell: string;
   };
 }): ReactNode {
@@ -581,6 +933,7 @@ function renderVirtualizedBody<T extends object>(args: {
     renderedRows,
     visibleCols,
     columnTypes,
+    columnWidths,
     selection,
     rowSelection,
     showSelectionColumn,
@@ -628,8 +981,10 @@ function renderVirtualizedBody<T extends object>(args: {
                 rowIndex={absoluteIdx}
                 isSelected={isSelected}
                 inferredType={columnTypes.get(col.field as string)}
+                effectiveWidth={resolveColumnWidth(col, columnWidths)}
                 cellClass={classes.cell}
                 stickyLeftClass={classes.stickyLeftCell}
+                stickyRightClass={classes.stickyRightCell}
               />
             ))}
             {showRowActionsColumn && rowActions && (
@@ -653,10 +1008,22 @@ function DataCell<T extends object>(props: {
   rowIndex: number;
   isSelected: boolean;
   inferredType: string | undefined;
+  effectiveWidth: number | undefined;
   cellClass: string;
   stickyLeftClass: string;
+  stickyRightClass: string;
 }) {
-  const { col, row, rowIndex, isSelected, inferredType, cellClass, stickyLeftClass } = props;
+  const {
+    col,
+    row,
+    rowIndex,
+    isSelected,
+    inferredType,
+    effectiveWidth,
+    cellClass,
+    stickyLeftClass,
+    stickyRightClass,
+  } = props;
   const value = getNestedValue(row, col.field as string);
   const align = resolveAlign(col, inferredType as never);
   const tabularNums = resolveTabularNums(col, inferredType as never);
@@ -691,9 +1058,10 @@ function DataCell<T extends object>(props: {
         tabularNums && 'tabular-nums',
         monospace && 'font-mono',
         col.sticky === 'left' && stickyLeftClass,
+        col.sticky === 'right' && stickyRightClass,
       )}
       style={{
-        width: col.width != null ? `${col.width}px` : undefined,
+        width: effectiveWidth != null ? `${effectiveWidth}px` : undefined,
         minWidth: col.minWidth != null ? `${col.minWidth}px` : undefined,
       }}
     >

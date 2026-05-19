@@ -78,7 +78,7 @@ export const dataGridVariants = tv({
       'border-t border-neutral-200',
       'bg-neutral-50 shadow-md',
     ],
-    // Sticky left column — uses `position: sticky; left: 0` + z-index
+    // Sticky LEFT column — uses `position: sticky; left: 0` + z-index
     // so the column stays pinned during horizontal scroll. The
     // `bg-neutral-50` ensures the column doesn't bleed when content
     // scrolls underneath.
@@ -86,6 +86,14 @@ export const dataGridVariants = tv({
     // Sticky left × header intersection (top-left corner): higher
     // z-index than both header (`z-10`) and sticky col (`z-[1]`).
     stickyLeftHeaderCell: 'sticky left-0 z-20 bg-neutral-50',
+    // Sticky RIGHT column — mirror of stickyLeftCell. The first
+    // right-sticky column gets a `border-l` to separate it visually
+    // from the scrollable area (the consumer can override via
+    // slotProps if they don't want it).
+    stickyRightCell:
+      'sticky right-0 z-[1] bg-neutral-50 border-l border-neutral-200',
+    stickyRightHeaderCell:
+      'sticky right-0 z-20 bg-neutral-50 border-l border-neutral-200',
     paginationFooter: 'flex justify-end mt-3',
   },
   variants: {

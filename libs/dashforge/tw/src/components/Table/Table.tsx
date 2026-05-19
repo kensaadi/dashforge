@@ -40,10 +40,24 @@ const DEFAULT_LABELS: Required<TableLabels> = {
   filterColumn: 'Filter',
   filterApply: 'Apply',
   filterClear: 'Clear',
+  filterMin: 'Min',
+  filterMax: 'Max',
+  filterFrom: 'From',
+  filterTo: 'To',
+  filterAll: 'All',
+  filterTrue: 'True',
+  filterFalse: 'False',
   density: 'Density',
   densityCompact: 'Compact',
   densityComfortable: 'Comfortable',
   densitySpacious: 'Spacious',
+  columnsButton: 'Columns',
+  columnsTitle: 'Manage columns',
+  columnsDescription:
+    'Show or hide columns. Required columns cannot be toggled.',
+  columnsShowAll: 'Show all',
+  columnsHideAll: 'Hide all',
+  columnsDone: 'Done',
 };
 
 const DEFAULT_GET_ROW_ID = <T extends object>(_row: T, index: number) => String(index);

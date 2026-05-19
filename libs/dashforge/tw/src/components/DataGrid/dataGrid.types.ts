@@ -145,9 +145,58 @@ export interface DataGridProps<T extends object>
   searchPlaceholder?: string;
   searchDebounceMs?: number;
 
-  // ───── Filter (model only; per-column UI deferred to v1-bis) ─────
+  // ───── Filter (model + in-header per-column UI) ─────
   filterModel?: TableFilterModel;
   onFilterChange?: (model: TableFilterModel) => void;
+
+  // ───── Column visibility (dialog UI in toolbar) ─────
+  /**
+   * List of column `field`s currently hidden. Drives the column
+   * visibility dialog. When omitted, the dialog manages state
+   * internally (seeded from each column's `defaultHidden`).
+   */
+  hiddenColumns?: string[];
+  /** Called when the user commits a change in the visibility dialog. */
+  onHiddenColumnsChange?: (next: string[]) => void;
+  /**
+   * Show the "Columns" button in the toolbar. Defaults to `true` so
+   * the dialog is discoverable; set `false` for embedded / compact
+   * grids where columns are externally controlled.
+   * @default true
+   */
+  enableColumnVisibility?: boolean;
+
+  // ───── Column resize (drag the right edge of a <th>) ─────
+  /**
+   * Map of `field → width (px)` for user-resized columns. When
+   * omitted, DataGrid manages widths internally — seeded from each
+   * column's `width` prop.
+   */
+  columnWidths?: Record<string, number>;
+  /** Called when the user finishes (or actively drags) a resize. */
+  onColumnWidthsChange?: (next: Record<string, number>) => void;
+  /**
+   * Allow user-driven column resize via drag on the right edge of
+   * each `<th>`. Per-column opt-out via `col.resizable = false`.
+   * @default true
+   */
+  enableColumnResize?: boolean;
+
+  // ───── Column reorder (drag a header to reposition) ─────
+  /**
+   * Custom display order, as a list of `field`s. Columns not in the
+   * list are appended in their original order at the end. When
+   * omitted, DataGrid uses the order from the `cols` prop.
+   */
+  columnOrder?: string[];
+  /** Called when the user finishes a reorder drag. */
+  onColumnOrderChange?: (next: string[]) => void;
+  /**
+   * Allow user-driven column reorder via native HTML5 drag-and-drop
+   * on each `<th>`. Per-column opt-out via `col.reorderable = false`.
+   * @default true
+   */
+  enableColumnReorder?: boolean;
 
   // ───── Selection ─────
   rowSelection?: TableRowSelectionMode;

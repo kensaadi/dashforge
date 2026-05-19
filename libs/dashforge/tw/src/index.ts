@@ -294,6 +294,8 @@ export type {
   TableSortModel,
   TableFilterItem,
   TableFilterModel,
+  TableFilterOperator,
+  TableFilterType,
   TableRowSelectionMode,
   TableExpandableConfig,
   TableLabels,

@@ -12,6 +12,199 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.8.0-beta] — 2026-05-19
+
+**Sprint 4.2-bis — DataGrid v1-bis.** Ships the five power-user
+features deferred from `0.7.0-beta`'s DataGrid v1:
+
+- **Per-column filter UI chips** — text contains / number range /
+  date range / boolean radio, auto-detected by column type
+- **Column visibility dialog** — toolbar "Columns" button +
+  modal with checkboxes
+- **Column resize** — grab the right edge of a `<th>` to drag,
+  min/max clamping
+- **Column reorder** — native HTML5 drag-and-drop on headers,
+  visual drop indicator
+- **Right-sticky columns** — mirror of `sticky: 'left'` (Sprint 4.2)
+
+**Minor bump** for the new public API surface (3 new DataGrid
+props, 5 new `TableColumn` axes, 13 new i18n labels). **Strictly
+additive — zero breaking changes** on existing component APIs.
+Drop-in upgrade from `0.7.0-beta`.
+
+Zero new runtime deps: filter UI built on the existing
+`<Popover>` (Sprint 3), visibility on `<Dialog>` (Sprint 3),
+resize/reorder on native pointer + HTML5 drag events.
+
+### Added
+
+- **Per-column filter UI** — opt in via `cols[i].filterable: true`.
+  A filter icon appears in the column header; clicking it opens a
+  `<Popover>` with the right input for the column type:
+  - `number` → Min/Max inputs (operator: `between`)
+  - `date` → From/To date inputs (operator: `between`)
+  - `boolean` → All / True / False radios (operator: `equals`)
+  - text / unknown → single text input (operator: `contains`,
+    case-insensitive substring against the stringified value)
+  - **Override autodetect** with `cols[i].filterType` (`'text' |
+    'number' | 'boolean' | 'date'`) — useful when an ID column is
+    typed as number but you want a text-contains UI.
+  - The filter model uses the new
+    `TableFilterOperator = 'contains' | 'equals' | 'between'`
+    discriminator. The `between` value shape is `[min, max]` where
+    each end can be `null` for an open range. Backwards-compatible:
+    `0.7.0-beta` only emitted `contains`; consumers reading
+    `filterModel` should now branch on `op`.
+  - **Active state** — the filter icon highlights primary-700 when
+    a filter is active on that column (`aria-pressed=true`).
+  - **i18n** via the existing `labels` prop. New keys:
+    `filterMin`, `filterMax`, `filterFrom`, `filterTo`,
+    `filterAll`, `filterTrue`, `filterFalse` (plus the existing
+    `filterColumn`, `filterApply`, `filterClear`).
+
+- **Column visibility dialog** — opt in via the existing
+  `enableColumnVisibility` (defaults `true`). A "Columns" button
+  appears in the toolbar (alongside the optional search input).
+  Clicking opens a `<Dialog>` with one checkbox per `hideable`
+  column.
+  - `cols[i].hideable: false` excludes a column from the dialog
+    entirely (structurally required — typically the ID or primary
+    label column).
+  - `cols[i].defaultHidden: true` hides the column on first mount;
+    the user re-shows it via the dialog.
+  - Show all / Hide all shortcuts inside the dialog.
+  - Controllable via `hiddenColumns` + `onHiddenColumnsChange` for
+    persistence (LocalStorage, server-side prefs, etc.).
+  - New `labels` keys: `columnsButton`, `columnsTitle`,
+    `columnsDescription`, `columnsShowAll`, `columnsHideAll`,
+    `columnsDone`.
+
+- **Column resize** — opt in via the existing `enableColumnResize`
+  (defaults `true`). Hovering the right edge of a `<th>` shows
+  `cursor: col-resize`; pointer-drag commits a new width.
+  - Native pointer events with `setPointerCapture` so the drag
+    continues even if the cursor leaves the handle.
+  - Clamping: `cols[i].minWidth` (default `40px`) /
+    `cols[i].maxWidth` (default `1200px`).
+  - Per-column opt-out via `cols[i].resizable: false`.
+  - Controllable via `columnWidths: Record<string, number>` +
+    `onColumnWidthsChange` for persistence.
+  - Works with sticky columns and the virtualized body — the
+    width is applied to `<th>` and matching `<td>` cells.
+
+- **Column reorder** — opt in via the existing
+  `enableColumnReorder` (defaults `true`). Drag any column header
+  onto another; a 2px primary-500 vertical indicator marks the
+  drop side (LEFT half = insert before / RIGHT half = insert
+  after). Release to commit.
+  - Built on native HTML5 drag-and-drop (`draggable` + `dragstart`
+    / `dragover` / `drop` / `dragend`) — no library.
+  - The dragged header dims to `opacity-50` while in flight.
+  - Per-column opt-out via `cols[i].reorderable: false`.
+  - Controllable via `columnOrder: string[]` (list of `field`s in
+    display order) + `onColumnOrderChange`. Columns not in the
+    order list are appended at the end in their original `cols`
+    order — safe to omit.
+
+- **Right-sticky columns** — `cols[i].sticky: 'right'` mirrors the
+  existing `'left'` value from Sprint 4.2. CSS
+  `position: sticky; right: 0` plus a left border to visually
+  separate the pinned column from the scrollable area.
+  - Header / cell z-index ladder maintained (header top-right
+    intersection at z-20, body sticky-right cell at z-[1]).
+  - Useful for trailing action columns (Edit / Delete) that should
+    always be visible.
+
+### Changed
+
+- **`TableFilterItem.op`** now accepts `'contains' | 'equals' |
+  'between'` (was effectively `'contains'`-only in `0.7.0-beta`).
+  Consumers reading the model should branch on `op` to handle the
+  three value shapes (`string` / `unknown` / `[min, max]` tuple).
+  Consumers only emitting filters via the new in-header UI need no
+  changes.
+
+- **`useTableFilter`** rewritten to support all three operators
+  with auto-coercion (number from string, date from ISO string /
+  Date instance). Exposed `passesFilter` / `toNumber` / `toDateMs`
+  for testing. 28 new unit tests cover the helpers across all
+  operator + value-type combinations.
+
+- **`useColumnAutoDetect`** is now also the source of truth for the
+  filter UI dispatch — `inferredType` maps to `TableFilterType`
+  via the new `resolveFilterType` helper inside `DataGrid.tsx`.
+
+- **Bundle impact**: +16 KB raw (~+5 KB gz) on top of
+  `0.7.0-beta` — the new filter UI, visibility dialog, resize, and
+  reorder code paths combined. Zero new runtime deps.
+
+### Migration
+
+No code changes required:
+
+```bash
+pnpm up @dashforge/tw@^0.8.0-beta
+```
+
+To adopt the new v1-bis features, opt in per-column / per-grid:
+
+```tsx
+<DataGrid
+  rows={users}
+  cols={[
+    { field: 'name',
+      header: 'Name',
+      sticky: 'left',
+      hideable: false },           // required column
+
+    { field: 'age',
+      header: 'Age',
+      filterable: true },          // → number range filter (auto)
+
+    { field: 'joinedAt',
+      header: 'Joined',
+      filterable: true },          // → date range filter (auto)
+
+    { field: 'active',
+      header: 'Active',
+      filterable: true,
+      defaultHidden: true },       // hidden until user re-shows
+
+    { field: 'actions',
+      header: 'Actions',
+      sticky: 'right',             // pinned to right edge
+      resizable: false,
+      reorderable: false,
+      cellRenderer: ({ row }) => <RowActionsMenu row={row} ... /> },
+  ]}
+  getRowId={(r) => r.id}
+  rowHeight={48}
+  height="600px"
+
+  // Per-feature opt-out flags (all default true):
+  enableColumnVisibility
+  enableColumnResize
+  enableColumnReorder
+
+  // Controllable state for persistence:
+  hiddenColumns={hidden}            onHiddenColumnsChange={setHidden}
+  columnWidths={widths}             onColumnWidthsChange={setWidths}
+  columnOrder={order}               onColumnOrderChange={setOrder}
+/>
+```
+
+`<Table>` (non-virtualized) is **unchanged** in `0.8.0-beta` —
+the in-header v1-bis features are DataGrid-only for now. Promoting
+them to Table is on the v1-bis roadmap.
+
+### Heads-up — companion releases coming
+
+- **Sprint 5 → `0.9.0-beta`** + starter kits v1: separate repos
+  `dashforge-starter-mui` + `dashforge-starter-tw` with Auth + RBAC
+  + form CRUD + dashboard with DataGrid admin views.
+- **Sprint 6 → `1.0.0-rc.1 → 1.0.0`**: final A11Y audit, bundle
+  lockdown, beta freeze, cut `1.0.0`.
+
 ## [0.7.0-beta] — 2026-05-19
 
 **Combined Sprint 4.2 + 4.3 release.** Ships **`<DataGrid>`** — a
