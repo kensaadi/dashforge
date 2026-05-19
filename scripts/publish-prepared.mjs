@@ -274,7 +274,7 @@ if (!dryRun) {
   const tag = `${pkg.name}@${version}`;
   // Path to per-package CHANGELOG (relative to repo root) so the
   // gh-release template can point at the section we just published.
-  const pkgRel = path.relative(REPO_ROOT, path.dirname(pkg.path));
+  const pkgRel = path.relative(REPO_ROOT, pkg.dir);
   const changelogPath = `${pkgRel}/CHANGELOG.md`;
 
   console.log();
