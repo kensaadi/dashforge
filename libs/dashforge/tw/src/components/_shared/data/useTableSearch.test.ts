@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useTableSearch, stringifyForSearch } from './useTableSearch.js';
-import type { TableColumn } from '../table.types.js';
+import type { TableColumn } from '../../Table/table.types.js';
 
 interface User {
   name: string;

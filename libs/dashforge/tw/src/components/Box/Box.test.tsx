@@ -46,7 +46,11 @@ describe('<Box>', () => {
       const { container } = render(<Box variant="elevated" elevation={3}>x</Box>);
       const cls = container.firstElementChild?.className ?? '';
       expect(cls).toContain('bg-white');
-      expect(cls).toContain('dark:bg-neutral-900');
+      // Sprint 4.3 theme identity sweep: corrected `dark:bg-neutral-900`
+      // (which resolved to near-white in dark mode via inversion — broken
+      // elevation) to `dark:bg-neutral-100` which resolves to `#171717`,
+      // one elevation tier above the page surface in dark mode.
+      expect(cls).toContain('dark:bg-neutral-100');
       expect(cls).toContain('shadow-md');
       expect(cls).not.toContain('border ');
     });
@@ -203,11 +207,17 @@ describe('<Box>', () => {
         const { container } = render(<Box variant="outlined" color={color}>x</Box>);
         const cls = container.firstElementChild?.className ?? '';
         if (color === 'neutral') {
-          // neutral uses the special border-neutral-200 + bg-white shape
+          // Sprint 4.3 identity sweep: neutral outlined uses
+          // `border-neutral-200` (auto-inverts via CSS-var swap; no
+          // `dark:` needed) + `bg-white dark:bg-neutral-100`
+          // (bg-white is hardcoded so `dark:` is required; target
+          // `dark:bg-neutral-100` = `#171717` is one tier elevated
+          // above the page surface in dark mode).
           expect(cls).toContain('border-neutral-200');
           expect(cls).toContain('bg-white');
-          expect(cls).toContain('dark:border-neutral-700');
-          expect(cls).toContain('dark:bg-neutral-900');
+          expect(cls).toContain('dark:bg-neutral-100');
+          // No more dark:border-neutral-700 (auto-inverts).
+          expect(cls).not.toContain('dark:border-neutral-');
         } else {
           // primary/secondary/success/warning/danger/info share the
           // border-{color}-300 + bg-{color}-50/40 + dark:* pattern
@@ -229,10 +239,12 @@ describe('<Box>', () => {
         const { container } = render(<Box variant="soft" color={color}>x</Box>);
         const cls = container.firstElementChild?.className ?? '';
         if (color === 'neutral') {
+          // Sprint 4.3 identity sweep: both neutral classes auto-invert
+          // via the dashforgePreset() CSS-var swap — no `dark:` needed.
           expect(cls).toContain('bg-neutral-100');
           expect(cls).toContain('text-neutral-900');
-          expect(cls).toContain('dark:bg-neutral-800');
-          expect(cls).toContain('dark:text-neutral-100');
+          expect(cls).not.toContain('dark:bg-neutral-');
+          expect(cls).not.toContain('dark:text-neutral-');
         } else {
           expect(cls).toContain(`bg-${color}-100`);
           expect(cls).toContain(`text-${color}-900`);
@@ -254,10 +266,17 @@ describe('<Box>', () => {
         const { container } = render(<Box variant="solid" color={color}>x</Box>);
         const cls = container.firstElementChild?.className ?? '';
         if (color === 'neutral') {
+          // Sprint 4.3 identity sweep: solid neutral now uses
+          // `bg-neutral-900 text-neutral-50` (both auto-invert) — the
+          // accent surface inverts WITH the page (dark surface in
+          // light mode, light surface in dark mode), consistent with
+          // identity rule. Previously was `text-white` (no inversion)
+          // forcing double-invert pattern to stay readable.
           expect(cls).toContain('bg-neutral-900');
-          expect(cls).toContain('text-white');
-          expect(cls).toContain('dark:bg-neutral-100');
-          expect(cls).toContain('dark:text-neutral-900');
+          expect(cls).toContain('text-neutral-50');
+          expect(cls).not.toContain('text-white');
+          expect(cls).not.toContain('dark:bg-neutral-');
+          expect(cls).not.toContain('dark:text-neutral-');
         } else if (color === 'warning') {
           // warning uses 500/600 instead of 600/500 to keep contrast
           // legible against an already-yellow surface in light mode.
@@ -289,9 +308,11 @@ describe('<Box>', () => {
     it('elevated + color="danger" stays on the neutral surface', () => {
       const { container } = render(<Box variant="elevated" color="danger">x</Box>);
       const cls = container.firstElementChild?.className ?? '';
-      // elevated paints bg-white / dark:bg-neutral-900 regardless of intent
+      // elevated paints bg-white / dark:bg-neutral-100 regardless of
+      // intent (Sprint 4.3 sweep: dark target corrected to
+      // `dark:bg-neutral-100` for proper dark elevation).
       expect(cls).toContain('bg-white');
-      expect(cls).toContain('dark:bg-neutral-900');
+      expect(cls).toContain('dark:bg-neutral-100');
       expect(cls).not.toContain('bg-danger-');
       expect(cls).not.toContain('border-danger-');
     });

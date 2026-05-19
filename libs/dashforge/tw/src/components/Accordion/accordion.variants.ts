@@ -3,11 +3,13 @@ import { tv, type VariantProps } from 'tailwind-variants';
 export const accordionVariants = tv({
   slots: {
     root: 'w-full',
-    item: 'border-b border-neutral-200 dark:border-neutral-800',
+    // Neutral palette auto-inverts via the dashforgePreset() CSS-var
+    // swap — no `dark:` variant needed (would double-invert).
+    item: 'border-b border-neutral-200',
     header: 'flex',
     trigger: [
       'flex flex-1 items-center justify-between py-3 text-left',
-      'text-sm font-medium text-neutral-900 dark:text-neutral-50',
+      'text-sm font-medium text-neutral-900',
       'transition-all hover:underline',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:rounded',
       '[&[data-state=open]>svg]:rotate-180',
@@ -15,7 +17,7 @@ export const accordionVariants = tv({
       'motion-reduce:transition-none',
     ],
     content: [
-      'overflow-hidden text-sm text-neutral-700 dark:text-neutral-300',
+      'overflow-hidden text-sm text-neutral-700',
       'data-[state=open]:animate-accordion-down',
       'data-[state=closed]:animate-accordion-up',
       'motion-reduce:animate-none',

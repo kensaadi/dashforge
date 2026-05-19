@@ -238,7 +238,9 @@ export function Pagination(props: PaginationProps) {
             disabled={disabled}
             aria-label={labels.perPage}
             className={cn(
-              'rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1',
+              // Auto-invert via CSS-var swap — no `dark:` variants needed
+              // on neutral palette.
+              'rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
             )}
           >

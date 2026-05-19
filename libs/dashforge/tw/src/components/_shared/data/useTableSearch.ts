@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { getNestedValue } from './getNestedValue.js';
-import type { TableColumn } from '../table.types.js';
+import type { TableColumn } from '../../Table/table.types.js';
 
 /**
  * Stringify any value into a search-comparable form. Handles all

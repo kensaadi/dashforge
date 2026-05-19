@@ -62,8 +62,12 @@ export const typographyVariants = tv({
       warning:   'text-warning-700 dark:text-warning-400',
       danger:    'text-danger-700 dark:text-danger-400',
       info:      'text-info-700 dark:text-info-400',
-      neutral:   'text-neutral-900 dark:text-neutral-100',
-      muted:     'text-neutral-600 dark:text-neutral-400',
+      // Neutral palette auto-inverts via the dashforgePreset() CSS-var
+      // swap — no `dark:` variants. `text-neutral-900` resolves to
+      // dark text in light mode and light text in dark mode; same
+      // applies to `text-neutral-600` (muted).
+      neutral:   'text-neutral-900',
+      muted:     'text-neutral-600',
     },
 
     /*

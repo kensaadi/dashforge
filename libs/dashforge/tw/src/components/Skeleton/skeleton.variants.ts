@@ -35,7 +35,8 @@ export const skeletonVariants = tv({
   slots: {
     root: [
       'block',
-      'bg-neutral-200 dark:bg-neutral-800',
+      // Neutral palette auto-inverts via CSS-var swap (no `dark:`).
+      'bg-neutral-200',
       'motion-reduce:animate-none',
     ],
   },

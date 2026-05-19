@@ -26,21 +26,25 @@ export const dialogVariants = tv({
     ],
     content: [
       'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
-      'w-full bg-white dark:bg-neutral-900 rounded-lg shadow-xl',
-      'border border-neutral-200 dark:border-neutral-800',
+      // bg-white hardcoded (doesn't auto-invert) so `dark:` is needed.
+      // Target `dark:bg-neutral-100` = #171717 in dark mode (one
+      // elevation tier above page surface).
+      'w-full bg-white dark:bg-neutral-100 rounded-lg shadow-xl',
+      // border-neutral-200 auto-inverts — no `dark:` needed.
+      'border border-neutral-200',
       'p-6 flex flex-col gap-4 max-h-[90vh]',
       'focus:outline-none',
       'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
       'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
       'motion-reduce:transition-none motion-reduce:duration-0',
     ],
-    title: 'text-lg font-semibold leading-tight text-neutral-900 dark:text-neutral-50',
-    description: 'text-sm text-neutral-600 dark:text-neutral-400',
+    // All neutral text classes auto-invert via CSS-var swap.
+    title: 'text-lg font-semibold leading-tight text-neutral-900',
+    description: 'text-sm text-neutral-600',
     closeButton: [
       'absolute top-4 right-4 inline-flex items-center justify-center',
       'h-8 w-8 rounded-md text-neutral-500 hover:text-neutral-900',
-      'dark:text-neutral-400 dark:hover:text-neutral-50',
-      'hover:bg-neutral-100 dark:hover:bg-neutral-800',
+      'hover:bg-neutral-100',
       'focus:outline-none focus:ring-2 focus:ring-primary-500',
       'transition-colors',
     ],

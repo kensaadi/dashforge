@@ -7,7 +7,7 @@ import {
   resolveMonospace,
   resolveTabularNums,
 } from './useColumnAutoDetect.js';
-import type { TableColumn } from '../table.types.js';
+import type { TableColumn } from '../../Table/table.types.js';
 
 interface Row {
   name: string;

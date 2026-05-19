@@ -219,8 +219,10 @@ describe('<Typography>', () => {
       const { container } = render(<Typography color={color}>x</Typography>);
       const cls = container.firstElementChild?.className ?? '';
       if (color === 'muted') {
+        // Sprint 4.3 identity sweep: neutral palette auto-inverts via
+        // CSS-var swap — no `dark:` variant needed.
         expect(cls).toContain('text-neutral-600');
-        expect(cls).toContain('dark:text-neutral-400');
+        expect(cls).not.toContain('dark:text-neutral-');
       } else {
         expect(cls).toContain(`text-${color}-700`);
         expect(cls).toContain(`dark:text-${color}-400`);

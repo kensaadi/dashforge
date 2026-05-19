@@ -10,6 +10,37 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 0.7.0-beta] — 2026-05-19
+
+> **Combined Sprint 4.2 + 4.3 release for `@dashforge/tw`.** Ships
+> **`<DataGrid>`** — a virtualized data table for 500-row to
+> million-row data sets, built with **homemade virtualization**
+> (`useVirtualizer` hook: scroll-event + `requestAnimationFrame`
+> debounce + `ResizeObserver`, zero new runtime deps). Sibling to
+> `<Table>` — shares the column model, cell renderer library,
+> RBAC, identity-consistent visual design. Adds sticky-left
+> columns, 4 independent server-side mode flags, `selectAllScope`,
+> and optional internal pagination via the Sprint 4 `<Pagination>`.
+> Alongside DataGrid, this release ships a **theme identity sweep**
+> across the catalog: 42 latent `dark:` Tailwind variant anti-patterns
+> (across Typography, Box, Dialog, Divider, Pagination, Popover,
+> Skeleton, Tabs, Tooltip) silently broke dark mode via the
+> dashforgePreset CSS-var double-inversion. Fixed across the whole
+> catalog + new package-level regression test
+> (`_shared/themeIdentity.test.ts`) scans every source file on every
+> build. Most visible bug fixed: Tooltip was previously invisible in
+> dark mode (same dark surface as the page); now auto-inverts to
+> light tooltip on dark page (high contrast preserved). Strictly
+> additive on public APIs: 961/961 tests passing across 48 files,
+> +133 new from this release. Drop-in upgrade from `0.6.0-beta`.
+> Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | + `<DataGrid>` (virtualized table, 500-row to million-row data sets) + `useVirtualizer` hook + theme identity sweep across 10 components (Typography, Box, Dialog, Divider, Pagination, Popover, Skeleton, Tabs, Tooltip, Tooltip fix is most visible) + package-level regression guard. Bundle 445 KB raw / 98.4 KB gzipped (+8.1% gz vs `0.6.0-beta`). Drop-in upgrade. |
+
 ## [tw 0.6.0-beta] — 2026-05-19
 
 > **Sprint 4.1 release for `@dashforge/tw`.** Ships **`<Table>`** —

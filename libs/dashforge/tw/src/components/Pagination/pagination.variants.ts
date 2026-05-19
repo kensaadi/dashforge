@@ -23,28 +23,34 @@ import { tv, type VariantProps } from 'tailwind-variants';
 export const paginationVariants = tv({
   slots: {
     root: 'flex flex-wrap items-center gap-3',
-    summary: 'text-neutral-600 dark:text-neutral-400',
+    // All neutral classes auto-invert via the dashforgePreset() CSS-var
+    // swap. `bg-neutral-50` provides the button surface (matches page
+    // surface; the border gives the separation). `hover:bg-neutral-100`
+    // is the one-tier elevation that works in both modes.
+    summary: 'text-neutral-600',
     list: 'inline-flex items-center gap-1',
     pageButton: [
       'inline-flex items-center justify-center rounded-md',
-      'border border-neutral-300 dark:border-neutral-700',
-      'bg-white dark:bg-neutral-900',
-      'text-neutral-700 dark:text-neutral-300',
-      'hover:bg-neutral-50 dark:hover:bg-neutral-800',
+      'border border-neutral-300',
+      'bg-neutral-50',
+      'text-neutral-700',
+      'hover:bg-neutral-100',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
       'transition-colors motion-reduce:transition-none',
       'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
     ],
     activeButton: [
+      // Primary palette does NOT auto-invert — `dark:` shift is a
+      // design choice for tone refinement (kept).
       'bg-primary-500 text-white border-primary-500',
       'hover:bg-primary-600 dark:hover:bg-primary-400',
     ],
     navButton: [
       'inline-flex items-center justify-center rounded-md',
-      'border border-neutral-300 dark:border-neutral-700',
-      'bg-white dark:bg-neutral-900',
-      'text-neutral-700 dark:text-neutral-300',
-      'hover:bg-neutral-50 dark:hover:bg-neutral-800',
+      'border border-neutral-300',
+      'bg-neutral-50',
+      'text-neutral-700',
+      'hover:bg-neutral-100',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
       'transition-colors motion-reduce:transition-none',
       'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
@@ -52,12 +58,12 @@ export const paginationVariants = tv({
     ellipsis: 'inline-flex items-center justify-center text-neutral-500 px-1',
     pageSizeSelector: [
       'inline-flex items-center gap-2',
-      'text-neutral-700 dark:text-neutral-300',
+      'text-neutral-700',
     ],
     jumpInput: [
-      'rounded-md border border-neutral-300 dark:border-neutral-700',
-      'bg-white dark:bg-neutral-900',
-      'text-neutral-900 dark:text-neutral-50',
+      'rounded-md border border-neutral-300',
+      'bg-neutral-50',
+      'text-neutral-900',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
       'transition-colors motion-reduce:transition-none',
     ],

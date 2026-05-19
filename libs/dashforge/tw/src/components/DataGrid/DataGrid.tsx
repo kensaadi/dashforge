@@ -2,7 +2,8 @@ import { useMemo, type ReactNode, type MouseEvent } from 'react';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { Skeleton } from '../Skeleton/Skeleton.js';
-import { tableVariants } from './table.variants.js';
+import { Pagination } from '../Pagination/Pagination.js';
+import { dataGridVariants } from './dataGrid.variants.js';
 import { useControllableState } from '../_shared/data/useControllableState.js';
 import { useDebouncedValue } from '../_shared/data/useDebouncedValue.js';
 import { useTableSearch } from '../_shared/data/useTableSearch.js';
@@ -10,6 +11,7 @@ import { useTableFilter } from '../_shared/data/useTableFilter.js';
 import { useTableSort, cycleSortFor } from '../_shared/data/useTableSort.js';
 import { useTableSelection } from '../_shared/data/useTableSelection.js';
 import { getNestedValue } from '../_shared/data/getNestedValue.js';
+import { useVirtualizer } from '../_shared/data/useVirtualizer.js';
 import {
   useColumnAutoDetect,
   resolveAlign,
@@ -17,12 +19,12 @@ import {
   resolveTabularNums,
 } from '../_shared/data/useColumnAutoDetect.js';
 import type {
-  TableProps,
   TableColumn,
   TableSortModel,
   TableFilterModel,
   TableLabels,
-} from './table.types.js';
+} from '../Table/table.types.js';
+import type { DataGridProps } from './dataGrid.types.js';
 
 const DEFAULT_LABELS: Required<TableLabels> = {
   searchPlaceholder: 'Search...',
@@ -46,67 +48,79 @@ const DEFAULT_LABELS: Required<TableLabels> = {
   densitySpacious: 'Spacious',
 };
 
-const DEFAULT_GET_ROW_ID = <T extends object>(_row: T, index: number) => String(index);
-
 /**
- * Dashforge TW `<Table>` — declarative-first, market-grounded table.
+ * Dashforge TW `<DataGrid>` — virtualized data table.
  *
- * Design references:
- *  - Visual: Stripe (clean line dividers, hover row actions, sticky header)
- *  - Density: Pencil & Paper UX research (compact / comfortable / spacious)
- *  - A11Y: W3C WAI Table tutorial (semantic `<table>`, scope, aria-sort)
- *  - Column model: extended from Dashforge MUI Table existing API
+ * Companion to `<Table>` for large data sets (~500+ rows up to
+ * millions via virtualization). Same column model, sort/search/
+ * filter/selection logic (shared via `_shared/data/` helpers) —
+ * differs in render path: only the visible window of rows is mounted
+ * in DOM, with spacer `<tr>` above and below to preserve scrollbar
+ * size.
  *
- * Smart defaults: column types auto-detected → numbers right-aligned
- * + tabular-nums, dates monospace, booleans center-aligned. Override
- * via explicit `align` / `monospace` per column.
+ * Virtualization: hand-rolled (`useVirtualizer`) using
+ * `IntersectionObserver` + scroll-event + `requestAnimationFrame`
+ * debounce + `ResizeObserver`. Zero new runtime deps.
  *
- * State (sort / search / filter / selection / expansion) is internal
- * by default; pass the controlled prop + matching change handler to
- * lift state up — same pattern as `<TextField>` value.
+ * Server-side mode (4 independent opt-in flags):
+ *  - `serverSideSort` — emits `onSortChange` but does NOT sort locally
+ *  - `serverSideFilter` — emits `onFilterChange` but does NOT filter
+ *  - `serverSideSearch` — emits `onSearchQueryChange` (debounced)
+ *  - `serverSidePagination` — `totalCount` prop sizes the virtual
+ *    scrollbar; `rows` is the page slice from the server
  *
- * i18n: pass `header: t('users.name')` for column headers; pass
- * `labels={{ searchPlaceholder: t('...'), ... }}` for internal default
- * strings.
+ * Selection at scale: `selectAllScope`:
+ *  - `'allLoaded'` (default) — header checkbox toggles all rows in
+ *    `rows` prop
+ *  - `'visible'` — toggles only the current viewport window
  */
-export function Table<T extends object>(props: TableProps<T>) {
+export function DataGrid<T extends object>(props: DataGridProps<T>) {
   const {
     rows,
     cols,
-    getRowId = DEFAULT_GET_ROW_ID,
+    getRowId,
+    totalCount: totalCountProp,
 
-    // State props (controllable)
+    rowHeight,
+    overscan = 5,
+    height,
+
     sortModel: sortModelProp,
     onSortChange,
     defaultSortModel,
+    serverSideSort = false,
 
     enableSearch = false,
     searchQuery: searchQueryProp,
     onSearchQueryChange,
     searchPlaceholder,
     searchDebounceMs = 200,
+    serverSideSearch = false,
 
     filterModel: filterModelProp,
     onFilterChange,
+    serverSideFilter = false,
 
     rowSelection = 'none',
     selectedRowIds: selectedRowIdsProp,
     onSelectionChange,
     bulkActions,
+    selectAllScope = 'allLoaded',
 
-    expandable,
+    pagination,
+    serverSidePagination = false,
 
     rowActions,
 
     loading = false,
-    loadingRowCount = 5,
+    loadingRowCount = 8,
     emptyState,
 
     stickyHeader = true,
     caption,
     showCaption = false,
 
-    access: tableAccess,
+    access: gridAccess,
 
     labels: labelsProp,
 
@@ -119,9 +133,9 @@ export function Table<T extends object>(props: TableProps<T>) {
   } = props;
 
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
-  const tableAccessState = useAccessState(tableAccess);
+  const gridAccessState = useAccessState(gridAccess);
 
-  // ───── Controllable state machinery ─────
+  // ───── Controllable state ─────
 
   const [sortModel, setSortModel] = useControllableState<TableSortModel>({
     controlledValue: sortModelProp,
@@ -133,11 +147,8 @@ export function Table<T extends object>(props: TableProps<T>) {
     defaultValue: '',
     onChange: onSearchQueryChange,
   });
-  // Filter UI (per-column quick filters) is scoped for v1-bis; for now
-  // the model is read-only inside the component — the consumer wires it
-  // up via `filterModelProp` + `onFilterChange` from their own state.
-  // Until the in-table filter UI ships, only the controlled mode is
-  // meaningful, so we don't need an internal setter.
+  // filterModel: read-only in v1 (no in-table filter UI; deferred to
+  // v1-bis). Consumer wires it via filterModelProp + onFilterChange.
   void onFilterChange;
   const filterModel: TableFilterModel = filterModelProp ?? [];
   const [selectedRowIds, setSelectedRowIds] = useControllableState<string[]>({
@@ -145,14 +156,8 @@ export function Table<T extends object>(props: TableProps<T>) {
     defaultValue: [],
     onChange: onSelectionChange,
   });
-  const [expandedRowIds, setExpandedRowIds] = useControllableState<string[]>({
-    controlledValue: expandable?.expandedRowIds,
-    defaultValue: [],
-    onChange: expandable?.onExpandChange,
-  });
 
-  // ───── RBAC: filter out hidden columns ─────
-
+  // ───── RBAC: filter columns ─────
   const visibleCols = useMemo(
     () =>
       cols.filter(
@@ -162,22 +167,66 @@ export function Table<T extends object>(props: TableProps<T>) {
   );
 
   // ───── Smart-default column types ─────
-
   const columnTypes = useColumnAutoDetect(rows, visibleCols);
 
-  // ───── Pipeline: search → filter → sort ─────
+  // ───── Pipeline: search → filter → sort (skip when server-side) ─────
+  //
+  // Each pipeline hook is ALWAYS called (React hooks rules). The
+  // server-side flags decide whether to use the local-computed result
+  // or pass the upstream rows through unchanged. The hooks are
+  // `useMemo`-based internally so they're cheap when their inputs
+  // are unchanged.
 
   const debouncedSearchQuery = useDebouncedValue(searchQuery, searchDebounceMs);
-  const searchedRows = useTableSearch(rows, visibleCols, debouncedSearchQuery);
-  const filteredRows = useTableFilter(searchedRows, filterModel);
-  const sortedRows = useTableSort(filteredRows, visibleCols, sortModel);
+  const localSearched = useTableSearch(rows, visibleCols, debouncedSearchQuery);
+  const searchedRows = serverSideSearch ? rows : localSearched;
+
+  const localFiltered = useTableFilter(searchedRows, filterModel);
+  const filteredRows = serverSideFilter ? searchedRows : localFiltered;
+
+  const localSorted = useTableSort(filteredRows, visibleCols, sortModel);
+  const sortedRows = serverSideSort ? filteredRows : localSorted;
+
+  // ───── Virtualization ─────
+
+  // Effective row count for the virtual scrollbar:
+  // - Client-side: actual sorted rows count
+  // - Server-side pagination: caller-provided totalCount
+  const effectiveTotalCount = serverSidePagination
+    ? totalCountProp ?? sortedRows.length
+    : sortedRows.length;
+
+  const initialViewportHeight = height ? parseInt(height, 10) || 400 : 400;
+  const { scrollRef, window: vWindow } = useVirtualizer({
+    totalCount: effectiveTotalCount,
+    rowHeight,
+    overscan,
+    initialViewportHeight,
+  });
+
+  // The rows actually mounted in DOM.
+  const renderedRows = useMemo(() => {
+    if (serverSidePagination) {
+      // In server-side pagination, `rows` IS the page slice; we
+      // render all of it (virtualization within the page is still
+      // useful for very large page sizes).
+      return rows.slice(vWindow.startIndex, vWindow.endIndex + 1);
+    }
+    return sortedRows.slice(vWindow.startIndex, vWindow.endIndex + 1);
+  }, [serverSidePagination, rows, sortedRows, vWindow.startIndex, vWindow.endIndex]);
 
   // ───── Selection helpers ─────
 
-  const visibleRowIds = useMemo(
-    () => sortedRows.map((row, idx) => getRowId(row, idx)),
-    [sortedRows, getRowId],
-  );
+  // For `selectAllScope='visible'`, the select-all scope is the
+  // current window. For `'allLoaded'`, it's the whole sorted set.
+  const selectAllPool = useMemo(() => {
+    if (selectAllScope === 'visible') {
+      return renderedRows.map((row, idx) =>
+        getRowId(row, vWindow.startIndex + idx),
+      );
+    }
+    return sortedRows.map((row, idx) => getRowId(row, idx));
+  }, [selectAllScope, renderedRows, sortedRows, getRowId, vWindow.startIndex]);
 
   const selection = useTableSelection(rowSelection, selectedRowIds, setSelectedRowIds);
 
@@ -187,30 +236,27 @@ export function Table<T extends object>(props: TableProps<T>) {
   );
 
   // ───── Variant recipe ─────
-
-  const v = tableVariants({ variant, size, density, stickyHeader });
+  const v = dataGridVariants({ variant, size, density });
 
   // ───── Render ─────
 
-  if (!tableAccessState.visible) return null;
+  if (!gridAccessState.visible) return null;
 
-  const isTableInteractive = !tableAccessState.disabled;
+  const isInteractive = !gridAccessState.disabled;
   const showSelectionColumn = rowSelection !== 'none';
-  const showExpandColumn = expandable != null;
   const showRowActionsColumn = rowActions != null;
 
   const totalColumnCount =
     visibleCols.length +
     (showSelectionColumn ? 1 : 0) +
-    (showExpandColumn ? 1 : 0) +
     (showRowActionsColumn ? 1 : 0);
 
   return (
     <div
       className={cn(v.root(), sx, slotProps?.root?.className)}
-      data-disabled={!isTableInteractive ? 'true' : undefined}
+      data-disabled={!isInteractive ? 'true' : undefined}
     >
-      {/* ───── Toolbar (search) ───── */}
+      {/* ───── Toolbar ───── */}
       {enableSearch && (
         <div className={cn(v.toolbar(), slotProps?.toolbar?.className)}>
           <label className={cn(v.search(), slotProps?.search?.className)}>
@@ -221,12 +267,10 @@ export function Table<T extends object>(props: TableProps<T>) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={searchPlaceholder ?? labels.searchPlaceholder}
-              disabled={!isTableInteractive}
+              disabled={!isInteractive}
               className={cn(
                 'flex-1 bg-transparent border-0 outline-none',
                 'px-2 py-1.5',
-                // placeholder color auto-inverts via the CSS-var preset;
-                // no `dark:` variant needed on neutral palette.
                 'placeholder:text-neutral-400',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
               )}
@@ -235,8 +279,12 @@ export function Table<T extends object>(props: TableProps<T>) {
         </div>
       )}
 
-      {/* ───── Scroll wrapper ───── */}
-      <div className={cn(v.scroll(), slotProps?.scroll?.className)}>
+      {/* ───── Scroll wrapper (bounded height — required for virt) ───── */}
+      <div
+        ref={scrollRef}
+        className={cn(v.scroll(), slotProps?.scroll?.className)}
+        style={height ? { height, maxHeight: height } : undefined}
+      >
         <table className={cn(v.table(), slotProps?.table?.className)}>
           {caption != null && (
             <caption className={cn(!showCaption && 'sr-only', 'py-2 text-sm text-neutral-500')}>
@@ -244,8 +292,12 @@ export function Table<T extends object>(props: TableProps<T>) {
             </caption>
           )}
 
-          {/* ───── Header ───── */}
-          <thead className={cn(v.thead(), slotProps?.thead?.className)}>
+          <thead
+            className={cn(
+              stickyHeader ? v.thead() : 'bg-neutral-50',
+              slotProps?.thead?.className,
+            )}
+          >
             <tr className={cn(v.headerRow(), slotProps?.headerRow?.className)}>
               {showSelectionColumn && (
                 <th
@@ -253,6 +305,7 @@ export function Table<T extends object>(props: TableProps<T>) {
                   className={cn(
                     v.headerCell(),
                     v.selectionCell(),
+                    v.stickyLeftHeaderCell(),
                     slotProps?.headerCell?.className,
                     slotProps?.selectionCell?.className,
                   )}
@@ -261,29 +314,17 @@ export function Table<T extends object>(props: TableProps<T>) {
                     <input
                       type="checkbox"
                       aria-label={labels.ariaSelectAllRows}
-                      checked={selection.isAllSelected(visibleRowIds)}
+                      checked={selection.isAllSelected(selectAllPool)}
                       ref={(el) => {
-                        if (el) el.indeterminate = selection.isIndeterminate(visibleRowIds);
+                        if (el)
+                          el.indeterminate = selection.isIndeterminate(selectAllPool);
                       }}
-                      onChange={() => selection.toggleAll(visibleRowIds)}
-                      disabled={!isTableInteractive}
+                      onChange={() => selection.toggleAll(selectAllPool)}
+                      disabled={!isInteractive}
                       className="cursor-pointer"
                     />
                   )}
                 </th>
-              )}
-
-              {showExpandColumn && (
-                <th
-                  scope="col"
-                  aria-hidden="true"
-                  className={cn(
-                    v.headerCell(),
-                    v.expandToggleCell(),
-                    slotProps?.headerCell?.className,
-                    slotProps?.expandToggleCell?.className,
-                  )}
-                />
               )}
 
               {visibleCols.map((col) => (
@@ -291,12 +332,18 @@ export function Table<T extends object>(props: TableProps<T>) {
                   key={col.field as string}
                   col={col}
                   sortModel={sortModel}
-                  onSortClick={(e) => handleSortClick(col, e, sortModel, setSortModel)}
+                  onSortClick={(e) =>
+                    handleSortClick(col, e, sortModel, setSortModel)
+                  }
                   inferredType={columnTypes.get(col.field as string)}
                   labels={labels}
-                  className={cn(v.headerCell(), slotProps?.headerCell?.className)}
+                  className={cn(
+                    v.headerCell(),
+                    col.sticky === 'left' && v.stickyLeftHeaderCell(),
+                    slotProps?.headerCell?.className,
+                  )}
                   buttonClassName={v.headerCellButton()}
-                  disabled={!isTableInteractive}
+                  disabled={!isInteractive}
                 />
               ))}
 
@@ -314,15 +361,14 @@ export function Table<T extends object>(props: TableProps<T>) {
             </tr>
           </thead>
 
-          {/* ───── Body ───── */}
           <tbody className={cn(v.tbody(), slotProps?.tbody?.className)}>
             {loading
               ? renderLoadingRows({
                   count: loadingRowCount,
                   visibleCols,
                   showSelectionColumn,
-                  showExpandColumn,
                   showRowActionsColumn,
+                  rowHeight,
                   rowClass: cn(v.row(), slotProps?.row?.className),
                   cellClass: cn(v.cell(), slotProps?.cell?.className),
                 })
@@ -331,73 +377,59 @@ export function Table<T extends object>(props: TableProps<T>) {
                     totalColumnCount,
                     emptyState,
                     fallback: labels.noData,
-                    cellClass: cn(v.cell(), v.emptyState(), slotProps?.emptyState?.className),
+                    cellClass: cn(
+                      v.cell(),
+                      v.emptyState(),
+                      slotProps?.emptyState?.className,
+                    ),
                   })
-                : sortedRows.map((row, idx) => {
-                    const rowId = getRowId(row, idx);
-                    const isSelected = selection.isSelected(rowId);
-                    const isExpanded = expandedRowIds.includes(rowId);
-                    return (
-                      <Row
-                        key={rowId}
-                        row={row}
-                        rowId={rowId}
-                        rowIndex={idx}
-                        isSelected={isSelected}
-                        isExpanded={isExpanded}
-                        visibleCols={visibleCols}
-                        columnTypes={columnTypes}
-                        rowSelection={rowSelection}
-                        showSelectionColumn={showSelectionColumn}
-                        showExpandColumn={showExpandColumn}
-                        showRowActionsColumn={showRowActionsColumn}
-                        expandable={expandable}
-                        rowActions={rowActions}
-                        labels={labels}
-                        toggleRow={selection.toggleRow}
-                        toggleExpand={(id) =>
-                          setExpandedRowIds((prev) =>
-                            prev.includes(id)
-                              ? prev.filter((p) => p !== id)
-                              : [...prev, id],
-                          )
-                        }
-                        isInteractive={isTableInteractive}
-                        rowClass={cn(v.row(), slotProps?.row?.className)}
-                        cellClass={cn(v.cell(), slotProps?.cell?.className)}
-                        selectionCellClass={cn(
-                          v.cell(),
-                          v.selectionCell(),
-                          slotProps?.cell?.className,
-                          slotProps?.selectionCell?.className,
-                        )}
-                        expandToggleCellClass={cn(
-                          v.cell(),
-                          v.expandToggleCell(),
-                          slotProps?.cell?.className,
-                          slotProps?.expandToggleCell?.className,
-                        )}
-                        rowActionsCellClass={cn(
-                          v.cell(),
-                          v.rowActionsCell(),
-                          slotProps?.cell?.className,
-                          slotProps?.rowActionsCell?.className,
-                        )}
-                        expandedRowClass={cn(v.expandedRow(), slotProps?.expandedRow?.className)}
-                        totalColumnCount={totalColumnCount}
-                      />
-                    );
+                : renderVirtualizedBody({
+                    vWindow,
+                    rowHeight,
+                    renderedRows,
+                    visibleCols,
+                    columnTypes,
+                    selection,
+                    rowSelection,
+                    showSelectionColumn,
+                    showRowActionsColumn,
+                    rowActions,
+                    getRowId,
+                    isInteractive,
+                    labels,
+                    serverSidePagination,
+                    classes: {
+                      row: cn(v.row(), slotProps?.row?.className),
+                      cell: cn(v.cell(), slotProps?.cell?.className),
+                      selectionCell: cn(
+                        v.cell(),
+                        v.selectionCell(),
+                        v.stickyLeftCell(),
+                        slotProps?.cell?.className,
+                        slotProps?.selectionCell?.className,
+                      ),
+                      stickyLeftCell: v.stickyLeftCell(),
+                      rowActionsCell: cn(
+                        v.cell(),
+                        v.rowActionsCell(),
+                        slotProps?.cell?.className,
+                        slotProps?.rowActionsCell?.className,
+                      ),
+                    },
                   })}
           </tbody>
         </table>
       </div>
 
-      {/* ───── Bulk action footer (sticky) ───── */}
+      {/* ───── Bulk action footer ───── */}
       {bulkActions && selectedRows.length > 0 && (
         <div
           className={cn(v.bulkActionFooter(), slotProps?.bulkActionFooter?.className)}
           role="region"
-          aria-label={labels.selectedCount.replace('{count}', String(selectedRows.length))}
+          aria-label={labels.selectedCount.replace(
+            '{count}',
+            String(selectedRows.length),
+          )}
         >
           <span className="text-sm text-neutral-700">
             {labels.selectedCount.replace('{count}', String(selectedRows.length))}
@@ -408,7 +440,6 @@ export function Table<T extends object>(props: TableProps<T>) {
               type="button"
               onClick={selection.clearSelection}
               className={cn(
-                // text-neutral-500 → text-neutral-900 on hover; both auto-invert.
                 'text-sm text-neutral-500 hover:text-neutral-900',
                 'underline-offset-2 hover:underline',
                 'focus:outline-none focus-visible:underline',
@@ -419,11 +450,25 @@ export function Table<T extends object>(props: TableProps<T>) {
           </div>
         </div>
       )}
+
+      {/* ───── Optional pagination footer ───── */}
+      {pagination && (
+        <div className={cn(v.paginationFooter(), slotProps?.pagination?.className)}>
+          <Pagination
+            page={pagination.page}
+            pageSize={pagination.pageSize}
+            totalCount={totalCountProp ?? sortedRows.length}
+            onPageChange={pagination.onPageChange}
+            onPageSizeChange={pagination.onPageSizeChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
-// ───── Header cell (with sort button) ─────
+// ───── Header cell ─────
 
 function HeaderCell<T extends object>(props: {
   col: TableColumn<T>;
@@ -435,7 +480,16 @@ function HeaderCell<T extends object>(props: {
   buttonClassName: string;
   disabled: boolean;
 }) {
-  const { col, sortModel, onSortClick, inferredType, labels, className, buttonClassName, disabled } = props;
+  const {
+    col,
+    sortModel,
+    onSortClick,
+    inferredType,
+    labels,
+    className,
+    buttonClassName,
+    disabled,
+  } = props;
 
   const align = resolveAlign(col, inferredType as never);
   const alignClass =
@@ -491,139 +545,101 @@ function HeaderCell<T extends object>(props: {
   }
 
   return (
-    <th
-      scope="col"
-      className={cn(className, alignClass)}
-      style={cellStyle}
-    >
+    <th scope="col" className={cn(className, alignClass)} style={cellStyle}>
       {headerContent}
     </th>
   );
 }
 
-// ───── Data row ─────
+// ───── Virtualized body ─────
 
-function Row<T extends object>(props: {
-  row: T;
-  rowId: string;
-  rowIndex: number;
-  isSelected: boolean;
-  isExpanded: boolean;
+function renderVirtualizedBody<T extends object>(args: {
+  vWindow: { startIndex: number; endIndex: number; paddingTop: number; paddingBottom: number };
+  rowHeight: number;
+  renderedRows: T[];
   visibleCols: TableColumn<T>[];
   columnTypes: Map<string, string>;
+  selection: ReturnType<typeof useTableSelection>;
   rowSelection: 'none' | 'single' | 'multiple';
   showSelectionColumn: boolean;
-  showExpandColumn: boolean;
   showRowActionsColumn: boolean;
-  expandable: TableProps<T>['expandable'];
-  rowActions: TableProps<T>['rowActions'];
-  labels: Required<TableLabels>;
-  toggleRow: (rowId: string) => void;
-  toggleExpand: (rowId: string) => void;
+  rowActions: ((row: T) => ReactNode) | undefined;
+  getRowId: (row: T, index: number) => string;
   isInteractive: boolean;
-  rowClass: string;
-  cellClass: string;
-  selectionCellClass: string;
-  expandToggleCellClass: string;
-  rowActionsCellClass: string;
-  expandedRowClass: string;
-  totalColumnCount: number;
-}) {
+  labels: Required<TableLabels>;
+  serverSidePagination: boolean;
+  classes: {
+    row: string;
+    cell: string;
+    selectionCell: string;
+    stickyLeftCell: string;
+    rowActionsCell: string;
+  };
+}): ReactNode {
   const {
-    row,
-    rowId,
-    rowIndex,
-    isSelected,
-    isExpanded,
+    vWindow,
+    renderedRows,
     visibleCols,
     columnTypes,
+    selection,
     rowSelection,
     showSelectionColumn,
-    showExpandColumn,
     showRowActionsColumn,
-    expandable,
     rowActions,
-    labels,
-    toggleRow,
-    toggleExpand,
+    getRowId,
     isInteractive,
-    rowClass,
-    cellClass,
-    selectionCellClass,
-    expandToggleCellClass,
-    rowActionsCellClass,
-    expandedRowClass,
-    totalColumnCount,
-  } = props;
+    labels,
+    classes,
+  } = args;
 
   return (
     <>
-      <tr
-        data-selected={isSelected ? 'true' : 'false'}
-        aria-selected={rowSelection !== 'none' ? isSelected : undefined}
-        className={rowClass}
-      >
-        {showSelectionColumn && (
-          <td className={selectionCellClass}>
-            <input
-              type="checkbox"
-              aria-label={labels.ariaSelectRow}
-              checked={isSelected}
-              onChange={() => toggleRow(rowId)}
-              disabled={!isInteractive}
-              className="cursor-pointer"
-            />
-          </td>
-        )}
-
-        {showExpandColumn && (
-          <td className={expandToggleCellClass}>
-            <button
-              type="button"
-              onClick={() => toggleExpand(rowId)}
-              aria-label={isExpanded ? labels.ariaCollapseRow : labels.ariaExpandRow}
-              aria-expanded={isExpanded}
-              disabled={!isInteractive}
-              className={cn(
-                'inline-flex items-center justify-center h-6 w-6 rounded',
-                // text-neutral-500 + hover bump; both auto-invert via CSS-var preset.
-                'text-neutral-500 hover:text-neutral-900',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
-                'transition-transform motion-reduce:transition-none',
-                isExpanded && 'rotate-90',
-              )}
-            >
-              <ChevronRightIcon />
-            </button>
-          </td>
-        )}
-
-        {visibleCols.map((col) => (
-          <DataCell
-            key={col.field as string}
-            col={col}
-            row={row}
-            rowIndex={rowIndex}
-            isSelected={isSelected}
-            isExpanded={isExpanded}
-            inferredType={columnTypes.get(col.field as string)}
-            cellClass={cellClass}
-          />
-        ))}
-
-        {showRowActionsColumn && rowActions && (
-          <td className={rowActionsCellClass}>
-            {rowActions(row)}
-          </td>
-        )}
-      </tr>
-
-      {isExpanded && expandable && (
-        <tr className={expandedRowClass}>
-          <td colSpan={totalColumnCount} className="p-3">
-            {expandable.render(row)}
-          </td>
-        </tr>
+      {vWindow.paddingTop > 0 && (
+        <tr aria-hidden="true" style={{ height: vWindow.paddingTop }} />
+      )}
+      {renderedRows.map((row, localIdx) => {
+        const absoluteIdx = vWindow.startIndex + localIdx;
+        const rowId = getRowId(row, absoluteIdx);
+        const isSelected = selection.isSelected(rowId);
+        return (
+          <tr
+            key={rowId}
+            data-selected={isSelected ? 'true' : 'false'}
+            aria-selected={rowSelection !== 'none' ? isSelected : undefined}
+            className={classes.row}
+          >
+            {showSelectionColumn && (
+              <td className={classes.selectionCell}>
+                <input
+                  type="checkbox"
+                  aria-label={labels.ariaSelectRow}
+                  checked={isSelected}
+                  onChange={() => selection.toggleRow(rowId)}
+                  disabled={!isInteractive}
+                  className="cursor-pointer"
+                />
+              </td>
+            )}
+            {visibleCols.map((col) => (
+              <DataCell
+                key={col.field as string}
+                col={col}
+                row={row}
+                rowIndex={absoluteIdx}
+                isSelected={isSelected}
+                inferredType={columnTypes.get(col.field as string)}
+                cellClass={classes.cell}
+                stickyLeftClass={classes.stickyLeftCell}
+              />
+            ))}
+            {showRowActionsColumn && rowActions && (
+              <td className={classes.rowActionsCell}>{rowActions(row)}</td>
+            )}
+          </tr>
+        );
+      })}
+      {vWindow.paddingBottom > 0 && (
+        <tr aria-hidden="true" style={{ height: vWindow.paddingBottom }} />
       )}
     </>
   );
@@ -636,24 +652,18 @@ function DataCell<T extends object>(props: {
   row: T;
   rowIndex: number;
   isSelected: boolean;
-  isExpanded: boolean;
   inferredType: string | undefined;
   cellClass: string;
+  stickyLeftClass: string;
 }) {
-  const { col, row, rowIndex, isSelected, isExpanded, inferredType, cellClass } = props;
+  const { col, row, rowIndex, isSelected, inferredType, cellClass, stickyLeftClass } = props;
   const value = getNestedValue(row, col.field as string);
   const align = resolveAlign(col, inferredType as never);
-  // tabularNums = digit alignment via font-variant-numeric — does NOT
-  // change the font family. Auto-true for number / date columns.
   const tabularNums = resolveTabularNums(col, inferredType as never);
-  // monospace = font-family override (font-mono). Library never
-  // auto-picks a font family — only explicit consumer opt-in. The
-  // consumer's theme font-sans is preserved by default.
   const monospace = resolveMonospace(col);
   const alignClass =
     align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left';
 
-  // Per-column RBAC state for the cellRenderer context
   const columnAccessState = col.access
     ? {
         hidden: col.access.onUnauthorized === 'hide',
@@ -668,7 +678,7 @@ function DataCell<T extends object>(props: {
         value,
         rowIndex,
         isSelected,
-        isExpanded,
+        isExpanded: false, // DataGrid v1 doesn't support expansion (defer)
         access: columnAccessState,
       })
     : renderDefaultCell(value);
@@ -680,6 +690,7 @@ function DataCell<T extends object>(props: {
         alignClass,
         tabularNums && 'tabular-nums',
         monospace && 'font-mono',
+        col.sticky === 'left' && stickyLeftClass,
       )}
       style={{
         width: col.width != null ? `${col.width}px` : undefined,
@@ -705,7 +716,9 @@ function handleSortClick<T extends object>(
   col: TableColumn<T>,
   event: MouseEvent<HTMLButtonElement>,
   current: TableSortModel,
-  setSortModel: (next: TableSortModel | ((prev: TableSortModel) => TableSortModel)) => void,
+  setSortModel: (
+    next: TableSortModel | ((prev: TableSortModel) => TableSortModel),
+  ) => void,
 ) {
   if (!col.sortable) return;
   const multi = event.shiftKey;
@@ -716,22 +729,42 @@ function renderLoadingRows<T extends object>(args: {
   count: number;
   visibleCols: TableColumn<T>[];
   showSelectionColumn: boolean;
-  showExpandColumn: boolean;
   showRowActionsColumn: boolean;
+  rowHeight: number;
   rowClass: string;
   cellClass: string;
 }): ReactNode {
-  const { count, visibleCols, showSelectionColumn, showExpandColumn, showRowActionsColumn, rowClass, cellClass } = args;
+  const {
+    count,
+    visibleCols,
+    showSelectionColumn,
+    showRowActionsColumn,
+    rowHeight,
+    rowClass,
+    cellClass,
+  } = args;
   return Array.from({ length: count }).map((_, i) => (
-    <tr key={`loading-${i}`} className={rowClass} aria-busy="true">
-      {showSelectionColumn && <td className={cellClass}><Skeleton variant="rectangle" width="16px" height="16px" /></td>}
-      {showExpandColumn && <td className={cellClass}><Skeleton variant="rectangle" width="16px" height="16px" /></td>}
+    <tr
+      key={`loading-${i}`}
+      className={rowClass}
+      aria-busy="true"
+      style={{ height: rowHeight }}
+    >
+      {showSelectionColumn && (
+        <td className={cellClass}>
+          <Skeleton variant="rectangle" width="16px" height="16px" />
+        </td>
+      )}
       {visibleCols.map((col) => (
         <td key={col.field as string} className={cellClass}>
           <Skeleton variant="text" width="80%" />
         </td>
       ))}
-      {showRowActionsColumn && <td className={cellClass}><Skeleton variant="rectangle" width="24px" height="24px" /></td>}
+      {showRowActionsColumn && (
+        <td className={cellClass}>
+          <Skeleton variant="rectangle" width="24px" height="24px" />
+        </td>
+      )}
     </tr>
   ));
 }
@@ -773,24 +806,6 @@ function SortIcon(props: { direction?: 'asc' | 'desc' }) {
           <path d="M8 13l-3-4h6z" opacity="0.5" />
         </>
       )}
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg
-      width="0.875em"
-      height="0.875em"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M6 4l4 4-4 4" />
     </svg>
   );
 }

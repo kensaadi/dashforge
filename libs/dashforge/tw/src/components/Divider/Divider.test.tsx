@@ -66,8 +66,10 @@ describe('<Divider>', () => {
     it('default neutral', () => {
       const { container } = render(<Divider />);
       const cls = container.firstElementChild?.className ?? '';
+      // Sprint 4.3 identity sweep: neutral palette auto-inverts via
+      // the dashforgePreset() CSS-var swap — no `dark:` needed.
       expect(cls).toContain('border-neutral-200');
-      expect(cls).toContain('dark:border-neutral-800');
+      expect(cls).not.toContain('dark:border-neutral-');
     });
 
     it('color="primary"', () => {

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import type { TableRowSelectionMode } from '../table.types.js';
+import type { TableRowSelectionMode } from '../../Table/table.types.js';
 
 export interface UseTableSelectionResult {
   selectedRowIds: string[];

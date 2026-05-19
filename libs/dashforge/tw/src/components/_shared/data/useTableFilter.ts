@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { getNestedValue } from './getNestedValue.js';
 import { stringifyForSearch } from './useTableSearch.js';
-import type { TableFilterModel } from '../table.types.js';
+import type { TableFilterModel } from '../../Table/table.types.js';
 
 /**
  * Filters `rows` by the per-column filter model. v1 only supports

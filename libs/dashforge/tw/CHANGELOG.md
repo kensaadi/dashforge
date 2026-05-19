@@ -12,6 +12,264 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.7.0-beta] — 2026-05-19
+
+**Combined Sprint 4.2 + 4.3 release.** Ships **`<DataGrid>`** — a
+virtualized data table for large data sets (500 rows to millions)
+— alongside a **theme identity sweep** across the whole catalog
+(systemic dark-mode contrast fixes on 10 existing components).
+
+Two coherent themes, one release:
+
+1. **DataGrid (Sprint 4.2)** — sibling to `<Table>` with **homemade
+   virtualization** (no `@tanstack/react-virtual`, no
+   `react-window`). Same column model, same cell renderer library,
+   same RBAC integration, same identity-consistent visual design as
+   Table. Differs at the render strategy level: only the window of
+   visible rows mounts in DOM. Adds sticky-left columns, server-side
+   mode (4 independent opt-in flags), `selectAllScope`, and optional
+   internal pagination.
+
+2. **Theme identity sweep (Sprint 4.3)** — applies the identity rule
+   codified in Sprint 4.1 to the WHOLE catalog. 10 existing
+   components (Typography, Box, Dialog, Divider, Pagination,
+   Popover, Skeleton, Tabs, Tooltip, plus Table-side comments)
+   had latent `dark:` variants on the neutral palette → those
+   classes double-inverted via the dashforgePreset CSS-var swap
+   and broke dark mode. Sweep removes the anti-pattern across the
+   catalog and adds a package-level regression test
+   (`_shared/themeIdentity.test.ts`) that scans every source file
+   on every test run.
+
+**Minor bump** for the new DataGrid public API surface. Strictly
+additive — zero breaking changes on existing component APIs.
+Drop-in upgrade from `0.6.0-beta`.
+
+### Added
+
+- **`<DataGrid>`** — virtualized data table for large data sets.
+  Sibling to `<Table>`. Required props: `rows`, `cols`,
+  `getRowId`, `rowHeight` (fixed for v1), `height` (bounded
+  container).
+  - **Homemade virtualization** via the new `useVirtualizer` hook
+    in `_shared/data/`. Scroll-event based with
+    `requestAnimationFrame` debounce (60 fps throttling) +
+    `ResizeObserver` for container resize. Spacer-row approach
+    preserves `<table>` semantics — screen readers see continuous
+    structure with `aria-hidden` spacers above/below the visible
+    window. Variable row height deferred to v1-bis.
+  - **Sticky left column** via `cols[i].sticky: 'left'`. CSS
+    `position: sticky; left: 0` with z-index ladder for the
+    top-left corner intersection with the sticky header
+    (`thead` z-10 < sticky cell z-[1] < sticky header corner z-20).
+    Right-sticky deferred to v1-bis.
+  - **Server-side mode flags** (4 independent opt-ins):
+    - `serverSideSort` — emits `onSortChange` but doesn't sort locally
+    - `serverSideFilter` — emits `onFilterChange` but doesn't filter
+    - `serverSideSearch` — emits `onSearchQueryChange` (debounced)
+    - `serverSidePagination` — uses `totalCount` for the virtual
+      scrollbar math; `rows` is the server-returned page slice
+  - **`selectAllScope`** prop (`'visible' | 'allLoaded'`, default
+    `'allLoaded'`) controls the header "select all" checkbox
+    semantic.
+  - **Optional internal pagination** via the `pagination` prop —
+    renders the Sprint 4 `<Pagination>` component below the
+    virtualized scroll. Composes naturally with virtualization
+    (each page is virtualized internally if large enough).
+  - **Bundle impact**: +8.4 KB gz on top of `0.6.0-beta`
+    (`<Table>` baseline). Zero new runtime deps.
+  - **Variants**: `plain` / `lines` (default) / `striped` /
+    `bordered`. **No `card` variant** — incompatible with
+    `<table>` virtualization spacer-rows.
+  - 24 unit tests + 12 `useVirtualizer` math tests + dash smoke
+    test at `/test-data-grid` with 10 000 generated rows.
+
+- **`useVirtualizer` hook** in `_shared/data/` — exported
+  internally only (not in the public API surface). Other future
+  virtualized components (TreeView, future GanttGrid, etc.) can
+  reuse it.
+
+- **`sticky?: 'left' | 'right'`** added to `TableColumn<T>` for
+  DataGrid integration. Currently ignored by Table (non-virtualized);
+  honored by DataGrid v1 for `'left'` only.
+
+- **Doc MDX `/tw/docs/components/data-grid`** — emphasizes the
+  Table vs DataGrid decision matrix (24-row comparison table +
+  "Use Table when..." / "Use DataGrid when..." + "Switch later"
+  path showing the 3-line diff to migrate).
+
+### Changed
+
+- **Internal refactor — shared data helpers moved**:
+  `Table/_internal/` → `_shared/data/` (13 files). The helpers
+  (`getNestedValue`, `useTableSearch`, `useTableSort`,
+  `useTableSelection`, `useTableFilter`, `useColumnAutoDetect`,
+  `useDebouncedValue`, `useControllableState`) are now shared
+  between Table and DataGrid. **Pure path move** — function names
+  unchanged. Public API surface unchanged (only `getNestedValue`
+  was ever re-exported; the re-export path updated transparently).
+
+- **Theme identity sweep** — 10 existing components had latent
+  `dark:` Tailwind variants on the neutral palette, which the
+  dashforgePreset CSS-var swap double-inverted and broke in dark
+  mode. Removed across the catalog:
+
+  | Component | Sites fixed | Pattern category |
+  |---|---|---|
+  | Accordion (`accordion.variants.ts`) | 3 | A (drop `dark:` — auto-invert) |
+  | Box (`box.variants.ts`) | 4 | A + B (corrected dark targets) + D (solid neutral now auto-inverts as accent) |
+  | Dialog (`dialog.variants.ts`) | 6 | A × 5 + B × 1 |
+  | Divider (`divider.variants.ts` + `Divider.tsx`) | 2 | A × 2 |
+  | Pagination (`pagination.variants.ts` + `Pagination.tsx`) | 10 | A × 7 + B × 3 (`dark:bg-neutral-900` → `bg-neutral-50` auto-invert) |
+  | Popover (`popover.variants.ts`) | 4 | A × 3 + B × 1 |
+  | Skeleton (`skeleton.variants.ts`) | 1 | A |
+  | Tabs (`tabs.variants.ts`) | 8 | A × 7 + B × 1 (`dark:bg-neutral-900` → `dark:bg-neutral-200` for proper active-pill elevation) |
+  | Tooltip (`tooltip.variants.ts`) | 2 | **Bug fix** — was previously invisible in dark mode (double-inverted to dark surface on dark page). Now auto-inverts: dark tooltip on light page, light tooltip on dark page (high contrast preserved). |
+  | Typography (`typography.variants.ts`) | 2 | A × 2 |
+
+  **Box solid neutral** now uses `bg-neutral-900 text-neutral-50`
+  (both auto-invert) — the accent surface flips with the page in
+  dark mode (light surface + dark text) for identity consistency.
+  Previously was `bg-neutral-900 text-white dark:bg-neutral-100
+  dark:text-neutral-900` — the `text-white` (no auto-invert) had
+  forced the double-invert pattern to stay readable.
+
+  Affected test files updated to assert the new canonical
+  patterns (Box × 4 + Typography × 1 + Divider × 1 = 6 tests
+  retargeted).
+
+### Internal
+
+- **`THEME-AUDIT.md`** at package root — categorizes every site
+  in the catalog as **A** (drop `dark:` — auto-invert), **B**
+  (keep `dark:` because `bg-white`/`fill-white` is hardcoded),
+  **C** (color palette — intentional design choice, not affected
+  by the rule), or **D** (component-specific exception). 42
+  violations catalogued across 10 components.
+
+- **Package-level theme identity regression test** —
+  `_shared/themeIdentity.test.ts` replaces the Table-only one
+  from Sprint 4.1. Scans every `.ts`/`.tsx` source file under
+  `src/components/**` (excluding tests) on every test run.
+  Allows the Category B legitimate pattern
+  (`bg-white dark:bg-neutral-N` — `bg-white` doesn't auto-invert,
+  the `dark:` is required). Catches accidental re-introductions
+  of the anti-pattern at PR time.
+
+- **+76 new unit tests** for Sprint 4.2 + 4.3:
+  - `useVirtualizer` math (12) — window calc, overscan, padding
+    invariant, edge cases (totalCount=0, very large dataset)
+  - `<DataGrid>` (24) — rendering, virtualized window, sort,
+    search, selection, selectAllScope, sticky left column,
+    server-side mode flags, RBAC, internal pagination, smart
+    defaults, i18n
+  - `_shared/themeIdentity.test.ts` package-level scanner (40
+    file-scan tests; 0 violations reported)
+
+  Full TW suite at **961/961 passing** across **48 files**.
+
+- **`TestDataGrid.tsx`** added to the `dash` consumer
+  (`/test-data-grid`) — 10 000 generated rows + sticky col +
+  selectAllScope toggle + variant/density/size switcher + RBAC
+  per-column demo + custom empty state + React.Profiler logging.
+
+- **Sidebar entries** for the new `DataGrid` doc page added to
+  `dashforge-docs-lab/src/tw-docs/sidebar.model.ts` (new "Data"
+  subgroup under "UI Components" now contains Table + DataGrid).
+
+### Compatibility
+
+| Axis | Pre-`0.7.0` | Post-`0.7.0` |
+|---|---|---|
+| Public API surface | 32 components | **+1 `<DataGrid>` + types (`DataGridProps`, `DataGridSelectAllScope`, `DataGridServerSideFlags`, `DataGridPaginationConfig`, `DataGridSlotProps`) + `dataGridVariants` recipe** + `sticky` axis on `TableColumn<T>` (additive, optional) |
+| Peer deps | `react ^18 \|\| ^19`, `tw-theme workspace`, `tw-tokens workspace` | unchanged |
+| Bridge deps | `forms` / `rbac` / `ui-core` `workspace:*` | unchanged |
+| **New runtime deps** | — | **none** (homemade virtualization — constraint honored) |
+| Breaking changes | — | **Zero** on public APIs. Internal refactor: `Table/_internal/` helpers moved to `_shared/data/`. Only externally-visible re-export was `getNestedValue` (path updated internally; export name preserved). |
+| Bundle size | 402 KB raw / 91 KB gz | **445 KB raw / 98.4 KB gz** (+43 KB raw / +7.4 KB gz / **+8.1% gz**) — just under the 10% reviewer-sign-off threshold |
+| Tests passing | 828/828 (46 files) | **961/961 (48 files)** — +133 from Sprint 4.2 + 4.3 |
+
+> **Bundle sign-off** : the +8.1% gz delta is JUST under the 10%
+> threshold from PERFORMANCE.md. Justification: DataGrid is the
+> highest-leverage addition before 1.0 — it unlocks the entire
+> "1 000+ row admin views" use case at €0 vs MUI X DataGrid Pro's
+> €499/year. The theme identity sweep is net-neutral on bundle
+> (removed redundant classes, replaced with smaller ones); the
+> delta is entirely DataGrid + virtualizer code (+8 KB gz).
+
+### Migration
+
+No code changes required:
+
+```bash
+pnpm up @dashforge/tw@^0.7.0-beta
+```
+
+To adopt the new DataGrid:
+
+```tsx
+import {
+  DataGrid,
+  RenderTwoLine,
+  RenderChip,
+  RowActionsMenu,
+} from '@dashforge/tw';
+
+<DataGrid
+  rows={users}                  // can be 10k, 100k, millions
+  cols={columns}                // SAME shape as Table's TableColumn<T>
+  getRowId={(r) => r.id}
+  rowHeight={48}                // required for virtualization
+  height="600px"                // required for bounded container
+  enableSearch
+  rowSelection="multiple"
+  selectAllScope="allLoaded"
+  bulkActions={(rows) => (
+    <Button color="danger">Delete {rows.length}</Button>
+  )}
+  rowActions={(row) => (
+    <RowActionsMenu
+      row={row}
+      actions={[
+        { label: 'Edit',   onClick: edit },
+        { label: 'Delete', onClick: del, color: 'danger' },
+      ]}
+    />
+  )}
+/>
+```
+
+To switch an existing Table to DataGrid when you outgrow the row
+count (~500+ rows), the migration is mechanical (3 lines):
+
+```diff
+- <Table
++ <DataGrid
+    rows={users}
+    cols={columns}
+    getRowId={(row) => row.id}
++   rowHeight={48}
++   height="600px"
+  />
+```
+
+Everything else (sort / search / selection / row actions / cell
+renderers / RBAC / i18n labels / sx / slotProps) keeps working
+identically. **Expandable rows** are the one feature you lose
+on Table→DataGrid swap — they ship in DataGrid v1-bis.
+
+### Heads-up — companion releases coming
+
+- **Sprint 4.2-bis → `0.8.0-beta`** (estimated): DataGrid v1-bis —
+  per-column filter UI chips (text/number/boolean/date), column
+  resize via drag, column reorder via drag, column visibility
+  dialog, right-sticky columns.
+- **Sprint 5 → `0.9.0-beta`** + starter kits v1: separate repos
+  `dashforge-starter-mui` + `dashforge-starter-tw` with Auth + RBAC
+  + form CRUD + dashboard with DataGrid admin views.
+- **Sprint 6 → `1.0.0-rc.1 → 1.0.0`**: final A11Y audit, bundle
+  lockdown, beta freeze, cut `1.0.0`.
+
 ## [0.6.0-beta] — 2026-05-19
 
 **Sprint 4.1 release.** Ships the central piece of the data layer

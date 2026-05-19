@@ -128,7 +128,7 @@ export const Divider = forwardRef<HTMLElement, DividerProps>(
         {...rest}
       >
         <span aria-hidden="true" className={cn(lineCommon, leftStubClass)} />
-        <span className={cn('shrink-0 text-sm text-neutral-500 dark:text-neutral-400', labelPadding)}>
+        <span className={cn('shrink-0 text-sm text-neutral-500', labelPadding)}>
           {children}
         </span>
         <span aria-hidden="true" className={cn(lineCommon, rightStubClass)} />

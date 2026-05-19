@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useTableSort, cycleSortFor } from './useTableSort.js';
-import type { TableColumn, TableSortModel } from '../table.types.js';
+import type { TableColumn, TableSortModel } from '../../Table/table.types.js';
 
 interface Row {
   id: string;

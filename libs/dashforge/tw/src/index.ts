@@ -319,7 +319,23 @@ export type {
 } from './components/Table/cells/index.js';
 // Helpers (exported for power users building custom Table-like
 // components on top of the same primitives).
-export { getNestedValue } from './components/Table/_internal/getNestedValue.js';
+export { getNestedValue } from './components/_shared/data/getNestedValue.js';
+
+// F14 tier-5: virtualized data grid for large data sets. Companion to
+// `<Table>` — same column model, sort/search/filter/selection logic
+// (shared via `_shared/data/` helpers) but uses homemade
+// virtualization (`IntersectionObserver` + scroll-event +
+// `requestAnimationFrame` — zero new runtime deps).
+
+export { DataGrid } from './components/DataGrid/DataGrid.js';
+export type {
+  DataGridProps,
+  DataGridSlotProps,
+  DataGridSelectAllScope,
+  DataGridServerSideFlags,
+  DataGridPaginationConfig,
+} from './components/DataGrid/dataGrid.types.js';
+export { dataGridVariants } from './components/DataGrid/dataGrid.variants.js';
 
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
@@ -335,4 +351,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.6.0-beta';
+export const VERSION = '0.7.0-beta';

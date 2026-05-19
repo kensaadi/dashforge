@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { getNestedValue } from './getNestedValue.js';
-import type { TableColumn, TableColumnInferredType } from '../table.types.js';
+import type { TableColumn, TableColumnInferredType } from '../../Table/table.types.js';
 
 /**
  * Auto-detects the primitive type of each column by scanning the

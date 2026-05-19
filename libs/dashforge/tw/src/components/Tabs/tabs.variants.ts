@@ -19,21 +19,32 @@ export const tabsVariants = tv({
   variants: {
     variant: {
       underline: {
-        list: 'border-b border-neutral-200 dark:border-neutral-800',
+        // Neutral palette auto-inverts via CSS-var swap.
+        list: 'border-b border-neutral-200',
         trigger: [
-          'px-3 py-2 border-b-2 border-transparent text-neutral-600 dark:text-neutral-400',
-          'hover:text-neutral-900 dark:hover:text-neutral-50',
+          'px-3 py-2 border-b-2 border-transparent text-neutral-600',
+          'hover:text-neutral-900',
+          // Primary palette does NOT auto-invert — `dark:` shift is
+          // an intentional tone refinement (kept).
           'data-[state=active]:border-primary-500 data-[state=active]:text-primary-700',
           'dark:data-[state=active]:text-primary-400',
         ],
       },
       pill: {
-        list: 'rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1',
+        // Pill list bg uses the elevation tier — auto-inverts.
+        list: 'rounded-lg bg-neutral-100 p-1',
         trigger: [
-          'px-3 py-1.5 rounded-md text-neutral-600 dark:text-neutral-400',
-          'hover:text-neutral-900 dark:hover:text-neutral-50',
-          'data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-900',
-          'data-[state=active]:text-neutral-900 dark:data-[state=active]:text-neutral-50',
+          'px-3 py-1.5 rounded-md text-neutral-600',
+          'hover:text-neutral-900',
+          // Active pill is one tier above the list bg
+          // (`bg-neutral-100`-inverted = #171717 in dark).
+          // `bg-white` is hardcoded so a `dark:` is required —
+          // target `dark:bg-neutral-200` (= #262626 in dark) sits
+          // ONE TIER above the list bg, preserving the elevation
+          // semantic from light mode (where `bg-white` sits above
+          // `bg-neutral-100` = #f5f5f5).
+          'data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-200',
+          'data-[state=active]:text-neutral-900',
           'data-[state=active]:shadow-sm',
         ],
       },

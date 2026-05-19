@@ -55,7 +55,13 @@ export const boxVariants = tv({
     variant: {
       plain:    '',
       outlined: 'border',
-      elevated: 'bg-white dark:bg-neutral-900',
+      // `bg-white` is hardcoded (does NOT auto-invert via CSS vars),
+      // so the `dark:` variant is required. Target `dark:bg-neutral-100`
+      // resolves to `#171717` via the inversion → one elevation tier
+      // above the page surface (`bg-neutral-50` = `#0a0a0a`) in dark
+      // mode. `dark:bg-neutral-900` was wrong (resolved to near-white
+      // in dark mode — overpowering elevation).
+      elevated: 'bg-white dark:bg-neutral-100',
       soft:     '',
       solid:    '',
     },
@@ -165,7 +171,11 @@ export const boxVariants = tv({
     { variant: 'outlined', color: 'info',
       class: 'border-info-300 bg-info-50/40 dark:border-info-800 dark:bg-info-950/30' },
     { variant: 'outlined', color: 'neutral',
-      class: 'border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-900' },
+      // border-neutral-200 auto-inverts via CSS var swap (no `dark:`
+      // needed). bg-white is hardcoded — `dark:bg-neutral-100` keeps
+      // elevation tier above page surface in dark mode (NOT
+      // `dark:bg-neutral-900` which renders near-white).
+      class: 'border-neutral-200 bg-white dark:bg-neutral-100' },
 
     // ─── soft × color ─────────────────────────────────────────────────
     { variant: 'soft', color: 'primary',
@@ -181,7 +191,9 @@ export const boxVariants = tv({
     { variant: 'soft', color: 'info',
       class: 'bg-info-100 text-info-900 dark:bg-info-950/50 dark:text-info-100' },
     { variant: 'soft', color: 'neutral',
-      class: 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100' },
+      // Both neutral classes auto-invert via the dashforgePreset() CSS
+      // var swap — no `dark:` variants needed.
+      class: 'bg-neutral-100 text-neutral-900' },
 
     // ─── solid × color ────────────────────────────────────────────────
     { variant: 'solid', color: 'primary',
@@ -197,7 +209,14 @@ export const boxVariants = tv({
     { variant: 'solid', color: 'info',
       class: 'bg-info-600 text-white dark:bg-info-500' },
     { variant: 'solid', color: 'neutral',
-      class: 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900' },
+      // Solid neutral is the high-emphasis "always-foreground accent"
+      // variant. Both classes auto-invert: dark surface + light text
+      // in light mode (`#171717` / `#fafafa`) flips to light surface +
+      // dark text in dark mode (`#f5f5f5` / `#0a0a0a`). The
+      // accent inverts WITH the page surface — consistent with the
+      // identity rule. Previously used `text-white` (no auto-invert)
+      // which forced double-inversion to keep readable.
+      class: 'bg-neutral-900 text-neutral-50' },
   ],
 
   defaultVariants: {

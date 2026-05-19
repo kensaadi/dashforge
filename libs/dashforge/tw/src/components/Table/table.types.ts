@@ -151,6 +151,15 @@ export interface TableColumn<T extends object> {
    */
   access?: AccessRequirement;
 
+  /**
+   * Pin this column during horizontal scroll. `'left'` (DataGrid v1)
+   * uses CSS `position: sticky; left: 0`. `'right'` is reserved for
+   * v1-bis (CSS edge cases around last-column borders). Table
+   * (non-virtualized) ignores this prop today — only DataGrid honors
+   * it (Sprint 4.2).
+   */
+  sticky?: 'left' | 'right';
+
   /** Reserved for v1-bis (column-visibility dialog). */
   hideable?: boolean;
   defaultHidden?: boolean;

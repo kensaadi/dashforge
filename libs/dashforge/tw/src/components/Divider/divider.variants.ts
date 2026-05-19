@@ -85,7 +85,8 @@ export const dividerLineVariants = tv({
     },
 
     color: {
-      neutral:   'border-neutral-200 dark:border-neutral-800',
+      // Neutral palette auto-inverts via CSS-var swap (no `dark:`).
+      neutral:   'border-neutral-200',
       primary:   'border-primary-300 dark:border-primary-700',
       secondary: 'border-secondary-300 dark:border-secondary-700',
       success:   'border-success-300 dark:border-success-700',

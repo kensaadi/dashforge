@@ -4,7 +4,7 @@ import type {
   TableColumn,
   TableSortModel,
   TableSortDirection,
-} from '../table.types.js';
+} from '../../Table/table.types.js';
 
 /**
  * Default comparator. Handles the common primitive types in a
