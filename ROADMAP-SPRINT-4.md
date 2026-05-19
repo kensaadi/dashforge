@@ -331,13 +331,122 @@ giustificato dalla decisione approvata di scope completo su Table TW
 
 ---
 
-# Sprint 5-6 ladder (recap dal piano Sprint 3, invariato)
+# Sprint 4.3 — Theme identity audit + design system cleanup
+
+> **Charter (2026-05-19, post-Sprint 4.1 Table smoke test).** During
+> the Table smoke test in `dash`, the rendered output revealed
+> systemic misuse of `dark:` Tailwind variants against the
+> dashforgePreset CSS-variable inversion model. The Table fix
+> applied in 4.1 corrects the local instance — Sprint 4.3 fixes the
+> issue across the WHOLE component catalog.
+
+## Architectural principle (capitalized as policy)
+
+**The default preset of `@dashforge/tw-theme` IS the Dashforge
+visual identity.** Consumer apps consume it as-is and never
+override it just to make components look right. If a component
+needs an override to be readable, the component (or the preset)
+has a bug — fix THERE, not at the consumer.
+
+Conseguenze operative:
+
+1. **`dash` consumer test app non override mai `dashforgePreset()`.**
+   Se uno screenshot in `dash` fa schifo, è bug Dashforge — non bug
+   consumer.
+2. **Pattern canonici del design system** sono autoritativi —
+   inventare un nuovo "selected row" o "elevated surface" stile è
+   un sintomo di drift. Riusa i pattern esistenti (LeftNav
+   `itemActive`, Box variants, Typography `color` axis).
+3. **Light + dark mode sono entrambi "first-class"**. Ogni
+   component deve renderizzarsi correttamente in entrambi senza
+   richiedere override consumer.
+
+## Scope
+
+### P1 — Dashforge inversion mechanism doc (~1h)
+
+Documentare ESPLICITAMENTE come il CSS variable inversion model
+funziona in `@dashforge/tw-theme`:
+
+- `bg-neutral-50` (no `dark:` variant) → auto-inverte: `#fafafa`
+  in light, `#0a0a0a` in dark (surface semantics preserved)
+- `text-neutral-900` (no `dark:` variant) → auto-inverte: dark
+  testo in light, light testo in dark
+- `bg-primary-100 + text-primary-900` (no `dark:` variant) →
+  legge in entrambi i mode (primary palette non inverte)
+
+**Anti-pattern documentato**: `text-neutral-900 dark:text-neutral-100`
+applica DOUBLE inversion che breaks dark mode (entrambe le classi
+risolvono al colore dark in dark mode tramite il CSS var swap).
+
+Output: nuova sezione `CONTRIBUTING.md` o aggiunta al README di
+`@dashforge/tw` "Working with the default preset".
+
+### P2 — Catalog audit (~3h)
+
+Run all 31 components contro il default preset in light + dark mode,
+catalogare tutti gli usi di `dark:` su neutral palette. Report
+in nuovo file `libs/dashforge/tw/THEME-AUDIT.md`:
+
+| Component | File | Pattern errato | Fix proposto |
+|---|---|---|---|
+| Typography | typography.variants.ts:65 | `text-neutral-900 dark:text-neutral-100` | `text-neutral-900` |
+| Box | box.variants.ts:184 (soft variant) | `bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100` | `bg-neutral-100 text-neutral-900` |
+| Box | box.variants.ts:200 (solid variant) | `bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900` | TBD — solid needs primary palette |
+| ... | ... | ... | ... |
+
+### P3 — Refactor + visual regression tests (~6h)
+
+- Apply tutte le fix da P2 (sostituzione `dark:` variants → auto-invert)
+- Aggiungere script Vite + Playwright (o equivalente lightweight)
+  per screenshot automatico ogni component in light + dark mode
+- Establish baseline images sotto `libs/dashforge/tw/visual-tests/__baseline__/`
+- Run il visual diff in CI (deferito a Sprint 6 per la wire CI completa;
+  in Sprint 4.3 si genera la baseline + un comando manuale `pnpm visual:check`)
+
+### P4 — Update CONTRIBUTING.md + lint rule (~2h)
+
+- Eslint custom rule (o stylelint) che flagga `dark:` variants su
+  neutral palette → warning con link al doc inversion model
+- CONTRIBUTING.md sezione "Theme identity rules" — la principle
+  capitalizzata sopra + link al canonical pattern catalog
+
+### P5 — Release `@dashforge/tw@0.7.0-beta` (~1h)
+
+Bump **patch** (fix only, no public API change). GH release con
+pattern memory. Titolo: `@dashforge/tw 0.7.0-beta — Theme identity
+audit + dark mode contrast fix across catalog`.
+
+Bundle delta atteso: -1 a -3 KB (rimozione di classi `dark:` ridondanti).
+
+## Quality gate Sprint 4.3
+
+1. ✅ Inversion mechanism documentato (CONTRIBUTING.md o README)
+2. ✅ THEME-AUDIT.md cataloga tutti i siti
+3. ✅ Tutti i `dark:` variants neutral palette rimossi/canonicalized
+4. ✅ Screenshot baseline generata per ogni component in entrambi i mode
+5. ✅ Eslint rule che warna pattern errati attiva
+6. ✅ Visual diff suite passa (manual run, automation in Sprint 6)
+7. ✅ Release `0.7.0-beta` con titolo descrittivo + GH release prerelease
+
+## Stima totale Sprint 4.3
+
+**~13h** (più leggero di 4.1/4.2 ma richiede attenzione cross-component).
+
+> Versioning: Sprint 4 = `0.5.0-beta`, Sprint 4.1 = `0.6.0-beta`,
+> **Sprint 4.3 = `0.7.0-beta`** (patch su catalog), Sprint 5 ora
+> `0.8.0-beta`, Sprint 6 → `1.0.0`. Lo spazio si toglie scalando
+> Sprint 5/6 di un altro minor.
+
+---
+
+# Sprint 5-6 ladder (aggiornato post-Sprint 4.3)
 
 | Sprint | Release | Tema |
 |---|---|---|
-| **Sprint 5** | `@dashforge/tw@0.7.0-beta` + starter kits v1 | Due repos separati `dashforge-starter-mui` + `dashforge-starter-tw`. Auth + RBAC + form CRUD + dashboard layout + DataGrid-based admin views. Sblocca revenue model "kits paid + lib free". |
-| **Sprint 6** | `@dashforge/tw@1.0.0-rc.1` → `1.0.0` | Final A11Y audit (axe / lighthouse CI), bundle size lockdown, deprecation window, beta freeze 4 settimane, cut `1.0.0`. Show HN coordinato col marketing (cfr. memory `marketing_playbook.md`). |
+| **Sprint 5** | `@dashforge/tw@0.8.0-beta` + starter kits v1 | Due repos separati `dashforge-starter-mui` + `dashforge-starter-tw`. Auth + RBAC + form CRUD + dashboard layout + DataGrid-based admin views. Sblocca revenue model "kits paid + lib free". |
+| **Sprint 6** | `@dashforge/tw@1.0.0-rc.1` → `1.0.0` | Final A11Y audit (axe / lighthouse CI — riusa anche visual diff suite di 4.3), bundle size lockdown, deprecation window, beta freeze 4 settimane, cut `1.0.0`. Show HN coordinato col marketing (cfr. memory `marketing_playbook.md`). |
 
-> Versioning aggiornato: Sprint 4 = `0.5.0-beta`, Sprint 4.1 =
-> `0.6.0-beta`, Sprint 5 = `0.7.0-beta`. Lo spazio per Sprint 4.1 è
-> stato preso scalando Sprint 5/6 di un minor.
+> Versioning ladder: Sprint 4 = `0.5.0-beta` (✓ shipped), Sprint 4.1 =
+> `0.6.0-beta` (in progress), Sprint 4.3 = `0.7.0-beta`, Sprint 5 =
+> `0.8.0-beta`, Sprint 6 = `1.0.0-rc.1` → `1.0.0`.

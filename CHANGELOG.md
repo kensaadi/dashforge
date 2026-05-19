@@ -10,6 +10,40 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 0.6.0-beta] — 2026-05-19
+
+> **Sprint 4.1 release for `@dashforge/tw`.** Ships **`<Table>`** —
+> the central data-display primitive of the lib, built market-grounded
+> (Stripe visuals, Atlassian column UX, Pencil & Paper density tiers,
+> W3C WAI Table a11y) with **zero new runtime deps**. Features sort
+> (single + multi via shift-click) with null-last invariant, debounced
+> global search, controlled / uncontrolled selection (single + multiple
+> + bulk-action sticky footer), expandable rows, hover-revealed row
+> actions (Stripe pattern), RBAC at 3 levels (table / column / action),
+> 5 variants × 3 sizes × 3 densities, full i18n via `labels` prop,
+> smart-default column types with auto `tabular-nums` (digit grid)
+> while **never** changing the consumer's theme font family. Cell
+> renderer library (`RenderText`, `RenderTwoLine`, `RenderChip`,
+> `RenderButton`, `RowActionsMenu`) included. Sprint 4.1 also
+> codified two architectural rules now persisted as Dashforge memory:
+> **(1)** the dashforgePreset default IS the visual identity — never
+> overridden by consumers (anti-pattern `dark:` on neutral palette
+> removed; regression test added); **(2)** the library never picks a
+> font family — `tabular-nums` (font-feature) yes, `font-mono` (font
+> family) only on explicit consumer opt-in. Strictly additive: 828/828
+> tests passing across 46 files. Drop-in upgrade from `0.5.0-beta`.
+> Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+>
+> Companion releases incoming: `0.7.0-beta` (theme identity sweep
+> across catalog, **shrinks** the bundle) and `0.8.0-beta`
+> (DataGrid with homemade virtualization for 10k+ rows).
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | + `<Table>` + cell renderer library + `getNestedValue` helper + 15+ new public exports. Bundle 402 KB raw / 91 KB gzipped (+23% gz vs `0.5.0-beta`; justified — central data primitive). Drop-in upgrade. |
+
 ## [tw 0.5.0-beta] — 2026-05-19
 
 > **Sprint 4 release for `@dashforge/tw`.** Two TW-only utility

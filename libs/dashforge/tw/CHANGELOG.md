@@ -12,6 +12,274 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.6.0-beta] — 2026-05-19
+
+**Sprint 4.1 release.** Ships the central piece of the data layer
+— a market-grounded `<Table>` built from scratch with NO new
+runtime deps. The design references Stripe (visual style),
+Atlassian / Jira (column UX), and Pencil & Paper UX research
+(density tiers, hover-revealed row actions, selection patterns).
+The existing MUI Table inherited from `hub-ws/admin` informed the
+public API shape but not the implementation (we discarded the
+`@mui/x-data-grid` backing — Table v1 is a hand-rolled native
+`<table>`).
+
+**Companion to Sprint 4.2** (DataGrid, virtualization, 10k+ rows)
+— Table v1 covers the 80% admin-list use case up to ~500 rows.
+
+**Minor bump** for the new public API surface — 15+ new exports.
+Strictly additive — zero breaking changes. Drop-in upgrade from
+`0.5.0-beta`.
+
+### Added
+
+- **`<Table>`** — declarative-first data table component.
+  - **Smart defaults**: column types auto-detected from the first
+    non-null value across visible rows. Number columns get
+    `text-right` + `tabular-nums` (digit grid alignment), date
+    columns get `tabular-nums` too, booleans get `text-center`,
+    strings get `text-left`. **The library never changes the font
+    family** — `tabular-nums` is a font-feature setting that
+    preserves the consumer's theme `font-sans`. Explicit
+    `align` / `tabularNums` / `monospace` per column wins.
+  - **Sort**: per-column `sortable: true` (default comparator
+    handles string / number / Date / boolean / bigint with
+    null-last invariant) or custom `(a, b) => number`. Click
+    cycles asc → desc → none. **Shift-click** adds the column to
+    a multi-sort model. Controlled via `sortModel` /
+    `onSortChange` or uncontrolled with internal state.
+  - **Search**: `enableSearch` renders a debounced input above
+    the table (default 200 ms). Matches any column flagged
+    `searchable: true`. **Nested keys supported** at runtime via
+    `getNestedValue(row, 'address.city')` — the type-level
+    autocomplete from `NestedKeyOf<T>` matches the runtime
+    behavior. Stringification covers string / number / boolean /
+    Date / array / object.
+  - **Selection**: `rowSelection: 'none' | 'single' | 'multiple'`,
+    optional select-all checkbox in the header (multiple mode),
+    `selectedRowIds` controlled state, **sticky bulk-action
+    footer** rendered only when at least one row is selected
+    (Pencil & Paper UX pattern: "appear only when selected").
+  - **Expandable rows**: `expandable={{ render, expandedRowIds?,
+    onExpandChange? }}`. Chevron toggle in a dedicated column;
+    `aria-expanded` updates; expanded detail renders as a
+    full-width sibling `<tr>` below the row.
+  - **Row actions revealed on hover**: `rowActions={(row) => …}`
+    slot — by default hidden via opacity, revealed on
+    `tr:hover` / `tr:focus-within` (Stripe pattern — reduces
+    visual density while keeping actions discoverable).
+  - **RBAC at 3 levels**: table-level `access` (hides / disables
+    the whole table), per-column `cols[i].access` (`hide` removes
+    the column entirely from header AND every row cell), and
+    per-action `actions[i].access` on `<RowActionsMenu>`.
+  - **A11Y**: semantic `<table>` + `<th scope="col">` + `aria-sort`
+    on sortable headers + `aria-selected` on selected rows +
+    `aria-expanded` on expand toggles + `<caption>` (optional,
+    `sr-only` by default) + keyboard nav via Tab + Enter/Space.
+  - **Loading state**: `loading={true}` renders N `<Skeleton>` rows
+    (the Sprint 4 component) with `aria-busy="true"`. Count
+    configurable via `loadingRowCount` (default 5).
+  - **i18n**: column `header` accepts plain strings (pass
+    `t('...')`); all internal default strings configurable via
+    `labels` prop with English defaults (search placeholder, a11y
+    announcements for sort / select / expand, selection counter
+    with `{count}` placeholder, density / filter labels). Same
+    pattern as `<Pagination>`.
+  - **5 variants** (`plain` · `lines` default — Stripe-style ·
+    `striped` · `bordered` · `card`) × **3 sizes** (`sm` · `md` ·
+    `lg`) × **3 densities** (`compact` 40px · `comfortable`
+    default 48px · `spacious` 56px — Pencil & Paper UX research).
+  - **Sticky header** by default (overridable).
+  - **`sx` + 15 slot props** for the standard customization
+    escape hatches.
+
+- **Cell renderer library** — pre-built renderers for common
+  patterns, exported from `@dashforge/tw`:
+  - `RenderText` — one-line, optionally truncated / muted
+  - `RenderTwoLine` — bold primary + muted secondary
+    (name + email pattern)
+  - `RenderChip` — internal status badge, 7 intent colors × 3
+    variants (soft / solid / outline) × 2 sizes (sm / md)
+  - `RenderButton` — inline button wrapper (defaults `ghost` +
+    `sm`)
+  - `RowActionsMenu` — 3-dot Popover-backed menu with per-action
+    RBAC
+
+- **Helpers exported for power use**:
+  - `getNestedValue(row, path)` — dotted-path lookup powering
+    cell rendering. Useful in consumer custom renderers.
+
+- **Theme identity regression guard** —
+  `_internal/themeIdentity.test.ts` scans every Table source file
+  and fails if `dark:*-neutral-N` classes are introduced. The
+  dashforgePreset auto-inverts the neutral palette via CSS var
+  swap; adding `dark:` variants on neutral creates double
+  inversion and breaks dark mode. The Sprint 4.1 fix removes the
+  anti-pattern from Table; **Sprint 4.3 will sweep the rest of
+  the catalog** (Typography, Box, etc. carry the same latent bug).
+
+- **Smoke-test page** in `dash` consumer at `/test-table` —
+  exercises every Table feature with 30 realistic users + nested
+  meta + chip-rendered status + RBAC per-column + i18n labels in
+  Italian + 5 variants × 3 sizes × 3 densities switcher.
+
+- **Doc MDX** `/tw/docs/components/table` — full feature catalog,
+  i18n example with `react-i18next`, override matrix
+  (align / tabularNums / monospace), 15+ slot props reference,
+  cell renderer library, A11Y guarantees, roadmap.
+
+### Internal
+
+- **Theme identity rule** (now codified): the dashforgePreset
+  default IS the Dashforge visual identity. Consumer apps consume
+  it as-is and never override. Adding `dark:` variants on the
+  neutral palette = double inversion = breaks dark mode. Use
+  canonical patterns (LeftNav `itemActive` for selected,
+  auto-invert for `bg-neutral-*` and `text-neutral-*`).
+- **Font family rule**: the library never picks a font family —
+  `tabular-nums` is safe to auto-apply (font-feature setting),
+  `font-mono` is consumer opt-in only via `col.monospace: true`.
+  The dashforgePreset does not own the `fontFamily` axis; the
+  consumer configures their mono stack in their own
+  `tailwind.config.ts` `theme.extend.fontFamily.mono`.
+- **+147 new unit tests** for Table:
+  - `getNestedValue` (11) — nested keys, null-safety, zero / empty
+    string / false preservation
+  - `useTableSearch` (16) — stringification across primitive types
+    + nested keys
+  - `useTableSort` (15) — null-last invariant (direction-independent),
+    multi-column tie-breaking, custom comparator
+  - `useTableSelection` (13) — single / multiple / none modes
+  - `useColumnAutoDetect` (14) — type inference + align /
+    tabularNums / monospace resolution
+  - `themeIdentity` (18 file scanner) — regression guard for
+    `dark:` on neutral palette
+  - `Table.test.tsx` (57) — rendering, smart defaults, sort,
+    search, selection, expandable, row actions, RBAC, variants,
+    densities, sizes, sx + slotProps, i18n
+- Full TW suite at **828/828 passing** (46 files; +147 from
+  Table, +newer guard).
+
+### Compatibility
+
+| Axis | Pre-`0.6.0` | Post-`0.6.0` |
+|---|---|---|
+| Public API surface | 31 components | **+ 1 (`Table`)** + 5 cell renderers + `getNestedValue` helper + `Table*` types (`TableProps`, `TableColumn`, `TableSortModel`, `TableFilterModel`, `TableLabels`, `TableCellContext`, `NestedKeyOf`, `TableRowAction`, …) |
+| Peer deps | `react ^18 \|\| ^19`, `tw-theme workspace`, `tw-tokens workspace` | unchanged |
+| Bridge deps | `forms` / `rbac` / `ui-core` `workspace:*` | unchanged |
+| New runtime deps | — | **none** (no `@tanstack/*`, no DnD libs — constraint honored) |
+| Breaking changes | — | Zero |
+| Bundle size | 336 KB raw / 73.9 KB gzipped | **402 KB raw / 91 KB gzipped** (+66 KB raw / +17 KB gz / **+23% gz**) |
+| Migration | — | Drop-in. Zero code changes required on existing usages. |
+
+> **Bundle regression note**: the +23% gz delta is **above the
+> 10% reviewer-sign-off threshold** documented in
+> `PERFORMANCE.md`. Justification:
+> Table is the lib's central data-display primitive — it includes
+> sort + search + selection + expandable + RBAC at 3 levels + 5
+> cell renderers + RowActionsMenu (using Popover) + 5 variants ×
+> 3 sizes × 3 densities. The bundle weight is proportional to
+> the feature surface. Sign-off rationale: this is the
+> "MUI X DataGrid Community alternative" component — the single
+> highest-value addition before 1.0. Sprint 4.3 (theme identity
+> sweep) will recover -1 to -3 KB gz by removing redundant
+> `dark:` variants across the catalog.
+
+### Migration
+
+No code changes required:
+
+```bash
+pnpm up @dashforge/tw@^0.6.0-beta
+```
+
+To adopt the new Table:
+
+```tsx
+import { Table, RenderTwoLine, RenderChip, RowActionsMenu } from '@dashforge/tw';
+import { useTranslation } from 'react-i18next';
+
+function UsersTable({ users }) {
+  const { t } = useTranslation();
+  const [selected, setSelected] = useState<string[]>([]);
+
+  return (
+    <Table
+      rows={users}
+      cols={[
+        {
+          field: 'name',
+          header: t('users.fields.name'),
+          sortable: true,
+          searchable: true,
+          cellRenderer: ({ row }) => (
+            <RenderTwoLine primary={row.name} secondary={row.email} />
+          ),
+        },
+        {
+          field: 'salary',
+          header: t('users.fields.salary'),
+          sortable: true,
+          // Right-aligned + tabular-nums automatically. Font family
+          // stays whatever the consumer's theme provides — opt into
+          // `monospace: true` if you want font-mono explicitly.
+          access: {
+            resource: 'employee.salary',
+            action: 'read',
+            onUnauthorized: 'hide',
+          },
+        },
+        {
+          field: 'status',
+          header: t('users.fields.status'),
+          cellRenderer: ({ value }) => (
+            <RenderChip
+              color={value === 'active' ? 'success' : 'warning'}
+            >
+              {String(value)}
+            </RenderChip>
+          ),
+        },
+      ]}
+      getRowId={(r) => r.id}
+      enableSearch
+      rowSelection="multiple"
+      selectedRowIds={selected}
+      onSelectionChange={setSelected}
+      bulkActions={(rows) => (
+        <Button color="danger">
+          {t('actions.delete', { count: rows.length })}
+        </Button>
+      )}
+      rowActions={(row) => (
+        <RowActionsMenu
+          row={row}
+          actions={[
+            { label: t('actions.edit'), onClick: edit },
+            { label: t('actions.delete'), onClick: del, color: 'danger' },
+          ]}
+        />
+      )}
+      labels={{
+        searchPlaceholder: t('table.search'),
+        selectedCount: t('table.selected', { defaultValue: '{count} selected' }),
+      }}
+    />
+  );
+}
+```
+
+### Heads-up — companion releases coming
+
+- **Sprint 4.3 → `0.7.0-beta`**: theme identity audit across the
+  whole catalog (Typography, Box, etc. carry the same latent
+  `dark:` anti-pattern Table just fixed). Expected bundle delta:
+  **−1 to −3 KB gz** (removing redundant classes).
+- **Sprint 4.2 → `0.8.0-beta`**: DataGrid with homemade
+  virtualization (`IntersectionObserver`-based, no new deps) for
+  10k+ row data sets, advanced filter model, sticky columns,
+  per-column RBAC.
+
 ## [0.5.0-beta] — 2026-05-19
 
 **Sprint 4 release.** Two TW-only utility primitives — `<Skeleton>`

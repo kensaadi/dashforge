@@ -279,6 +279,48 @@ export type {
 } from './components/Pagination/pagination.types.js';
 export { paginationVariants } from './components/Pagination/pagination.variants.js';
 
+// F13 tier-5: market-grounded Table (Stripe-style visuals, Pencil&Paper
+// UX research, W3C WAI a11y). DataGrid (with virtualization) ships in
+// Sprint 4.2.
+
+export { Table } from './components/Table/Table.js';
+export type {
+  TableProps,
+  TableColumn,
+  TableColumnInferredType,
+  TableCellContext,
+  TableSortDirection,
+  TableSortItem,
+  TableSortModel,
+  TableFilterItem,
+  TableFilterModel,
+  TableRowSelectionMode,
+  TableExpandableConfig,
+  TableLabels,
+  TableSlotProps,
+  NestedKeyOf,
+} from './components/Table/table.types.js';
+export { tableVariants } from './components/Table/table.variants.js';
+// Cell renderer library
+export {
+  RenderText,
+  RenderTwoLine,
+  RenderChip,
+  RenderButton,
+  RowActionsMenu,
+} from './components/Table/cells/index.js';
+export type {
+  RenderTextProps,
+  RenderTwoLineProps,
+  RenderChipProps,
+  RenderButtonProps,
+  RowActionsMenuProps,
+  TableRowAction,
+} from './components/Table/cells/index.js';
+// Helpers (exported for power users building custom Table-like
+// components on top of the same primitives).
+export { getNestedValue } from './components/Table/_internal/getNestedValue.js';
+
 // ───── Hooks ─────
 export { useAccessState } from './hooks/useAccessState.js';
 
@@ -293,4 +335,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.5.0-beta';
+export const VERSION = '0.6.0-beta';
