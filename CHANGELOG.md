@@ -12,14 +12,26 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ## [tw 0.4.0-beta] — 2026-05-19
 
-> TODO: 1-paragraph summary of this release for the top-level changelog.
-> Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+> **Sprint 3 release for `@dashforge/tw`.** Five new Tier-4
+> overlay/disclosure components (Dialog, Tabs, Tooltip, Popover,
+> Accordion — all Radix-backed) take the lib from 24 → 29
+> components. Plus three internal-quality deliverables: the formal
+> **MUI ↔ TW parity audit** (`PARITY.md`) covering the 10
+> bridge-integrated components with zero unintended drift, the
+> **customization escape hatch playbook** in the docs lab
+> (`sx` vs `slotProps` decision tree + preset extension recipes +
+> custom-bridge-component tutorial), and the first **performance
+> baseline** (`PERFORMANCE.md`) with the 5%/10% gzipped regression
+> budget policy. Strictly additive — zero breaking changes; 634/634
+> tests passing; bundle 312 KB raw / 68.85 KB gzipped (+8.85 KB gz
+> vs `0.3.0-beta`, within the projected budget). Detailed per-package
+> entry: see `libs/dashforge/tw/CHANGELOG.md`.
 
 Affected package (bumped):
 
 | Package | Notes |
 | --- | --- |
-| `@dashforge/tw` | (one-line summary) |
+| `@dashforge/tw` | +5 Tier-4 components + PARITY.md + PERFORMANCE.md + customization docs guide. Bundle 312 KB raw / 68.85 KB gzipped. Drop-in upgrade from `0.3.0-beta`. |
 
 ## [tw 0.3.0-beta] — 2026-05-18
 
