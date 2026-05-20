@@ -175,15 +175,21 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
 // run `pnpm nx build` to validate in dev, the dist is fresh and a
 // rebuild would just waste the OTP window for nothing.
 {
-  const distEsm = path.join(pkg.dir, 'dist', 'index.esm.js');
+  // Resolve the dist entry from the package's own `main` field.
+  // Rollup-built packages (`@dashforge/tw-theme`, `@dashforge/tw`)
+  // emit `dist/index.esm.js`; tsc-built packages
+  // (`@dashforge/tw-tokens`) emit `dist/index.js`. Hardcoding
+  // `index.esm.js` wrongly fails the freshness / emit check for the
+  // tsc-built ones.
+  const distEntry = path.resolve(pkg.dir, pkg.pkg.main ?? './dist/index.esm.js');
   const distDts = path.join(pkg.dir, 'dist', 'index.d.ts');
 
-  const distExists = existsSync(distEsm) && existsSync(distDts);
+  const distExists = existsSync(distEntry) && existsSync(distDts);
   let shouldBuild;
   let reason;
 
   if (args['skip-build']) {
-    if (!distExists) die(`--skip-build given but ${distEsm} or ${distDts} missing.`);
+    if (!distExists) die(`--skip-build given but ${distEntry} or ${distDts} missing.`);
     shouldBuild = false;
     reason = '--skip-build flag set';
   } else if (args['force-build']) {
@@ -193,7 +199,7 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
     shouldBuild = true;
     reason = 'no dist found';
   } else {
-    const distMtime = statSync(distEsm).mtimeMs;
+    const distMtime = statSync(distEntry).mtimeMs;
     const srcDir = path.join(pkg.dir, 'src');
     const newestSrcMtime = existsSync(srcDir) ? findNewestMtime(srcDir) : 0;
     if (newestSrcMtime > distMtime) {
@@ -214,7 +220,7 @@ console.log(c.bold(`\nPublish ${dryRun ? c.yellow('[DRY-RUN]') : c.green('[LIVE]
     } else {
       console.log(`${c.cyan('$')} ${buildCmd}  (${reason})`);
       execSync(buildCmd, { cwd: REPO_ROOT, stdio: 'inherit' });
-      if (!existsSync(distEsm)) die(`Build did not emit ${distEsm}`);
+      if (!existsSync(distEntry)) die(`Build did not emit ${distEntry}`);
       if (!existsSync(distDts)) die(`Build did not emit ${distDts}`);
       console.log(`${c.green('✓')} dist artifacts present.`);
     }
