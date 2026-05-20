@@ -13,6 +13,46 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.0-beta] — 2026-05-20
+
+**Sprint 6 — theme core hardening.** Wires the new shadow token
+axis into the Tailwind preset + the runtime CSS-var injection, fixes
+packaging hygiene, and declares the `tailwindcss` peer requirement.
+Released together with `@dashforge/tw-tokens 0.2.0-beta` and
+`@dashforge/tw 0.9.0-beta`.
+
+### Added
+
+- **`boxShadow` in `dashforgePreset()`** — the preset's
+  `theme.extend` now emits `boxShadow` token refs
+  (`var(--df-tw-shadow-<tier>)`), so `shadow-sm` / `shadow-md` / …
+  resolve to theme CSS vars. Merges with Tailwind's built-in scale.
+- **`twThemeCssVars()`** now emits `--df-tw-shadow-*` variables from
+  `theme.shadow` (the `@dashforge/tw-tokens` `TWShadowTokens` axis).
+- **`tailwindcss` peer dependency** (`>=3.4.1`) — the preset emits
+  `darkMode: ['selector', …]`, a strategy that landed in Tailwind
+  3.4.1. The catalog's `dark:` brand-shift variants depend on it;
+  the explicit peer makes the requirement fail loudly at install
+  time instead of silently breaking dark mode at runtime.
+
+### Changed
+
+- `DashforgePresetResult.theme.extend` gained a `boxShadow` field.
+  Strictly additive — existing consumers spreading the preset are
+  unaffected.
+
+### Fixed
+
+- **Packaging hygiene** — `vitest` + `@vitejs/plugin-react` moved
+  from `dependencies` to `devDependencies`. Consumers no longer pull
+  the test runner into their `node_modules`.
+
+### Docs
+
+- New `THEME-CORE-AUDIT.md` — the Sprint 6 P1 audit of the theme
+  core: what was fixed, what's deferred (dark-mode brand-tone design
+  pass), and the by-design decisions (no `fontFamily` axis).
+
 ## [0.1.0-beta] — 2026-05-16
 
 First public beta, aligned with `@dashforge/tw 0.1.0-beta`.

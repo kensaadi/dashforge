@@ -12,6 +12,106 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.9.0-beta] — 2026-05-20
+
+**Sprint 6 — core hardening.** A refinement pass over the theme
+core, `<Table>` + `<DataGrid>`, the validation gates, and test
+coverage. Released together with `@dashforge/tw-tokens 0.2.0-beta`
+and `@dashforge/tw-theme 0.2.0-beta` — **upgrade all three together.**
+
+**Minor bump** for the additive API surface (`TableLabels.noResults`,
+theme-controlled shadows, the `tailwindcss` peer requirement).
+Strictly additive — no breaking changes on existing component APIs.
+
+### Added
+
+- **Theme-controlled shadows.** `<Box elevation>` and every
+  `shadow-*` utility now resolve to the new `@dashforge/tw-tokens`
+  shadow token axis (CSS-var refs via `dashforgePreset()`), so
+  elevation is runtime-patchable via
+  `patchTheme({ shadow: { md: '…' } })`. Zero `<Box>` code change —
+  the existing classes pick up the var refs through the preset.
+- **`DataGrid` accessibility — `aria-rowcount` / `aria-rowindex`.**
+  The virtualized grid now announces the TRUE dataset position to
+  assistive tech (`aria-rowcount` on the table, `aria-rowindex` on
+  the header + every data row). Before, a screen reader reported the
+  position within the ~visible window, not the full dataset.
+- **`DataGrid` keyboard column resize.** The column resize handle is
+  now keyboard-operable: `tabIndex=0`, `ArrowLeft`/`ArrowRight` nudge
+  the width 16px (64px with `Shift`), `aria-valuemin/max/now` on the
+  separator. WCAG 2.1 keyboard operability — the drag is no longer
+  the only path.
+- **`TableLabels.noResults`** — `<Table>` + `<DataGrid>` now show a
+  distinct "No matching results" message when an active search /
+  filter empties the view, vs the existing `noData` for a genuinely
+  empty dataset. New i18n key.
+- **`Enter`-to-apply** in every `DataGrid` column-filter Popover
+  input (was: must click "Apply").
+
+### Changed
+
+- **`DataGrid` column reorder** — the resize handle is now
+  `draggable={false}`, so grabbing it always resizes and never
+  starts a column-reorder drag. On coarse-pointer (touch) devices the
+  reorder `draggable` affordance is disabled — native HTML5
+  drag-and-drop does not fire touch events, so it was a dead
+  interaction. (A pointer-event reorder covering touch is tracked in
+  `REFINEMENT-NOTES.md`.)
+- **`Table`** now emits a dev-only `console.warn` when `getRowId` is
+  omitted while sort / search / selection / expandable rows are
+  active — the positional-index fallback breaks row identity on
+  reorder. Prop JSDoc expanded. (`<DataGrid>` already requires
+  `getRowId`.)
+- **`tailwind-merge`** bumped to `^3.0.0` (`tailwind-variants@3`
+  requires it). Full suite green on 3.6.0 — `cn()` + every TV recipe
+  unaffected.
+
+### Fixed
+
+- **Console hygiene** — `<Dialog>` now passes
+  `aria-describedby={undefined}` on the content when no `description`
+  is supplied, silencing Radix's 8× *"Missing Description"* dev
+  warning. Correct a11y semantics for description-less dialogs.
+- **Packaging** — `vitest` + `@vitejs/plugin-react` moved from
+  `dependencies` to `devDependencies`; consumers no longer pull the
+  test runner into `node_modules`.
+
+### Dependencies
+
+- New peer dependency: **`tailwindcss` `>=3.4.1`** — the
+  `dashforgePreset()` `darkMode: ['selector', …]` strategy requires
+  it, and the catalog's `dark:` brand-shift variants depend on that
+  config. Declared explicitly so a too-old Tailwind fails at install
+  rather than silently breaking dark mode.
+
+### Tests + tooling
+
+- Render-perf suite: `Table.perf.test.tsx` + `DataGrid.perf.test.tsx`
+  pin the non-virtualized (500 rows) and virtualized (10k / 100k
+  rows, O(window)) budgets in CI.
+- +62 unit tests — the cell renderer library, `ColumnFilters`,
+  `useColumnResize`, `useColumnReorder` are now directly covered
+  (line coverage 85.78%). See `COVERAGE.md` for the report + the
+  tracked pre-Sprint-6 branch-coverage debt.
+- Strict-flag assessment (`exactOptionalPropertyTypes` /
+  `noUncheckedIndexedAccess`) — see `PERFORMANCE.md`. Result: zero
+  real bugs; flag enablement deferred to `1.0.0-rc`.
+
+### Migration
+
+No code changes required:
+
+```bash
+pnpm up @dashforge/tw@^0.9.0-beta \
+        @dashforge/tw-theme@^0.2.0-beta \
+        @dashforge/tw-tokens@^0.2.0-beta
+```
+
+Ensure your project's `tailwindcss` is **`>=3.4.1`** (the new peer
+requirement). If you customized `DataGrid` / `Table` labels via the
+`labels` prop, the new optional `noResults` key defaults to
+`"No matching results"` — translate it if you localize.
+
 ## [0.8.1-beta] — 2026-05-19
 
 **UX swap on `DataGrid` column visibility.** The "Columns" toolbar

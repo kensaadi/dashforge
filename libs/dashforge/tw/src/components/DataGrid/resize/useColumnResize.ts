@@ -35,6 +35,19 @@ export interface ColumnResizeHandlers {
     clampMin: number,
     clampMax: number,
   ) => (e: RPointerEvent<HTMLElement>) => void;
+  /**
+   * Commit a single clamped width delta — the keyboard-resize path.
+   * Wired to ArrowLeft/ArrowRight on the focused resize handle so the
+   * feature is reachable without a pointer (WCAG 2.1 — keyboard
+   * operability). Same clamping as the drag path.
+   */
+  nudge: (
+    field: string,
+    currentWidth: number,
+    delta: number,
+    clampMin: number,
+    clampMax: number,
+  ) => void;
 }
 
 export function useColumnResize(args: UseColumnResizeArgs): ColumnResizeHandlers {
@@ -96,7 +109,23 @@ export function useColumnResize(args: UseColumnResizeArgs): ColumnResizeHandlers
     [onChange, minWidth, maxWidth],
   );
 
-  return { startResize };
+  const nudge = useCallback(
+    (
+      field: string,
+      currentWidth: number,
+      delta: number,
+      clampMin: number,
+      clampMax: number,
+    ) => {
+      const effectiveMin = Math.max(minWidth, clampMin);
+      const effectiveMax = Math.min(maxWidth, clampMax);
+      const next = clamp(currentWidth + delta, effectiveMin, effectiveMax);
+      onChange({ ...widthsRef.current, [field]: next });
+    },
+    [onChange, minWidth, maxWidth],
+  );
+
+  return { startResize, nudge };
 }
 
 function clamp(n: number, min: number, max: number): number {

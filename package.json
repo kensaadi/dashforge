@@ -72,7 +72,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "6.30.3",
-    "tailwind-merge": "^2.5.0",
+    "tailwind-merge": "^3.0.0",
     "tailwind-variants": "^3.2.2",
     "valtio": "2.3.0"
   },

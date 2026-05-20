@@ -79,6 +79,29 @@ export interface TWFontSizeTokens {
 }
 
 /**
+ * Box-shadow / elevation tiers. Tailwind-idiomatic names — `DEFAULT`
+ * backs the bare `shadow` utility, the rest back `shadow-{tier}`.
+ *
+ * Making shadow a theme token (rather than relying on Tailwind's
+ * built-in `boxShadow` scale) means the elevation language becomes
+ * part of the Dashforge identity AND is runtime-patchable via
+ * `patchTheme({ shadow: { md: '...' } })` — same mechanism as colors.
+ *
+ * `<Box elevation={0..5}>` maps onto this scale:
+ * `0→none, 1→sm, 2→DEFAULT, 3→md, 4→lg, 5→xl`.
+ */
+export interface TWShadowTokens {
+  none: string;
+  sm: string;
+  /** Backs the bare `shadow` utility (Tailwind's `DEFAULT` key). */
+  DEFAULT: string;
+  md: string;
+  lg: string;
+  xl: string;
+  '2xl': string;
+}
+
+/**
  * Theme metadata. Carries identity + active mode so the runtime store
  * can model "two themes swap" semantics symmetrically to the MUI side
  * (`@dashforge/tokens` `DashforgeThemeMeta`) — but **without** importing
@@ -113,4 +136,5 @@ export interface TWTheme {
   spacing: TWSpacingScale;
   radius: TWRadiusTokens;
   fontSize: TWFontSizeTokens;
+  shadow: TWShadowTokens;
 }

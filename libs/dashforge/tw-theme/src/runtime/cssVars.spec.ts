@@ -43,7 +43,7 @@ describe('twThemeCssVars', () => {
       expect(colorVars).toHaveLength(7 * 11);
     });
 
-    it('emits spacing/radius/fontSize vars matching slugified token keys', () => {
+    it('emits spacing/radius/fontSize/shadow vars matching slugified token keys', () => {
       // CSS-ident-safe slug: '.' → '_' (see slugifyCssVarKey)
       const slug = (k: string) => k.replace(/\./g, '_');
       const vars = twThemeCssVars(defaultTWThemeLight);
@@ -55,6 +55,9 @@ describe('twThemeCssVars', () => {
       }
       for (const key of Object.keys(defaultTWThemeLight.fontSize)) {
         expect(vars).toHaveProperty(`--df-tw-fontSize-${slug(key)}`);
+      }
+      for (const key of Object.keys(defaultTWThemeLight.shadow)) {
+        expect(vars).toHaveProperty(`--df-tw-shadow-${slug(key)}`);
       }
     });
   });
@@ -104,6 +107,22 @@ describe('twThemeCssVars', () => {
       const vars = twThemeCssVars(defaultTWThemeLight);
       expect(vars['--df-tw-fontSize-base']).toBe('1rem');
       expect(vars['--df-tw-fontSize-2xl']).toBe('1.5rem');
+    });
+
+    it('preserves shadow box-shadow values as-is', () => {
+      const vars = twThemeCssVars(defaultTWThemeLight);
+      expect(vars['--df-tw-shadow-none']).toBe('0 0 #0000');
+      expect(vars['--df-tw-shadow-md']).toBe(
+        '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+      );
+    });
+
+    it('emits the DEFAULT shadow tier as --df-tw-shadow-DEFAULT', () => {
+      const vars = twThemeCssVars(defaultTWThemeLight);
+      // The `DEFAULT` key has no dots — slug is a no-op, the var name
+      // keeps the uppercase form. Matches the preset's
+      // mapKeysToCssVarRefs(theme.shadow, 'shadow') output.
+      expect(vars).toHaveProperty('--df-tw-shadow-DEFAULT');
     });
   });
 

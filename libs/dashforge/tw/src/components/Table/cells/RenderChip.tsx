@@ -53,15 +53,12 @@ const chipVariants = tv({
     { variant: 'soft', color: 'danger',    class: 'bg-danger-100 dark:bg-danger-950 text-danger-700 dark:text-danger-300' },
     { variant: 'soft', color: 'info',      class: 'bg-info-100 dark:bg-info-950 text-info-700 dark:text-info-300' },
     { variant: 'soft', color: 'secondary', class: 'bg-secondary-100 dark:bg-secondary-950 text-secondary-700 dark:text-secondary-300' },
-    // solid = full bg + light text
-    // solid neutral: bg + text both anchored to neutral palette
-    // (auto-inverts). `text-white` would not invert and would break
-    // contrast in light mode against a `bg-neutral-700` dark bg, so
-    // we stick to `text-neutral-50` (light text in light mode, dark
-    // in dark — wait, that's wrong too). Actually `text-neutral-50`
-    // auto-inverts: light text in light mode (against dark bg) is
-    // what we want; in dark mode `bg-neutral-700` becomes light AND
-    // `text-neutral-50` becomes dark — contrast preserved.
+    // solid = full bg + contrasting text.
+    // solid neutral: both `bg-neutral-700` and `text-neutral-50` sit
+    // on the neutral palette, so they auto-invert together via the
+    // CSS-var swap — bg/text contrast is preserved in BOTH modes.
+    // (`text-white` is deliberately NOT used here: white does not
+    // auto-invert, which would flip the contrast in dark mode.)
     { variant: 'solid', color: 'neutral',   class: 'bg-neutral-700 text-neutral-50' },
     { variant: 'solid', color: 'primary',   class: 'bg-primary-500 text-white' },
     { variant: 'solid', color: 'success',   class: 'bg-success-500 text-white' },

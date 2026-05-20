@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode, type KeyboardEvent } from 'react';
 import { Popover } from '../../Popover/Popover.js';
 import { cn } from '../../../utils/cn.js';
 import type {
@@ -38,6 +38,22 @@ function setFilter(
   const rest = model.filter((f) => f.field !== field);
   if (next == null) return rest;
   return [...rest, next];
+}
+
+/**
+ * Shared `onKeyDown` for filter inputs — pressing Enter commits the
+ * filter (equivalent to clicking Apply). Without this the user has to
+ * leave the keyboard and click the button, which reads as broken for
+ * a single-field text filter.
+ */
+function onEnterApply(
+  e: KeyboardEvent<HTMLInputElement>,
+  apply: () => void,
+): void {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    apply();
+  }
 }
 
 // ───── Filter labels (i18n) ─────
@@ -173,18 +189,22 @@ function TextFilter(props: {
     typeof current?.value === 'string' ? current.value : '',
   );
 
+  const apply = () =>
+    onCommit(value.trim() ? { field, op: 'contains', value } : null);
+
   return (
     <div className="flex flex-col gap-2 min-w-[200px]">
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => onEnterApply(e, apply)}
         placeholder="…"
         autoFocus
         className="rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       />
       <FilterActions
-        onApply={() => onCommit(value.trim() ? { field, op: 'contains', value } : null)}
+        onApply={apply}
         onClear={() => {
           setValue('');
           onCommit(null);
@@ -236,6 +256,7 @@ function NumberRangeFilter(props: {
             type="number"
             value={min}
             onChange={(e) => setMin(e.target.value)}
+            onKeyDown={(e) => onEnterApply(e, apply)}
             autoFocus
             className="rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           />
@@ -246,6 +267,7 @@ function NumberRangeFilter(props: {
             type="number"
             value={max}
             onChange={(e) => setMax(e.target.value)}
+            onKeyDown={(e) => onEnterApply(e, apply)}
             className="rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           />
         </label>
@@ -357,6 +379,7 @@ function DateRangeFilter(props: {
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
+            onKeyDown={(e) => onEnterApply(e, apply)}
             autoFocus
             className="rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           />
@@ -367,6 +390,7 @@ function DateRangeFilter(props: {
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
+            onKeyDown={(e) => onEnterApply(e, apply)}
             className="rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           />
         </label>

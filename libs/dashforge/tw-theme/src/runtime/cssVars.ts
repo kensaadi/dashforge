@@ -95,5 +95,12 @@ export function twThemeCssVars(theme: TWTheme): Record<string, string> {
     out[`--df-tw-fontSize-${slugifyCssVarKey(key)}`] = val;
   }
 
+  // Shadow → native CSS box-shadow value as-is (multi-layer rgba
+  // strings). The `DEFAULT` key emits `--df-tw-shadow-DEFAULT`,
+  // matching the preset's `mapKeysToCssVarRefs(theme.shadow, 'shadow')`.
+  for (const [key, val] of Object.entries(theme.shadow)) {
+    out[`--df-tw-shadow-${slugifyCssVarKey(key)}`] = val;
+  }
+
   return out;
 }

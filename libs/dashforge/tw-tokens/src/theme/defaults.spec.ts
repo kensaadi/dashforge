@@ -14,6 +14,7 @@ describe('default TW themes', () => {
         expect(theme.spacing).toBeDefined();
         expect(theme.radius).toBeDefined();
         expect(theme.fontSize).toBeDefined();
+        expect(theme.shadow).toBeDefined();
       }
     });
 
@@ -78,10 +79,35 @@ describe('default TW themes', () => {
         .toBe(defaultTWThemeLight.color.neutral['500']);
     });
 
-    it('shares spacing/radius/fontSize between modes', () => {
+    it('shares spacing/radius/fontSize/shadow between modes', () => {
       expect(defaultTWThemeDark.spacing).toEqual(defaultTWThemeLight.spacing);
       expect(defaultTWThemeDark.radius).toEqual(defaultTWThemeLight.radius);
       expect(defaultTWThemeDark.fontSize).toEqual(defaultTWThemeLight.fontSize);
+      expect(defaultTWThemeDark.shadow).toEqual(defaultTWThemeLight.shadow);
+    });
+  });
+
+  describe('shadow scale', () => {
+    it('exposes the full named tier set on both themes', () => {
+      const expectedTiers = ['none', 'sm', 'DEFAULT', 'md', 'lg', 'xl', '2xl'];
+      for (const theme of [defaultTWThemeLight, defaultTWThemeDark]) {
+        for (const tier of expectedTiers) {
+          expect(theme.shadow).toHaveProperty(tier);
+          expect(typeof theme.shadow[tier as keyof typeof theme.shadow])
+            .toBe('string');
+        }
+      }
+    });
+
+    it('`none` is the zero-shadow sentinel', () => {
+      expect(defaultTWThemeLight.shadow.none).toBe('0 0 #0000');
+    });
+
+    it('non-none tiers carry a real box-shadow value', () => {
+      const realTiers = ['sm', 'DEFAULT', 'md', 'lg', 'xl', '2xl'] as const;
+      for (const tier of realTiers) {
+        expect(defaultTWThemeLight.shadow[tier]).toMatch(/rgb\(0 0 0/);
+      }
     });
   });
 

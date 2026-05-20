@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/tw-theme",
-  "version": "0.1.0-beta",
+  "version": "0.2.0-beta",
   "private": false,
   "type": "module",
   "main": "./dist/index.esm.js",
@@ -17,11 +17,14 @@
   },
   "dependencies": {
     "@dashforge/tw-tokens": "workspace:*",
-    "@vitejs/plugin-react": "*",
-    "valtio": "^2.3.0",
-    "vitest": "*"
+    "valtio": "^2.3.0"
   },
   "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "tailwindcss": ">=3.4.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "*",
+    "vitest": "*"
   }
 }

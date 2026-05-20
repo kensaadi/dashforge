@@ -258,7 +258,14 @@ export type TableRowSelectionMode = 'none' | 'single' | 'multiple';
  */
 export interface TableLabels {
   searchPlaceholder?: string;
+  /** Shown when the dataset itself is empty (0 input rows). */
   noData?: string;
+  /**
+   * Shown when the dataset has rows but an active search / filter
+   * excluded them all. Distinct from `noData` so the user can tell
+   * "nothing here" from "nothing matches your query".
+   */
+  noResults?: string;
   loading?: string;
   ariaSortNone?: string;
   ariaSortAscending?: string;
@@ -353,7 +360,25 @@ export interface TableProps<T extends object>
   // ───── Data ─────
   rows: T[];
   cols: TableColumn<T>[];
-  /** Stable row id resolver. Default: positional index. */
+  /**
+   * Stable row-id resolver — the React key + the identity used by
+   * selection and row-expansion state.
+   *
+   * **Strongly recommended whenever sort / search / selection /
+   * expandable rows are used.** The default falls back to the
+   * positional index (`String(index)`); once rows reorder (sort) or
+   * change presence (search / filter), index `2` points at a
+   * *different* row, so selection and expansion state silently jump
+   * to the wrong rows. Pass a value derived from the data itself:
+   *
+   * ```tsx
+   * <Table getRowId={(row) => row.id} … />
+   * ```
+   *
+   * Dashforge emits a `console.warn` in development when `getRowId`
+   * is omitted and one of those features is active. (`<DataGrid>`
+   * makes this prop required for the same reason.)
+   */
   getRowId?: (row: T, index: number) => string;
 
   // ───── Sort ─────

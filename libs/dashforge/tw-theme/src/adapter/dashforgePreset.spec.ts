@@ -9,6 +9,7 @@ describe('dashforgePreset — shape', () => {
     expect(preset.theme.extend.spacing).toBeDefined();
     expect(preset.theme.extend.borderRadius).toBeDefined();
     expect(preset.theme.extend.fontSize).toBeDefined();
+    expect(preset.theme.extend.boxShadow).toBeDefined();
   });
 
   it('uses the data-dash-tw-theme attribute for dark mode', () => {
@@ -65,6 +66,22 @@ describe('dashforgePreset — CSS var references (alpha-value support)', () => {
     for (const key of Object.keys(fontSize)) {
       expect(fontSize[key]).toBe(`var(--df-tw-fontSize-${key})`);
     }
+  });
+
+  it('boxShadow values are var(--df-tw-shadow-<key>) refs', () => {
+    const preset = dashforgePreset();
+    const boxShadow = preset.theme.extend.boxShadow as Record<string, string>;
+    for (const key of Object.keys(boxShadow)) {
+      expect(boxShadow[key]).toBe(`var(--df-tw-shadow-${key})`);
+    }
+  });
+
+  it('boxShadow keyspace mirrors the theme shadow tokens', () => {
+    const preset = dashforgePreset(defaultTWThemeLight);
+    const boxShadow = preset.theme.extend.boxShadow as Record<string, string>;
+    expect(Object.keys(boxShadow).sort()).toEqual(
+      Object.keys(defaultTWThemeLight.shadow).sort(),
+    );
   });
 });
 

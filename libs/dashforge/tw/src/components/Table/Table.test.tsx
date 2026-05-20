@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import * as React from 'react';
-import { describe, it, expect, afterEach, beforeAll } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { Table } from './Table.js';
 import type { TableColumn } from './table.types.js';
@@ -599,5 +599,76 @@ describe('Table — i18n', () => {
     );
     expect(screen.queryAllByLabelText('Seleziona riga').length).toBe(3);
     expect(screen.queryByLabelText('Seleziona tutte')).not.toBeNull();
+  });
+});
+
+describe('Table — Sprint 6 P2 refinements', () => {
+  // ───── D7: no-results vs no-data empty state ─────
+
+  it('shows the noData message when the dataset is genuinely empty', () => {
+    render(<Table rows={[]} cols={baseCols} getRowId={getRowId} />);
+    expect(screen.queryByText('No data')).not.toBeNull();
+  });
+
+  it('shows the noResults message when a search excludes every row', () => {
+    render(
+      <Table
+        rows={baseRows}
+        cols={baseCols}
+        getRowId={getRowId}
+        enableSearch
+        searchQuery="zzz-no-match"
+        searchDebounceMs={0}
+      />,
+    );
+    expect(screen.queryByText('No matching results')).not.toBeNull();
+    expect(screen.queryByText('No data')).toBeNull();
+  });
+
+  it('shows the noResults message when a filter excludes every row', () => {
+    render(
+      <Table
+        rows={baseRows}
+        cols={baseCols}
+        getRowId={getRowId}
+        filterModel={[{ field: 'name', op: 'contains', value: 'zzz-no-match' }]}
+      />,
+    );
+    expect(screen.queryByText('No matching results')).not.toBeNull();
+  });
+
+  // ───── T1: dev-warn when getRowId omitted + identity-sensitive feature ─────
+
+  it('warns in dev when getRowId is omitted and a sortable column exists', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // baseCols has sortable columns; no getRowId passed.
+    render(<Table rows={baseRows} cols={baseCols} />);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('`getRowId` is not set'),
+    );
+    warn.mockRestore();
+  });
+
+  it('does NOT warn when getRowId is provided', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(<Table rows={baseRows} cols={baseCols} getRowId={getRowId} />);
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('`getRowId` is not set'),
+    );
+    warn.mockRestore();
+  });
+
+  it('does NOT warn when getRowId is omitted but no identity-sensitive feature is active', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // Plain columns: not sortable, not searchable, no selection/expansion.
+    const plainCols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name' },
+      { field: 'email', header: 'Email' },
+    ];
+    render(<Table rows={baseRows} cols={plainCols} />);
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('`getRowId` is not set'),
+    );
+    warn.mockRestore();
   });
 });

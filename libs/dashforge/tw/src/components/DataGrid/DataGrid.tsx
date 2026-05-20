@@ -1,5 +1,7 @@
 import {
   useMemo,
+  useState,
+  useEffect,
   type ReactNode,
   type MouseEvent,
   type PointerEvent as RPointerEvent,
@@ -43,6 +45,7 @@ import {
 const DEFAULT_LABELS: Required<TableLabels> = {
   searchPlaceholder: 'Search...',
   noData: 'No data',
+  noResults: 'No matching results',
   loading: 'Loading…',
   ariaSortNone: 'Not sorted. Click to sort ascending.',
   ariaSortAscending: 'Sorted ascending. Click to sort descending.',
@@ -235,7 +238,7 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
     defaultValue: defaultColumnWidths,
     onChange: onColumnWidthsChange,
   });
-  const { startResize } = useColumnResize({
+  const { startResize, nudge: nudgeColumnWidth } = useColumnResize({
     widths: columnWidths,
     onChange: setColumnWidths,
   });
@@ -254,6 +257,23 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
     order: columnOrder,
     onChange: setColumnOrder,
   });
+
+  // Column reorder rides on native HTML5 drag-and-drop, whose
+  // `dragstart` / `drop` events DO NOT fire for touch input. On a
+  // coarse-pointer device the drag would be a dead affordance — so
+  // we detect the primary pointer and gate reorder off there. Mouse
+  // / trackpad / pen (fine pointer) keep the feature. A pointer-event
+  // based reorder that also covers touch is tracked as a follow-up
+  // in REFINEMENT-NOTES.md.
+  const [coarsePointer, setCoarsePointer] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(pointer: coarse)');
+    setCoarsePointer(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setCoarsePointer(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   // Apply the active order to the columns list. Cols not in the
   // order array (e.g. newly-added columns at runtime) are appended
@@ -434,7 +454,19 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
         className={cn(v.scroll(), slotProps?.scroll?.className)}
         style={height ? { height, maxHeight: height } : undefined}
       >
-        <table className={cn(v.table(), slotProps?.table?.className)}>
+        {/*
+          `aria-rowcount` announces the TRUE total to assistive tech —
+          the virtualized DOM only holds the ~visible window, so without
+          it a screen reader reports "row N of <window size>" instead of
+          "row N of <dataset size>". `+ 1` accounts for the header row.
+          Each `<tr>` carries a 1-based `aria-rowindex` (header = 1,
+          data rows = absoluteIndex + 2). `-1` when the effective count
+          is unknown/zero keeps it a valid (ignored) value.
+        */}
+        <table
+          className={cn(v.table(), slotProps?.table?.className)}
+          aria-rowcount={effectiveTotalCount > 0 ? effectiveTotalCount + 1 : -1}
+        >
           {caption != null && (
             <caption className={cn(!showCaption && 'sr-only', 'py-2 text-sm text-neutral-500')}>
               {caption}
@@ -447,7 +479,10 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
               slotProps?.thead?.className,
             )}
           >
-            <tr className={cn(v.headerRow(), slotProps?.headerRow?.className)}>
+            <tr
+              aria-rowindex={1}
+              className={cn(v.headerRow(), slotProps?.headerRow?.className)}
+            >
               {showSelectionColumn && (
                 <th
                   scope="col"
@@ -492,8 +527,11 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
                     enableColumnResize && col.resizable !== false
                   }
                   startResize={startResize}
+                  nudgeColumnWidth={nudgeColumnWidth}
                   reorderable={
-                    enableColumnReorder && col.reorderable !== false
+                    enableColumnReorder &&
+                    col.reorderable !== false &&
+                    !coarsePointer
                   }
                   reorderHandlers={reorderHandlers}
                   labels={labels}
@@ -537,7 +575,16 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
                 ? renderEmptyState({
                     totalColumnCount,
                     emptyState,
-                    fallback: labels.noData,
+                    // Distinguish a genuinely empty dataset from one
+                    // emptied by an active search / filter (works for
+                    // server-side mode too — a query that returns 0
+                    // rows still reads as "no matching results").
+                    fallback:
+                      rows.length > 0 &&
+                      (debouncedSearchQuery.trim().length > 0 ||
+                        filterModel.length > 0)
+                        ? labels.noResults
+                        : labels.noData,
                     cellClass: cn(
                       v.cell(),
                       v.emptyState(),
@@ -648,6 +695,13 @@ function HeaderCell<T extends object>(props: {
     clampMin: number,
     clampMax: number,
   ) => (e: RPointerEvent<HTMLElement>) => void;
+  nudgeColumnWidth: (
+    field: string,
+    currentWidth: number,
+    delta: number,
+    clampMin: number,
+    clampMax: number,
+  ) => void;
   reorderable: boolean;
   reorderHandlers: ColumnReorderHandlers;
   labels: Required<TableLabels>;
@@ -665,6 +719,7 @@ function HeaderCell<T extends object>(props: {
     effectiveWidth,
     resizable,
     startResize,
+    nudgeColumnWidth,
     reorderable,
     reorderHandlers,
     labels,
@@ -720,24 +775,55 @@ function HeaderCell<T extends object>(props: {
       }
     : {};
 
+  // Resize bounds — shared by the pointer-drag and keyboard paths.
+  const resizeMin = col.minWidth ?? 40;
+  const resizeMax = col.maxWidth ?? 1200;
+  // Keyboard nudge step: 16px, or 64px with Shift held (coarse).
+  const measureWidth = (handle: HTMLElement): number =>
+    effectiveWidth ??
+    (handle.parentElement as HTMLElement | null)?.getBoundingClientRect()
+      .width ??
+    120;
+
   const resizeHandle = resizable ? (
     <span
       role="separator"
       aria-orientation="vertical"
       aria-label={`Resize ${typeof col.header === 'string' ? col.header : col.field}`}
+      // Width bounds announced to assistive tech on the separator.
+      aria-valuemin={resizeMin}
+      aria-valuemax={resizeMax}
+      aria-valuenow={effectiveWidth ?? undefined}
+      // Keyboard-operable: focusable + ArrowLeft/Right resize. WCAG 2.1
+      // keyboard operability — the drag is no longer the only path.
+      tabIndex={disabled ? -1 : 0}
+      // D6 guard: the parent `<th>` is `draggable` when reorderable;
+      // marking the handle non-draggable means grabbing the handle
+      // starts a RESIZE, never a column-reorder drag.
+      draggable={false}
       onPointerDown={(e) => {
-        const handle = e.currentTarget;
-        const th = handle.parentElement as HTMLElement | null;
-        const startWidth =
-          effectiveWidth ?? th?.getBoundingClientRect().width ?? 120;
-        const min = col.minWidth ?? 40;
-        const max = col.maxWidth ?? 1200;
-        startResize(col.field as string, startWidth, min, max)(e);
+        const startWidth = measureWidth(e.currentTarget);
+        startResize(col.field as string, startWidth, resizeMin, resizeMax)(e);
+      }}
+      onKeyDown={(e) => {
+        if (disabled) return;
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        const step = (e.shiftKey ? 64 : 16) * (e.key === 'ArrowLeft' ? -1 : 1);
+        const current = measureWidth(e.currentTarget);
+        nudgeColumnWidth(
+          col.field as string,
+          current,
+          step,
+          resizeMin,
+          resizeMax,
+        );
       }}
       className={cn(
         'absolute top-0 bottom-0 right-0 w-1.5',
         'cursor-col-resize select-none touch-none',
         'hover:bg-primary-300 active:bg-primary-400',
+        'focus:outline-none focus-visible:bg-primary-400',
         'transition-colors motion-reduce:transition-none',
       )}
     />
@@ -952,6 +1038,10 @@ function renderVirtualizedBody<T extends object>(args: {
         return (
           <tr
             key={rowId}
+            // 1-based row index in the FULL dataset (header row is 1,
+            // so data rows start at 2). Lets a screen reader announce
+            // the true position despite virtualization windowing.
+            aria-rowindex={absoluteIdx + 2}
             data-selected={isSelected ? 'true' : 'false'}
             aria-selected={rowSelection !== 'none' ? isSelected : undefined}
             className={classes.row}

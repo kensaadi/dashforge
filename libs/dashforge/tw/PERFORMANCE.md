@@ -159,11 +159,70 @@ single Radix primitive's worth of code) without the policy
 triggering, but small enough that a careless dep addition gets
 flagged.
 
+## Render perf test suite (Sprint 6 P3)
+
+CI-enforced render budgets, co-located as `*.perf.test.tsx`. Bounds
+are deliberately generous — they catch **order-of-magnitude**
+regressions (an accidental O(n²) in the pipeline, or a virtualization
+break that mounts the full dataset), not micro-jitter.
+
+### `<Table>` — non-virtualized (`Table.perf.test.tsx`)
+
+| Scenario | Budget | Asserts |
+|---|---|---|
+| Mount 500 rows (Table's row-count ceiling) | < 800 ms | render path stays linear |
+| 500 rows in DOM | exactly 500 `<tbody tr>` | non-virtualized contract |
+| Default sort over 500 rows | < 800 ms | sort pipeline is not O(n²) |
+
+### `<DataGrid>` — virtualized (`DataGrid.perf.test.tsx`)
+
+| Scenario | Budget | Asserts |
+|---|---|---|
+| Mount 10 000 rows | < 500 ms | render is O(window) |
+| 10 000-row DOM node count | < 100 `<tbody tr>` | only the window is mounted |
+| Mount 100 000 rows | < 800 ms | cost does NOT scale with the dataset |
+
+The 100 000-row test is the load-bearing one: if a regression makes
+`renderedRows` slice the full array, the DOM-node-count assertion
+fails immediately (100k `<tr>` ≫ 100).
+
+## Strict gate assessment (Sprint 6 P3)
+
+A probe enabled `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess`
++ `noUnusedParameters` on `@dashforge/tw`. Result: **42 errors, zero
+real bugs.** Every hit was either pedantic (`exactOptionalPropertyTypes`
+flagging `fn | undefined` passed to an optional prop) or invariant-safe
+but unprovable (`noUncheckedIndexedAccess` flagging array accesses
+already guarded by a `.length` check — AppShell focus trap, RadioGroup
+option access, Autocomplete highlight index).
+
+**Decision**: enabling those flags is a workspace-wide change (the
+`@dashforge/source` path mapping pulls the bridge layer's source into
+the same program) for near-zero bug-catching value. Deferred to the
+`1.0.0-rc` hardening sprint. The codebase is already solid under the
+current `strict: true` baseline + `noImplicitOverride` /
+`noImplicitReturns` / `noUnusedLocals` / `noFallthroughCasesInSwitch`.
+ESLint is on `typescript-eslint recommended` + `react-hooks
+recommended` + Nx boundary/dependency checks; promotion to
+`strict-type-checked` (type-aware `no-unsafe-*` / `no-floating-promises`)
+is the same workspace-wide 1.0-rc item.
+
+## Console hygiene (Sprint 6 P3)
+
+The full test run is audited for stray `console.error` / `console.warn`.
+Sprint 6 P3 fixed the one finding: Radix logged 8× *"Missing
+`Description` or `aria-describedby` for DialogContent"* — `<Dialog>`
+now passes `aria-describedby={undefined}` on the content when no
+`description` is supplied (Radix's documented opt-out). Console is
+clean apart from a single jsdom-only *"Not implemented: navigation"*
+(an environment limitation, not a component defect).
+
 ## Reference
 
 - **Build command**: `nx build @dashforge/tw`
 - **Measurement script**: `gzip -c dist/index.esm.js | wc -c`
 - **Render perf setup**: see Sprint 2 P1
   (`/test-foundation` route in `dash` consumer)
+- **Render perf suite**: `*.perf.test.tsx` (Sprint 6 P3 — Table + DataGrid)
 - **CHANGELOG entries**: every release records the bundle delta
   in the `Compatibility` section

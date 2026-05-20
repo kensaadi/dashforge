@@ -42,6 +42,15 @@ export function Dialog(props: DialogProps) {
         />
         <RadixDialog.Content
           className={cn(v.content(), sx, slotProps?.content?.className)}
+          // When no `description` is supplied we render no
+          // `<RadixDialog.Description>`. Radix then logs a dev warning
+          // unless the Content explicitly opts out via
+          // `aria-describedby={undefined}` — the documented escape
+          // hatch for description-less dialogs. Spread it ONLY in that
+          // case so a present description still auto-links its id.
+          {...(description == null
+            ? { 'aria-describedby': undefined }
+            : {})}
           onPointerDownOutside={(event) => {
             if (disableBackdropClose) event.preventDefault();
           }}

@@ -23,17 +23,32 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
+          // Non-shipped files: their imports must NOT count toward the
+          // published `dependencies` set. Spec/test files import the
+          // test runner; the build/test config files import build
+          // tooling — all of which belong in `devDependencies`.
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}',
             '{projectRoot}/rollup.config.{js,ts,mjs,mts,cjs,cts}',
             '{projectRoot}/vite.config.{js,ts,mjs,mts}',
+            '{projectRoot}/vitest.config.{js,ts,mjs,mts}',
+            '{projectRoot}/**/*.spec.{ts,tsx}',
+            '{projectRoot}/**/*.test.{ts,tsx}',
           ],
           // tw-tokens (CSS vars + Tailwind preset) and tw-theme
           // (Provider that injects the runtime vars) are CONSUMER-FACING
           // peer dependencies: the runtime requires them, but @dashforge/tw
           // itself never imports them. Declaring them as peers documents
           // the requirement without triggering the "not used" check.
-          ignoredDependencies: ['@dashforge/tw-tokens', '@dashforge/tw-theme'],
+          // `tailwindcss` is the same case — a build-time peer (the
+          // consumer's Tailwind compiles the class strings + reads the
+          // `darkMode: 'selector'` config from `dashforgePreset()`); it
+          // is never an `import` site in this package's code.
+          ignoredDependencies: [
+            '@dashforge/tw-tokens',
+            '@dashforge/tw-theme',
+            'tailwindcss',
+          ],
         },
       ],
     },

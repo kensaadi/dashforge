@@ -911,3 +911,169 @@ describe('DataGrid — column reorder', () => {
     expect(draggableThs[0]?.textContent).toContain('Email');
   });
 });
+
+describe('DataGrid — Sprint 6 P2 refinements', () => {
+  // ───── D1: aria-rowcount / aria-rowindex ─────
+
+  it('sets aria-rowcount on the table reflecting the full dataset + header', () => {
+    const { container } = render(
+      <DataGrid
+        rows={generateUsers(500)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    const table = container.querySelector('table');
+    // 500 data rows + 1 header row
+    expect(table?.getAttribute('aria-rowcount')).toBe('501');
+  });
+
+  it('header row has aria-rowindex=1', () => {
+    const { container } = render(
+      <DataGrid
+        rows={generateUsers(20)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    expect(
+      container.querySelector('thead tr')?.getAttribute('aria-rowindex'),
+    ).toBe('1');
+  });
+
+  it('data rows carry a 1-based aria-rowindex offset past the header', () => {
+    const { container } = render(
+      <DataGrid
+        rows={generateUsers(20)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    // absolute index 0 → aria-rowindex 2 (header occupies index 1)
+    const firstDataRow = container.querySelector('tbody tr[data-selected]');
+    expect(firstDataRow?.getAttribute('aria-rowindex')).toBe('2');
+  });
+
+  // ───── D6: resize handle is not draggable + keyboard-focusable ─────
+
+  it('resize handle is keyboard-focusable and explicitly not draggable', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    const handle = screen.getAllByRole('separator')[0] as HTMLElement;
+    expect(handle.getAttribute('tabindex')).toBe('0');
+    expect(handle.getAttribute('draggable')).toBe('false');
+  });
+
+  // ───── D3: keyboard column resize ─────
+
+  it('ArrowRight on the resize handle widens the column by 16px', () => {
+    const onColumnWidthsChange = vi.fn();
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', width: 120 },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        columnWidths={{ name: 120 }}
+        onColumnWidthsChange={onColumnWidthsChange}
+      />,
+    );
+    const handle = screen.getByRole('separator');
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    expect(onColumnWidthsChange).toHaveBeenCalledWith({ name: 136 });
+  });
+
+  it('Shift+ArrowLeft on the resize handle narrows the column by 64px', () => {
+    const onColumnWidthsChange = vi.fn();
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', width: 200 },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        columnWidths={{ name: 200 }}
+        onColumnWidthsChange={onColumnWidthsChange}
+      />,
+    );
+    const handle = screen.getByRole('separator');
+    fireEvent.keyDown(handle, { key: 'ArrowLeft', shiftKey: true });
+    expect(onColumnWidthsChange).toHaveBeenCalledWith({ name: 136 });
+  });
+
+  // ───── D7: no-results vs no-data empty state ─────
+
+  it('shows the noData message when the dataset is genuinely empty', () => {
+    render(
+      <DataGrid
+        rows={[]}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    expect(screen.queryByText('No data')).not.toBeNull();
+  });
+
+  it('shows the noResults message when a filter excludes every row', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(10)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        filterModel={[{ field: 'name', op: 'contains', value: 'zzz-no-match' }]}
+      />,
+    );
+    expect(screen.queryByText('No matching results')).not.toBeNull();
+    expect(screen.queryByText('No data')).toBeNull();
+  });
+
+  // ───── D4: Enter applies the filter ─────
+
+  it('pressing Enter in the filter text input applies the filter', () => {
+    const onFilterChange = vi.fn();
+    const cols: TableColumn<User>[] = [
+      { field: 'name', header: 'Name', filterable: true },
+    ];
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={cols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        onFilterChange={onFilterChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Filter' }));
+    const input = screen.getByPlaceholderText('…') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'User 3' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onFilterChange).toHaveBeenCalledWith([
+      { field: 'name', op: 'contains', value: 'User 3' },
+    ]);
+  });
+});

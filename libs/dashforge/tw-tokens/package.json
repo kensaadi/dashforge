@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/tw-tokens",
-  "version": "0.1.0-beta",
+  "version": "0.2.0-beta",
   "private": false,
   "type": "module",
   "main": "./dist/index.js",
@@ -16,7 +16,9 @@
     }
   },
   "dependencies": {
-    "tslib": "^2.3.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
     "vitest": "*"
   }
 }

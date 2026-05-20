@@ -5,6 +5,7 @@ import type {
   TWSpacingScale,
   TWRadiusTokens,
   TWFontSizeTokens,
+  TWShadowTokens,
 } from '@dashforge/tw-tokens';
 import { defaultTWThemeLight } from '@dashforge/tw-tokens';
 import { slugifyCssVarKey } from '../runtime/cssVars.js';
@@ -23,6 +24,7 @@ export interface DashforgePresetResult {
       spacing: TWSpacingScale;
       borderRadius: TWRadiusTokens;
       fontSize: TWFontSizeTokens;
+      boxShadow: TWShadowTokens;
     };
   };
   darkMode: [string, string];
@@ -77,7 +79,7 @@ function buildColorRefs(template: TWColorTokens): TWColorTokens {
  */
 function mapKeysToCssVarRefs<T>(
   keys: T,
-  group: 'spacing' | 'radius' | 'fontSize'
+  group: 'spacing' | 'radius' | 'fontSize' | 'shadow'
 ): T {
   const out: Record<string, string> = {};
   for (const key of Object.keys(keys as Record<string, unknown>)) {
@@ -142,6 +144,10 @@ export function dashforgePreset(theme: TWTheme = defaultTWThemeLight): Dashforge
         spacing: mapKeysToCssVarRefs(theme.spacing, 'spacing'),
         borderRadius: mapKeysToCssVarRefs(theme.radius, 'radius'),
         fontSize: mapKeysToCssVarRefs(theme.fontSize, 'fontSize'),
+        // `boxShadow` extend MERGES with Tailwind's built-in scale —
+        // the keys we declare (none/sm/DEFAULT/md/lg/xl/2xl) resolve
+        // to CSS-var refs, any others fall back to Tailwind defaults.
+        boxShadow: mapKeysToCssVarRefs(theme.shadow, 'shadow'),
       },
     },
     // Dashforge dark-mode toggle attribute. The runtime provider

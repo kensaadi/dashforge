@@ -13,6 +13,41 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.0-beta] — 2026-05-20
+
+**Sprint 6 — theme core hardening.** Adds the shadow/elevation token
+axis. Released together with `@dashforge/tw-theme 0.2.0-beta` and
+`@dashforge/tw 0.9.0-beta`.
+
+### Added
+
+- **`TWShadowTokens` interface** + **`TWTheme.shadow`** field — the
+  box-shadow / elevation scale (`none` / `sm` / `DEFAULT` / `md` /
+  `lg` / `xl` / `2xl`). `defaultTWThemeLight` + `defaultTWThemeDark`
+  both expose it via the shared `sharedShadow` constant. Values
+  match Tailwind's battle-tested `boxShadow` defaults verbatim — the
+  point of theming shadow is to make it runtime-patchable
+  (`patchTheme({ shadow: { md: '…' } })`) and part of the Dashforge
+  identity, NOT to redesign the elevation language.
+  - `<Box elevation={0..5}>` maps onto this scale
+    (`0→none, 1→sm, 2→DEFAULT, 3→md, 4→lg, 5→xl`) — and is now
+    theme-controlled with zero `<Box>` code change (the existing
+    `shadow-*` utility classes resolve to CSS-var refs via the
+    `dashforgePreset()` `boxShadow` extend).
+  - Mode-agnostic for now (shared light + dark). Dark-mode-specific
+    shadow tuning is folded into the deferred theme "design pass" —
+    see `@dashforge/tw-theme/THEME-CORE-AUDIT.md`.
+
+### Changed
+
+- **`TWTheme`** now has a required `shadow` field. Consumers building
+  a custom `TWTheme` object by hand must add it — the shipped
+  `defaultTWTheme*` exports already include it, so consumers that
+  spread/patch the defaults are unaffected.
+- `meta.version` on the default themes bumped `0.0.1` → `1.0.0`
+  (semver of the theme *definition*, distinct from the package
+  version).
+
 ## [0.1.0-beta] — 2026-05-16
 
 First public beta, aligned with `@dashforge/tw 0.1.0-beta`.

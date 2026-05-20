@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode, type MouseEvent } from 'react';
+import { useMemo, useEffect, type ReactNode, type MouseEvent } from 'react';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { Skeleton } from '../Skeleton/Skeleton.js';
@@ -27,6 +27,7 @@ import type {
 const DEFAULT_LABELS: Required<TableLabels> = {
   searchPlaceholder: 'Search...',
   noData: 'No data',
+  noResults: 'No matching results',
   loading: 'Loading…',
   ariaSortNone: 'Not sorted. Click to sort ascending.',
   ariaSortAscending: 'Sorted ascending. Click to sort descending.',
@@ -131,6 +132,31 @@ export function Table<T extends object>(props: TableProps<T>) {
 
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const tableAccessState = useAccessState(tableAccess);
+
+  // Dev-only guard: `getRowId` is optional (positional-index fallback)
+  // but that fallback breaks row identity once rows reorder (sort) or
+  // change presence (search / filter) — selection + expansion state
+  // then jump to the wrong rows. Warn when it's omitted AND a feature
+  // that relies on stable identity is active. Stripped in production.
+  const getRowIdProvided = props.getRowId !== undefined;
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    if (getRowIdProvided) return;
+    const identityMatters =
+      rowSelection !== 'none' ||
+      expandable != null ||
+      enableSearch ||
+      cols.some((c) => Boolean(c.sortable));
+    if (identityMatters) {
+      console.warn(
+        '[Dashforge Table] `getRowId` is not set — falling back to the ' +
+          'positional row index. With sort / search / selection / ' +
+          'expandable rows active, the index-based key breaks row ' +
+          'identity when rows reorder. Pass a stable resolver, e.g. ' +
+          '`getRowId={(row) => row.id}`.',
+      );
+    }
+  }, [getRowIdProvided, rowSelection, expandable, enableSearch, cols]);
 
   // ───── Controllable state machinery ─────
 
@@ -341,7 +367,14 @@ export function Table<T extends object>(props: TableProps<T>) {
                 ? renderEmptyState({
                     totalColumnCount,
                     emptyState,
-                    fallback: labels.noData,
+                    // Distinguish a genuinely empty dataset from one
+                    // emptied by an active search / filter.
+                    fallback:
+                      rows.length > 0 &&
+                      (debouncedSearchQuery.trim().length > 0 ||
+                        filterModel.length > 0)
+                        ? labels.noResults
+                        : labels.noData,
                     cellClass: cn(v.cell(), v.emptyState(), slotProps?.emptyState?.className),
                   })
                 : sortedRows.map((row, idx) => {
@@ -733,6 +766,10 @@ function renderLoadingRows<T extends object>(args: {
   cellClass: string;
 }): ReactNode {
   const { count, visibleCols, showSelectionColumn, showExpandColumn, showRowActionsColumn, rowClass, cellClass } = args;
+  // No explicit row height here (unlike DataGrid's loading rows, which
+  // pin `rowHeight` for the virtualization math): Table is auto-height
+  // by design. Skeleton rows inherit the same density padding via
+  // `cellClass`, so they line up with real rows without a fixed height.
   return Array.from({ length: count }).map((_, i) => (
     <tr key={`loading-${i}`} className={rowClass} aria-busy="true">
       {showSelectionColumn && <td className={cellClass}><Skeleton variant="rectangle" width="16px" height="16px" /></td>}

@@ -1,4 +1,9 @@
-import type { TWTheme, TWColorScale, TWColorTokens } from './types.js';
+import type {
+  TWTheme,
+  TWColorScale,
+  TWColorTokens,
+  TWShadowTokens,
+} from './types.js';
 
 /**
  * Tonal palette (Tailwind-shaped 50-950). Reused as-is across both
@@ -187,6 +192,28 @@ const sharedFontSize = {
 };
 
 /**
+ * Shared shadow scale. Values match Tailwind's battle-tested
+ * `boxShadow` defaults verbatim — the point of theming shadow is to
+ * make it runtime-patchable + part of the Dashforge identity, NOT to
+ * redesign the elevation language. A consumer can override any tier
+ * via `patchTheme({ shadow: { md: '...' } })`.
+ *
+ * Mode-agnostic for now (shared light + dark). Dark-mode-specific
+ * shadow tuning is folded into the deferred "design pass" sprint
+ * alongside dark brand tones — see THEME-AUDIT.md.
+ */
+const sharedShadow: TWShadowTokens = {
+  none: '0 0 #0000',
+  sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  DEFAULT:
+    '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+  md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+  xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+  '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+};
+
+/**
  * Default Dashforge TW theme — **light mode**. Provides a Tailwind-shaped
  * palette + spacing/radius/fontSize defaults. F2 placeholder values; design
  * pass will refine the brand hues.
@@ -194,13 +221,14 @@ const sharedFontSize = {
 export const defaultTWThemeLight: TWTheme = {
   meta: {
     name: 'Dashforge TW Light',
-    version: '0.0.1',
+    version: '1.0.0',
     mode: 'light',
   },
   color: lightColors,
   spacing: sharedSpacing,
   radius: sharedRadius,
   fontSize: sharedFontSize,
+  shadow: sharedShadow,
 };
 
 /**
@@ -215,13 +243,14 @@ export const defaultTWThemeLight: TWTheme = {
 export const defaultTWThemeDark: TWTheme = {
   meta: {
     name: 'Dashforge TW Dark',
-    version: '0.0.1',
+    version: '1.0.0',
     mode: 'dark',
   },
   color: darkColors,
   spacing: sharedSpacing,
   radius: sharedRadius,
   fontSize: sharedFontSize,
+  shadow: sharedShadow,
 };
 
 /**
