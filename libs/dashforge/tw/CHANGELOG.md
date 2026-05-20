@@ -12,6 +12,35 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.9.1-beta] — 2026-05-20
+
+**Sprint 7 — Calendar suite (part 1).** Adds the Tailwind skin of the
+custom date-picker suite, on the new shared headless engine
+`@dashforge/calendar-core`.
+
+### Added
+
+- **`<Calendar>`** — a standalone, inline month-grid date primitive.
+  Renders the `useCalendar` view-model from `@dashforge/calendar-core`
+  with `tailwind-variants`; WCAG grid pattern with roving tab-index
+  keyboard navigation. Controlled / uncontrolled selection, `minDate` /
+  `maxDate`, explicit + predicate disabled dates, configurable week-start
+  day, `Intl`-localized labels. Theme-identity clean — no `dark:`
+  variants on the neutral palette.
+- **`<DatePicker>`** — a bridge-integrated single-date form field: a
+  trigger button paired with a `<Calendar>` inside a Radix `<Popover>`
+  (toggle / Escape / outside-click / focus-trap are Radix-managed).
+  Integrates with the form bridge + RBAC. Stores a plain ISO
+  `YYYY-MM-DD` date. The legacy native `DateTimePicker` stays available.
+
+The same components run on the same `useCalendar` engine as the MUI
+`@dashforge/ui` skin — only the rendering layer differs.
+
+### Dependencies
+
+- New dependency: **`@dashforge/calendar-core`** (`workspace:*`) — the
+  shared headless calendar engine.
+
 ## [0.9.0-beta] — 2026-05-20
 
 **Sprint 6 — core hardening.** A refinement pass over the theme

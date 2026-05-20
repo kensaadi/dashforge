@@ -85,3 +85,9 @@ export type {
 
 export { Button } from './components/Button/Button';
 export type { ButtonProps } from './components/Button/Button';
+
+export { Calendar } from './components/Calendar/Calendar';
+export type { CalendarProps } from './components/Calendar/calendar.types';
+
+export { DatePicker } from './components/DatePicker/DatePicker';
+export type { DatePickerProps } from './components/DatePicker/datePicker.types';

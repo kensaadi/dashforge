@@ -9,6 +9,41 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.2.4-beta] — 2026-05-20
+
+**Sprint 7 — Calendar suite (part 1).** Adds the first two components of
+the custom date-picker suite, built on the new shared headless engine
+`@dashforge/calendar-core`.
+
+### Added
+
+- **`<Calendar>`** — a standalone, inline month-grid date primitive.
+  Renders the `useCalendar` view-model from `@dashforge/calendar-core`
+  with MUI primitives + the Dashforge theme; full WCAG grid pattern with
+  roving tab-index keyboard navigation. Controlled / uncontrolled
+  selection, `minDate` / `maxDate`, explicit + predicate disabled dates,
+  configurable week-start day, `Intl`-localized labels.
+- **`<DatePicker>`** — a bridge-integrated single-date form field: a
+  read-only input paired with a `<Calendar>` popup (MUI `Popper`).
+  Integrates with the form bridge, RBAC, and `FieldLayoutShell`. Stores a
+  plain ISO `YYYY-MM-DD` date (no time, no timezone — removing the DST
+  round-trip hazards of the legacy native `DateTimePicker`, which stays
+  available).
+
+### Fixed
+
+- **`Select` / `Autocomplete`** — resolved pre-existing implicit-`any`
+  errors (`TS7006`) on the `sourceOptions.map` callback parameter. The
+  `optionsFromFieldData ? … : …` ternary produced a union of array types
+  that degraded the callback parameter to an implicit `any`; an explicit
+  `sourceOptions` type annotation fixes it. Type-only change — no runtime
+  behaviour change.
+
+### Dependencies
+
+- New dependency: **`@dashforge/calendar-core`** — the shared headless
+  calendar engine.
+
 ## [0.2.3-beta] — 2026-05-16
 
 - Lockstep version bump aligning the `fixed`-relationship release group

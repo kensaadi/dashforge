@@ -40,16 +40,19 @@
       "path": "../ui-core/tsconfig.lib.json"
     },
     {
-      "path": "../tw-tokens/tsconfig.lib.json"
-    },
-    {
-      "path": "../tw-theme/tsconfig.lib.json"
-    },
-    {
       "path": "../rbac/tsconfig.lib.json"
     },
     {
       "path": "../forms/tsconfig.lib.json"
+    },
+    {
+      "path": "../calendar-core/tsconfig.lib.json"
+    },
+    {
+      "path": "../tw-tokens/tsconfig.lib.json"
+    },
+    {
+      "path": "../tw-theme/tsconfig.lib.json"
     }
   ]
 }

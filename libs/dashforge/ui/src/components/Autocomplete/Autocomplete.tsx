@@ -349,7 +349,11 @@ export function Autocomplete<
       ? runtime.data.options
       : [];
 
-  const sourceOptions = optionsFromFieldData
+  // Explicitly typed `TOption[]`: both the static `options` and the runtime
+  // options are `TOption`. The annotation also keeps the `.map` callback
+  // parameter from degrading to an implicit `any` (the `Array.isArray` guard
+  // on the runtime branch otherwise widens the element type).
+  const sourceOptions: TOption[] = optionsFromFieldData
     ? rawRuntimeOptions
     : options || [];
 

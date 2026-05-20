@@ -13,6 +13,10 @@ export default defineConfig(() => ({
       '@dashforge/forms': resolve(__dirname, '../forms/src/index.ts'),
       '@dashforge/rbac': resolve(__dirname, '../rbac/src/index.ts'),
       '@dashforge/ui-core': resolve(__dirname, '../ui-core/src/index.ts'),
+      '@dashforge/calendar-core': resolve(
+        __dirname,
+        '../calendar-core/src/index.ts',
+      ),
     },
   },
   // Uncomment this if you are using workers.

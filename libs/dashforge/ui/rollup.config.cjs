@@ -13,6 +13,7 @@ module.exports = withNx(
       'react-dom',
       'react/jsx-runtime',
       '@dashforge/ui-core',
+      '@dashforge/calendar-core',
       '@mui/material',
       '@mui/material/TextField',
       '@emotion/react',

@@ -44,6 +44,9 @@
       "@dashforge/rbac": [
         "libs/dashforge/rbac/src/index.ts"
       ],
+      "@dashforge/calendar-core": [
+        "libs/dashforge/calendar-core/src/index.ts"
+      ],
       "@dashforge/tw-tokens": [
         "libs/dashforge/tw-tokens/src/index.ts"
       ],
