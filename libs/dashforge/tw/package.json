@@ -16,6 +16,7 @@
     }
   },
   "dependencies": {
+    "@dashforge/calendar-core": "workspace:*",
     "@dashforge/forms": "workspace:*",
     "@dashforge/rbac": "workspace:*",
     "@dashforge/ui-core": "workspace:*",

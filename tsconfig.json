@@ -35,6 +35,9 @@
     },
     {
       "path": "./libs/dashforge/tw"
+    },
+    {
+      "path": "./libs/dashforge/calendar-core"
     }
   ]
 }

@@ -108,6 +108,26 @@ export type {
 } from './components/DateTimePicker/dateTimePicker.types.js';
 export { dateTimePickerVariants } from './components/DateTimePicker/dateTimePicker.variants.js';
 
+// Custom calendar suite — Calendar primitive + bridge-integrated DatePicker,
+// both built on the shared headless `@dashforge/calendar-core` engine.
+
+export { Calendar } from './components/Calendar/Calendar.js';
+export type {
+  CalendarProps,
+  CalendarSlotProps,
+} from './components/Calendar/calendar.types.js';
+export {
+  calendarVariants,
+  calendarDayVariants,
+} from './components/Calendar/calendar.variants.js';
+
+export { DatePicker } from './components/DatePicker/DatePicker.js';
+export type {
+  DatePickerProps,
+  DatePickerSlotProps,
+} from './components/DatePicker/datePicker.types.js';
+export { datePickerVariants } from './components/DatePicker/datePicker.variants.js';
+
 // F6 layout: router-agnostic navigation primitives.
 
 export { Breadcrumbs } from './components/Breadcrumbs/Breadcrumbs.js';

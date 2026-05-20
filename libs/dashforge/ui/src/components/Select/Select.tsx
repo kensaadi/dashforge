@@ -295,7 +295,11 @@ export function Select<T extends string | number = string | number>(
       ? runtime.data.options
       : [];
 
-  const sourceOptions = optionsFromFieldData
+  // Annotated as `unknown[]`: runtime options are of arbitrary shape and the
+  // static `options` are `SelectOption<T>`; both are read exclusively through
+  // the `unknown`-accepting mapper functions. The explicit type also keeps
+  // the `.map` callback parameter from degrading to an implicit `any`.
+  const sourceOptions: unknown[] = optionsFromFieldData
     ? rawRuntimeOptions
     : options || [];
 

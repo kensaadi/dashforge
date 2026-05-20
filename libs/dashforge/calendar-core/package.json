@@ -1,0 +1,50 @@
+{
+  "name": "@dashforge/calendar-core",
+  "version": "0.1.0-beta",
+  "description": "Headless calendar engine — date math, month-grid model and the useCalendar hook. Zero runtime dependencies. Shared by the Dashforge MUI and Tailwind calendar suites.",
+  "license": "MIT",
+  "keywords": [
+    "dashforge",
+    "calendar",
+    "date-picker",
+    "headless",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kensaadi/dashforge.git",
+    "directory": "libs/dashforge/calendar-core"
+  },
+  "homepage": "https://github.com/kensaadi/dashforge/tree/main/libs/dashforge/calendar-core",
+  "bugs": {
+    "url": "https://github.com/kensaadi/dashforge/issues"
+  },
+  "type": "module",
+  "private": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@dashforge/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "vitest": "*"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
