@@ -298,8 +298,8 @@ export interface TableLabels {
   /** Column visibility menu (Popover-based, auto-commit). */
   columnsButton?: string;
   columnsTitle?: string;
-  columnsShowAll?: string;
-  columnsHideAll?: string;
+  /** Aria-label for the tri-state show/hide-all master checkbox. */
+  columnsToggleAll?: string;
 }
 
 // ───── Slot props ─────

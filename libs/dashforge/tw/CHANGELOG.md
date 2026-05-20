@@ -65,9 +65,29 @@ Strictly additive — no breaking changes on existing component APIs.
 - **`tailwind-merge`** bumped to `^3.0.0` (`tailwind-variants@3`
   requires it). Full suite green on 3.6.0 — `cn()` + every TV recipe
   unaffected.
+- **`DataGrid` column-visibility menu** — the "Show all" / "Hide all"
+  text links are replaced by a single tri-state master checkbox at
+  the top of the column list (checked = all visible, indeterminate
+  = mixed, unchecked = all hidden), consistent with the row
+  select-all checkbox. Less chrome, no extra copy. The
+  `TableLabels` keys `columnsShowAll` + `columnsHideAll` are removed;
+  new key `columnsToggleAll` is the master checkbox `aria-label`.
+  The Popover title (`columnsTitle`) is unchanged and
+  consumer-customizable as before.
 
 ### Fixed
 
+- **`<Typography>` dark-mode colour consistency.** The default
+  `color` changed from `inherit` to `neutral`. A bare
+  `<Typography>` now emits `text-neutral-900` (auto-inverting via
+  the `dashforgePreset()` CSS-var swap) instead of inheriting the
+  consuming app's arbitrary root colour — which is typically driven
+  off the OS `prefers-color-scheme`, diverging from the Dashforge
+  `data-dash-tw-theme` mode. Before the fix, default-colour and
+  explicitly-coloured text rendered as two different greys in dark
+  mode. Pass `color="inherit"` explicitly on a `<Typography>` placed
+  inside a coloured surface (`<Box variant="solid">`). Paired with
+  the `@dashforge/tw-theme 0.2.0-beta` base-layer surface anchor.
 - **Console hygiene** — `<Dialog>` now passes
   `aria-describedby={undefined}` on the content when no `description`
   is supplied, silencing Radix's 8× *"Missing Description"* dev
@@ -109,8 +129,14 @@ pnpm up @dashforge/tw@^0.9.0-beta \
 
 Ensure your project's `tailwindcss` is **`>=3.4.1`** (the new peer
 requirement). If you customized `DataGrid` / `Table` labels via the
-`labels` prop, the new optional `noResults` key defaults to
-`"No matching results"` — translate it if you localize.
+`labels` prop:
+
+- the new optional `noResults` key defaults to
+  `"No matching results"` — translate it if you localize;
+- the column-visibility keys `columnsShowAll` / `columnsHideAll`
+  are **removed** (the menu now uses a tri-state master checkbox) —
+  replace them with the single `columnsToggleAll` key
+  (default `"Toggle all columns"`, used as the checkbox `aria-label`).
 
 ## [0.8.1-beta] — 2026-05-19
 

@@ -55,6 +55,15 @@ export const typographyVariants = tv({
      * paints white text).
      */
     color: {
+      // `inherit` is the explicit escape hatch — use it on a
+      // `<Typography>` inside a coloured surface (e.g.
+      // `<Box variant="solid" color="primary">` paints white text)
+      // so the text picks up the surface colour. It is NO LONGER the
+      // default: a bare `<Typography>` would otherwise inherit the
+      // consuming app's arbitrary root colour (often OS-`prefers-
+      // color-scheme` driven), which diverges from the Dashforge
+      // `data-dash-tw-theme` mode and breaks colour consistency in
+      // dark mode. The default is now `neutral` — see `defaultVariants`.
       inherit:   'text-inherit',
       primary:   'text-primary-700 dark:text-primary-400',
       secondary: 'text-secondary-700 dark:text-secondary-400',
@@ -109,7 +118,11 @@ export const typographyVariants = tv({
 
   defaultVariants: {
     variant: 'body1',
-    color:   'inherit',
+    // `neutral` (not `inherit`): a bare `<Typography>` emits
+    // `text-neutral-900`, which auto-inverts via the dashforgePreset()
+    // CSS-var swap and follows the Dashforge mode. Pass
+    // `color="inherit"` explicitly inside a coloured surface.
+    color:   'neutral',
     align:   'left',
   },
 });

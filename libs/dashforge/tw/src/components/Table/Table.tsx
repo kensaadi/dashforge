@@ -54,8 +54,7 @@ const DEFAULT_LABELS: Required<TableLabels> = {
   densitySpacious: 'Spacious',
   columnsButton: 'Columns',
   columnsTitle: 'Toggle columns',
-  columnsShowAll: 'Show all',
-  columnsHideAll: 'Hide all',
+  columnsToggleAll: 'Toggle all columns',
 };
 
 const DEFAULT_GET_ROW_ID = <T extends object>(_row: T, index: number) => String(index);

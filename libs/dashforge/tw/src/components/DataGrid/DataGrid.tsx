@@ -72,8 +72,7 @@ const DEFAULT_LABELS: Required<TableLabels> = {
   densitySpacious: 'Spacious',
   columnsButton: 'Columns',
   columnsTitle: 'Toggle columns',
-  columnsShowAll: 'Show all',
-  columnsHideAll: 'Hide all',
+  columnsToggleAll: 'Toggle all columns',
 };
 
 /**
@@ -440,8 +439,7 @@ export function DataGrid<T extends object>(props: DataGridProps<T>) {
               labels={{
                 columnsButton: labels.columnsButton,
                 columnsTitle: labels.columnsTitle,
-                columnsShowAll: labels.columnsShowAll,
-                columnsHideAll: labels.columnsHideAll,
+                columnsToggleAll: labels.columnsToggleAll,
               }}
             />
           )}

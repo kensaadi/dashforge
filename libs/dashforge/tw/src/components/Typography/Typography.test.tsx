@@ -84,6 +84,21 @@ describe('<Typography>', () => {
       const { container } = render(<Typography color="inherit">x</Typography>);
       expect(container.firstElementChild?.className).toContain('text-inherit');
     });
+
+    it('defaults to color="neutral" (text-neutral-900, NOT text-inherit)', () => {
+      // Sprint 6 P5 fix — a bare <Typography> must emit the
+      // auto-inverting neutral token, not inherit the consumer's
+      // arbitrary root colour (which broke dark-mode consistency).
+      const { container } = render(<Typography>x</Typography>);
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('text-neutral-900');
+      expect(cls).not.toContain('text-inherit');
+    });
+
+    it('color="muted" emits text-neutral-600', () => {
+      const { container } = render(<Typography color="muted">x</Typography>);
+      expect(container.firstElementChild?.className).toContain('text-neutral-600');
+    });
   });
 
   // ─── Override semantics ─────────────────────────────────────────────

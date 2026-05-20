@@ -754,6 +754,80 @@ describe('DataGrid — column visibility', () => {
     expect(screen.queryByText('Email')).toBeNull();
     expect(screen.queryByText('Name')).not.toBeNull();
   });
+
+  // ───── Sprint 6 P5 — tri-state master checkbox ─────
+
+  it('renders a master toggle-all checkbox in the visibility menu', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    expect(
+      screen.queryByLabelText('Toggle all columns'),
+    ).not.toBeNull();
+  });
+
+  it('master checkbox is checked when every column is visible', () => {
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    const master = screen.getByLabelText('Toggle all columns') as HTMLInputElement;
+    expect(master.checked).toBe(true);
+  });
+
+  it('clicking the master when all visible hides every hideable column', () => {
+    const onHiddenColumnsChange = vi.fn();
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        onHiddenColumnsChange={onHiddenColumnsChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    fireEvent.click(screen.getByLabelText('Toggle all columns'));
+    // baseCols = name / email / age / meta.city — all hideable.
+    expect(onHiddenColumnsChange).toHaveBeenCalledWith([
+      'name',
+      'email',
+      'age',
+      'meta.city',
+    ]);
+  });
+
+  it('clicking the master when some are hidden shows all', () => {
+    const onHiddenColumnsChange = vi.fn();
+    render(
+      <DataGrid
+        rows={generateUsers(5)}
+        cols={baseCols}
+        getRowId={getRowId}
+        rowHeight={48}
+        height="400px"
+        hiddenColumns={['email']}
+        onHiddenColumnsChange={onHiddenColumnsChange}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    fireEvent.click(screen.getByLabelText('Toggle all columns'));
+    expect(onHiddenColumnsChange).toHaveBeenCalledWith([]);
+  });
 });
 
 describe('DataGrid — column resize', () => {

@@ -34,6 +34,18 @@ Released together with `@dashforge/tw-tokens 0.2.0-beta` and
   3.4.1. The catalog's `dark:` brand-shift variants depend on it;
   the explicit peer makes the requirement fail loudly at install
   time instead of silently breaking dark mode at runtime.
+- **Base-layer surface anchor** — `dashforgePreset()` now ships a
+  `plugins` entry (a bare `({ addBase }) => …` function — no
+  `tailwindcss/plugin` import) that anchors the document `body` to
+  the auto-inverting neutral surface:
+  `color: rgb(var(--df-tw-color-neutral-900))` +
+  `background-color: rgb(var(--df-tw-color-neutral-50))`. Without
+  it, bare text (`<Typography color="inherit">`) inherits the
+  consuming app's arbitrary root colour — which usually tracks the
+  OS `prefers-color-scheme`, NOT the Dashforge `data-dash-tw-theme`
+  mode — and the two diverge in dark mode. The anchor makes default
+  text follow the Dashforge mode in lockstep with every component.
+  `DashforgePresetResult` gained a `plugins` field (additive).
 
 ### Changed
 

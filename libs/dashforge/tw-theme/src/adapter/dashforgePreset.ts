@@ -28,6 +28,14 @@ export interface DashforgePresetResult {
     };
   };
   darkMode: [string, string];
+  /**
+   * Base-layer plugin(s). Tailwind accepts a bare `({ addBase }) =>
+   * void` function in `plugins` — no `tailwindcss/plugin` import
+   * needed. The preset ships exactly one: it anchors the document
+   * `body` to the auto-inverting neutral surface (see
+   * `dashforgeBasePlugin`).
+   */
+  plugins: Array<(api: { addBase: (styles: Record<string, Record<string, string>>) => void }) => void>;
 }
 
 /**
@@ -136,6 +144,45 @@ function mapKeysToCssVarRefs<T>(
  * };
  * ```
  */
+/**
+ * Base-layer plugin — anchors the document `body` to the Dashforge
+ * neutral surface.
+ *
+ * Why this is part of the preset (not left to the consumer):
+ *
+ * `<Typography>` (and any bare text) defaults to `color: inherit`.
+ * Without a Dashforge-controlled base color, default text inherits
+ * whatever the consuming app put on `:root` / `body` — and a typical
+ * app drives that off the OS `prefers-color-scheme`, NOT off the
+ * Dashforge `data-dash-tw-theme` mode. The two signals diverge:
+ * explicitly-coloured text (`<Typography color="neutral">` →
+ * `text-neutral-900`) follows the Dashforge mode via the CSS-var
+ * swap, while default text follows the OS — so the two never match.
+ *
+ * Anchoring `body` to `--df-tw-color-neutral-900` (text) +
+ * `--df-tw-color-neutral-50` (surface) means default text inherits
+ * the auto-inverting Dashforge neutral, and light/dark follow the
+ * Dashforge mode in lockstep with every component. This IS the
+ * Dashforge surface identity — see
+ * `feedback_dashforge_preset_is_identity`.
+ *
+ * `body` (not `:root`) is deliberate: a direct `body { color }`
+ * rule beats a consumer's inherited `:root { color }` regardless of
+ * stylesheet source order.
+ *
+ * @internal
+ */
+function dashforgeBasePlugin(api: {
+  addBase: (styles: Record<string, Record<string, string>>) => void;
+}): void {
+  api.addBase({
+    body: {
+      color: 'rgb(var(--df-tw-color-neutral-900))',
+      backgroundColor: 'rgb(var(--df-tw-color-neutral-50))',
+    },
+  });
+}
+
 export function dashforgePreset(theme: TWTheme = defaultTWThemeLight): DashforgePresetResult {
   return {
     theme: {
@@ -154,5 +201,7 @@ export function dashforgePreset(theme: TWTheme = defaultTWThemeLight): Dashforge
     // (`DashforgeTailwindProvider`) sets `data-dash-tw-theme` on
     // `<html>` whenever the store's `meta.mode` changes.
     darkMode: ['selector', '[data-dash-tw-theme="dark"]'],
+    // Base-layer anchor for the neutral surface (see plugin doc).
+    plugins: [dashforgeBasePlugin],
   };
 }

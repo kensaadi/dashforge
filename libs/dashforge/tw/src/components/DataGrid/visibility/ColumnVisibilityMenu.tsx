@@ -31,15 +31,18 @@ import type { TableColumn } from '../../Table/table.types.js';
 export interface ColumnVisibilityLabels {
   columnsButton?: string;
   columnsTitle?: string;
-  columnsShowAll?: string;
-  columnsHideAll?: string;
+  /**
+   * Accessible label for the tri-state master checkbox that
+   * shows/hides every hideable column at once. Not shown as visible
+   * text — surfaced to assistive tech via `aria-label`.
+   */
+  columnsToggleAll?: string;
 }
 
 const DEFAULT_VISIBILITY_LABELS: Required<ColumnVisibilityLabels> = {
   columnsButton: 'Columns',
   columnsTitle: 'Toggle columns',
-  columnsShowAll: 'Show all',
-  columnsHideAll: 'Hide all',
+  columnsToggleAll: 'Toggle all columns',
 };
 
 export interface ColumnVisibilityTriggerProps<T extends object> {
@@ -70,8 +73,21 @@ export function ColumnVisibilityTrigger<T extends object>(
     );
   };
 
-  const showAll = () => onChange([]);
-  const hideAll = () => onChange(hideableCols.map((c) => c.field as string));
+  // Tri-state master: checked = every hideable column visible,
+  // unchecked = every one hidden, indeterminate = mixed.
+  const allVisible = hideableCols.every(
+    (c) => !hiddenColumns.includes(c.field as string),
+  );
+  const allHidden =
+    hideableCols.length > 0 &&
+    hideableCols.every((c) => hiddenColumns.includes(c.field as string));
+  const someHidden = !allVisible && !allHidden;
+
+  // Standard select-all semantics: when everything is visible the
+  // master hides all; otherwise it shows all.
+  const toggleAll = () => {
+    onChange(allVisible ? hideableCols.map((c) => c.field as string) : []);
+  };
 
   return (
     <Popover
@@ -80,28 +96,29 @@ export function ColumnVisibilityTrigger<T extends object>(
       side="bottom"
       align="end"
       content={
-        <div className="flex flex-col gap-2 min-w-[220px]">
-          <div className="flex items-center justify-between pb-2 border-b border-neutral-200">
+        <div className="flex flex-col gap-1 min-w-[220px]">
+          {/*
+            Header row — the tri-state master checkbox + the title.
+            The master replaces the old "Show all · Hide all" text
+            links: one control, no extra copy, consistent with the
+            DataGrid row select-all checkbox. The title is a heading
+            (not part of the checkbox label) and stays consumer-
+            customizable via `labels.columnsTitle`.
+          */}
+          <div className="flex items-center gap-2 px-1 pb-2 mb-1 border-b border-neutral-200">
+            <input
+              type="checkbox"
+              aria-label={labels.columnsToggleAll}
+              checked={allVisible}
+              ref={(el) => {
+                if (el) el.indeterminate = someHidden;
+              }}
+              onChange={toggleAll}
+              className="cursor-pointer"
+            />
             <span className="text-xs font-semibold text-neutral-700 uppercase tracking-wide">
               {labels.columnsTitle}
             </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={showAll}
-                className="text-xs text-neutral-600 hover:text-neutral-900 underline-offset-2 hover:underline focus:outline-none focus-visible:underline"
-              >
-                {labels.columnsShowAll}
-              </button>
-              <span className="text-neutral-300" aria-hidden="true">·</span>
-              <button
-                type="button"
-                onClick={hideAll}
-                className="text-xs text-neutral-600 hover:text-neutral-900 underline-offset-2 hover:underline focus:outline-none focus-visible:underline"
-              >
-                {labels.columnsHideAll}
-              </button>
-            </div>
           </div>
           <ul className="flex flex-col gap-0.5 max-h-72 overflow-auto">
             {hideableCols.map((col) => {

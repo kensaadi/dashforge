@@ -16,6 +16,26 @@ describe('dashforgePreset — shape', () => {
     const preset = dashforgePreset();
     expect(preset.darkMode).toEqual(['selector', '[data-dash-tw-theme="dark"]']);
   });
+
+  it('ships a base-layer plugin', () => {
+    const preset = dashforgePreset();
+    expect(Array.isArray(preset.plugins)).toBe(true);
+    expect(preset.plugins).toHaveLength(1);
+    expect(typeof preset.plugins[0]).toBe('function');
+  });
+
+  it('the base plugin anchors `body` to the neutral surface tokens', () => {
+    const preset = dashforgePreset();
+    let captured: Record<string, Record<string, string>> | undefined;
+    // Tailwind invokes the plugin with `{ addBase }`; capture what it
+    // registers.
+    preset.plugins[0]!({ addBase: (styles) => { captured = styles; } });
+    expect(captured).toBeDefined();
+    expect(captured!.body.color).toBe('rgb(var(--df-tw-color-neutral-900))');
+    expect(captured!.body.backgroundColor).toBe(
+      'rgb(var(--df-tw-color-neutral-50))',
+    );
+  });
 });
 
 describe('dashforgePreset — CSS var references (alpha-value support)', () => {
