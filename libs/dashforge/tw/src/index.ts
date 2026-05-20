@@ -373,4 +373,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.7.0-beta';
+export const VERSION = '0.9.1-beta';
