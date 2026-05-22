@@ -20,8 +20,7 @@
   "dependencies": {
     "@dashforge/tokens": "^0.2.3-beta",
     "tslib": "^2.3.0",
-    "valtio": "^2.3.0",
-    "vitest": "*"
+    "valtio": "^2.3.0"
   },
   "files": [
     "dist",
