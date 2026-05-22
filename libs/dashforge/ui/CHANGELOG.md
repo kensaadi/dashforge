@@ -9,6 +9,23 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.4.0-beta] — 2026-05-22
+
+**Sprint 7 — Tabs.** Adds a custom `Tabs` component.
+
+### Added
+
+- **`<Tabs>`** — declarative tab navigation. A custom, clean-room
+  implementation on a headless `useTabs` engine — it does **not** wrap
+  `@mui/material`'s `Tabs`. Implements the WAI-ARIA APG tabs pattern:
+  arrow-key navigation, automatic activation, roving tabindex, and the
+  `tablist` / `tab` / `tabpanel` roles. Two variant axes — `variant`
+  (`underline` | `pill`) and `orientation` (`horizontal` | `vertical`);
+  controlled / uncontrolled selection; per-tab `disabled`; and a
+  `keepMounted` prop (default `false` — only the active panel is mounted).
+  The prop surface mirrors the `@dashforge/tw` `Tabs`.
+- New exported types: `TabsProps`, `TabItem`.
+
 ## [0.3.0-beta] — 2026-05-21
 
 **Sprint 7 — Calendar suite (part 2).** Completes the custom date-picker

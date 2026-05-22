@@ -94,3 +94,6 @@ export type { TimePickerProps } from './components/TimePicker/timePicker.types';
 
 export { DateRangePicker } from './components/DateRangePicker/DateRangePicker';
 export type { DateRangePickerProps } from './components/DateRangePicker/dateRangePicker.types';
+
+export { Tabs } from './components/Tabs/Tabs';
+export type { TabsProps, TabItem } from './components/Tabs/tabs.types';
