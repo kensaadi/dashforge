@@ -9,6 +9,40 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [0.3.0-beta] — 2026-05-21
+
+**Sprint 7 — Calendar suite (part 2).** Completes the custom date-picker
+suite: `TimePicker`, `DateRangePicker`, and a rebuilt `DateTimePicker` —
+all on the shared headless `@dashforge/calendar-core` engine.
+
+### Added
+
+- **`<TimePicker>`** — a form-bound time-of-day field: an editable input
+  paired with a dropdown of time options. Free-typed input is normalized
+  via `parseTimeString` on blur / Enter. Stores a canonical 24-hour
+  `"HH:mm"` string (`hour12` is display-only). Bridge + RBAC +
+  `FieldLayoutShell`.
+- **`<DateRangePicker>`** — a form-bound start/end date field: a read-only
+  input paired with a dual-month range calendar popup, built on the new
+  `useDateRange` engine. Stores a `{ start, end }` pair of ISO dates.
+
+### Changed
+
+- **BREAKING — `<DateTimePicker>` replaced.** The legacy native-input
+  `DateTimePicker` (HTML `datetime-local` / `date` / `time`) is replaced by
+  a custom component — a `Calendar` popup paired with a time list, on
+  `@dashforge/calendar-core`. New storage contract: a naive ISO datetime
+  `"YYYY-MM-DDTHH:mm"` (no seconds, no timezone). The `mode` prop is
+  removed — use `DatePicker` for date-only, `TimePicker` for time-only;
+  `min` / `max` / `step` / `onValueChange` become `minDate` / `maxDate` /
+  `stepMinutes` / `onChange`. The `DateTimePickerMode` type export is
+  removed. No deprecation cycle — the library has no consumers yet.
+
+### Dependencies
+
+- Requires **`@dashforge/calendar-core` `0.2.0-beta`** — the `useDateRange`
+  engine.
+
 ## [0.2.4-beta] — 2026-05-20
 
 **Sprint 7 — Calendar suite (part 1).** Adds the first two components of

@@ -1,29 +1,18 @@
 import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
-import type { ISODate, WeekDay } from '@dashforge/calendar-core';
-
-/** Per-slot `className` overrides for `<DateTimePicker>`. */
-export interface DateTimePickerSlotProps {
-  root?: { className?: string };
-  label?: { className?: string };
-  requiredMark?: { className?: string };
-  trigger?: { className?: string };
-  helperText?: { className?: string };
-  errorText?: { className?: string };
-}
+import type { DateRange, ISODate, WeekDay } from '@dashforge/calendar-core';
+import type { FieldLayout } from '../_internal/FieldLayoutShell';
 
 /**
- * Props for the `<DateTimePicker>` form field (Tailwind skin).
+ * Props for the {@link DateRangePicker} form field.
  *
- * A read-only trigger paired with a popover combining a `<Calendar>` and a
- * time list. The stored value is a naive ISO datetime — `"YYYY-MM-DDTHH:mm"`
- * — or `null`. No seconds, no timezone.
- *
- * For a date-only field use `<DatePicker>`; for time-only use `<TimePicker>`.
- * The prop surface mirrors the MUI `@dashforge/ui` `DateTimePicker`.
+ * `DateRangePicker` is a bridge-integrated form field: a read-only text input
+ * paired with a dual-month range calendar popup. The stored value is a
+ * `{ start, end }` pair of plain ISO calendar dates (`YYYY-MM-DD`); either
+ * side may be `null`. No time, no timezone.
  */
-export interface DateTimePickerProps {
+export interface DateRangePickerProps {
   /** Field name — the bridge registration key. Required. */
   name: string;
   /** Validation rules forwarded to the form bridge. */
@@ -38,20 +27,20 @@ export interface DateTimePickerProps {
   required?: boolean;
   /** Disables the field. */
   disabled?: boolean;
-  /** Placeholder shown when no value is selected. */
+  /** Placeholder shown when no range is selected. */
   placeholder?: string;
-  /** Label/control layout. */
-  layout?: 'stacked' | 'inline';
+  /** Label/control layout. `floating` is downgraded to `stacked`. */
+  layout?: FieldLayout;
   /** Reactive visibility predicate evaluated against the form engine. */
   visibleWhen?: (engine: Engine) => boolean;
   /** RBAC access requirement. */
   access?: AccessRequirement;
-  /** Controlled value — `"YYYY-MM-DDTHH:mm"` or `null`. */
-  value?: string | null;
+  /** Controlled value — a `{ start, end }` pair. */
+  value?: DateRange;
   /** Uncontrolled initial value. */
-  defaultValue?: string | null;
-  /** Fired with the new datetime (or `null` when cleared). */
-  onChange?: (value: string | null) => void;
+  defaultValue?: DateRange;
+  /** Fired with the new range (partial on the first click, complete on the second). */
+  onChange?: (value: DateRange) => void;
   /** Earliest selectable date (inclusive). */
   minDate?: ISODate;
   /** Latest selectable date (inclusive). */
@@ -64,16 +53,8 @@ export interface DateTimePickerProps {
   weekStartDay?: WeekDay;
   /** BCP-47 locale for the calendar and the display format. */
   locale?: string;
-  /** Step between time-list options, in minutes. Default `30`. */
-  stepMinutes?: number;
-  /** Render the time list in 12-hour notation. Default `false`. */
-  hour12?: boolean;
   /** Stretches the field to its container width. */
   fullWidth?: boolean;
-  /** Root-level Tailwind class override. */
-  sx?: string;
-  /** Per-slot `className` overrides. */
-  slotProps?: DateTimePickerSlotProps;
   /** Test id applied to the field root. */
   testId?: string;
 }

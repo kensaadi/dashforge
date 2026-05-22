@@ -95,21 +95,9 @@ export type {
 } from './components/Autocomplete/autocomplete.types.js';
 export { autocompleteVariants } from './components/Autocomplete/autocomplete.variants.js';
 
-// F5-B tier-3: native HTML5 date / time / datetime picker, bridge-integrated.
-
-export {
-  DateTimePicker,
-  isoToInputValue,
-} from './components/DateTimePicker/DateTimePicker.js';
-export type {
-  DateTimePickerProps,
-  DateTimePickerMode,
-  DateTimePickerSlotProps,
-} from './components/DateTimePicker/dateTimePicker.types.js';
-export { dateTimePickerVariants } from './components/DateTimePicker/dateTimePicker.variants.js';
-
-// Custom calendar suite — Calendar primitive + bridge-integrated DatePicker,
-// both built on the shared headless `@dashforge/calendar-core` engine.
+// Custom calendar suite — Calendar primitive + bridge-integrated DatePicker /
+// TimePicker / DateTimePicker / DateRangePicker, all built on the shared
+// headless `@dashforge/calendar-core` engine.
 
 export { Calendar } from './components/Calendar/Calendar.js';
 export type {
@@ -127,6 +115,30 @@ export type {
   DatePickerSlotProps,
 } from './components/DatePicker/datePicker.types.js';
 export { datePickerVariants } from './components/DatePicker/datePicker.variants.js';
+
+export { TimePicker } from './components/TimePicker/TimePicker.js';
+export type {
+  TimePickerProps,
+  TimePickerSlotProps,
+} from './components/TimePicker/timePicker.types.js';
+export { timePickerVariants } from './components/TimePicker/timePicker.variants.js';
+
+export { DateTimePicker } from './components/DateTimePicker/DateTimePicker.js';
+export type {
+  DateTimePickerProps,
+  DateTimePickerSlotProps,
+} from './components/DateTimePicker/dateTimePicker.types.js';
+export { dateTimePickerVariants } from './components/DateTimePicker/dateTimePicker.variants.js';
+
+export { DateRangePicker } from './components/DateRangePicker/DateRangePicker.js';
+export type {
+  DateRangePickerProps,
+  DateRangePickerSlotProps,
+} from './components/DateRangePicker/dateRangePicker.types.js';
+export {
+  dateRangePickerVariants,
+  dateRangeDayVariants,
+} from './components/DateRangePicker/dateRangePicker.variants.js';
 
 // F6 layout: router-agnostic navigation primitives.
 
@@ -373,4 +385,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.9.1-beta';
+export const VERSION = '0.10.0-beta';

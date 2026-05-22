@@ -2,26 +2,17 @@ import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { ISODate, WeekDay } from '@dashforge/calendar-core';
-
-/** Per-slot `className` overrides for `<DateTimePicker>`. */
-export interface DateTimePickerSlotProps {
-  root?: { className?: string };
-  label?: { className?: string };
-  requiredMark?: { className?: string };
-  trigger?: { className?: string };
-  helperText?: { className?: string };
-  errorText?: { className?: string };
-}
+import type { FieldLayout } from '../_internal/FieldLayoutShell';
 
 /**
- * Props for the `<DateTimePicker>` form field (Tailwind skin).
+ * Props for the {@link DateTimePicker} form field.
  *
- * A read-only trigger paired with a popover combining a `<Calendar>` and a
- * time list. The stored value is a naive ISO datetime — `"YYYY-MM-DDTHH:mm"`
- * — or `null`. No seconds, no timezone.
+ * `DateTimePicker` is a bridge-integrated form field combining a `Calendar`
+ * popup with a time list. The stored value is a plain ISO datetime —
+ * `"YYYY-MM-DDTHH:mm"` — or `null`. It is **naive**: no seconds, no timezone.
  *
- * For a date-only field use `<DatePicker>`; for time-only use `<TimePicker>`.
- * The prop surface mirrors the MUI `@dashforge/ui` `DateTimePicker`.
+ * For a date-only field use `DatePicker`; for a time-only field use
+ * `TimePicker`.
  */
 export interface DateTimePickerProps {
   /** Field name — the bridge registration key. Required. */
@@ -40,8 +31,8 @@ export interface DateTimePickerProps {
   disabled?: boolean;
   /** Placeholder shown when no value is selected. */
   placeholder?: string;
-  /** Label/control layout. */
-  layout?: 'stacked' | 'inline';
+  /** Label/control layout. `floating` is downgraded to `stacked`. */
+  layout?: FieldLayout;
   /** Reactive visibility predicate evaluated against the form engine. */
   visibleWhen?: (engine: Engine) => boolean;
   /** RBAC access requirement. */
@@ -70,10 +61,6 @@ export interface DateTimePickerProps {
   hour12?: boolean;
   /** Stretches the field to its container width. */
   fullWidth?: boolean;
-  /** Root-level Tailwind class override. */
-  sx?: string;
-  /** Per-slot `className` overrides. */
-  slotProps?: DateTimePickerSlotProps;
   /** Test id applied to the field root. */
   testId?: string;
 }

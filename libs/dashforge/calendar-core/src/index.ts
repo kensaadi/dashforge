@@ -15,4 +15,4 @@ export * from './core/index.js';
 export * from './react/index.js';
 
 /** Package version (synced with `package.json` at publish time). */
-export const VERSION = '0.1.0-beta';
+export const VERSION = '0.2.0-beta';
