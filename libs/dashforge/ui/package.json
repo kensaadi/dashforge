@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/ui",
-  "version": "0.2.4-beta",
+  "version": "0.3.0-beta",
   "description": "Comprehensive MUI-based UI component library with form integration and RBAC support",
   "license": "MIT",
   "keywords": [

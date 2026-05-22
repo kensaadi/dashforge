@@ -10,6 +10,27 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [Calendar Suite — part 2] — 2026-05-21
+
+> **Sprint 7 part 2.** Completes the custom calendar suite across both UI
+> ecosystems: **`TimePicker`**, **`DateRangePicker`**, and a rebuilt custom
+> **`DateTimePicker`** — all on the shared headless `@dashforge/calendar-core`
+> engine, which gains the **`useDateRange`** range hook (range state machine,
+> dual-month rendering). The legacy native-input `DateTimePicker` is replaced
+> by a fully custom component — a breaking change, taken now while the
+> library still has no consumers. Detailed per-package entries: see each
+> package's `CHANGELOG.md`.
+
+Affected packages (bumped):
+
+| Package | Version | Notes |
+|---|---|---|
+| `@dashforge/calendar-core` | `0.1.0-beta` → `0.2.0-beta` | New `useDateRange` headless hook. |
+| `@dashforge/ui` | `0.2.4-beta` → `0.3.0-beta` | `TimePicker` + `DateRangePicker`; `DateTimePicker` rebuilt custom (breaking). |
+| `@dashforge/tw` | `0.9.1-beta` → `0.10.0-beta` | `TimePicker` + `DateRangePicker`; `DateTimePicker` rebuilt custom (breaking). |
+
+---
+
 ## [tw 0.7.0-beta] — 2026-05-19
 
 > **Combined Sprint 4.2 + 4.3 release for `@dashforge/tw`.** Ships

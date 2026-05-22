@@ -5,105 +5,41 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import {
   formatTime,
   generateTimeOptions,
-  getTodayISODate,
-  parseISODate,
+  timeStringToMinutes,
 } from '@dashforge/calendar-core';
-import type { ISODate } from '@dashforge/calendar-core';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { Popover } from '../Popover/Popover.js';
-import { Calendar } from '../Calendar/Calendar.js';
-import { dateTimePickerVariants } from './dateTimePicker.variants.js';
-import type { DateTimePickerProps } from './dateTimePicker.types.js';
+import { timePickerVariants } from './timePicker.variants.js';
+import type { TimePickerProps } from './timePicker.types.js';
 
-// Inline 16×16 stroke calendar glyph — no icon dependency (tw convention).
-function CalendarIcon() {
+// Inline 16×16 stroke clock glyph — no icon dependency (tw convention).
+function ClockIcon() {
   return (
     <svg width="1em" height="1em" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <rect
-        x="2.5"
-        y="3.5"
-        width="11"
-        height="10"
-        rx="1.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
+      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" />
       <path
-        d="M2.5 6.5h11M5.5 2v3M10.5 2v3"
+        d="M8 4.5V8l2.4 1.4"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
 }
 
-const DATETIME_PATTERN = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/;
-
-/** Splits a stored `YYYY-MM-DDTHH:mm` value into its date and time parts. */
-function splitDateTime(value: string | null | undefined): {
-  date: ISODate | null;
-  time: string | null;
-} {
-  if (value == null || value === '') {
-    return { date: null, time: null };
-  }
-  const match = DATETIME_PATTERN.exec(value);
-  if (match !== null) {
-    return {
-      date: match[1] ?? null,
-      time: `${match[2] ?? '00'}:${match[3] ?? '00'}`,
-    };
-  }
-  return { date: parseISODate(value) !== null ? value : null, time: null };
-}
-
-/** Combines a date and a time into a `YYYY-MM-DDTHH:mm` value (or `null`). */
-function joinDateTime(date: ISODate | null, time: string | null): string | null {
-  if (date === null && time === null) {
-    return null;
-  }
-  return `${date ?? getTodayISODate()}T${time ?? '00:00'}`;
-}
-
-/** Formats a stored datetime for the trigger display. */
-function formatDateTime(
-  value: string | null,
-  locale: string,
-  hour12: boolean,
-): string {
-  const { date, time } = splitDateTime(value);
-  const parts: string[] = [];
-  if (date !== null) {
-    const parsed = parseISODate(date);
-    parts.push(
-      parsed === null
-        ? date
-        : new Intl.DateTimeFormat(locale, {
-            dateStyle: 'medium',
-            timeZone: 'UTC',
-          }).format(Date.UTC(parsed.year, parsed.month - 1, parsed.day)),
-    );
-  }
-  if (time !== null) {
-    parts.push(formatTime(time, { hour12 }));
-  }
-  return parts.join(', ');
-}
-
 /**
- * Dashforge TW `<DateTimePicker>` — a form-bound date + time field.
+ * Dashforge TW `<TimePicker>` — a form-bound time-of-day field.
  *
- * A read-only trigger button paired with a popover combining a `<Calendar>`
- * and a time list (Radix Popover). Integrates with the Dashforge form
- * bridge + RBAC.
+ * A read-only trigger button paired with a time-list popover (Radix
+ * Popover). Integrates with the Dashforge form bridge + RBAC.
  *
- * Storage contract: a naive ISO datetime `"YYYY-MM-DDTHH:mm"` — no seconds,
- * no timezone. Shared with the MUI `@dashforge/ui` `DateTimePicker`.
+ * Storage contract: a canonical 24-hour `"HH:mm"` string, or `null` —
+ * shared with the MUI `@dashforge/ui` `TimePicker`. `hour12` is display-only.
  */
-export function DateTimePicker(props: DateTimePickerProps) {
+export function TimePicker(props: TimePickerProps) {
   const {
     name,
     rules,
@@ -119,12 +55,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
     value: explicitValue,
     defaultValue,
     onChange,
-    minDate,
-    maxDate,
-    disabledDates,
-    isDateDisabled,
-    weekStartDay,
-    locale,
+    minTime,
+    maxTime,
     stepMinutes,
     hour12 = false,
     fullWidth,
@@ -199,13 +131,23 @@ export function DateTimePicker(props: DateTimePickerProps) {
   if (!isVisible) return null;
   if (!accessState.visible) return null;
 
-  const v = dateTimePickerVariants({ layout, error: resolvedError, fullWidth });
-  const resolvedLocale = locale ?? 'en-US';
-  const { date, time } = splitDateTime(resolvedValue);
-  const displayValue = formatDateTime(resolvedValue, resolvedLocale, hour12);
+  const v = timePickerVariants({ layout, error: resolvedError, fullWidth });
+  const displayValue =
+    resolvedValue != null && resolvedValue !== ''
+      ? formatTime(resolvedValue, { hour12 })
+      : '';
+
   const options = generateTimeOptions({
+    ...(minTime !== undefined && { start: minTime }),
+    ...(maxTime !== undefined && { end: maxTime }),
     ...(stepMinutes !== undefined && { stepMinutes }),
   });
+  const minMinutes = timeStringToMinutes(minTime ?? '00:00') ?? 0;
+  const maxMinutes = timeStringToMinutes(maxTime ?? '23:59') ?? 1439;
+  const isTimeDisabled = (time: string): boolean => {
+    const minutes = timeStringToMinutes(time);
+    return minutes === null || minutes < minMinutes || minutes > maxMinutes;
+  };
 
   const commitValue = (next: string | null) => {
     if (isFormMode && bridge) {
@@ -240,13 +182,11 @@ export function DateTimePicker(props: DateTimePickerProps) {
     }
   };
 
-  // Picking a date keeps the popover open — the user still needs a time.
-  const handleDateSelect = (nextDate: ISODate) => {
-    commitValue(joinDateTime(nextDate, time));
-  };
-  // Picking a time completes the value and closes the popover.
-  const handleTimeSelect = (nextTime: string) => {
-    commitValue(joinDateTime(date, nextTime));
+  const handleSelect = (time: string) => {
+    if (isTimeDisabled(time)) {
+      return;
+    }
+    commitValue(time);
     setIsOpen(false);
     markTouched();
   };
@@ -279,35 +219,22 @@ export function DateTimePicker(props: DateTimePickerProps) {
         side="bottom"
         align="start"
         content={
-          <div className={v.panel()}>
-            <Calendar
-              value={date}
-              onChange={handleDateSelect}
-              minDate={minDate}
-              maxDate={maxDate}
-              disabledDates={disabledDates}
-              isDateDisabled={isDateDisabled}
-              weekStartDay={weekStartDay}
-              locale={locale}
-              aria-label="Choose date"
-              sx="border-0 bg-transparent p-0"
-            />
-            <div role="listbox" aria-label="Time options" className={v.list()}>
-              {options.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  role="option"
-                  aria-selected={option === time}
-                  className={v.option()}
-                  onClick={() => {
-                    handleTimeSelect(option);
-                  }}
-                >
-                  {formatTime(option, { hour12 })}
-                </button>
-              ))}
-            </div>
+          <div role="listbox" aria-label="Time options" className={v.list()}>
+            {options.map((time) => (
+              <button
+                key={time}
+                type="button"
+                role="option"
+                aria-selected={time === resolvedValue}
+                aria-disabled={isTimeDisabled(time)}
+                className={v.option()}
+                onClick={() => {
+                  handleSelect(time);
+                }}
+              >
+                {formatTime(time, { hour12 })}
+              </button>
+            ))}
           </div>
         }
       >
@@ -321,10 +248,10 @@ export function DateTimePicker(props: DateTimePickerProps) {
           className={cn(v.trigger(), slotProps?.trigger?.className)}
         >
           <span className={displayValue ? v.value() : v.placeholder()}>
-            {displayValue || placeholder || 'Select date and time'}
+            {displayValue || placeholder || 'Select a time'}
           </span>
           <span className={v.icon()}>
-            <CalendarIcon />
+            <ClockIcon />
           </span>
         </button>
       </Popover>

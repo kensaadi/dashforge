@@ -33,10 +33,7 @@ export type {
 } from './components/Autocomplete/Autocomplete';
 
 export { DateTimePicker } from './components/DateTimePicker/DateTimePicker';
-export type {
-  DateTimePickerProps,
-  DateTimePickerMode,
-} from './components/DateTimePicker/DateTimePicker';
+export type { DateTimePickerProps } from './components/DateTimePicker/dateTimePicker.types';
 
 export { OTPField } from './components/OTPField/OTPField';
 export type { OTPFieldProps } from './components/OTPField/otpField.types';
@@ -91,3 +88,9 @@ export type { CalendarProps } from './components/Calendar/calendar.types';
 
 export { DatePicker } from './components/DatePicker/DatePicker';
 export type { DatePickerProps } from './components/DatePicker/datePicker.types';
+
+export { TimePicker } from './components/TimePicker/TimePicker';
+export type { TimePickerProps } from './components/TimePicker/timePicker.types';
+
+export { DateRangePicker } from './components/DateRangePicker/DateRangePicker';
+export type { DateRangePickerProps } from './components/DateRangePicker/dateRangePicker.types';

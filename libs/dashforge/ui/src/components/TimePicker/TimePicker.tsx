@@ -10,7 +10,7 @@ import SvgIcon from '@mui/material/SvgIcon';
 import MuiTextField from '@mui/material/TextField';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import { useContext, useEffect, useRef, useState } from 'react';
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { ChangeEvent, KeyboardEvent, ReactNode } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
@@ -18,90 +18,36 @@ import { useDashTheme } from '@dashforge/theme-core';
 import {
   formatTime,
   generateTimeOptions,
-  getTodayISODate,
-  parseISODate,
+  parseTimeString,
+  timeStringToMinutes,
 } from '@dashforge/calendar-core';
-import type { ISODate } from '@dashforge/calendar-core';
 import { useAccessState } from '../../hooks/useAccessState';
 import { FieldLayoutShell } from '../_internal/FieldLayoutShell';
 import { resolveValidationState } from '../TextField/textField.validation';
-import { Calendar } from '../Calendar/Calendar';
-import type { DateTimePickerProps } from './dateTimePicker.types';
+import type { TimePickerProps } from './timePicker.types';
 
-// Inline Material-style 24×24 calendar glyph — no @mui/icons-material dependency.
-const CALENDAR_ICON_PATH =
-  'M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 ' +
-  '2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z';
+// Inline Material-style 24×24 clock glyph — no @mui/icons-material dependency.
+const CLOCK_ICON_PATH =
+  'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 ' +
+  '11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l' +
+  '5.25 3.15.75-1.23-4.5-2.67z';
 
 // MUI's modal/popover z-index band.
 const POPPER_Z_INDEX = 1300;
-const TIME_LIST_MAX_HEIGHT = 320;
-
-const DATETIME_PATTERN = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/;
-
-/** Splits a stored `YYYY-MM-DDTHH:mm` value into its date and time parts. */
-function splitDateTime(value: string | null | undefined): {
-  date: ISODate | null;
-  time: string | null;
-} {
-  if (value === null || value === undefined || value === '') {
-    return { date: null, time: null };
-  }
-  const match = DATETIME_PATTERN.exec(value);
-  if (match !== null) {
-    return {
-      date: match[1] ?? null,
-      time: `${match[2] ?? '00'}:${match[3] ?? '00'}`,
-    };
-  }
-  return { date: parseISODate(value) !== null ? value : null, time: null };
-}
-
-/** Combines a date and a time into a `YYYY-MM-DDTHH:mm` value (or `null`). */
-function joinDateTime(date: ISODate | null, time: string | null): string | null {
-  if (date === null && time === null) {
-    return null;
-  }
-  return `${date ?? getTodayISODate()}T${time ?? '00:00'}`;
-}
-
-/** Formats a stored datetime for the read-only input display. */
-function formatDateTime(
-  value: string | null,
-  locale: string,
-  hour12: boolean,
-): string {
-  const { date, time } = splitDateTime(value);
-  const parts: string[] = [];
-  if (date !== null) {
-    const parsed = parseISODate(date);
-    parts.push(
-      parsed === null
-        ? date
-        : new Intl.DateTimeFormat(locale, {
-            dateStyle: 'medium',
-            timeZone: 'UTC',
-          }).format(Date.UTC(parsed.year, parsed.month - 1, parsed.day)),
-    );
-  }
-  if (time !== null) {
-    parts.push(formatTime(time, { hour12 }));
-  }
-  return parts.join(', ');
-}
+const LISTBOX_MAX_HEIGHT = 264;
 
 /**
- * `DateTimePicker` — a form-bound date + time field.
+ * `TimePicker` — a form-bound time-of-day field.
  *
- * A read-only text input paired with a popup combining a `Calendar` and a
- * time list. Integrates with the Dashforge form bridge, RBAC, and
- * `FieldLayoutShell`.
+ * A text input paired with a dropdown of time options. Free-typed input is
+ * normalized via `parseTimeString` on blur / Enter; the dropdown lists evenly
+ * spaced slots from `generateTimeOptions`. Integrates with the Dashforge form
+ * bridge, RBAC, and `FieldLayoutShell`.
  *
- * Storage contract: a naive ISO datetime `"YYYY-MM-DDTHH:mm"` — no seconds,
- * no timezone. For a date-only field use `DatePicker`; for time-only use
- * `TimePicker`.
+ * Storage contract: a canonical 24-hour `"HH:mm"` string, or `null`. 12-hour
+ * notation (`hour12`) is display-only.
  */
-export function DateTimePicker(props: DateTimePickerProps) {
+export function TimePicker(props: TimePickerProps) {
   const {
     name,
     rules,
@@ -117,18 +63,16 @@ export function DateTimePicker(props: DateTimePickerProps) {
     value,
     defaultValue,
     onChange,
-    minDate,
-    maxDate,
-    disabledDates,
-    isDateDisabled,
-    weekStartDay,
-    locale,
+    minTime,
+    maxTime,
     stepMinutes,
     hour12 = false,
     fullWidth,
     testId,
   } = props;
 
+  // The input is paired with a dropdown; a floating label would collide with
+  // the end-adornment icon, so `floating` is downgraded to `stacked`.
   const effectiveLayout: 'stacked' | 'inline' =
     layout === 'floating' ? 'stacked' : layout;
   if (
@@ -137,7 +81,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
     typeof console !== 'undefined'
   ) {
     console.warn(
-      '[Dashforge DateTimePicker] layout="floating" is not supported; using "stacked".',
+      '[Dashforge TimePicker] layout="floating" is not supported; using "stacked".',
     );
   }
 
@@ -152,9 +96,13 @@ export function DateTimePicker(props: DateTimePickerProps) {
     defaultValue ?? null,
   );
   const [isOpen, setIsOpen] = useState(false);
+  // `draft` is the in-progress editable text; `null` means "not editing" and
+  // the input shows the formatted committed value.
+  const [draft, setDraft] = useState<string | null>(null);
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
+  // Release bridge registration on REAL unmount only.
   const unregisterRef = useRef({ bridge, name });
   unregisterRef.current = { bridge, name };
   const isMountedRef = useRef(false);
@@ -181,7 +129,6 @@ export function DateTimePicker(props: DateTimePickerProps) {
 
   const effectiveDisabled = Boolean(disabled) || accessState.disabled;
   const isInteractive = !effectiveDisabled && !accessState.readonly;
-  const resolvedLocale = locale ?? 'en-US';
   const fieldId = `dashforge-field-${name}`;
 
   let resolvedValue: string | null;
@@ -238,67 +185,89 @@ export function DateTimePicker(props: DateTimePickerProps) {
     markTouched = () => undefined;
   }
 
-  const { date, time } = splitDateTime(resolvedValue);
+  const minMinutes = timeStringToMinutes(minTime ?? '00:00') ?? 0;
+  const maxMinutes = timeStringToMinutes(maxTime ?? '23:59') ?? 1439;
+  const isTimeDisabled = (time: string): boolean => {
+    const minutes = timeStringToMinutes(time);
+    return minutes === null || minutes < minMinutes || minutes > maxMinutes;
+  };
+
   const options = generateTimeOptions({
+    ...(minTime !== undefined && { start: minTime }),
+    ...(maxTime !== undefined && { end: maxTime }),
     ...(stepMinutes !== undefined && { stepMinutes }),
   });
 
+  const displayValue =
+    draft !== null ? draft : formatTime(resolvedValue ?? '', { hour12 });
+
   const closePopup = (returnFocus: boolean) => {
     setIsOpen(false);
-    markTouched();
     if (returnFocus && triggerRef.current) {
       triggerRef.current.focus({ preventScroll: true });
     }
   };
-  const openPopup = () => {
-    if (isInteractive) {
-      setIsOpen(true);
-    }
-  };
-  const togglePopup = () => {
-    if (!isInteractive) {
+
+  // Parse the editable draft: commit a valid time, clear to `null` on an
+  // empty draft, otherwise discard (the input reverts to the committed value).
+  const commitDraft = () => {
+    if (draft === null) {
       return;
     }
-    if (isOpen) {
-      closePopup(false);
-    } else {
-      setIsOpen(true);
+    const parsed = parseTimeString(draft);
+    if (parsed !== null && !isTimeDisabled(parsed)) {
+      commitValue(parsed);
+    } else if (draft.trim() === '') {
+      commitValue(null);
+    }
+    setDraft(null);
+  };
+
+  const handleSelectOption = (time: string) => {
+    setDraft(null);
+    commitValue(time);
+    closePopup(true);
+    markTouched();
+  };
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (isInteractive) {
+      setDraft(event.target.value);
     }
   };
-  // Picking a date keeps the popup open — the user still needs a time.
-  const handleDateSelect = (nextDate: ISODate) => {
-    commitValue(joinDateTime(nextDate, time));
+  const handleInputFocus = () => {
+    if (isInteractive) {
+      setDraft(formatTime(resolvedValue ?? '', { hour12 }));
+    }
   };
-  // Picking a time completes the value and closes the popup.
-  const handleTimeSelect = (nextTime: string) => {
-    commitValue(joinDateTime(date, nextTime));
-    closePopup(true);
+  const handleInputBlur = () => {
+    commitDraft();
+    markTouched();
   };
   const handleInputKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!isInteractive) {
       return;
     }
-    if (
-      event.key === 'ArrowDown' ||
-      event.key === 'Enter' ||
-      event.key === ' '
-    ) {
+    if (event.key === 'ArrowDown') {
       event.preventDefault();
       setIsOpen(true);
-    }
-  };
-  const handlePopperKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Escape') {
+    } else if (event.key === 'Enter') {
       event.preventDefault();
-      closePopup(true);
+      commitDraft();
+    } else if (event.key === 'Escape' && isOpen) {
+      event.preventDefault();
+      closePopup(false);
     }
   };
-
-  const displayValue = formatDateTime(resolvedValue, resolvedLocale, hour12);
+  const togglePopup = () => {
+    if (isInteractive) {
+      setIsOpen((open) => !open);
+    }
+  };
 
   const slotProps = {
     input: {
-      readOnly: true,
+      readOnly: !isInteractive,
       endAdornment: (
         <InputAdornment position="end">
           <IconButton
@@ -306,26 +275,28 @@ export function DateTimePicker(props: DateTimePickerProps) {
             size="small"
             edge="end"
             disabled={effectiveDisabled}
-            aria-label="Open calendar"
-            aria-haspopup="dialog"
+            aria-label="Open time list"
+            aria-haspopup="listbox"
             aria-expanded={isOpen}
+            onMouseDown={(event) => {
+              event.preventDefault();
+            }}
             onClick={(event) => {
               event.stopPropagation();
               togglePopup();
             }}
           >
             <SvgIcon fontSize="small">
-              <path d={CALENDAR_ICON_PATH} />
+              <path d={CLOCK_ICON_PATH} />
             </SvgIcon>
           </IconButton>
         </InputAdornment>
       ),
     },
     htmlInput: {
-      'aria-haspopup': 'dialog',
+      'aria-haspopup': 'listbox',
       'aria-expanded': isOpen,
       ...(registrationRef ? { ref: registrationRef } : {}),
-      style: { cursor: isInteractive ? 'pointer' : 'default' },
     },
   } as MuiTextFieldProps['slotProps'];
 
@@ -345,7 +316,9 @@ export function DateTimePicker(props: DateTimePickerProps) {
         fullWidth={fullWidth}
         label={undefined}
         helperText={undefined}
-        onClick={openPopup}
+        onChange={handleInputChange}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
         onKeyDown={handleInputKeyDown}
         slotProps={slotProps}
       />
@@ -371,52 +344,34 @@ export function DateTimePicker(props: DateTimePickerProps) {
         >
           <Paper
             elevation={8}
-            role="dialog"
-            aria-label="Choose date and time"
-            onKeyDown={handlePopperKeyDown}
+            role="listbox"
+            aria-label="Time options"
             sx={{
-              display: 'flex',
+              maxHeight: LISTBOX_MAX_HEIGHT,
+              overflowY: 'auto',
+              minWidth: anchorRef.current?.offsetWidth,
               borderRadius: `${String(dashTheme.radius.lg)}px`,
             }}
           >
-            <Calendar
-              value={date}
-              onChange={handleDateSelect}
-              minDate={minDate}
-              maxDate={maxDate}
-              disabledDates={disabledDates}
-              isDateDisabled={isDateDisabled}
-              weekStartDay={weekStartDay}
-              locale={locale}
-              autoFocus
-              aria-label="Choose date"
-            />
-            <Box
-              role="listbox"
-              aria-label="Time options"
-              sx={{
-                maxHeight: TIME_LIST_MAX_HEIGHT,
-                minWidth: 100,
-                overflowY: 'auto',
-                borderLeft: `1px solid ${dashTheme.color.border.subtle}`,
-              }}
-            >
-              <MenuList disablePadding>
-                {options.map((option) => (
-                  <MenuItem
-                    key={option}
-                    role="option"
-                    aria-selected={option === time}
-                    selected={option === time}
-                    onClick={() => {
-                      handleTimeSelect(option);
-                    }}
-                  >
-                    {formatTime(option, { hour12 })}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Box>
+            <MenuList disablePadding>
+              {options.map((time) => (
+                <MenuItem
+                  key={time}
+                  role="option"
+                  aria-selected={time === resolvedValue}
+                  selected={time === resolvedValue}
+                  disabled={isTimeDisabled(time)}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                  }}
+                  onClick={() => {
+                    handleSelectOption(time);
+                  }}
+                >
+                  {formatTime(time, { hour12 })}
+                </MenuItem>
+              ))}
+            </MenuList>
           </Paper>
         </ClickAwayListener>
       </Popper>

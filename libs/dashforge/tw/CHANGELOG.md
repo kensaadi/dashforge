@@ -12,6 +12,37 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.10.0-beta] — 2026-05-21
+
+**Sprint 7 — Calendar suite (part 2).** Completes the Tailwind date-picker
+suite: `TimePicker`, `DateRangePicker`, and a rebuilt `DateTimePicker` —
+all on the shared headless `@dashforge/calendar-core` engine.
+
+### Added
+
+- **`<TimePicker>`** — a form-bound time field: a read-only trigger paired
+  with a time-list popover (Radix Popover). Stores a canonical 24-hour
+  `"HH:mm"` string (`hour12` is display-only). Bridge + RBAC.
+- **`<DateRangePicker>`** — a form-bound start/end date field: a read-only
+  trigger paired with a dual-month range calendar popover, on the new
+  `useDateRange` engine. Stores a `{ start, end }` pair of ISO dates.
+
+### Changed
+
+- **BREAKING — `<DateTimePicker>` replaced.** The legacy native-input
+  `DateTimePicker` is replaced by a custom component — a `Calendar`
+  popover paired with a time list, on `@dashforge/calendar-core`. New
+  storage contract: a naive ISO datetime `"YYYY-MM-DDTHH:mm"` (no seconds,
+  no timezone). The `mode` prop is removed — use `DatePicker` /
+  `TimePicker`; `min` / `max` / `step` / `onValueChange` become `minDate` /
+  `maxDate` / `stepMinutes` / `onChange`. The `isoToInputValue` export and
+  the `DateTimePickerMode` type export are removed. No deprecation cycle —
+  the library has no consumers yet.
+
+### Dependencies
+
+- Requires **`@dashforge/calendar-core` `0.2.0-beta`**.
+
 ## [0.9.1-beta] — 2026-05-20
 
 **Sprint 7 — Calendar suite (part 1).** Adds the Tailwind skin of the
