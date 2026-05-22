@@ -10,6 +10,24 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [Sprint 7 — Tabs] — 2026-05-22
+
+> **Sprint 7 — Tabs.** A custom, clean-room `<Tabs>` component. `@dashforge/ui`
+> gains a new MUI `Tabs`; the `@dashforge/tw` `Tabs` is rebuilt without
+> `@radix-ui/react-tabs` — both on a per-skin headless `useTabs` engine. No
+> shared `tabs-core` package: the tab logic (~90 LOC — active value + APG
+> keyboard) is too thin to justify one; only the public API contract is
+> shared. New `keepMounted` prop. The tw API is unchanged → non-breaking.
+
+Affected packages (bumped):
+
+| Package | Version | Notes |
+|---|---|---|
+| `@dashforge/ui` | `0.3.0-beta` → `0.4.0-beta` | New custom `<Tabs>` component. |
+| `@dashforge/tw` | `0.10.0-beta` → `0.11.0-beta` | `<Tabs>` rebuilt custom (Radix removed); `keepMounted` added. |
+
+---
+
 ## [Calendar Suite — part 2] — 2026-05-21
 
 > **Sprint 7 part 2.** Completes the custom calendar suite across both UI

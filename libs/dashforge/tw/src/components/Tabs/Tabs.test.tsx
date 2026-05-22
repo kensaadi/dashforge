@@ -19,7 +19,6 @@ describe('Tabs — rendering', () => {
     expect(screen.queryByRole('tab', { name: 'Overview' })).not.toBeNull();
     expect(screen.queryByRole('tab', { name: 'Details' })).not.toBeNull();
     expect(screen.queryByRole('tab', { name: 'History' })).not.toBeNull();
-    // Only the active panel renders content (others get data-state="inactive").
     expect(screen.queryByText('Overview body')).not.toBeNull();
   });
 
@@ -30,7 +29,7 @@ describe('Tabs — rendering', () => {
 
   it('switches active panel via controlled `value` rerender', () => {
     const { rerender } = render(
-      <Tabs items={items} value="overview" onValueChange={() => {}} />
+      <Tabs items={items} value="overview" onValueChange={() => {}} />,
     );
     expect(screen.queryByText('Overview body')).not.toBeNull();
     rerender(<Tabs items={items} value="details" onValueChange={() => {}} />);
@@ -39,14 +38,20 @@ describe('Tabs — rendering', () => {
 
   it('marks the active tab via aria-selected', () => {
     render(<Tabs items={items} defaultValue="details" />);
-    const detailsTab = screen.getByRole('tab', { name: 'Details' });
-    expect(detailsTab.getAttribute('aria-selected')).toBe('true');
-    const overviewTab = screen.getByRole('tab', { name: 'Overview' });
-    expect(overviewTab.getAttribute('aria-selected')).toBe('false');
+    expect(
+      screen.getByRole('tab', { name: 'Details' }).getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(
+      screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected'),
+    ).toBe('false');
+  });
+
+  it('selects a tab on click', () => {
+    render(<Tabs items={items} />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Details' }));
+    expect(screen.queryByText('Details body')).not.toBeNull();
   });
 });
-
-void fireEvent; // imported for parity but not needed after the controlled-mode simplification
 
 describe('Tabs — variants', () => {
   it.each(['underline', 'pill'] as const)('renders variant=%s', (variant) => {
@@ -56,19 +61,85 @@ describe('Tabs — variants', () => {
 
   it.each(['horizontal', 'vertical'] as const)('renders orientation=%s', (o) => {
     render(<Tabs items={items} orientation={o} />);
-    const list = screen.getByRole('tablist');
-    expect(list.getAttribute('aria-orientation')).toBe(o);
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(o);
   });
 });
 
 describe('Tabs — disabled items', () => {
   it('marks disabled triggers as disabled', () => {
+    const disabledItems = [...items.slice(0, 2), { ...items[2]!, disabled: true }];
+    render(<Tabs items={disabledItems} />);
+    const trigger = screen.getByRole('tab', {
+      name: 'History',
+    }) as HTMLButtonElement;
+    expect(trigger.disabled).toBe(true);
+  });
+
+  it('skips disabled tabs during keyboard navigation', () => {
     const disabledItems = [
-      ...items.slice(0, 2),
-      { ...items[2]!, disabled: true },
+      items[0]!,
+      { ...items[1]!, disabled: true },
+      items[2]!,
     ];
     render(<Tabs items={disabledItems} />);
-    const trigger = screen.getByRole('tab', { name: 'History' }) as HTMLButtonElement;
-    expect(trigger.disabled).toBe(true);
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowRight' });
+    // Overview → (skip disabled Details) → History
+    expect(
+      screen.getByRole('tab', { name: 'History' }).getAttribute('aria-selected'),
+    ).toBe('true');
+  });
+});
+
+describe('Tabs — keyboard', () => {
+  it('ArrowRight activates the next tab', () => {
+    render(<Tabs items={items} />);
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowRight' });
+    expect(
+      screen.getByRole('tab', { name: 'Details' }).getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(screen.queryByText('Details body')).not.toBeNull();
+  });
+
+  it('ArrowRight wraps at the end', () => {
+    render(<Tabs items={items} defaultValue="history" />);
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowRight' });
+    expect(
+      screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected'),
+    ).toBe('true');
+  });
+
+  it('Home / End jump to the first / last tab', () => {
+    render(<Tabs items={items} defaultValue="details" />);
+    const list = screen.getByRole('tablist');
+    fireEvent.keyDown(list, { key: 'End' });
+    expect(
+      screen.getByRole('tab', { name: 'History' }).getAttribute('aria-selected'),
+    ).toBe('true');
+    fireEvent.keyDown(list, { key: 'Home' });
+    expect(
+      screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected'),
+    ).toBe('true');
+  });
+
+  it('ArrowDown drives a vertical tablist', () => {
+    render(<Tabs items={items} orientation="vertical" />);
+    fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowDown' });
+    expect(
+      screen.getByRole('tab', { name: 'Details' }).getAttribute('aria-selected'),
+    ).toBe('true');
+  });
+});
+
+describe('Tabs — keepMounted', () => {
+  it('mounts only the active panel by default', () => {
+    render(<Tabs items={items} defaultValue="overview" />);
+    expect(screen.queryByText('Overview body')).not.toBeNull();
+    expect(screen.queryByText('History body')).toBeNull();
+  });
+
+  it('keeps every panel mounted when keepMounted is set', () => {
+    render(<Tabs items={items} defaultValue="overview" keepMounted />);
+    expect(screen.queryByText('Overview body')).not.toBeNull();
+    expect(screen.queryByText('History body')).not.toBeNull();
   });
 });

@@ -26,7 +26,8 @@ export interface TabItem {
 /**
  * Props for `<Tabs>`.
  *
- * Built on `@radix-ui/react-tabs`. Two variant axes:
+ * Custom clean-room implementation — the headless `useTabs` engine, no Radix.
+ * Two variant axes:
  *  - `variant` — `underline` (default) | `pill`
  *  - `orientation` — `horizontal` (default) | `vertical`
  *
@@ -34,7 +35,7 @@ export interface TabItem {
  * (`defaultValue`) modes — the `value` prop wins when both are set.
  */
 export interface TabsProps extends TabsVariants {
-  /** Tab items array (declarative — alternative to passing children). */
+  /** Tab items array. */
   items: TabItem[];
   /** Controlled active value. */
   value?: string;
@@ -42,6 +43,11 @@ export interface TabsProps extends TabsVariants {
   defaultValue?: string;
   /** Fires when the active tab changes. */
   onValueChange?: (value: string) => void;
+  /**
+   * Keep inactive panels mounted (hidden via the `hidden` attribute).
+   * Default `false` — only the active panel is in the DOM.
+   */
+  keepMounted?: boolean;
   /** Root className shortcut. */
   sx?: string;
   /** Per-slot overrides. */

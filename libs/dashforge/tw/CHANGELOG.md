@@ -12,6 +12,28 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [0.11.0-beta] — 2026-05-22
+
+**Sprint 7 — Tabs.** `<Tabs>` rebuilt as a custom, clean-room component.
+
+### Changed
+
+- **`<Tabs>` rebuilt without Radix.** The component is reimplemented on a
+  headless `useTabs` engine (the WAI-ARIA APG keyboard model) — the
+  `@radix-ui/react-tabs` dependency is removed. The public API
+  (`TabsProps` / `TabItem` / `TabsSlotProps` / `tabsVariants`) is
+  **unchanged** — an internal swap, not a breaking change for consumers.
+
+### Added
+
+- **`keepMounted`** prop on `<Tabs>` — keeps inactive panels mounted
+  (hidden) instead of unmounting them. Default `false`.
+
+### Removed
+
+- Runtime dependency `@radix-ui/react-tabs` — the custom `useTabs` engine
+  replaces it.
+
 ## [0.10.0-beta] — 2026-05-21
 
 **Sprint 7 — Calendar suite (part 2).** Completes the Tailwind date-picker

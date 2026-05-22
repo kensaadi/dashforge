@@ -1,19 +1,23 @@
-import * as RadixTabs from '@radix-ui/react-tabs';
 import { cn } from '../../utils/cn.js';
 import { tabsVariants } from './tabs.variants.js';
+import { useTabs } from './useTabs.js';
 import type { TabsProps } from './tabs.types.js';
 
 /**
  * Dashforge TW `<Tabs>` — declarative tab navigation.
  *
- * Built on `@radix-ui/react-tabs`:
- *  - APG tabs pattern (arrow-key navigation, automatic activation,
- *    `role="tablist"` + `role="tab"` + `role="tabpanel"`).
- *  - Controlled / uncontrolled (`value` / `defaultValue`).
+ * Custom clean-room implementation on the headless `useTabs` engine — no
+ * runtime UI dependency. Implements the WAI-ARIA APG tabs pattern: arrow-key
+ * navigation, automatic activation, roving tabindex, `role="tablist"` +
+ * `role="tab"` + `role="tabpanel"`.
  *
  * Two variant axes:
  *  - `variant` — `underline` (default) | `pill`
  *  - `orientation` — `horizontal` (default) | `vertical`
+ *
+ * Controlled (`value` + `onValueChange`) or uncontrolled (`defaultValue`).
+ * `keepMounted` keeps inactive panels in the DOM (default: only the active
+ * panel is mounted).
  */
 export function Tabs(props: TabsProps) {
   const {
@@ -23,44 +27,51 @@ export function Tabs(props: TabsProps) {
     onValueChange,
     variant = 'underline',
     orientation = 'horizontal',
+    keepMounted = false,
     sx,
     slotProps,
   } = props;
 
   const v = tabsVariants({ variant, orientation });
-  const resolvedDefault = defaultValue ?? items[0]?.value;
+  const tabs = useTabs({
+    items,
+    value,
+    defaultValue,
+    onValueChange,
+    orientation,
+  });
+
+  // Either all panels (hidden when inactive) or just the active one.
+  const panels = keepMounted
+    ? items
+    : items.filter((item) => item.value === tabs.activeValue);
 
   return (
-    <RadixTabs.Root
-      value={value}
-      defaultValue={resolvedDefault}
-      onValueChange={onValueChange}
-      orientation={orientation}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
-    >
-      <RadixTabs.List
+    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+      <div
+        {...tabs.getTabListProps()}
         className={cn(v.list(), slotProps?.list?.className)}
       >
         {items.map((item) => (
-          <RadixTabs.Trigger
+          <button
             key={item.value}
-            value={item.value}
-            disabled={item.disabled}
+            type="button"
+            {...tabs.getTabProps(item)}
             className={cn(v.trigger(), slotProps?.trigger?.className)}
           >
             {item.label}
-          </RadixTabs.Trigger>
+          </button>
         ))}
-      </RadixTabs.List>
-      {items.map((item) => (
-        <RadixTabs.Content
+      </div>
+      {panels.map((item) => (
+        <div
           key={item.value}
-          value={item.value}
+          {...tabs.getPanelProps(item)}
           className={cn(v.content(), slotProps?.content?.className)}
         >
           {item.content}
-        </RadixTabs.Content>
+        </div>
       ))}
-    </RadixTabs.Root>
+    </div>
   );
 }
