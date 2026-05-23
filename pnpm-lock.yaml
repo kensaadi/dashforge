@@ -237,8 +237,8 @@ importers:
   libs/dashforge/forms:
     dependencies:
       '@dashforge/ui-core':
-        specifier: ^0.2.3-beta
-        version: 0.2.3-beta(@types/react@19.2.14)(react@19.2.5)
+        specifier: workspace:*
+        version: link:../ui-core
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -255,8 +255,8 @@ importers:
   libs/dashforge/theme-core:
     dependencies:
       '@dashforge/tokens':
-        specifier: ^0.2.3-beta
-        version: 0.2.3-beta(@types/node@20.19.9)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: workspace:*
+        version: link:../tokens
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -267,11 +267,11 @@ importers:
   libs/dashforge/theme-mui:
     dependencies:
       '@dashforge/theme-core':
-        specifier: ^0.2.3-beta
-        version: 0.2.3-beta(@types/node@20.19.9)(@types/react@19.2.14)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(react@19.2.5)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: workspace:*
+        version: link:../theme-core
       '@dashforge/tokens':
-        specifier: ^0.2.3-beta
-        version: 0.2.3-beta(@types/node@20.19.9)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: workspace:*
+        version: link:../tokens
       '@emotion/react':
         specifier: ^11.0.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.5)
@@ -393,14 +393,14 @@ importers:
         specifier: workspace:*
         version: link:../calendar-core
       '@dashforge/forms':
-        specifier: ^0.2.3-beta
-        version: 0.2.3-beta(@dashforge/ui-core@0.2.3-beta(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+        specifier: workspace:*
+        version: link:../forms
       '@dashforge/rbac':
-        specifier: ^0.2.3-beta
-        version: 0.2.3-beta(react@19.2.5)
+        specifier: workspace:*
+        version: link:../rbac
       '@dashforge/ui-core':
-        specifier: ^0.2.3-beta
-        version: 0.2.3-beta(@types/react@19.2.14)(react@19.2.5)
+        specifier: workspace:*
+        version: link:../ui-core
       motion:
         specifier: ^12.34.3
         version: 12.34.3(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -1159,28 +1159,6 @@ packages:
   '@csstools/css-tokenizer@3.0.4':
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
-
-  '@dashforge/forms@0.2.3-beta':
-    resolution: {integrity: sha512-sqkHseGX5eWMvWbaGyC295Hm38eW0uKhflytb0+ml/IG1QfGY8hqjWmWh++tOIzHzLjlNh+2SMAXP6EMYh/P5g==}
-    peerDependencies:
-      '@dashforge/ui-core': ^0.2.3-beta
-      react: ^19.2.5
-
-  '@dashforge/rbac@0.2.3-beta':
-    resolution: {integrity: sha512-zhIBpW2XyZO+TI6QwHpzT2TedBxQ76bdjBqUEEBFDYFUhv0bPe/PgW1Rh//nEPyNu8384zilUZrZV0iLvrUUBA==}
-    peerDependencies:
-      react: ^19.2.5
-
-  '@dashforge/theme-core@0.2.3-beta':
-    resolution: {integrity: sha512-QFW+GN95+wpb4D6QyGQdXZkt56ifRI8R/ztpGmWwq3OQDw/b8osgq6p/+BRy1bmbdeu/hOh/zJgbQf0GQzPG+Q==}
-
-  '@dashforge/tokens@0.2.3-beta':
-    resolution: {integrity: sha512-3MgO9w+gVDLKkupn9/L1XLYzXKVt3W6tboI9uA3vqdOJYKGtRZdeWfVSjswtylf5XhXeO+OyytyRLbAqC/ZVbQ==}
-
-  '@dashforge/ui-core@0.2.3-beta':
-    resolution: {integrity: sha512-9ch6YPJZ/W/10camA3M3dk6qN08HvUcFR13HoqLD6PKhFoN7SPCJcHrlEcmDaXcsl3Tl4gR2GgpJCR1bAqHthQ==}
-    peerDependencies:
-      react: ^19.2.5
 
   '@emnapi/core@1.8.1':
     resolution: {integrity: sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg==}
@@ -8502,80 +8480,6 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
 
   '@csstools/css-tokenizer@3.0.4': {}
-
-  '@dashforge/forms@0.2.3-beta(@dashforge/ui-core@0.2.3-beta(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)':
-    dependencies:
-      '@dashforge/ui-core': 0.2.3-beta(@types/react@19.2.14)(react@19.2.5)
-      react: 19.2.5
-      react-hook-form: 7.71.1(react@19.2.5)
-
-  '@dashforge/rbac@0.2.3-beta(react@19.2.5)':
-    dependencies:
-      react: 19.2.5
-
-  '@dashforge/theme-core@0.2.3-beta(@types/node@20.19.9)(@types/react@19.2.14)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(react@19.2.5)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)':
-    dependencies:
-      '@dashforge/tokens': 0.2.3-beta(@types/node@20.19.9)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
-      tslib: 2.8.1
-      valtio: 2.3.0(@types/react@19.2.14)(react@19.2.5)
-      vitest: 4.0.18(@types/node@20.19.9)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
-    transitivePeerDependencies:
-      - '@edge-runtime/vm'
-      - '@opentelemetry/api'
-      - '@types/node'
-      - '@types/react'
-      - '@vitest/browser-playwright'
-      - '@vitest/browser-preview'
-      - '@vitest/browser-webdriverio'
-      - '@vitest/ui'
-      - happy-dom
-      - jiti
-      - jsdom
-      - less
-      - lightningcss
-      - msw
-      - react
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - yaml
-
-  '@dashforge/tokens@0.2.3-beta(@types/node@20.19.9)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)':
-    dependencies:
-      tslib: 2.8.1
-      vitest: 4.0.18(@types/node@20.19.9)(@vitest/ui@4.0.18)(jiti@2.4.2)(jsdom@24.1.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
-    transitivePeerDependencies:
-      - '@edge-runtime/vm'
-      - '@opentelemetry/api'
-      - '@types/node'
-      - '@vitest/browser-playwright'
-      - '@vitest/browser-preview'
-      - '@vitest/browser-webdriverio'
-      - '@vitest/ui'
-      - happy-dom
-      - jiti
-      - jsdom
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - yaml
-
-  '@dashforge/ui-core@0.2.3-beta(@types/react@19.2.14)(react@19.2.5)':
-    dependencies:
-      react: 19.2.5
-      tslib: 2.8.1
-      valtio: 2.3.0(@types/react@19.2.14)(react@19.2.5)
-    transitivePeerDependencies:
-      - '@types/react'
 
   '@emnapi/core@1.8.1':
     dependencies:

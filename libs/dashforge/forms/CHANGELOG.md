@@ -5,6 +5,17 @@ All notable changes to @dashforge/forms will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] — 2026-05-23
+
+**Stable release.** First semver-stable version. The public API is now
+governed by strict semver — any future breaking change requires a major
+bump. Functionally identical to the previous beta tarball.
+
+- Version: `1.0.0`
+- Cross-package `@dashforge/*` peer-dependency ranges updated to `^1.0.0`.
+- See the [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#100---2026-05-23) for the coordinated release context.
+- See [`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md) for the upgrade guide from any `0.x-beta` to `1.0.0` (no code changes required).
+
 ## [Unreleased]
 
 ## [0.2.3-beta] — 2026-05-16

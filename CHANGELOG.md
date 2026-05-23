@@ -10,6 +10,58 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [1.0.0] — 2026-05-23
+
+**Stable release.** Dashforge graduates from beta to its first stable
+version. All 11 packages ship `1.0.0` together. The public API enters
+the semver-stretto regime: every breaking change from this point on
+requires a major version bump.
+
+### Released
+
+All packages bumped to `1.0.0` in a coordinated release:
+
+| Package | Previous | Now |
+|---|---|---|
+| `@dashforge/tokens` | `0.2.3-beta` | **`1.0.0`** |
+| `@dashforge/theme-core` | `0.2.3-beta` | **`1.0.0`** |
+| `@dashforge/theme-mui` | `0.2.3-beta` | **`1.0.0`** |
+| `@dashforge/ui-core` | `0.2.3-beta` | **`1.0.0`** |
+| `@dashforge/forms` | `0.2.3-beta` | **`1.0.0`** |
+| `@dashforge/rbac` | `0.2.3-beta` | **`1.0.0`** |
+| `@dashforge/ui` | `0.4.0-beta` | **`1.0.0`** |
+| `@dashforge/calendar-core` | `0.2.0-beta` | **`1.0.0`** |
+| `@dashforge/tw-tokens` | `0.2.0-beta` | **`1.0.0`** |
+| `@dashforge/tw-theme` | `0.2.0-beta` | **`1.0.0`** |
+| `@dashforge/tw` | `0.11.0-beta` | **`1.0.0`** |
+
+### API stability
+
+- Public API surface is frozen under semver. Subsequent `1.x.y` releases
+  add or refine but do not break.
+- Cross-package peer-dependency ranges updated from `^0.2.3-beta` /
+  `^0.x.y-beta` to `^1.0.0`.
+
+### Versioning
+
+- Coordinated initial release (all 11 packages → `1.0.0`).
+- From this point each package versions **independently** — see the
+  per-package `package.json` for compatibility ranges.
+- Release tag pattern: `@dashforge/<pkg>@<version>` (per-package).
+
+### Functional changes vs the last beta
+
+None. `1.0.0` is identical in behavior to the previous beta tarballs;
+this release flips the stability commitment and aligns versions.
+
+### Migration
+
+See [`MIGRATION.md`](./MIGRATION.md) for the upgrade guide from any
+`0.x-beta` to `1.0.0`. Short version: bump every `@dashforge/*` import
+range to `^1.0.0`. No code changes required.
+
+---
+
 ## [Sprint 7 — Tabs] — 2026-05-22
 
 > **Sprint 7 — Tabs.** A custom, clean-room `<Tabs>` component. `@dashforge/ui`

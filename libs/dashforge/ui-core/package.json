@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/ui-core",
-  "version": "0.2.3-beta",
+  "version": "1.0.0",
   "description": "Core React utilities and animations for Dashforge UI components",
   "license": "MIT",
   "keywords": [

@@ -12,6 +12,17 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.0.0] — 2026-05-23
+
+**Stable release.** First semver-stable version. The public API is now
+governed by strict semver — any future breaking change requires a major
+bump. Functionally identical to the previous beta tarball.
+
+- Version: `1.0.0`
+- Cross-package `@dashforge/*` peer-dependency ranges updated to `^1.0.0`.
+- See the [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#100---2026-05-23) for the coordinated release context.
+- See [`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md) for the upgrade guide from any `0.x-beta` to `1.0.0` (no code changes required).
+
 ## [0.11.0-beta] — 2026-05-22
 
 **Sprint 7 — Tabs.** `<Tabs>` rebuilt as a custom, clean-room component.

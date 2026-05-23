@@ -1,214 +1,292 @@
 # Dashforge
 
-[![GitHub stars](https://img.shields.io/github/stars/kensaadi/dashforge?style=flat&logo=github&color=ffcc00)](https://github.com/kensaadi/dashforge/stargazers)
-[![npm version (@dashforge/ui)](https://img.shields.io/npm/v/@dashforge/ui?label=%40dashforge%2Fui&color=cb3837&logo=npm)](https://www.npmjs.com/package/@dashforge/ui)
-[![npm downloads](https://img.shields.io/npm/dw/@dashforge/ui?label=downloads&color=brightgreen&logo=npm)](https://www.npmjs.com/package/@dashforge/ui)
+[![CI](https://img.shields.io/github/actions/workflow/status/kensaadi/dashforge/ci.yml?branch=main&logo=github&label=CI)](https://github.com/kensaadi/dashforge/actions/workflows/ci.yml)
+[![@dashforge/ui](https://img.shields.io/npm/v/@dashforge/ui?label=%40dashforge%2Fui&color=cb3837&logo=npm)](https://www.npmjs.com/package/@dashforge/ui)
+[![@dashforge/tw](https://img.shields.io/npm/v/@dashforge/tw?label=%40dashforge%2Ftw&color=cb3837&logo=npm)](https://www.npmjs.com/package/@dashforge/tw)
 [![License](https://img.shields.io/github/license/kensaadi/dashforge?color=blue)](./LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/kensaadi/dashforge?logo=github)](https://github.com/kensaadi/dashforge/commits/main)
-[![Issues](https://img.shields.io/github/issues/kensaadi/dashforge?logo=github)](https://github.com/kensaadi/dashforge/issues)
-
-A composable UI framework for building data-driven React applications with type-safe forms, dynamic theming, and built-in access control.
-
-> 📚 **[Documentation](https://dashforge-ui.com)** · 🛒 **[Starter Kits](https://dashforge-ui.com/starter-kits)** · 📝 **[Changelog](./CHANGELOG.md)**
-
-## What is Dashforge
-
-Dashforge is a modular UI framework built on Material-UI that provides a foundation for building data-driven applications. It combines design tokens, reactive theming, form orchestration, and access control into a cohesive system.
-
-Dashforge is designed for teams building complex admin and dashboard interfaces, where form logic, theming, and access control must work together without creating fragile coupling or unnecessary abstraction layers.
-
-The framework is built around three core principles:
-
-- **Composability**: Independent packages that work together without tight coupling
-- **Type Safety**: Full TypeScript support with strict contracts at every boundary
-- **Control**: Direct access to underlying primitives without excessive abstractions
-
-This makes Dashforge particularly suited for admin panels, dashboards, and internal tools where form handling, theming, and permissions are critical requirements.
-
-## Monorepo Structure
-
-This repository is an Nx monorepo containing all Dashforge packages and internal tooling.
-
-**Key directories:**
-
-- `libs/dashforge/*` - All publishable npm packages
-- `docs/` - Documentation and guides
-
-The workspace uses Nx for build orchestration, dependency management, and task execution.
-
-## Packages
-
-Dashforge consists of seven publishable npm packages:
-
-### Core Infrastructure
-
-**@dashforge/tokens**  
-Design tokens defining colors, typography, spacing, and other design primitives. Provides the foundation for consistent theming across the framework.
-
-**@dashforge/theme-core**  
-Reactive theming engine built on Valtio. Manages theme state, mode switching (light/dark), and cross-tab synchronization.
-
-**@dashforge/theme-mui**  
-Material-UI theme integration that bridges Dashforge design tokens with MUI's theming system.
-
-### Form System
-
-**@dashforge/forms**  
-Type-safe form bridge for react-hook-form. Provides centralized form context, field registration, and validation orchestration without exposing react-hook-form internals.
-
-### UI Components
-
-**@dashforge/ui-core**  
-Core React utilities and CSS animations used by higher-level components. Provides hooks, state management utilities, and animation primitives.
-
-**@dashforge/ui**  
-Complete MUI-based component library with form integration and RBAC support. Includes text fields, selects, autocompletes, and other common UI elements.
-
-### Access Control
-
-**@dashforge/rbac**  
-Role-based access control utilities for React. Provides permission checking, role hierarchies, and component-level access control.
-
-## Installation
-
-Install packages individually based on your needs:
-
-```bash
-npm install @dashforge/ui @dashforge/theme-mui @dashforge/forms
-```
-
-For theming only:
-
-```bash
-npm install @dashforge/tokens @dashforge/theme-core
-```
-
-For RBAC:
-
-```bash
-npm install @dashforge/rbac
-```
-
-## Development
-
-### Prerequisites
-
-- Node.js 20.x or later
-- pnpm 9.x or later
-
-### Setup
-
-Clone the repository and install dependencies:
-
-```bash
-git clone https://github.com/kensaadi/dashforge.git
-cd dashforge
-pnpm install
-```
-
-### Building
-
-Build all packages:
-
-```bash
-pnpm nx run-many -t build --projects=@dashforge/*
-```
-
-Build a specific package:
-
-```bash
-pnpm nx build @dashforge/tokens
-```
-
-### Testing
-
-Run tests for all packages:
-
-```bash
-pnpm nx run-many -t test --projects=@dashforge/*
-```
-
-Run tests for a specific package:
-
-```bash
-pnpm nx test @dashforge/ui
-```
-
-### Type Checking
-
-Run type checks across all packages:
-
-```bash
-pnpm nx run-many -t typecheck --projects=@dashforge/*
-```
-
-## Build & Packaging
-
-Each package is built independently with its own configuration:
-
-- **TypeScript packages** (@dashforge/tokens, @dashforge/theme-core): Built with TypeScript compiler, output to `dist/`
-- **React packages** (all others): Built with Rollup, output to `dist/`
-
-All packages use ESM module format and include full TypeScript declarations.
-
-Build artifacts are excluded from version control. Each package's `package.json` defines which files are published via the `files` field.
-
-## Current Release: `0.1.8-alpha`
-
-Dashforge is in **alpha**. All seven packages are published on npm under the
-`@dashforge` scope and follow [Semantic Versioning](https://semver.org) with
-`-alpha` / `-beta` / `-rc` pre-release tags.
-
-**Latest:** [`0.1.8-alpha`](./CHANGELOG.md#018-alpha--2026-05-13) — packaging
-completion (every package's npm tarball now includes its own `CHANGELOG.md`)
-and a stale dev-warning message in `Autocomplete`/`Select` corrected to match
-the actual `0.1.6-alpha+` auto-reset behavior. No functional changes.
-
-For the full history see [`CHANGELOG.md`](./CHANGELOG.md).
-
-**Stability Notice**
-
-While the core architecture is already used in real-world scenarios, public
-APIs may still evolve. Pin to an exact version (e.g. `"^0.1.8-alpha"`) and
-review the changelog before each upgrade.
-
-**What's Included**
-
-- Complete theming system with light/dark mode support
-- Form bridge with react-hook-form integration (per-field subscriptions for
-  optimal re-render behavior)
-- 9 MUI-based form components (TextField, Textarea, NumberField, Checkbox,
-  Switch, RadioGroup, Select, Autocomplete, DateTimePicker, OTPField)
-- RBAC utilities for access control with `hide` / `disable` / `readonly`
-  semantics
-- Full TypeScript support with strict contracts at every boundary
-
-**Known Limitations**
-
-- API surface may change based on feedback
-- Some MUI v9 deprecation warnings still surface in console; planned for
-  cleanup before `1.0`
-- Documentation is still evolving — only `@dashforge/forms` has a rich README
-  today; the others are scheduled for `0.2.0-beta`
-
-## Contributing
-
-This project follows strict quality and testing standards:
-
-- TDD-first approach for all UI components
-- Zero skipped tests in the test suite
-- No unsafe type casts at public boundaries
-- All code and documentation written in English
-
-Contributions should align with the existing architecture, design principles, and coding guidelines.
-
-## License
-
-MIT
-
-See `LICENSE` file for full text.
+[![Stars](https://img.shields.io/github/stars/kensaadi/dashforge?style=flat&logo=github&color=ffcc00)](https://github.com/kensaadi/dashforge/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/kensaadi/dashforge?logo=github)](https://github.com/kensaadi/dashforge/commits/main)
+
+A composable React framework for **data-driven applications**. Two UI
+editions — Material UI and Tailwind — share a single type-safe form
+bridge, an RBAC engine, and a reactive theming system. Write your form
+schema and access rules once, render them with either visual stack.
+
+> 📚 **[Documentation](https://dashforge-ui.com)**
+> · 🚀 **[Starter Kits](https://dashforge-ui.com/starter-kits)**
+> · 📝 **[Changelog](./CHANGELOG.md)**
+> · 🔄 **[Migration](./MIGRATION.md)**
 
 ---
 
-**Repository:** https://github.com/kensaadi/dashforge  
-**Issues:** https://github.com/kensaadi/dashforge/issues
+## Why Dashforge
+
+Building admin panels, dashboards and internal tools in React typically
+means writing the same `<Controller>` wrapper, the same RBAC
+hide/disable/readonly logic, the same dynamic-field engine, and the
+same theme plumbing — in every project. Dashforge is the layer that
+codifies those patterns, so you stop rewriting them.
+
+- **Form bridge over `react-hook-form`** — `DashForm` + per-field
+  subscriptions. Fewer re-renders than plain RHF, zero `<Controller>`
+  boilerplate at call sites.
+- **RBAC built in** — every field accepts an `access` prop with
+  `hide` / `disable` / `readonly` semantics evaluated against the
+  current subject + policy.
+- **Reactions & dependent fields** — declarative `watch` → `run` rules
+  with async-safe stale-response guards.
+- **Reactive theming** — Valtio-powered store, mode swap (light/dark),
+  cross-tab sync. No CSS rebuild on theme change.
+- **Two skins, one contract** — pick MUI v9 or Tailwind; the bridge
+  layer is identical on both. Swap (or run both) without rewriting
+  business logic.
+
+## Pick your edition
+
+| You want… | Use | Why |
+|---|---|---|
+| MUI v9 + Emotion as the design system | **`@dashforge/ui`** | Thin layer over `@mui/material`; for Table / DataGrid / Dialog / Tooltip / Popover use MUI X and `@mui/material` directly |
+| Tailwind CSS as the design system | **`@dashforge/tw`** | Self-contained component library (37 components incl. Table, DataGrid, Pagination, Dialog, Tooltip, Popover, Accordion, Foundation primitives) — no MUI dependency |
+| Just the form bridge | **`@dashforge/forms`** + **`@dashforge/rbac`** | Visual-stack agnostic; bring your own components and use the bridge hooks |
+
+The two editions are **fully isolated** at the visual layer. They
+share only the bridge (`@dashforge/forms`, `@dashforge/rbac`, theming
+core, `@dashforge/calendar-core`). A form schema written for MUI runs
+unchanged on Tailwind and vice versa.
+
+## Quick start — MUI edition
+
+```bash
+npm install @dashforge/ui @dashforge/forms @dashforge/rbac \
+            @dashforge/theme-mui \
+            @mui/material @emotion/react @emotion/styled react-hook-form
+```
+
+The bridge core (`@dashforge/tokens`, `@dashforge/theme-core`,
+`@dashforge/ui-core`, `@dashforge/calendar-core`) is pulled in
+transitively.
+
+```tsx
+import { DashForm } from '@dashforge/forms';
+import { TextField, Select, Button } from '@dashforge/ui';
+
+export function SignupForm() {
+  return (
+    <DashForm
+      defaultValues={{ email: '', plan: 'free' }}
+      onSubmit={(data) => console.log(data)}
+    >
+      <TextField
+        name="email"
+        label="Email"
+        rules={{ required: 'Email is required' }}
+      />
+      <Select
+        name="plan"
+        label="Plan"
+        options={[
+          { value: 'free', label: 'Free' },
+          { value: 'pro', label: 'Pro' },
+        ]}
+      />
+      <Button type="submit" variant="contained">Sign up</Button>
+    </DashForm>
+  );
+}
+```
+
+## Quick start — Tailwind edition
+
+```bash
+npm install @dashforge/tw @dashforge/tw-theme \
+            @dashforge/forms @dashforge/rbac tailwindcss
+```
+
+`@dashforge/tw-tokens` and `@dashforge/calendar-core` are pulled in
+transitively.
+
+```ts
+// tailwind.config.ts
+import { dashforgePreset } from '@dashforge/tw-theme';
+export default {
+  presets: [dashforgePreset()],
+  content: ['./src/**/*.{ts,tsx}'],
+};
+```
+
+```tsx
+import { DashforgeTailwindProvider } from '@dashforge/tw-theme';
+import { DashForm } from '@dashforge/forms';
+import { TextField, Select, Button } from '@dashforge/tw';
+
+export function App() {
+  return (
+    <DashforgeTailwindProvider>
+      <DashForm
+        defaultValues={{ email: '', plan: 'free' }}
+        onSubmit={(data) => console.log(data)}
+      >
+        <TextField
+          name="email"
+          label="Email"
+          rules={{ required: 'Email is required' }}
+        />
+        <Select
+          name="plan"
+          label="Plan"
+          options={[
+            { value: 'free', label: 'Free' },
+            { value: 'pro', label: 'Pro' },
+          ]}
+        />
+        <Button type="submit" variant="solid">Sign up</Button>
+      </DashForm>
+    </DashforgeTailwindProvider>
+  );
+}
+```
+
+The form schema (`name`, `rules`, RBAC `access`, `visibleWhen`,
+reactions) is byte-identical across both editions.
+
+## Architecture
+
+```
+                ┌─────────────────────────────────────────────┐
+                │             Your application                │
+                └─────────────────────────────────────────────┘
+                       │                              │
+                       ▼                              ▼
+              ┌─────────────────┐           ┌─────────────────┐
+              │  @dashforge/ui  │           │  @dashforge/tw  │
+              │   (MUI skin)    │           │ (Tailwind skin) │
+              └────────┬────────┘           └────────┬────────┘
+                       │                             │
+                       └──────────────┬──────────────┘
+                                      │
+                                      ▼
+              ┌──────────────────────────────────────────┐
+              │             Shared bridge layer          │
+              │  forms · rbac · ui-core · calendar-core  │
+              │  tokens · theme-core · theme-mui ·       │
+              │  tw-tokens · tw-theme                    │
+              └──────────────────────────────────────────┘
+```
+
+The bridge layer is the **portability contract**. Components on either
+edition consume it through the same `useDashFieldMeta` /
+`useDashRegister` / `useRbac` hooks — guaranteeing identical behavior
+across visual stacks.
+
+## Packages
+
+Eleven publishable packages, two visual editions, one shared core.
+
+### MUI edition
+
+| Package | Description |
+|---|---|
+| [`@dashforge/ui`](./libs/dashforge/ui) | Component library on MUI v9 — TextField, Select, Autocomplete, Calendar, Tabs, AppShell, and more |
+| [`@dashforge/theme-mui`](./libs/dashforge/theme-mui) | MUI theme adapter — bridges Dashforge tokens to MUI's theming system |
+
+### Tailwind edition
+
+| Package | Description |
+|---|---|
+| [`@dashforge/tw`](./libs/dashforge/tw) | Component library on Tailwind — 37 components including Table, DataGrid, Pagination, Dialog, Tooltip, Popover, Accordion + Foundation primitives |
+| [`@dashforge/tw-theme`](./libs/dashforge/tw-theme) | Tailwind preset + reactive provider — `dashforgePreset()`, CSS-var runtime, mode switching |
+| [`@dashforge/tw-tokens`](./libs/dashforge/tw-tokens) | Design tokens for the Tailwind edition |
+
+### Shared bridge
+
+| Package | Description |
+|---|---|
+| [`@dashforge/forms`](./libs/dashforge/forms) | Type-safe form bridge on `react-hook-form` — `DashForm`, per-field subscriptions, reactions, field arrays |
+| [`@dashforge/rbac`](./libs/dashforge/rbac) | Role-based access control engine — policies, subjects, `<Can>`, `useRbac`, per-field `access` prop |
+| [`@dashforge/ui-core`](./libs/dashforge/ui-core) | Headless utilities — engine, dependency tracker, rule evaluator, store helpers |
+| [`@dashforge/calendar-core`](./libs/dashforge/calendar-core) | Headless calendar / date-range engine shared by both editions' date pickers |
+| [`@dashforge/theme-core`](./libs/dashforge/theme-core) | Reactive theming store (Valtio) — mode swap, cross-tab sync |
+| [`@dashforge/tokens`](./libs/dashforge/tokens) | Design tokens for the MUI edition |
+
+## What you get
+
+### Form layer
+
+- `DashForm` with per-field subscriptions (fewer renders than plain RHF)
+- Async-safe reactions with stale-response guards (`isLatest()`)
+- Runtime field data — populate `Select` / `Autocomplete` options from
+  reaction output without bridge ceremony
+- `useDashFieldArray` for dynamic lists with stable keys
+- Form Closure v1 error gating (errors show on `touched || submitCount > 0`)
+- Schema-agnostic: works with any resolver (`zod`, `yup`, `joi`, custom)
+
+### Access control
+
+- Declarative policies with `Subject`, `Resource`, `Action`, `Effect`
+- Per-field `access` prop with `hide` / `disable` / `readonly` semantics
+- Group + option-level access on `RadioGroup`
+- `<Can>` and `useCan()` for arbitrary gated regions
+- Pluggable condition evaluators
+
+### Components
+
+- **MUI** (`@dashforge/ui`): 23 components — text fields, selects,
+  autocompletes, switches, radio groups, calendar, date / time / range
+  pickers, OTP field, tabs, AppShell, top bar, breadcrumbs, snackbar,
+  confirm dialog, left nav, more
+- **Tailwind** (`@dashforge/tw`): 37 components — everything above plus
+  Table, DataGrid, Pagination, Skeleton, Dialog, Tooltip, Popover,
+  Accordion, and Foundation primitives (Box, Stack, Grid, Container,
+  Divider, AspectRatio, Typography, VisuallyHidden)
+
+### Theming
+
+- Token-driven design system — colors, typography, spacing, radii
+- CSS-var runtime — theme changes do not retrigger Tailwind builds
+- Light / dark mode swap + cross-tab synchronisation
+- Per-tenant theming via single-token overrides
+
+## Documentation
+
+- **Live docs site**: <https://dashforge-ui.com> — pages for every
+  component with inline live previews and "Open in StackBlitz" sandboxes
+- **Starter kits**: <https://dashforge-ui.com/starter-kits>
+- **Per-package READMEs**: `libs/dashforge/<pkg>/README.md`
+- **Per-package CHANGELOGs**: `libs/dashforge/<pkg>/CHANGELOG.md`
+- **Migration guide**: [`MIGRATION.md`](./MIGRATION.md)
+
+## Requirements
+
+- **Node** ≥ 22
+- **React** 18 or 19
+- **MUI edition**: `@mui/material@^9.0.0` + `@emotion/react` +
+  `@emotion/styled`
+- **Tailwind edition**: `tailwindcss ≥ 3.4.1`
+
+## Status
+
+Dashforge is at **`1.0.0`** — production-ready, public API stable
+under semver. Breaking changes require a major bump.
+
+Each package versions independently post-`1.0.0`. Cross-package
+compatibility is governed by the peer-dependency ranges declared in
+each `package.json`.
+
+## Contributing
+
+The codebase is an [Nx](https://nx.dev/) monorepo using pnpm
+workspaces. Common workflows:
+
+```bash
+pnpm install                                       # install workspace deps
+pnpm exec nx run-many -t lint typecheck test build # the full gate
+pnpm exec nx run @dashforge/<pkg>:test             # single package tests
+```
+
+Contributions are welcome — please align with the existing architecture,
+type-safety conventions, and the testing patterns documented in each
+package.
+
+## License
+
+[MIT](./LICENSE) — © 2026 Dashforge contributors.

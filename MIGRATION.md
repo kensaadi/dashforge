@@ -11,6 +11,67 @@ consumer has to do to move between specific versions.
 
 ---
 
+## `0.x-beta` → `1.0.0`
+
+**No code changes required.** The `1.0.0` release is functionally
+identical to the last beta tarball of each package — what changes is
+the **stability commitment**: from this point onwards the public API
+is governed by semver, and breaking changes require a major bump.
+
+### What to update in your `package.json`
+
+Bump every `@dashforge/*` range from `^0.x.y-beta` to `^1.0.0`:
+
+```diff
+ {
+   "dependencies": {
+-    "@dashforge/ui": "^0.4.0-beta",
+-    "@dashforge/forms": "^0.2.3-beta",
+-    "@dashforge/rbac": "^0.2.3-beta",
+-    "@dashforge/theme-mui": "^0.2.3-beta",
+-    "@dashforge/theme-core": "^0.2.3-beta",
+-    "@dashforge/tokens": "^0.2.3-beta",
+-    "@dashforge/ui-core": "^0.2.3-beta"
++    "@dashforge/ui": "^1.0.0",
++    "@dashforge/forms": "^1.0.0",
++    "@dashforge/rbac": "^1.0.0",
++    "@dashforge/theme-mui": "^1.0.0",
++    "@dashforge/theme-core": "^1.0.0",
++    "@dashforge/tokens": "^1.0.0",
++    "@dashforge/ui-core": "^1.0.0"
+   }
+ }
+```
+
+For the Tailwind edition the analogous bump applies to `@dashforge/tw`,
+`@dashforge/tw-theme`, `@dashforge/tw-tokens`, and the shared bridge
+packages (`@dashforge/forms`, `@dashforge/rbac`).
+
+Run `pnpm install` (or `npm install` / `yarn install`) — no other
+changes needed.
+
+### What changes for you going forward
+
+- **Stability**: from `1.0.0` you get a real semver guarantee. Patch
+  releases are bug-fix-only; minor releases add features without
+  breaking; majors are the only place breaking changes can land.
+- **Independent versioning**: post-`1.0.0` each package versions
+  independently. Compatibility ranges in `peerDependencies` reflect
+  the matrix.
+- **Tag scheme**: GitHub release tags are now per-package —
+  `@dashforge/<pkg>@<version>` (the legacy `v<version>` monorepo-wide
+  tag is retired).
+
+### What does NOT change
+
+- Component APIs (props, types, exports) — identical to the last beta.
+- Form bridge contract (`DashForm`, hooks, runtime data).
+- RBAC engine (policies, subjects, `<Can>`, per-field `access`).
+- Theme tokens, presets, modes.
+- Test setup and consumer integration patterns.
+
+---
+
 ## `0.1.9-alpha` → `0.2.0-beta`
 
 > **Release theme.** Public-API freeze across `@dashforge/*`. The

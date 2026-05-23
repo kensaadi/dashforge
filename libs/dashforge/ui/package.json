@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/ui",
-  "version": "0.4.0-beta",
+  "version": "1.0.0",
   "description": "Comprehensive MUI-based UI component library with form integration and RBAC support",
   "license": "MIT",
   "keywords": [
@@ -35,8 +35,8 @@
     }
   },
   "peerDependencies": {
-    "@dashforge/forms": "^0.2.3-beta",
-    "@dashforge/rbac": "^0.2.3-beta",
+    "@dashforge/forms": "workspace:*",
+    "@dashforge/rbac": "workspace:*",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
     "@mui/material": "^9.0.0",
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@dashforge/calendar-core": "workspace:*",
-    "@dashforge/ui-core": "^0.2.3-beta",
+    "@dashforge/ui-core": "workspace:*",
     "motion": "^12.34.3"
   },
   "files": [

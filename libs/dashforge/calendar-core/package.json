@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/calendar-core",
-  "version": "0.2.0-beta",
+  "version": "1.0.0",
   "description": "Headless calendar engine — date math, month-grid model and the useCalendar hook. Zero runtime dependencies. Shared by the Dashforge MUI and Tailwind calendar suites.",
   "license": "MIT",
   "keywords": [

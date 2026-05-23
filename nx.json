@@ -108,9 +108,13 @@
       "@dashforge/ui-core",
       "@dashforge/forms",
       "@dashforge/rbac",
-      "@dashforge/ui"
+      "@dashforge/ui",
+      "@dashforge/calendar-core",
+      "@dashforge/tw-tokens",
+      "@dashforge/tw-theme",
+      "@dashforge/tw"
     ],
-    "projectsRelationship": "fixed",
+    "projectsRelationship": "independent",
     "version": {
       "conventionalCommits": false,
       "preserveMatchingDependencyRanges": false,
@@ -120,13 +124,13 @@
       "git": {
         "commit": true,
         "tag": true,
-        "commitMessage": "chore(release): publish {version}"
+        "commitMessage": "chore(release): publish {projectName}@{version}"
       }
     },
     "changelog": {
       "projectChangelogs": false,
       "workspaceChangelog": false
     },
-    "releaseTagPattern": "v{version}"
+    "releaseTagPattern": "{projectName}@{version}"
   }
 }

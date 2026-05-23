@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/rbac",
-  "version": "0.2.3-beta",
+  "version": "1.0.0",
   "description": "Role-based access control utilities for React applications",
   "license": "MIT",
   "keywords": [

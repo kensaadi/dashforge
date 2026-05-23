@@ -1,6 +1,6 @@
 {
   "name": "@dashforge/tw-theme",
-  "version": "0.2.0-beta",
+  "version": "1.0.0",
   "private": false,
   "type": "module",
   "main": "./dist/index.esm.js",
