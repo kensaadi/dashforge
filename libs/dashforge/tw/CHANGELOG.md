@@ -137,8 +137,8 @@ Strictly additive — no breaking changes on existing component APIs.
   starts a column-reorder drag. On coarse-pointer (touch) devices the
   reorder `draggable` affordance is disabled — native HTML5
   drag-and-drop does not fire touch events, so it was a dead
-  interaction. (A pointer-event reorder covering touch is tracked in
-  `REFINEMENT-NOTES.md`.)
+  interaction. A pointer-event reorder covering touch is tracked
+  internally.
 - **`Table`** now emits a dev-only `console.warn` when `getRowId` is
   omitted while sort / search / selection / expandable rows are
   active — the positional-index fallback breaks row identity on
@@ -1348,16 +1348,6 @@ have shipped as `0.2.2-beta` in isolation.
   Same root cause fix covers TopBar too — TopBar typically renders
   Breadcrumbs in its center slot, so fixing the Breadcrumbs link
   fixes TopBar transitively.
-
-### Internal
-
-- **`libs/dashforge/tw/CONSUMER-VALIDATION.md`** — Sprint 2 P1
-  deliverable. Per-component status table for the dash-consumer
-  end-to-end validation pass (24 components, 7-point check each).
-  Records the pattern lesson that motivated the Autocomplete
-  async fix: the bug was invisible to both unit tests (using
-  static `options`) and the docs lab (static demo) — only a real
-  consumer with `loadOptions` configured exposed it.
 
 ### Compatibility
 

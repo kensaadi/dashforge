@@ -1,7 +1,7 @@
 # COVERAGE — `@dashforge/tw`
 
-> Sprint 6 P4 deliverable (2026-05-20). Test-coverage audit + the
-> gap-fill done this sprint, plus the tracked debt.
+> Test-coverage audit for `@dashforge/tw`. Current numbers, the gap-fill
+> performed, and the tracked debt.
 
 ## Current coverage (`vitest --coverage`, v8 provider)
 

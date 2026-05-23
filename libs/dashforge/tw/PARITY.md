@@ -1,19 +1,17 @@
 # `@dashforge/tw` ↔ `@dashforge/ui` parity audit
 
-> Sprint 3 P1 deliverable (2026-05-19). Per-component diff between the
-> two Dashforge UI lines for the **10 bridge-integrated components**.
+> Per-component diff between the two Dashforge UI lines for the
+> **10 bridge-integrated components**.
 >
-> **Motivation (revised post-Sprint 2).** This audit does NOT exist to
-> support customer migration MUI→TW (no consumer switches across UI
-> ecosystems in real life). It exists because:
+> **Motivation.** This audit ensures:
 >
 > 1. **Internal consistency** — a refactor on `@dashforge/ui` that
 >    doesn't land on `@dashforge/tw` would otherwise be invisible.
-> 2. **Bridge contract validation** — proves that the same
->    `@dashforge/forms` schema works identically on both lines.
-> 3. **Foundation for Sprint 5 starter kits** — two parallel kits
+> 2. **Bridge contract validation** — the same `@dashforge/forms`
+>    schema works identically on both lines.
+> 3. **Parallel starter-kit maintainability** — two parallel kits
 >    (one MUI, one TW) require call-site-level parity to stay
->    parallel-maintainable.
+>    in sync.
 
 ## Versions audited
 

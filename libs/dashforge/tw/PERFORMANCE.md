@@ -1,9 +1,8 @@
 # `@dashforge/tw` performance baseline
 
-> Sprint 3 P4 deliverable (2026-05-19). Establishes the pre-`1.0.0`
-> performance commitment for `@dashforge/tw@0.4.0-beta` (29
-> components). Every subsequent release MUST hold this line or
-> justify the regression in `CHANGELOG.md`.
+> Establishes the performance commitment for `@dashforge/tw`. Every
+> subsequent release should hold these numbers or justify any
+> regression in `CHANGELOG.md`.
 
 ## Bundle size
 

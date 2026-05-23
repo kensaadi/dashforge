@@ -1,15 +1,14 @@
 # THEME-AUDIT — @dashforge/tw catalog identity sweep
 
-> Sprint 4.3 deliverable (2026-05-19). Audit of every `@dashforge/tw`
-> component against the **default `dashforgePreset()` identity rule**
-> (memory: `feedback_dashforge_preset_is_identity`).
+> Audit of every `@dashforge/tw` component against the **default
+> `dashforgePreset()` identity rule**.
 >
 > **Rule recap.** The `dashforgePreset()` CSS-variable swap
 > auto-inverts the neutral palette:
 > `bg-neutral-50` / `text-neutral-900` etc. resolve to the
 > appropriate physical color via `--df-tw-color-neutral-N`. Adding a
 > `dark:` variant on a neutral class **double-inverts** the value
-> and breaks dark mode. The Sprint 4.1 Table fix established the
+> and breaks dark mode. The Table fix established the
 > canonical patterns; Sprint 4.3 applies them to the whole catalog.
 
 ## Scoring legend

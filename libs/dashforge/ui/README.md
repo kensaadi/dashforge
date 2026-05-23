@@ -69,7 +69,6 @@ When rendered outside `DashFormProvider` they fall back to controlled mode
 - [Package CHANGELOG](./CHANGELOG.md) — release history for `@dashforge/ui`.
 - [Top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md) — cross-package release context.
 - [MIGRATION.md](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md) — breaking-change upgrade guides (including `0.1.9-alpha → 0.2.0-beta`).
-- [Roadmap to 1.0](https://github.com/kensaadi/dashforge/blob/main/ROADMAP-1.0.md).
 
 ## License
 

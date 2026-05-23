@@ -26,8 +26,7 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ### Added
 
-- Initial headless calendar engine — Phase 1 of the Calendar Suite build
-  (see `libs/dashforge/ui/CALENDAR-SUITE-EVALUATION.md`).
+- Initial headless calendar engine — Phase 1 of the Calendar Suite build.
   - `core/` — zero-dependency date utilities: ISO parse/format, calendar
     arithmetic, lexicographic comparison, month-grid construction,
     `Intl`-backed localization, time-string parsing, keyboard key resolution.

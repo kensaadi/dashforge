@@ -1,8 +1,8 @@
 # Releasing @dashforge/* packages
 
-This monorepo publishes ten `@dashforge/*` packages to npm, split across
-two ecosystems (TW + MUI) and a shared bridge layer. Each package
-versions independently — see `ROADMAP-1.0.md` for the rationale.
+This monorepo publishes eleven `@dashforge/*` packages to npm, split
+across two ecosystems (TW + MUI) and a shared bridge layer. Each
+package versions independently.
 
 The release tooling lives in `scripts/` and is intentionally split into
 two stages so the human stays in control of the destructive bits

@@ -1,12 +1,11 @@
 # THEME-CORE-AUDIT — `@dashforge/tw-theme` + `@dashforge/tw-tokens`
 
-> Sprint 6 P1 deliverable (2026-05-20). Audit of the TW theme core:
-> token shapes, `dashforgePreset()`, CSS-var runtime, the Valtio
-> store, and packaging hygiene.
+> Audit of the TW theme core: token shapes, `dashforgePreset()`,
+> CSS-var runtime, the Valtio store, and packaging hygiene.
 >
-> Companion to `../tw/THEME-AUDIT.md` (Sprint 4.3 — the per-component
-> `dark:` variant sweep). This document covers the *engine*; that one
-> covers the *components*.
+> Companion to `../tw/THEME-AUDIT.md` — the per-component `dark:`
+> variant sweep. This document covers the *engine*; that one covers
+> the *components*.
 
 ## Healthy — no action
 

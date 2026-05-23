@@ -61,3 +61,13 @@ vitest.config.*.timestamp*
 test-output
 dashforge-*.tgz
 .vite-react-ssg-temp/
+
+# Internal planning / AI-tool docs — kept locally, not published.
+/ROADMAP-1.0.md
+/ROADMAP-SPRINT-*.md
+/CLAUDE.md
+/AGENTS.md
+/project_context.md
+/libs/dashforge/tw/CONSUMER-VALIDATION.md
+/libs/dashforge/tw/REFINEMENT-NOTES.md
+/libs/dashforge/ui/CALENDAR-SUITE-EVALUATION.md

@@ -9,7 +9,7 @@
 
 A composable UI framework for building data-driven React applications with type-safe forms, dynamic theming, and built-in access control.
 
-> 📚 **[Documentation](https://dashforge-ui.com)** · 🛒 **[Starter Kits](https://dashforge-ui.com/starter-kits)** · 📝 **[Changelog](./CHANGELOG.md)** · 🗺️ **[Roadmap to 1.0](./ROADMAP-1.0.md)**
+> 📚 **[Documentation](https://dashforge-ui.com)** · 🛒 **[Starter Kits](https://dashforge-ui.com/starter-kits)** · 📝 **[Changelog](./CHANGELOG.md)**
 
 ## What is Dashforge
 
@@ -164,8 +164,7 @@ completion (every package's npm tarball now includes its own `CHANGELOG.md`)
 and a stale dev-warning message in `Autocomplete`/`Select` corrected to match
 the actual `0.1.6-alpha+` auto-reset behavior. No functional changes.
 
-For the full history see [`CHANGELOG.md`](./CHANGELOG.md). For the path to
-`1.0.0` see [`ROADMAP-1.0.md`](./ROADMAP-1.0.md).
+For the full history see [`CHANGELOG.md`](./CHANGELOG.md).
 
 **Stability Notice**
 
@@ -186,7 +185,7 @@ review the changelog before each upgrade.
 
 **Known Limitations**
 
-- API surface may change based on feedback (see `ROADMAP-1.0.md`)
+- API surface may change based on feedback
 - Some MUI v9 deprecation warnings still surface in console; planned for
   cleanup before `1.0`
 - Documentation is still evolving — only `@dashforge/forms` has a rich README
@@ -201,7 +200,7 @@ This project follows strict quality and testing standards:
 - No unsafe type casts at public boundaries
 - All code and documentation written in English
 
-Contributions should align with the existing architecture, design principles, and coding guidelines. See `AGENTS.md` for detailed development policies.
+Contributions should align with the existing architecture, design principles, and coding guidelines.
 
 ## License
 
