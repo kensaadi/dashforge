@@ -117,7 +117,7 @@ export default {
 ```tsx
 import { DashforgeTailwindProvider } from '@dashforge/tw-theme';
 import { DashForm } from '@dashforge/forms';
-import { TextField, Select, Button } from '@dashforge/tw';
+import { TextField, Autocomplete, Button } from '@dashforge/tw';
 
 export function App() {
   return (
@@ -131,7 +131,7 @@ export function App() {
           label="Email"
           rules={{ required: 'Email is required' }}
         />
-        <Select
+        <Autocomplete
           name="plan"
           label="Plan"
           options={[
@@ -145,6 +145,11 @@ export function App() {
   );
 }
 ```
+
+> The Tailwind edition does not ship a `Select` component — use
+> `Autocomplete` for any "pick one (or more) from a list" UX. It
+> covers single-select, multi-select, free-solo, and async
+> `loadOptions` out of the box.
 
 The form schema (`name`, `rules`, RBAC `access`, `visibleWhen`,
 reactions) is byte-identical across both editions.
