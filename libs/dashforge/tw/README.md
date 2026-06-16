@@ -1,37 +1,96 @@
 # @dashforge/tw
 
-> **Status**: `0.1.0-beta` — first public beta. Sixteen components
-> shipped across forms, layout, and providers. The MUI side of
-> Dashforge (`@dashforge/ui`, `@dashforge/theme-mui`,
-> `@dashforge/theme-core`) is **fully isolated** from this package —
-> the two ecosystems share only the bridge layer (`@dashforge/forms` +
+**A props-driven React UI library on top of Tailwind CSS.** Every utility
+that matters for the public API becomes a typed prop — `size`, `color`,
+`variant`, `layout`, … — so you write components that read like a design
+system and render output that's pure Tailwind. Raw `className` / `sx` /
+`slotProps` stay available as escape hatches for the cases the prop
+surface doesn't cover.
+
+> **Status**: `1.0.0` — **stable release**. Public API frozen, semver
+> guaranteed. 37 components shipped across forms, data display,
+> navigation, feedback, layout primitives, and providers. The MUI side
+> of Dashforge (`@dashforge/ui`, `@dashforge/theme-mui`,
+> `@dashforge/theme-core`) is **fully isolated** from this package — the
+> two ecosystems share only the bridge layer (`@dashforge/forms` +
 > `@dashforge/ui-core` + `@dashforge/rbac`).
 
-Tailwind-rendered UI components for the Dashforge ecosystem.
+## Why Dashforge TW
 
-Components are **props-driven** (every Tailwind utility that matters
-for the public API becomes a typed prop — `size`, `color`, `variant`,
-`layout`, …). Raw `className` / `sx` / `slotProps` exist as escape
-hatches for the cases the prop surface doesn't cover.
+- **Props, not utility soup** — component APIs that read like MUI,
+  render output that's pure Tailwind. No more 40-class `<button>` tags
+  copied across the codebase.
+- **Dark mode built in** — CSS-variable inversion via the
+  `dashforgePreset` Tailwind preset. Same JSX renders in light and dark
+  without a single `dark:` variant.
+- **RBAC-aware out of the box** — every interactive component takes an
+  `access` prop, hidden / disabled / read-only centrally via
+  `@dashforge/rbac`.
+- **Bridge-integrated forms** — Form Closure v1, controlled error
+  gating, StrictMode-safe registration, per-field re-render isolation
+  via the shared `@dashforge/forms` engine.
+- **Router-agnostic** — pass `linkComponent` to use React Router, Next,
+  TanStack Router, or any other navigation primitive.
+- **TypeScript-first** — typed tokens, typed variants, typed slot
+  overrides, augmentable per-package.
 
 ## Component catalog
 
-### Form components (10)
+### Form components (13)
 
 `Button` · `TextField` · `Checkbox` · `Switch` · `RadioGroup` ·
 `Textarea` · `NumberField` · `OTPField` · `Autocomplete` ·
-`DateTimePicker`
+`DatePicker` · `DateRangePicker` · `TimePicker` · `DateTimePicker`
 
 All bridge-integrated, RBAC-aware (`access` prop), Form Closure v1
 error gating, StrictMode-safe.
 
-### Layout components (4)
+### Navigation & shell (4)
 
-`Breadcrumbs` · `LeftNav` · `TopBar` · `AppShell`
+`AppShell` · `LeftNav` · `TopBar` · `Breadcrumbs`
 
 Router-agnostic — pass a `linkComponent` prop for SPA navigation
 (React Router, Next, TanStack Router, …). Mobile-responsive shell
 with drawer + body scroll lock.
+
+### Layout primitives (8)
+
+`Box` · `Container` · `Stack` · `Grid` · `Divider` · `AspectRatio` ·
+`Typography` · `VisuallyHidden`
+
+Polymorphic via `as` prop, dark-mode-aware, prop-driven spacing /
+sizing / alignment.
+
+### Data display (3)
+
+`Table` · `DataGrid` · `Pagination`
+
+Virtualized rows, sticky columns (left + right), server-side mode,
+per-column filter chips, column resize / reorder / visibility,
+controlled or uncontrolled state.
+
+### Disclosure (2)
+
+`Accordion` · `Tabs`
+
+Radix-based, keyboard-accessible, fully styled through props.
+
+### Overlay (3)
+
+`Dialog` · `Popover` · `Tooltip`
+
+Portal-rendered, focus-trapped, dismiss-on-esc + click-outside
+out of the box.
+
+### Feedback (1)
+
+`Skeleton`
+
+### Date (1)
+
+`Calendar` — standalone month grid. Also powers `DatePicker` /
+`DateRangePicker` / `DateTimePicker` under the hood, but exported on
+its own for custom layouts.
 
 ### Providers (2)
 
