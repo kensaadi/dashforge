@@ -65,6 +65,9 @@ dashforge-*.tgz
 # Internal planning / AI-tool docs — kept locally, not published.
 /ROADMAP-1.0.md
 /ROADMAP-SPRINT-*.md
+/ROADMAP-STEPPER-ANALYSIS.md
+/roadmap-sprint-*.md
+/marketing.md
 /CLAUDE.md
 /AGENTS.md
 /project_context.md
