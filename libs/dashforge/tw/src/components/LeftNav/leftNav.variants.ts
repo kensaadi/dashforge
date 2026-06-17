@@ -33,7 +33,7 @@ export const leftNavVariants = tv({
       'flex items-center gap-2 px-3 h-14 shrink-0',
       'border-b border-neutral-200 text-neutral-900 font-semibold',
     ],
-    list: 'flex flex-col gap-0.5 p-2 flex-1 overflow-y-auto',
+    list: 'flex flex-col gap-0.5 p-2 flex-1 overflow-y-auto list-none m-0',
     item: 'list-none',
     itemLink: [
       'flex items-center gap-2 px-2 py-2 rounded-md',
@@ -66,7 +66,7 @@ export const leftNavVariants = tv({
       'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
       'transition-colors w-full',
     ],
-    groupChildren: 'flex flex-col gap-0.5 pl-6',
+    groupChildren: 'flex flex-col gap-0.5 pl-6 list-none m-0',
     footer: [
       'border-t border-neutral-200 p-3 shrink-0',
       'flex items-center gap-2',

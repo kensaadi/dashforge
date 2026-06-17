@@ -28,7 +28,7 @@ export const paginationVariants = tv({
     // surface; the border gives the separation). `hover:bg-neutral-100`
     // is the one-tier elevation that works in both modes.
     summary: 'text-neutral-600',
-    list: 'inline-flex items-center gap-1',
+    list: 'inline-flex items-center gap-1 list-none pl-0 m-0',
     pageButton: [
       'inline-flex items-center justify-center rounded-md',
       'border border-neutral-300',

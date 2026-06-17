@@ -57,7 +57,7 @@ export function RowActionsMenu<T>(props: RowActionsMenuProps<T>) {
       side="bottom"
       align="end"
       content={
-        <ul className="flex flex-col gap-0.5 min-w-[140px]" role="menu">
+        <ul className="flex flex-col gap-0.5 min-w-[140px] list-none pl-0 m-0" role="menu">
           {visibleActions.map((action, idx) => (
             <RowActionMenuItem
               key={idx}

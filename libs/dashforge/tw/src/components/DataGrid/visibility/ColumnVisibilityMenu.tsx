@@ -120,7 +120,7 @@ export function ColumnVisibilityTrigger<T extends object>(
               {labels.columnsTitle}
             </span>
           </div>
-          <ul className="flex flex-col gap-0.5 max-h-72 overflow-auto">
+          <ul className="flex flex-col gap-0.5 max-h-72 overflow-auto list-none pl-0 m-0">
             {hideableCols.map((col) => {
               const field = col.field as string;
               const hidden = hiddenColumns.includes(field);

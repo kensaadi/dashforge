@@ -61,7 +61,7 @@ export const autocompleteVariants = tv({
       'rounded-md border bg-neutral-50 border-neutral-300 shadow-lg',
       'min-w-[var(--trigger-width)]',
     ],
-    listBox: 'outline-none py-1',
+    listBox: 'outline-none py-1 list-none pl-0 m-0',
     listItem: [
       'cursor-pointer select-none px-3 py-2 text-sm text-neutral-900',
       'outline-none',

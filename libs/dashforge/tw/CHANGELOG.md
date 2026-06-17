@@ -12,6 +12,23 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [Unreleased]
+
+### Fixed
+
+- **Defensive list-style reset across interactive `<ul>` lists.**
+  `Autocomplete` (listbox), `Pagination`, `LeftNav` (outer list + group
+  children), `DataGrid` column-visibility menu, and `Table` row-actions
+  menu now ship `list-none pl-0 m-0` directly on their `<ul>` variants
+  / inline classes instead of relying on the consumer environment
+  having Tailwind preflight active. Previously, environments without
+  preflight — or with a **scoped** preflight that intentionally omits
+  the `ol, ul { list-style: none }` reset (multi-ecosystem docs sites,
+  apps that opt out of preflight) — would render browser-default disc
+  bullets next to each option / row. The change is idempotent: in
+  consumers that have preflight, the new classes are no-ops; in
+  consumers without, the components render correctly out of the box.
+
 ## [1.0.0] — 2026-05-23
 
 **Stable release.** First semver-stable version. The public API is now
