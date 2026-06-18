@@ -50,7 +50,7 @@ git push origin "@dashforge/tw@0.2.1-beta"
 #          Pattern: descriptive title + --prerelease flag until 1.0.0.
 #          publish-prepared.mjs prints a ready-to-paste template at the end
 #          of step 4; example:
-awk '/^## \[0.2.1-beta\]/,/^## \[/{ if (/^## \[/ && !/^## \[0.2.1-beta\]/) exit; print }' \
+awk '/^## \[0.2.1-beta\]/{flag=1; print; next} flag && /^## \[/{exit} flag{print}' \
   libs/dashforge/tw/CHANGELOG.md > /tmp/release-notes.md
 
 gh release create "@dashforge/tw@0.2.1-beta" \

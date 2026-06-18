@@ -297,8 +297,9 @@ if (!dryRun) {
   console.log(`     then create the release with --prerelease):`);
   console.log();
   console.log(c.cyan(`     # Extract the [${version}] section from ${changelogPath} into /tmp/release-notes.md`));
-  console.log(c.cyan(`     awk '/^## \\[${version}\\]/,/^## \\[/{ if (/^## \\[/ && !/^## \\[${version}\\]/) exit; print }' \\`));
+  console.log(c.cyan(`     awk '/^## \\[${version}\\]/{flag=1; print; next} flag && /^## \\[/{exit} flag{print}' \\`));
   console.log(c.cyan(`       ${changelogPath} > /tmp/release-notes.md`));
+  console.log(c.cyan(`     [ "$(wc -c < /tmp/release-notes.md)" -gt 100 ] || { echo "ERROR: release notes < 100 bytes — awk extraction broken"; exit 1; }`));
   console.log();
   console.log(c.cyan(`     # Edit the title subtitle below, then run:`));
   console.log(c.cyan(`     gh release create "${tag}" \\`));
