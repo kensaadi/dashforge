@@ -181,3 +181,24 @@ describe('Button — asChild polymorphism', () => {
     expect(node.getAttribute('aria-disabled')).toBe('true');
   });
 });
+
+describe('Button — visibleWhen (engine-reactive visibility, Sprint 4.4)', () => {
+  it('renders when visibleWhen returns true (no DashForm context)', () => {
+    const { container } = render(
+      <Button visibleWhen={() => true}>shown</Button>
+    );
+    expect(container.firstChild).toBeTruthy();
+  });
+
+  it('returns null when visibleWhen returns false', () => {
+    const { container } = render(
+      <Button visibleWhen={() => false}>hidden</Button>
+    );
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('renders normally when visibleWhen is omitted', () => {
+    const { container } = render(<Button>always</Button>);
+    expect(container.firstChild).toBeTruthy();
+  });
+});

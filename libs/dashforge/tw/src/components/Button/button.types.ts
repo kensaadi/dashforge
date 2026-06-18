@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from 'react';
+import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { ButtonVariants } from './button.variants.js';
 
@@ -44,6 +45,41 @@ export interface ButtonProps
    * Combines with `disabled` and `loading` props via OR logic.
    */
   access?: AccessRequirement;
+
+  /**
+   * Reactive visibility predicate. Re-evaluated on every engine state
+   * change when the button is mounted inside a `<DashForm>`; outside
+   * a form, evaluated as a plain predicate (the consumer captures
+   * any external state in the closure).
+   *
+   * When the predicate returns `false`, the component renders `null`.
+   *
+   * **Added in 1.1.0 (Sprint 4.4 alignment)** — extends the
+   * engine-reactive visibility pattern previously available only on
+   * form fields + `<Alert>` to every interactive component in the
+   * Dashforge TW catalog (Button, IconButton, Chip, …).
+   *
+   * Note: `visibleWhen` is for **state-driven** hide. For
+   * **permission-driven** hide, use `access` with
+   * `onUnauthorized: 'hide'` — it's the semantically correct path
+   * and provides better error messages in RBAC dev tools.
+   *
+   * @example
+   * ```tsx
+   * // Inside a DashForm — reactive on engine state
+   * <Button
+   *   visibleWhen={(engine) =>
+   *     engine.getNode('plan')?.value === 'premium'
+   *   }
+   * >
+   *   Upgrade extras
+   * </Button>
+   *
+   * // Outside a form — closure over external React state
+   * <Button visibleWhen={() => itemCount > 0}>Bulk delete</Button>
+   * ```
+   */
+  visibleWhen?: (engine: Engine) => boolean;
 
   /**
    * When `true`, the immediate child element is rendered with the

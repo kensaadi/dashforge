@@ -221,6 +221,153 @@ export type {
 } from './components/Alert/alert.types.js';
 export { alertVariants } from './components/Alert/alert.variants.js';
 
+// IconButton — square, icon-only variant of <Button>. Reuses
+// `buttonVariants` 1:1 (variant × color × size × loading); adds square
+// geometry (w-N + px-0 + aspect-square) and a TS-enforced `aria-label`.
+// access RBAC integration mirrors <Button>; no `visibleWhen` /
+// `slotProps` by design (icon-only buttons are single-DOM-element
+// action triggers, not content surfaces).
+export { IconButton } from './components/IconButton/IconButton.js';
+export type { IconButtonProps } from './components/IconButton/iconButton.types.js';
+export {
+  ICON_BUTTON_BASE,
+  ICON_BUTTON_SIZE_OVERRIDES,
+} from './components/IconButton/iconButton.variants.js';
+
+// Menu family — compound action menu built on
+// `@radix-ui/react-dropdown-menu` (purpose-built menu primitive
+// with full WAI-ARIA menu pattern + keyboard nav + type-ahead +
+// lazy portal mount). Atlaskit-inspired: item-level memo, lazy
+// portal mount, MenuSkeleton for fetch-while-open patterns.
+//   • <Menu>           — root provider (open state, closeOnItemClick)
+//   • <MenuTrigger>    — asChild trigger wrapper
+//   • <MenuContent>    — floating panel (portal, lazy mount)
+//   • <MenuItem>       — clickable row (memoized, access + visibleWhen)
+//   • <MenuLabel>      — non-interactive section heading
+//   • <MenuSeparator>  — divider
+//   • <MenuSkeleton>   — Atlaskit-style loading placeholder
+// Sub-menus + controlled selection mode are out of scope for v1.
+export {
+  Menu,
+  MenuTrigger,
+  MenuContent,
+  MenuItem,
+  MenuLabel,
+  MenuSeparator,
+  MenuSkeleton,
+} from './components/Menu/Menu.js';
+export type {
+  MenuProps,
+  MenuTriggerProps,
+  MenuContentProps,
+  MenuItemProps,
+  MenuLabelProps,
+  MenuSeparatorProps,
+  MenuSkeletonProps,
+  MenuPlacement,
+  MenuItemColor,
+} from './components/Menu/menu.types.js';
+export { menuVariants } from './components/Menu/menu.variants.js';
+
+// Badge — anchored indicator (count / dot / short text overlay).
+// Wrapper-only mode: <Badge>{anchor}</Badge>. For standalone inline
+// pills (status labels, removable tags), use <Chip> — Badge and Chip
+// are complementary. content + max overflow ("99+"), showZero gate,
+// dot mode, invisible toggle. placement 4 corners + overlap
+// rectangular/circular for round anchors (Avatar). withRing default
+// for visual separation. access + visibleWhen — gate the badge
+// (anchor always renders).
+export { Badge } from './components/Badge/Badge.js';
+export type {
+  BadgeProps,
+  BadgeColor,
+  BadgePlacement,
+  BadgeOverlap,
+  BadgeSlotProps,
+} from './components/Badge/badge.types.js';
+export { badgeVariants } from './components/Badge/badge.variants.js';
+export type { BadgeVariants } from './components/Badge/badge.variants.js';
+
+// Spinner — rotating-arc loading indicator. SVG + animate-spin
+// (pure CSS, GPU-accelerated, motion-reduce-safe). Color via
+// currentColor by default (inherits parent text color — works inside
+// any container), or explicit 7-intent color. Optional `withTrack`
+// renders a ghost ring behind the arc (Stripe / Vercel / Linear
+// premium look). `delay` prop suppresses the spinner for the first
+// N ms (Atlassian-style anti-flash for sub-N-ms operations).
+// visibleWhen bridge integration; no access (display only). Refactor:
+// Button + IconButton internal loading state now reuse this Spinner
+// (single source of truth).
+export { Spinner } from './components/Spinner/Spinner.js';
+export type {
+  SpinnerProps,
+  SpinnerSize,
+  SpinnerColor,
+  SpinnerThickness,
+} from './components/Spinner/spinner.types.js';
+export {
+  spinnerVariants,
+  SPINNER_STROKE_WIDTH,
+  SPINNER_TRACK_OPACITY,
+  SPINNER_COLORS,
+} from './components/Spinner/spinner.variants.js';
+
+// Avatar — image / initials / icon visual identity.
+//   • <Avatar>       — single avatar, src + auto-initials from name
+//                      (Mantine-style), shape + radius (Box token
+//                      scale), size enum xs/sm/md/lg/xl, color × tone
+//                      (TS-safe palette access), fallbackIcon escape.
+//   • <AvatarGroup>  — thin horizontal wrapper with negative-margin
+//                      overlap, max + overflow indicator, optional
+//                      ring halo. Size propagates to children.
+// No access / visibleWhen — Avatar is display-only by category.
+// Wrap in <Box> if visibility gating is needed.
+export { Avatar, AvatarGroup } from './components/Avatar/Avatar.js';
+export type {
+  AvatarProps,
+  AvatarGroupProps,
+  AvatarSize,
+  AvatarShape,
+  AvatarColor,
+  AvatarTone,
+} from './components/Avatar/avatar.types.js';
+export {
+  avatarVariants,
+  AVATAR_SOFT_FALLBACK,
+  AVATAR_TONE_FALLBACK,
+} from './components/Avatar/avatar.variants.js';
+
+// Card family — opinionated surface preset over <Box>.
+//   • <Card>           — thin Box alias with card-shaped defaults
+//                        (variant=outlined, rounded=lg, elevation=1,
+//                        no padding). Inherits access + visibleWhen
+//                        from Box (Sprint 4.4 surface alignment).
+//   • <CardContent>    — padded inner section (semantic alias for
+//                        Box with default p=4).
+//   • <CardActionArea> — clickable wrapper with focus ring + hover +
+//                        asChild polymorphism (router Link patterns).
+//                        Carries access + visibleWhen + selected
+//                        (for option-card / filter-card toggle).
+export { Card, CardContent, CardActionArea } from './components/Card/Card.js';
+export type {
+  CardProps,
+  CardContentProps,
+  CardActionAreaProps,
+} from './components/Card/card.types.js';
+
+// Chip — status / filter / tag pill. Promoted from the internal
+// `Table/cells/RenderChip` (Sprint 4.4): the 3 × 7 (variant × color)
+// matrix is now the single source of truth, consumed by both the
+// public <Chip> and (via thin wrapper) the legacy RenderChip.
+// Variant axis: `soft | solid | outline` (Dashforge chip vocabulary —
+// distinct from Button's and Alert's by design, see CHANGELOG).
+// access RBAC integration; selected for filter-pill patterns;
+// onDelete for removable tags.
+export { Chip } from './components/Chip/Chip.js';
+export type { ChipProps } from './components/Chip/chip.types.js';
+export { chipVariants } from './components/Chip/chip.variants.js';
+export type { ChipVariants } from './components/Chip/chip.variants.js';
+
 // F9 foundation: typography + layout primitives. These sit BENEATH
 // every other component (Button's label, TextField's helper text, the
 // surface of an AppShell card) and are what app-level code reaches for

@@ -16,14 +16,6 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- **`_shared/severity/` foundation module.** Internal shared module
-  (`severity.types`, `severityVariants`, `severityIcons`, barrel) that
-  centralises the 3×4 (variant × severity) color matrix + 4 inline
-  per-severity SVG icons. Consumed by `<Alert>` and the refactored
-  `<Snackbar>` (and future Banner / status indicators). Every cell is
-  token-driven via `dashforgePreset()` — no hardcoded hex, no `dark:`
-  variants on neutral.
-
 - **`<Alert>` + `<AlertTitle>` components.** New inline persistent
   status surface — companion to `<Snackbar>`'s transient toast. Full
   MUI Alert API parity (`severity`, `variant`, `icon`, `onClose`,
@@ -33,17 +25,168 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   documented in the migration guide). Adds the Dashforge-specific
   `visibleWhen` (engine-reactive predicate) and `access` (RBAC) props,
   same contract as `<TextField>` / `<Button>` / etc.
+- **Menu family — `<Menu>`, `<MenuTrigger>`, `<MenuContent>`,
+  `<MenuItem>`, `<MenuLabel>`, `<MenuSeparator>`, `<MenuSkeleton>`
+  (P8, Sprint 4.4).** Compound action-menu API built on
+  `@radix-ui/react-dropdown-menu` — the purpose-built primitive
+  ships full WAI-ARIA menu pattern (`role="menu"` / `role="menuitem"`
+  / `role="separator"`), keyboard navigation (↑↓ Home End Enter
+  Esc Tab), type-ahead, focus management, and lazy portal mount.
+  `<MenuItem>` is `React.memo`-wrapped (Atlaskit-style perf — each
+  item re-renders only on prop change, not when siblings mutate).
+  `<MenuSkeleton>` provides Atlaskit-inspired loading state:
+  N placeholder rows matching real-item geometry, useful during
+  fetch-while-open patterns where a generic spinner would be a
+  perceived-perf regression. `<MenuItem color="danger">` highlights
+  destructive actions with a red soft-bg hover state.
+  Bridge integration on `<MenuItem>`: `access` (hide/disable per
+  RBAC) + `visibleWhen` (engine-reactive predicate — falsy → item
+  renders `null`, doesn't occupy a row). `closeOnItemClick` on
+  `<Menu>` (default `true`) for the standard action-menu pattern;
+  flip to `false` for filter / multi-select menus. Skipped for v1:
+  sub-menus (Atlaskit default — composable via Radix primitives if
+  needed later as additive change) and controlled selection mode
+  (use `<CheckboxGroup>` / `<RadioGroup>` standalone instead). New
+  runtime dep: `@radix-ui/react-dropdown-menu` (added to
+  `@dashforge/tw` `dependencies`, transitive — no consumer install
+  step required).
+- **`<Badge>` component (P7, Sprint 4.4).** Anchored indicator
+  (count / dot / short text overlay) — wrapper mode. For inline
+  standalone pills (status labels, removable tags), use `<Chip>` —
+  Badge and Chip are complementary: Chip is interactive
+  (`onClick`, `onDelete`, `selected`), Badge is passive overlay.
+  API: `content` (number/string), `dot` mode, `max` (default 99,
+  overflow renders as `"N+"`), `showZero` (default false — typical
+  notification UX), `invisible` (DOM-stay hide for fade animations),
+  `placement` (4 corners), `overlap` (`'rectangular'` default for
+  IconButton / Card; `'circular'` for Avatar — adds 14% inset to
+  align with the round edge), `withRing` default true (auto-inverting
+  `ring-neutral-50` for visual separation from the anchor surface).
+  Default color `'danger'` matches the standard "needs attention"
+  notification UX (red dot/count). Bridge: `access` + `visibleWhen`
+  — gate the badge while the anchor always renders. Skipped: size
+  axis (badge sizes to content; demand emerges → add later);
+  standalone mode (use `<Chip>` instead — TypeScript enforces
+  `children` required); `<Badge.Ribbon>` corner pattern (AntD-only
+  edge case).
+- **`<Spinner>` component (P6, Sprint 4.4).** Rotating-arc loading
+  indicator. SVG path + Tailwind `animate-spin` (pure CSS,
+  GPU-accelerated, gated on `motion-reduce` per WCAG 2.3.3). Color
+  inherits via `currentColor` when `color` is omitted — works
+  seamlessly inside `<Button>`, `<Alert>`, `<Card>`, or any colored
+  container with zero configuration. Pass an explicit `color`
+  (7 intents) for standalone usage. Size axis (`'xs' | 'sm' | 'md' |
+  'lg' | 'xl'`) maps to spacing tokens; `thickness` (`'thin' | 'md' |
+  'thick'`) maps to SVG `stroke-width`. **`withTrack` opt-in** renders
+  a faint ghost ring (20% opacity of currentColor) behind the
+  spinning arc — the Stripe / Vercel / Linear "premium spinner" look,
+  useful on busy backgrounds and for slow operations. **`delay` prop
+  (Atlassian-style anti-flash)** mounts the spinner as `null` for the
+  first N ms — quick operations that finish before the delay
+  never render the spinner. Pairs naturally with `visibleWhen` for
+  the canonical pattern `<Spinner visibleWhen={() => isSubmitting}
+  delay={150} />`. A11y: `role="status"` + `aria-live="polite"` +
+  visually-hidden label (default `'Loading'`). Decorative mode
+  (`label=""`) suppresses role + label entirely — used internally by
+  Button / IconButton loading state to avoid duplicate
+  announcements (the parent button already carries `aria-busy`).
+  **Refactor**: `<Button>` and `<IconButton>` loading state now
+  delegates to `<Spinner>` internally — single source of truth, the
+  spinner look propagates everywhere automatically if it changes.
+  No `access` (loading state is not permission-driven; wrap in `Box`
+  if needed).
+- **`<Avatar>` + `<AvatarGroup>` components (P5, Sprint 4.4).**
+  Image / initials / icon visual identity primitive. `<Avatar>` falls
+  back through a 4-step chain: `src` loads OK → `<img>`; `src` fails
+  → initials from `name`; no `src` + `name` set → initials from
+  `name` (first letter of first 2 whitespace-separated words,
+  uppercased — Mantine-style auto-generation); everything absent →
+  generic user SVG icon. Visual axes: `shape: 'circle' | 'rounded' |
+  'square'` (semantic shortcut) + `radius` from the full Box token
+  scale (explicit token wins over shape); `size: 'xs' | 'sm' | 'md' |
+  'lg' | 'xl'` mapped to spacing tokens; `color` (7 intents) +
+  optional `tone` (50-900) for type-safe access to any palette shade.
+  Truly custom colours route through `sx`. `<AvatarGroup>` is a thin
+  horizontal wrapper with negative-margin overlap, `max` slice with
+  trailing "+N" overflow indicator, optional `ring-2 ring-white`
+  halo per child (default on), `size` propagation to children.
+  Skipped: built-in status/presence dots (compose with future
+  `<Badge>` via `<Badge dot><Avatar /></Badge>`), MUI-style nested
+  `<AvatarImage>` / `<AvatarFallback>` sub-components (single-element
+  API is more ergonomic). No `access` / `visibleWhen` — Avatar is
+  display-only; wrap in `<Box>` for visibility gating.
+- **`<Card>`, `<CardContent>`, `<CardActionArea>` components (P2,
+  Sprint 4.4).** Opinionated surface preset over `<Box>`. `<Card>` is
+  a thin alias with card-shaped defaults (`variant='outlined'`,
+  `rounded='lg'`, `elevation=1`, no padding) and a restricted variant
+  axis (`'outlined' | 'elevated' | 'plain'` — `'soft'` / `'solid'`
+  belong to Box callouts and banners, not cards). `<CardContent>` is
+  a padded inner section (`p=4` default). `<CardActionArea>` is the
+  real value-add: a clickable wrapper with focus ring + hover state
+  + Radix Slot polymorphism (router `<Link>` without `<a>`-in-
+  `<button>` a11y violation) + `selected` for option-card patterns
+  (`aria-pressed`).
+  Skipped MUI's `CardHeader`, `CardMedia`, `CardActions` —
+  composable via `Stack` + `Box` + `Typography`, no value-add to
+  ship as separate components. Atlassian DS validates the
+  minimalist take (they ship no Card primitive at all).
+- **`access` + `visibleWhen` retrofit to `<Box>` (Sprint 4.4 surface
+  alignment, additive).** The bridge integration is now available on
+  Dashforge's surface primitive too. Use case: dashboard with
+  role-based cards (`access` hides revenue card from non-billing
+  roles), state-driven sections (`visibleWhen` toggles a section
+  based on form / external state) without `{condition && <Box>...}`
+  JSX guards. Idempotent for existing consumers — both props default
+  to no-op. RBAC-disabled / readonly Box surfaces dim visually and
+  carry `aria-disabled` / `aria-readonly` so descendants and
+  assistive tech can react. By extension, `<Card>` (which extends
+  `BoxProps`) inherits both props automatically.
+- **`visibleWhen` prop extended to `<Button>` + `<IconButton>` (Sprint
+  4.4 alignment).** Previously available only on form fields and the
+  new `<Alert>` / `<Chip>`, the engine-reactive visibility predicate
+  now ships on the action-trigger components too. The pattern is now
+  uniform across every interactive Dashforge TW primitive (Button,
+  IconButton, Chip, plus all form fields + Alert): `visibleWhen?:
+  (engine: Engine) => boolean` returns `null` when false; reactive on
+  engine state changes inside `<DashForm>`, closure-based outside.
+  Idempotent for consumers who don't use it.
+- **`<Chip>` component.** Public status / filter / tag pill — promoted
+  from the internal `Table/cells/RenderChip`. The 3 × 7 (variant ×
+  color) matrix is preserved byte-identical and now lives in
+  `Chip/chip.variants.ts` as the single source of truth, consumed by
+  both the public `<Chip>` and (via thin wrapper) the legacy
+  `RenderChip` — zero breaking change for Table cell consumers.
+  Variant axis is `'soft' | 'solid' | 'outline'` (default `'soft'`,
+  Dashforge chip vocabulary — distinct from Button's
+  `'solid' | 'outline' | 'ghost' | 'link'` and Alert's
+  `'standard' | 'filled' | 'outlined'`, see the design note in
+  `MIGRATION.md`). Full MUI Chip API parity: `label`, `icon`, `avatar`
+  (avatar wins over icon when both set), `clickable`, `onClick`,
+  `onDelete`, `deleteIcon`, `deleteLabel`. Plus Dashforge extras:
+  `selected` (filter-pill pressed state with `aria-pressed`) and
+  `access` (RBAC integration, same contract as `<Button>` /
+  `<IconButton>`). Static chips render as `<span>`; clickable chips
+  render as `<button>` with focus ring + hover state. 7 colors, 2
+  sizes.
+- **`<IconButton>` component.** Square, icon-only action button —
+  reuses `buttonVariants` 1:1 (`variant: 'solid' | 'outline' | 'ghost'
+  | 'link'`, `color: 'primary' | 'secondary' | 'success' | 'warning' |
+  'danger'`, `size: 'sm' | 'md' | 'lg'`, `loading`). Adds square
+  geometry (token-driven `w-N + px-0 + aspect-square`), a
+  TS-enforced `aria-label` (icon-only buttons MUST have an accessible
+  name), `asChild` via Radix Slot, and the standard `access` RBAC
+  integration. No `visibleWhen` / `slotProps` by design — mirrors
+  `<Button>`. Bundles `<IconButton>` exports + `ICON_BUTTON_BASE` /
+  `ICON_BUTTON_SIZE_OVERRIDES` constants for advanced overrides.
+- **`_shared/severity/` foundation.** New shared module
+  (`_shared/severity/{severity.types, severityVariants, severityIcons,
+  index}`) consumed by `<Alert>` and the refactored `<Snackbar>` (and
+  future Banner). Centralises the 3×4 (variant × severity) color
+  matrix and the per-severity default icons. Every cell is
+  token-driven via `dashforgePreset()` — no hardcoded hex, no `dark:`
+  variants on neutral.
 
-### Added — `<Snackbar>` API extensions
-
-- **`variant` option on `enqueue()` and `defaults`** —
-  `'standard' | 'filled' | 'outlined'`. Same axis as `<Alert>`.
-- **`icon` option on `enqueue()`** — same tristate semantics as Alert
-  (`undefined` → default per severity, `ReactNode` → custom, `false`
-  → no icon).
-- New exported type `SnackbarVariant`.
-
-### Changed — BREAKING (visual only)
+### Changed (BREAKING — visual only)
 
 - **`<Snackbar>` default appearance updated.** Snackbar now consumes
   the same 3-variant severity surface as `<Alert>` (`standard` /
@@ -55,31 +198,25 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   who want the closest visual match to 1.0.x can pass
   `variant="outlined"` on each enqueue or set
   `<SnackbarProvider defaults={{ variant: 'outlined' }}>`.
-
 - **`<Snackbar>` Unicode-glyph icons replaced with inline SVG.** The
   per-severity defaults are no longer `ⓘ ✓ ⚠ ✕` Unicode glyphs but
   inline stroke SVG icons shared with `<Alert>` via
   `_shared/severity/severityIcons`. Consumers who want the legacy
   glyphs can pass `icon={<span>{glyph}</span>}` on each enqueue.
-
 - **`<Snackbar>` `severity="info"` now uses the dedicated `info-*`
   token scale.** Previously aliased to `primary-*` (inadvertent
   inconsistency with the rest of the catalog). `patchTheme({ info:
   ... })` now correctly targets the info snackbar surface without
   spilling into primary consumers.
 
-### Changed — additive (Sprint 4.4 surface alignment)
+### Added — `<Snackbar>` API extensions
 
-- **`access` + `visibleWhen` retrofit to `<Box>` (Sprint 4.4 surface
-  alignment, additive).** The bridge integration is now available on
-  Dashforge's surface primitive too. Use case: dashboard with
-  role-based cards (`access` hides revenue card from non-billing
-  roles), state-driven sections (`visibleWhen` toggles a section
-  based on form / external state) without `{condition && <Box>...}`
-  JSX guards. Idempotent for existing consumers — both props default
-  to no-op. RBAC-disabled / readonly Box surfaces dim visually and
-  carry `aria-disabled` / `aria-readonly` so descendants and
-  assistive tech can react.
+- **`variant` option on `enqueue()` and `defaults`** —
+  `'standard' | 'filled' | 'outlined'`. Same axis as `<Alert>`.
+- **`icon` option on `enqueue()`** — same tristate semantics as Alert
+  (`undefined` → default per severity, `ReactNode` → custom, `false`
+  → no icon).
+- New exported type `SnackbarVariant`.
 
 ### Fixed
 
