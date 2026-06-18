@@ -17,8 +17,17 @@
 
 | Lib | Version | Date |
 |---|---|---|
-| `@dashforge/tw` | `0.3.0-beta` | 2026-05-18 |
-| `@dashforge/ui` | `0.2.3-beta` | 2026-05-15 |
+| `@dashforge/tw` | `1.1.1` | 2026-06-18 |
+| `@dashforge/ui` | `1.0.0` | 2026-05-23 |
+
+> **Note (1.1.1 audit).** Sprint 4.4 (2026-06-18) added 9
+> presentational primitives to `@dashforge/tw` — they fall in the
+> **TW-lead** category and don't appear in the per-component parity
+> table below (see "Components NOT covered by this audit" → TW-lead
+> Presentational section). Sprint 4.4 also retrofitted the bridge
+> contract (`access` + `visibleWhen`) onto `<Button>`, `<IconButton>`,
+> and `<Box>` to bring TW catalog to **100 % bridge coverage** of
+> interactive surfaces.
 
 ## Scoring legend
 
@@ -456,6 +465,39 @@ The TW line has these additional components with no MUI counterpart
 
 - `Typography`, `Box`, `Stack`, `Grid`, `Container`, `Divider`,
   `AspectRatio`, `VisuallyHidden` (8 Foundation primitives)
+
+### TW-lead Presentational primitives (Sprint 4.4, `@dashforge/tw@1.1.1`)
+
+Sprint 4.4 added **9 component families** in the same TW-lead
+category as the Foundation primitives above. They ship on the TW
+side only because the MUI flavor consumes `@mui/material/<Component>`
+directly — wrapping them in `@dashforge/ui` would add zero
+Dashforge value (`@mui/material` already provides them with a
+solid look-and-feel). The gap is **intentional**, not drift:
+
+| TW component | MUI flavor counterpart |
+|---|---|
+| `Alert` + `AlertTitle` | `@mui/material/Alert` + `AlertTitle` (vanilla) |
+| `IconButton` | `@mui/material/IconButton` (vanilla) |
+| `Chip` | `@mui/material/Chip` (vanilla) |
+| `Card` + `CardContent` + `CardActionArea` | `@mui/material/Card` + `CardContent` + `CardActionArea` (vanilla) |
+| `Avatar` + `AvatarGroup` | `@mui/material/Avatar` + `AvatarGroup` (vanilla) |
+| `Spinner` (= `CircularProgress`) | `@mui/material/CircularProgress` (vanilla) |
+| `Badge` | `@mui/material/Badge` (vanilla) |
+| `Menu` + `MenuTrigger` + `MenuContent` + `MenuItem` + `MenuLabel` + `MenuSeparator` + `MenuSkeleton` | `@mui/material/Menu` + `MenuItem` (vanilla) |
+
+**15 new public exports total** (9 root components + 6 Menu
+sub-components). All token-driven via `dashforgePreset()`, no
+hardcoded hex, no `dark:` on neutral palette.
+
+Bridge-integrated subset (`access` + `visibleWhen` props):
+`Alert`, `IconButton`, `Chip`, `Card` (via Box), `Avatar`, `Badge`,
+`MenuItem`. Pure presentational (no bridge): `Spinner`, `AvatarGroup`,
+`Menu`/`MenuTrigger`/`MenuContent`/`MenuLabel`/`MenuSeparator`.
+
+The `<Snackbar>` provider (already TW-only, shipped earlier) was
+also refactored onto the new `_shared/severity/` foundation in this
+sprint — same severity color matrix + SVG icons as `<Alert>`.
 
 Tier-4 components (Dialog, Tabs, Tooltip, Popover, Accordion) ship in
 Sprint 3 P3 — they will be MUI-side counterparts of MUI's own
