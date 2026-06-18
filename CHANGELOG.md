@@ -10,6 +10,35 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 1.1.1] — 2026-06-18
+
+**Sprint 4.4 — nine presentational primitives + universal bridge alignment**
+(re-issued from the briefly-published, unpublished `1.1.0`). First
+minor release on the stable line. Ships nine new components
+(`<Alert>` + `<IconButton>` + `<Chip>` + `<Card>` + `<Avatar>` /
+`<AvatarGroup>` + `<Spinner>` + `<Badge>` + `<Menu>` family) on top
+of a new `_shared/severity/` foundation. `<Snackbar>` is refactored
+onto that foundation (visual breaking change). The Dashforge bridge
+contract (`access` + `visibleWhen`) is now available on every
+interactive component in the catalog, including the retrofitted
+`<Button>` + `<IconButton>` + `<Box>`. Two DRY refactors:
+`<Button>` / `<IconButton>` spinner glyph delegates to `<Spinner>`;
+Table `<RenderChip>` becomes a thin `<Chip>` wrapper.
+
+**Why `1.1.1` and not `1.1.0`**: `1.1.0` was published briefly on
+2026-06-18 and immediately unpublished — a stale 10 MB `.tgz`
+orphan (from `pnpm pack` consumer testing) had been included in the
+published npm package, inflating the tarball ~20×. `1.1.1` ships
+the identical Sprint 4.4 code with the packaging fixed
+(310 KB tarball instead of 11.2 MB). Detail in the per-package
+[`libs/dashforge/tw/CHANGELOG.md`](./libs/dashforge/tw/CHANGELOG.md).
+
+Affected package (bumped):
+
+| Package | Previous | Now |
+|---|---|---|
+| `@dashforge/tw` | `1.0.0` | **`1.1.1`** |
+
 ## [1.0.0] — 2026-05-23
 
 **Stable release.** Dashforge graduates from beta to its first stable

@@ -12,7 +12,27 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
-## [Unreleased]
+## [1.1.1] — 2026-06-18
+
+> **Re-issued from the unpublished `1.1.0`** — `1.1.0` was published
+> briefly on 2026-06-18 and unpublished within minutes due to a
+> packaging bug: a stale 10 MB `.tgz` orphan (left from `pnpm pack`
+> consumer testing) had been included inside the published npm
+> package, inflating the tarball from the expected ~310 KB to
+> 11.2 MB. `1.1.1` ships the **identical** Sprint 4.4 code — only
+> the packaging metadata changed (`files` whitelist added to
+> `package.json`, orphan `.tgz` removed from the package directory).
+> Tarball size dropped 97 %.
+
+### Packaging fix (vs unpublished 1.1.0)
+
+- **`package.json` — added `"files": ["dist", "README.md", "CHANGELOG.md"]`.**
+  Without an explicit whitelist, `pnpm publish` had been including
+  everything in the package directory that wasn't covered by
+  `.gitignore` — leading to the bloated 11.2 MB tarball. With the
+  whitelist, the published artifact drops to ~310 KB / ~330 files.
+- Removed the orphan `dashforge-tw-1.0.0.tgz` from the package
+  directory.
 
 ### Added
 
