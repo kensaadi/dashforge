@@ -1,6 +1,8 @@
-import { forwardRef, type ElementType, type ReactElement } from 'react';
+import { forwardRef, useContext, type ElementType, type ReactElement } from 'react';
 import { Slot } from '@radix-ui/react-slot';
+import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { cn } from '../../utils/cn.js';
+import { useAccessState } from '../../hooks/useAccessState.js';
 import { boxVariants } from './box.variants.js';
 import type { BoxProps } from './box.types.js';
 
@@ -50,9 +52,24 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
       as,
       asChild = false,
       sx,
+      visibleWhen,
+      access,
       children,
       ...rest
     } = props;
+
+    // Bridge — hooks called unconditionally (rules-of-hooks).
+    // `useEngineVisibility` subscribes to engine state inside a
+    // `<DashForm>` and re-evaluates the predicate reactively; outside
+    // a form, it evaluates the predicate as a plain closure.
+    // `useAccessState` consults the @dashforge/rbac policy engine.
+    // Both default to no-op when the corresponding prop is omitted.
+    const bridge = useContext(DashFormContext);
+    const isVisible = useEngineVisibility(bridge?.engine, visibleWhen);
+    const accessState = useAccessState(access);
+
+    // Early return — predicate false OR RBAC denies visibility.
+    if (!isVisible || !accessState.visible) return null;
 
     const classes = cn(
       boxVariants({
@@ -60,12 +77,24 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
         p, px, py, m, mx, my,
         fullWidth, fullHeight,
       }),
+      // RBAC-disabled / readonly surfaces dim visually + carry
+      // semantic ARIA attributes (assigned below) so descendants and
+      // assistive tech can react.
+      accessState.disabled && 'opacity-60',
+      accessState.readonly && 'opacity-80',
       sx,
     );
 
+    const ariaProps = {
+      'aria-disabled': accessState.disabled || undefined,
+      'aria-readonly': accessState.readonly || undefined,
+      'data-disabled': accessState.disabled || undefined,
+      'data-readonly': accessState.readonly || undefined,
+    };
+
     if (asChild) {
       return (
-        <Slot ref={ref} className={classes} {...rest}>
+        <Slot ref={ref} className={classes} {...ariaProps} {...rest}>
           {children as ReactElement}
         </Slot>
       );
@@ -73,7 +102,7 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
 
     const Tag = (as ?? 'div') as ElementType;
     return (
-      <Tag ref={ref as never} className={classes} {...rest}>
+      <Tag ref={ref as never} className={classes} {...ariaProps} {...rest}>
         {children}
       </Tag>
     );

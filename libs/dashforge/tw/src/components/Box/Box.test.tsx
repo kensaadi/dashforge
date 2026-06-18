@@ -367,4 +367,25 @@ describe('<Box>', () => {
       expect(container.firstElementChild?.className).toContain('rounded-none');
     });
   });
+
+  describe('bridge integration — visibleWhen (Sprint 4.4 surface alignment)', () => {
+    it('renders when visibleWhen returns true', () => {
+      const { container } = render(
+        <Box visibleWhen={() => true}>shown</Box>
+      );
+      expect(container.firstChild).toBeTruthy();
+    });
+
+    it('returns null when visibleWhen returns false', () => {
+      const { container } = render(
+        <Box visibleWhen={() => false}>hidden</Box>
+      );
+      expect(container.firstChild).toBeNull();
+    });
+
+    it('renders normally when visibleWhen is omitted', () => {
+      const { container } = render(<Box>always</Box>);
+      expect(container.firstChild).toBeTruthy();
+    });
+  });
 });

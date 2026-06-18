@@ -14,6 +14,73 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **`_shared/severity/` foundation module.** Internal shared module
+  (`severity.types`, `severityVariants`, `severityIcons`, barrel) that
+  centralises the 3×4 (variant × severity) color matrix + 4 inline
+  per-severity SVG icons. Consumed by `<Alert>` and the refactored
+  `<Snackbar>` (and future Banner / status indicators). Every cell is
+  token-driven via `dashforgePreset()` — no hardcoded hex, no `dark:`
+  variants on neutral.
+
+- **`<Alert>` + `<AlertTitle>` components.** New inline persistent
+  status surface — companion to `<Snackbar>`'s transient toast. Full
+  MUI Alert API parity (`severity`, `variant`, `icon`, `onClose`,
+  `action`, `role`, `<AlertTitle>` sub-component). Single deliberate
+  divergence: `severity="danger"` instead of MUI's `severity="error"`
+  — aligned with the `danger.*` token palette (semantically identical,
+  documented in the migration guide). Adds the Dashforge-specific
+  `visibleWhen` (engine-reactive predicate) and `access` (RBAC) props,
+  same contract as `<TextField>` / `<Button>` / etc.
+
+### Added — `<Snackbar>` API extensions
+
+- **`variant` option on `enqueue()` and `defaults`** —
+  `'standard' | 'filled' | 'outlined'`. Same axis as `<Alert>`.
+- **`icon` option on `enqueue()`** — same tristate semantics as Alert
+  (`undefined` → default per severity, `ReactNode` → custom, `false`
+  → no icon).
+- New exported type `SnackbarVariant`.
+
+### Changed — BREAKING (visual only)
+
+- **`<Snackbar>` default appearance updated.** Snackbar now consumes
+  the same 3-variant severity surface as `<Alert>` (`standard` /
+  `filled` / `outlined`), with `standard` (soft tinted) as the new
+  default. Previously, severity discriminated only border + icon
+  colour; the surface bg + text stayed neutral. The new default
+  visually communicates severity at first glance (the previous
+  pattern read as "neutral message with coloured trim"). Consumers
+  who want the closest visual match to 1.0.x can pass
+  `variant="outlined"` on each enqueue or set
+  `<SnackbarProvider defaults={{ variant: 'outlined' }}>`.
+
+- **`<Snackbar>` Unicode-glyph icons replaced with inline SVG.** The
+  per-severity defaults are no longer `ⓘ ✓ ⚠ ✕` Unicode glyphs but
+  inline stroke SVG icons shared with `<Alert>` via
+  `_shared/severity/severityIcons`. Consumers who want the legacy
+  glyphs can pass `icon={<span>{glyph}</span>}` on each enqueue.
+
+- **`<Snackbar>` `severity="info"` now uses the dedicated `info-*`
+  token scale.** Previously aliased to `primary-*` (inadvertent
+  inconsistency with the rest of the catalog). `patchTheme({ info:
+  ... })` now correctly targets the info snackbar surface without
+  spilling into primary consumers.
+
+### Changed — additive (Sprint 4.4 surface alignment)
+
+- **`access` + `visibleWhen` retrofit to `<Box>` (Sprint 4.4 surface
+  alignment, additive).** The bridge integration is now available on
+  Dashforge's surface primitive too. Use case: dashboard with
+  role-based cards (`access` hides revenue card from non-billing
+  roles), state-driven sections (`visibleWhen` toggles a section
+  based on form / external state) without `{condition && <Box>...}`
+  JSX guards. Idempotent for existing consumers — both props default
+  to no-op. RBAC-disabled / readonly Box surfaces dim visually and
+  carry `aria-disabled` / `aria-readonly` so descendants and
+  assistive tech can react.
+
 ### Fixed
 
 - **Defensive list-style reset across interactive `<ul>` lists.**

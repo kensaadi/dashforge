@@ -9,12 +9,15 @@ import {
 } from 'react';
 import { cn } from '../../utils/cn.js';
 import { snackbarVariants } from './snackbar.variants.js';
+import {
+  getSeverityClasses,
+} from '../_shared/severity/severityVariants.js';
+import { getDefaultSeverityIcon } from '../_shared/severity/severityIcons.js';
 import type {
   SnackbarApi,
   SnackbarOptions,
   SnackbarProviderProps,
   SnackbarRecord,
-  SnackbarSeverity,
 } from './snackbar.types.js';
 
 const SnackbarContext = createContext<SnackbarApi | null>(null);
@@ -34,19 +37,6 @@ export function useSnackbar(): SnackbarApi {
   }
   return ctx;
 }
-
-/**
- * Unicode glyphs for severities — keeps the bundle small (no icon dep)
- * and stays accessible because consumers pass their own message text.
- * The glyph is `aria-hidden`; the screen reader announces the message
- * via the live region.
- */
-const SEVERITY_GLYPH: Record<SnackbarSeverity, string> = {
-  info: 'ⓘ',
-  success: '✓',
-  warning: '⚠',
-  danger: '✕',
-};
 
 /**
  * Dashforge TW Snackbar provider — transient, stacked toast notifications.
@@ -228,12 +218,24 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
       >
         {visible.map((rec) => {
           const sev = rec.severity ?? defaults?.severity ?? 'info';
+          const variant = rec.variant ?? defaults?.variant ?? 'standard';
           const showClose =
             rec.showClose ?? defaults?.showClose ?? true;
-          const itemClasses = snackbarVariants({
-            position,
-            severity: sev,
-          });
+          const itemClasses = snackbarVariants({ position });
+          // Severity color classes — sourced from the shared 3×4 matrix
+          // (`_shared/severity/`), same as Alert. Keeps the two
+          // components visually in lockstep.
+          const severityClasses = getSeverityClasses(variant, sev);
+          // Icon resolution — same tristate as Alert:
+          //   undefined → default per-severity SVG (shared with Alert)
+          //   ReactNode → consumer's icon
+          //   false     → no icon
+          const renderedIcon =
+            rec.icon === false
+              ? null
+              : rec.icon !== undefined
+                ? rec.icon
+                : getDefaultSeverityIcon(sev);
           return (
             <div
               key={rec.id}
@@ -241,18 +243,22 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
               data-tick={rec.tick}
               className={cn(
                 itemClasses.item(),
+                severityClasses.surface,
+                severityClasses.border,
                 slotProps?.item?.className
               )}
             >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  itemClasses.icon(),
-                  slotProps?.icon?.className
-                )}
-              >
-                {SEVERITY_GLYPH[sev]}
-              </span>
+              {renderedIcon !== null && (
+                <span
+                  className={cn(
+                    itemClasses.icon(),
+                    severityClasses.icon,
+                    slotProps?.icon?.className
+                  )}
+                >
+                  {renderedIcon}
+                </span>
+              )}
               <div
                 className={cn(
                   itemClasses.message(),
@@ -286,7 +292,19 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
                     slotProps?.closeButton?.className
                   )}
                 >
-                  ×
+                  <svg
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m6 6 8 8M14 6l-8 8" />
+                  </svg>
                 </button>
               )}
             </div>

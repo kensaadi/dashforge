@@ -1,8 +1,27 @@
 import type { ReactNode } from 'react';
 import type { SnackbarVariants } from './snackbar.variants.js';
+import type {
+  Severity,
+  SeverityVariant,
+} from '../_shared/severity/severity.types.js';
 
-/** Visual severity — drives icon color + accent on the snackbar surface. */
-export type SnackbarSeverity = 'info' | 'success' | 'warning' | 'danger';
+/**
+ * Visual severity — drives icon color + accent on the snackbar surface.
+ *
+ * Re-exported alias of the shared `Severity` type from
+ * `_shared/severity/`. Kept as a distinct local alias for
+ * backwards-compatible name (`SnackbarSeverity`) — pre-1.1.0 consumers
+ * that imported `SnackbarSeverity` keep their imports working.
+ */
+export type SnackbarSeverity = Severity;
+
+/**
+ * Visual variant — `standard` (default, soft tinted surface), `filled`
+ * (solid colored surface), `outlined` (transparent + border + text).
+ * Re-exported alias of the shared `SeverityVariant`. New in 1.1.0:
+ * Snackbar now supports the same 3-way axis as Alert / future Banner.
+ */
+export type SnackbarVariant = SeverityVariant;
 
 /** Corner anchor for the snackbar stack. */
 export type SnackbarPosition =
@@ -19,6 +38,28 @@ export interface SnackbarOptions {
   message: ReactNode;
   /** Visual severity. @default 'info' */
   severity?: SnackbarSeverity;
+  /**
+   * Visual variant — same 3-way axis as Alert. **New in 1.1.0.**
+   *
+   * - `'standard'` (default) — tinted soft surface, severity-toned text
+   * - `'filled'` — solid colored surface, light text (strong weight)
+   * - `'outlined'` — transparent surface, severity border + text
+   *
+   * @default 'standard'
+   */
+  variant?: SnackbarVariant;
+  /**
+   * Icon control — same tristate as Alert. **New in 1.1.0.**
+   *
+   * - omitted / `undefined` → default per-severity icon (inline SVG
+   *   shared with Alert via `_shared/severity/`)
+   * - `ReactNode` → consumer-provided icon
+   * - `false` → no icon (colored surface alone carries the severity)
+   *
+   * The legacy Unicode glyphs (`ⓘ ✓ ⚠ ✕`) shipped in 1.0.x have been
+   * REMOVED — see CHANGELOG for the visual breaking note.
+   */
+  icon?: ReactNode | false;
   /**
    * Auto-dismiss after this many ms. `0` / negative ⇒ persistent
    * (only dismissed by the close button or `dismiss(id)`).
@@ -77,7 +118,10 @@ export interface SnackbarProviderProps extends SnackbarVariants {
    */
   maxVisible?: number;
   /** Defaults merged into every enqueue. */
-  defaults?: Pick<SnackbarOptions, 'severity' | 'autoHideMs' | 'showClose'>;
+  defaults?: Pick<
+    SnackbarOptions,
+    'severity' | 'variant' | 'autoHideMs' | 'showClose'
+  >;
   /** Per-slot className overrides. */
   slotProps?: SnackbarSlotProps;
 }

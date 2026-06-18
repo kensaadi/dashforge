@@ -201,10 +201,25 @@ export type {
   SnackbarOptions,
   SnackbarRecord,
   SnackbarSeverity,
+  SnackbarVariant,
   SnackbarPosition,
   SnackbarSlotProps,
 } from './components/Snackbar/snackbar.types.js';
 export { snackbarVariants } from './components/Snackbar/snackbar.variants.js';
+
+// Alert — inline persistent status surface (companion to Snackbar's
+// transient toast). Full MUI Alert API parity (`severity`, `variant`,
+// `icon`, `onClose`, `action`, `role`, `<AlertTitle>` sub-component);
+// `severity="danger"` (not MUI `"error"`) for token-palette alignment.
+// Shares the 3×4 color matrix in `_shared/severity/` with the
+// refactored Snackbar (Sprint 4.4).
+export { Alert, AlertTitle } from './components/Alert/Alert.js';
+export type {
+  AlertProps,
+  AlertTitleProps,
+  AlertSlotProps,
+} from './components/Alert/alert.types.js';
+export { alertVariants } from './components/Alert/alert.variants.js';
 
 // F9 foundation: typography + layout primitives. These sit BENEATH
 // every other component (Button's label, TextField's helper text, the

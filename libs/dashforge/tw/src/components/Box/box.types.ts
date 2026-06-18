@@ -1,4 +1,6 @@
 import type { ElementType, HTMLAttributes } from 'react';
+import type { Engine } from '@dashforge/ui-core';
+import type { AccessRequirement } from '@dashforge/rbac';
 import type { BoxVariants } from './box.variants.js';
 
 /**
@@ -58,4 +60,57 @@ export interface BoxProps
    * position, animation, etc.).
    */
   sx?: string;
+
+  /**
+   * Reactive visibility predicate — added in 1.1.0 (Sprint 4.4
+   * surface alignment). When the predicate returns `false`, the
+   * component renders `null`. Inside a `<DashForm>` it subscribes
+   * reactively to engine state changes; outside a form, it's
+   * evaluated as a plain closure.
+   *
+   * Use for state-driven hiding of dashboard cards, conditional
+   * sections, gated content, etc. **For permission-driven hiding,
+   * prefer `access` with `onUnauthorized: 'hide'`** — it's semantically
+   * the correct path and surfaces better in RBAC dev tools.
+   *
+   * @example
+   * ```tsx
+   * // Dashboard card visible only when there are pending shipments
+   * <Box variant="outlined" rounded="lg" p={4}
+   *   visibleWhen={() => pendingCount > 0}>
+   *   <Typography variant="h3">{pendingCount} pending</Typography>
+   * </Box>
+   * ```
+   */
+  visibleWhen?: (engine: Engine) => boolean;
+
+  /**
+   * RBAC requirement — added in 1.1.0 (Sprint 4.4 surface alignment).
+   * Controls Box visibility / disabled-state via the centralized
+   * `@dashforge/rbac` policy engine.
+   *
+   * - `onUnauthorized: 'hide'`     → Box does not render
+   * - `onUnauthorized: 'disable'`  → adds `aria-disabled` + dimmed
+   *   visual; interactive children should derive their disabled state
+   *   from `data-disabled` on the Box or pass their own `access`
+   * - `onUnauthorized: 'readonly'` → adds `aria-readonly`; mostly used
+   *   when Box wraps form sections that propagate readonly to children
+   *
+   * Use for permission-gated dashboard cards, admin-only sections,
+   * tenant-aware layouts. The hide path is the common case.
+   *
+   * @example
+   * ```tsx
+   * // Revenue card visible only to users with billing:read permission
+   * <Box variant="elevated" rounded="lg" elevation={2} p={4}
+   *   access={{
+   *     resource: 'billing',
+   *     action: 'read',
+   *     onUnauthorized: 'hide'
+   *   }}>
+   *   <Typography variant="h3">Q3 Revenue</Typography>
+   * </Box>
+   * ```
+   */
+  access?: AccessRequirement;
 }
