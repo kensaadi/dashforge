@@ -41,12 +41,34 @@ const DAY_CELL_SIZE = 36;
 const EMPTY_RANGE: DateRange = { start: null, end: null };
 
 /**
+ * Coerce anything shaped like a partial DateRange into a full DateRange.
+ *
+ * RHF's `getValues(name)` can return a truthy object whose `start` / `end`
+ * are `undefined` when the form's `defaultValues` doesn't seed that field
+ * (or seeds only the parent path). The `?? EMPTY_RANGE` chain in
+ * `resolvedValue` does not catch that case — an object is truthy — so the
+ * undefined props leak downstream. Normalizing at the boundary keeps the
+ * display + calendar contract clean: `{ start: ISODate | null, end: ISODate | null }`.
+ */
+function normalizeDateRange(
+  range: DateRange | { start?: ISODate | null; end?: ISODate | null } | null | undefined,
+): DateRange {
+  if (range == null) {
+    return EMPTY_RANGE;
+  }
+  return {
+    start: range.start ?? null,
+    end: range.end ?? null,
+  };
+}
+
+/**
  * Formats a stored ISO date for the read-only input display, localized to a
  * medium date style (e.g. `"May 20, 2026"`). Formatting is done in UTC so the
  * displayed day always matches the stored `YYYY-MM-DD`.
  */
-function formatEndpoint(iso: ISODate | null, locale: string): string {
-  if (iso === null || iso === '') {
+function formatEndpoint(iso: ISODate | null | undefined, locale: string): string {
+  if (iso === null || iso === undefined || iso === '') {
     return '';
   }
   const parts = parseISODate(iso);
@@ -434,9 +456,12 @@ export function DateRangePicker(props: DateRangePickerProps) {
   if (bridge !== null && typeof bridge.register === 'function') {
     const registration: FieldRegistration = bridge.register(name, rules);
     registrationRef = registration.ref;
-    const bridgeValue =
-      (bridge.getValue(name) as DateRange | null | undefined) ?? null;
-    resolvedValue = value ?? bridgeValue ?? EMPTY_RANGE;
+    const bridgeValue = bridge.getValue(name) as
+      | DateRange
+      | { start?: ISODate | null; end?: ISODate | null }
+      | null
+      | undefined;
+    resolvedValue = normalizeDateRange(value ?? bridgeValue);
     const validation = resolveValidationState(name, bridge, error, helperText);
     resolvedError = validation.error;
     resolvedHelperText = validation.helperText;
@@ -463,7 +488,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
       }
     };
   } else {
-    resolvedValue = value ?? internalValue;
+    resolvedValue = normalizeDateRange(value ?? internalValue);
     resolvedError = Boolean(error);
     resolvedHelperText = helperText;
     registrationRef = undefined;

@@ -93,6 +93,32 @@ describe('DateRangePicker', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('renders an empty input (never "undefined – undefined") when no value is set', () => {
+    // Regression for #61 — no value + no default + no bridge.
+    render(<DateRangePicker name="x" label="Range" />);
+    expect(screen.getByRole('textbox')).toHaveValue('');
+  });
+
+  it('renders an empty input when the bridge has no defaultValues entry for the field', () => {
+    // Regression for #61 — RHF returns undefined for the path.
+    renderWithBridge(<DateRangePicker name="x" label="Range" />);
+    expect(screen.getByRole('textbox')).toHaveValue('');
+  });
+
+  it('renders an empty input when the bridge value is an object with undefined props', () => {
+    // Regression for #61 — RHF partial-hydration path: the parent object
+    // exists, but `start` / `end` are undefined. Must not template-render
+    // the string "undefined".
+    renderWithBridge(<DateRangePicker name="x" label="Range" />, {
+      mockBridgeOptions: {
+        defaultValues: { x: {} as unknown as { start: null; end: null } },
+      },
+    });
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue('');
+    expect(input).not.toHaveValue('undefined – undefined');
+  });
+
   it('commits the completed range to the form bridge', () => {
     const { state } = renderWithBridge(
       <DateRangePicker name="period" label="Period" />,
