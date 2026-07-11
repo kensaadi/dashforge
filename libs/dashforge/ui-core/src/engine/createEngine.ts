@@ -38,10 +38,28 @@ function hasAnyNodeChange<TValue>(
  * The engine manages nodes (state) and rules (reactive logic) using Valtio
  * for fine-grained reactivity and incremental evaluation for performance.
  *
+ * Pass a `TSchema` generic to constrain every `nodeId` argument to a valid
+ * `Path<TSchema>` at compile time. Omit it for an untyped engine —
+ * behavior is identical to the pre-generic factory.
+ *
+ * @example
+ * // Untyped (backward compatible)
+ * const engine = createEngine()
+ * engine.getNode("anything")   // Node<unknown> | undefined
+ *
+ * @example
+ * // Typed
+ * type Schema = { user: { name: string; age: number } }
+ * const engine = createEngine<Schema>()
+ * engine.getNode("user.name")  // Node<string> | undefined
+ * engine.getNode("foobar")     // ← TS error: not a Path<Schema>
+ *
  * @param config - Configuration options for the engine
- * @returns Engine instance
+ * @returns Engine instance typed against `TSchema`
  */
-export function createEngine(config: EngineConfig = {}): Engine {
+export function createEngine<
+  TSchema extends Record<string, unknown> = Record<string, unknown>,
+>(config: EngineConfig = {}): Engine<TSchema> {
   const {
     initialNodes = [],
     initialRules = [],
@@ -395,5 +413,10 @@ export function createEngine(config: EngineConfig = {}): Engine {
     console.log(`  - Rules: ${initialRules.length}`);
   }
 
-  return engine;
+  // The internal `engine` object is written against the untyped default
+  // (`Engine<Record<string, unknown>>`) — runtime is stringly-typed. The
+  // cast to `Engine<TSchema>` narrows the public surface to the caller's
+  // schema. The narrower generics are purely a compile-time contract; the
+  // runtime store keys/values are the same in both cases.
+  return engine as unknown as Engine<TSchema>;
 }

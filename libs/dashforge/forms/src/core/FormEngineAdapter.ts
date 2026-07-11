@@ -1,9 +1,25 @@
-import type { Engine } from '@dashforge/ui-core';
+import type { Engine, Path, PathValue } from '@dashforge/ui-core';
 import type { FieldValues, UseFormReturn, FieldPath } from 'react-hook-form';
 import type {
   IFormEngineAdapter,
   FormEngineAdapterOptions,
 } from './form.types';
+
+/**
+ * Convert an RHF `FieldPath<T>` to a ui-core `Path<T>`.
+ *
+ * RHF's `FieldPath<T>` and ui-core's `Path<T>` are the same template-literal
+ * shape (dot-separated keys of `T`) — but TS treats them as distinct type
+ * identities because they come from separate declarations. When `T` is a
+ * generic type parameter, TS can't prove structural equality automatically,
+ * so we assert it once at this boundary. The runtime value is the same
+ * string in both cases.
+ */
+function toEnginePath<T extends FieldValues>(
+  name: FieldPath<T>
+): Path<T> & string {
+  return String(name) as Path<T> & string;
+}
 
 /**
  * Adapter bridging React Hook Form with the Dashforge Engine.
@@ -23,7 +39,7 @@ import type {
 export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
   implements IFormEngineAdapter<TFieldValues>
 {
-  private engine: Engine;
+  private engine: Engine<TFieldValues>;
   private rhfMethods: UseFormReturn<TFieldValues>;
   private debug: boolean;
   private registeredFields: Set<string>;
@@ -32,12 +48,13 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
   /**
    * Creates a new FormEngineAdapter instance.
    *
-   * @param engine - Dashforge Engine instance
+   * @param engine - Dashforge Engine instance, typed against the same
+   *   `TFieldValues` as the RHF form for end-to-end path constraint
    * @param rhfMethods - React Hook Form methods and state
    * @param options - Optional configuration
    */
   constructor(
-    engine: Engine,
+    engine: Engine<TFieldValues>,
     rhfMethods: UseFormReturn<TFieldValues>,
     options?: FormEngineAdapterOptions
   ) {
@@ -64,7 +81,7 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
    * @param name - Field name to register
    */
   registerField(name: FieldPath<TFieldValues>): void {
-    const fieldName = String(name);
+    const fieldName = toEnginePath<TFieldValues>(name);
     this.registeredFields.add(fieldName);
 
     // Get initial value from RHF
@@ -75,7 +92,11 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
     if (!existingNode) {
       this.engine.registerNode({
         id: fieldName,
-        value: initialValue ?? '',
+        // Value is loosely typed here because RHF's getValues can return any
+        // shape at runtime; the engine's registerNode signature expects
+        // PathValue<TFieldValues, fieldName>. Cast is safe — the value came
+        // from the same TFieldValues surface via RHF.
+        value: (initialValue ?? '') as PathValue<TFieldValues, typeof fieldName>,
         visible: true,
         disabled: false,
       });
@@ -99,7 +120,7 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
    * @param name - Field name to unregister
    */
   unregisterField(name: FieldPath<TFieldValues>): void {
-    const fieldName = String(name);
+    const fieldName = toEnginePath<TFieldValues>(name);
     const wasRegistered = this.registeredFields.delete(fieldName);
 
     // Remove Engine node if field was registered
@@ -132,7 +153,7 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
    * @param value - Value to sync to engine
    */
   syncValueToEngine(name: FieldPath<TFieldValues>, value: unknown): void {
-    const fieldName = String(name);
+    const fieldName = toEnginePath<TFieldValues>(name);
 
     if (!this.registeredFields.has(fieldName)) {
       if (this.debug) {
@@ -150,7 +171,12 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
       );
     }
 
-    this.engine.updateNode(fieldName, { value });
+    // Value came in as `unknown` from RHF's change event stream; the engine
+    // narrows `update.value` to `PathValue<TFieldValues, typeof fieldName>`.
+    // The narrowing is at compile-time only; runtime accepts any string.
+    this.engine.updateNode(fieldName, {
+      value: value as PathValue<TFieldValues, typeof fieldName>,
+    });
 
     // NEW: Notify listeners (for reaction evaluation)
     for (const callback of this.onValueSyncCallbacks) {

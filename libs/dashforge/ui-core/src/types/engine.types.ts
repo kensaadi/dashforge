@@ -5,6 +5,7 @@
 
 import type { Node, NodeUpdate } from './node.types';
 import type { Rule } from './rule.types';
+import type { Path, PathValue } from './path.types';
 
 /**
  * The internal state structure of the engine.
@@ -54,8 +55,21 @@ export interface EngineConfig {
 /**
  * The main Engine interface.
  * This is the public API for interacting with the reactive engine.
+ *
+ * Generic over `TSchema` — the shape of the data the engine holds. Every
+ * `nodeId` parameter is constrained to `Path<TSchema>`, so passing a path
+ * that doesn't exist on the schema is a compile-time error rather than a
+ * silent runtime `undefined`. Return types narrow via `PathValue<TSchema, P>`.
+ *
+ * The default `TSchema = Record<string, unknown>` degrades every constraint
+ * to plain `string` / `unknown`, so existing untyped consumers keep
+ * compiling exactly as they did on the pre-typed engine.
+ *
+ * @template TSchema - The registered data shape. Omit for the untyped default.
  */
-export interface Engine {
+export interface Engine<
+  TSchema extends Record<string, unknown> = Record<string, unknown>,
+> {
   /**
    * Internal Valtio store (for advanced use cases).
    * @internal
@@ -69,10 +83,13 @@ export interface Engine {
    * The node is added to the store but rules are not evaluated until
    * explicit evaluation is triggered.
    *
-   * @param node - The node to register
+   * @param node - The node to register. `id` must be a valid `Path<TSchema>`;
+   *   `value` is constrained to the schema value at that path.
    * @throws Error if a node with the same ID already exists
    */
-  registerNode(node: Node): void;
+  registerNode<P extends Path<TSchema>>(
+    node: Node<PathValue<TSchema, P>> & { id: P }
+  ): void;
 
   /**
    * Unregister a node from the engine.
@@ -82,7 +99,7 @@ export interface Engine {
    *
    * @param nodeId - The ID of the node to unregister
    */
-  unregisterNode(nodeId: string): void;
+  unregisterNode(nodeId: Path<TSchema>): void;
 
   /**
    * Update an existing node.
@@ -91,21 +108,25 @@ export interface Engine {
    * Complexity: O(k) where k is the number of dependent rules.
    *
    * @param nodeId - The ID of the node to update
-   * @param update - Partial update to apply to the node
+   * @param update - Partial update to apply to the node. `value` is
+   *   constrained to the schema value at `nodeId`.
    * @throws Error if the node does not exist
    */
-  updateNode<TValue = unknown>(
-    nodeId: string,
-    update: NodeUpdate<TValue>
+  updateNode<P extends Path<TSchema>>(
+    nodeId: P,
+    update: NodeUpdate<PathValue<TSchema, P>>
   ): void;
 
   /**
    * Get a node by ID.
    *
    * @param nodeId - The ID of the node to retrieve
-   * @returns The node if found, undefined otherwise
+   * @returns The node if found, undefined otherwise. Return value narrows to
+   *   `Node<PathValue<TSchema, P>>` at typed call sites.
    */
-  getNode<TValue = unknown>(nodeId: string): Node<TValue> | undefined;
+  getNode<P extends Path<TSchema>>(
+    nodeId: P
+  ): Node<PathValue<TSchema, P>> | undefined;
 
   /**
    * Get all nodes in the engine.
@@ -195,7 +216,7 @@ export interface Engine {
    *
    * @param nodeId - The ID of the node that changed
    */
-  evaluateForNode(nodeId: string): void;
+  evaluateForNode(nodeId: Path<TSchema>): void;
 
   /**
    * Reset the engine to its initial state.

@@ -73,8 +73,12 @@ export interface DashFormContextValue<
   /**
    * The Dashforge Engine instance managing reactive state.
    * Either provided externally or auto-created.
+   *
+   * Typed against the form's `TFieldValues` so `engine.getNode(...)` /
+   * `updateNode(...)` calls made on this instance from within a form
+   * component get compile-time path checking and value-type narrowing.
    */
-  engine: Engine;
+  engine: Engine<TFieldValues>;
 
   /**
    * React Hook Form methods and state.
@@ -107,8 +111,12 @@ export interface DashFormConfig<
   /**
    * Optional Engine instance to use.
    * If not provided, a new Engine will be created automatically.
+   *
+   * When you pass one in, type it as `Engine<TFieldValues>` (e.g. via
+   * `createEngine<MySchema>()`) so path constraints propagate through
+   * the whole provider tree.
    */
-  engine?: Engine;
+  engine?: Engine<TFieldValues>;
 
   /**
    * Default values for form fields.

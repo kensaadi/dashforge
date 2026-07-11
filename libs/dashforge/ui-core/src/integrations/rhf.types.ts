@@ -11,11 +11,16 @@
 
 /**
  * Re-export minimal RHF types needed for integrations
- * These match react-hook-form's type signatures
+ *
+ * `Path` and `PathValue` are the SAME template-literal implementations used
+ * throughout ui-core (see `../types/path.types.ts`). They were previously
+ * placeholder aliases (`Path<T> = string`, `PathValue<...> = unknown`),
+ * which defeated the purpose of the constraint at consumer call sites — a
+ * bug flagged in the community critique of `engine.getNode()`.
  */
+import type { Path, PathValue } from '../types/path.types';
+export type { Path, PathValue };
 export type FieldValues = Record<string, unknown>;
-export type Path<T extends FieldValues> = string;
-export type PathValue<T extends FieldValues, P extends Path<T>> = unknown;
 
 export interface FieldError {
   type: string;

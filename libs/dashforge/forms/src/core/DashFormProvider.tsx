@@ -12,6 +12,8 @@ import type {
   DashFormBridge,
   BridgeFieldError,
   FieldRegistration,
+  Engine,
+  Path,
 } from '@dashforge/ui-core';
 import type { DashFormContextValue, DashFormProviderProps } from './form.types';
 import { FormEngineAdapter } from './FormEngineAdapter';
@@ -108,8 +110,10 @@ export function DashFormProvider<
       return externalEngine;
     }
 
-    // Create engine with debug flag aligned to form debug
-    const newEngine = createEngine({ debug });
+    // Create engine typed against TFieldValues so `engine.getNode(...)`
+    // downstream gets compile-time path checking against the form's shape.
+    // Runtime is unaffected — the generic is purely a type-level contract.
+    const newEngine = createEngine<TFieldValues>({ debug });
     if (debug) {
       console.log('[DashFormProvider] Created new Engine', newEngine);
     }
@@ -265,7 +269,10 @@ export function DashFormProvider<
       getValue: (name: string) => {
         // VALUE SEMANTICS: Engine first (if node exists), RHF fallback (always available)
         // This decouples reactions from component mount lifecycle
-        const node = engine.getNode(name);
+        // Cast at boundary — `name` is a plain string from the reaction system
+        // (no static schema knowledge on that side); engine expects
+        // Path<TFieldValues>. Runtime is unaffected — the store is stringly-typed.
+        const node = engine.getNode(name as Path<TFieldValues>);
         if (node) return node.value;
         return rhf.getValues(name as FieldPath<TFieldValues>);
       },
@@ -334,7 +341,11 @@ export function DashFormProvider<
   // Used by ui components to detect and integrate with form
   const bridgeValue = useMemo<DashFormBridge>(
     () => ({
-      engine,
+      // The bridge type (in ui-core) declares `engine: Engine` (the untyped
+      // default). Consumers of the bridge don't know about `TFieldValues`,
+      // so the widening cast here is intentional — schema-typed callers
+      // access `engine` via the internal DashFormContextValue instead.
+      engine: engine as unknown as Engine,
 
       // NEW: Expose CONTROLLED runtime APIs (NOT raw store)
       // Read API (safe for UI consumption)

@@ -180,6 +180,50 @@ function AddressForm() {
 
 Full TypeScript type definitions with strict mode compatibility.
 
+### Schema-typed engine (`Engine<TSchema>`)
+
+Every string-path API on the reactive `Engine` (`getNode`, `registerNode`,
+`updateNode`, `unregisterNode`, `evaluateForNode`) is generic over the
+data shape you register with it. Passing a path that doesn't exist on the
+schema is a compile-time error instead of a silent runtime `undefined`.
+
+```ts
+import { createEngine } from '@dashforge/ui-core';
+
+type KYCSchema = {
+  firstName: string;
+  age: number;
+  address: { city: string; country: string };
+};
+
+const engine = createEngine<KYCSchema>();
+
+engine.getNode('firstName');       // Node<string> | undefined
+engine.getNode('address.city');    // Node<string> | undefined  (nested)
+engine.getNode('age');             // Node<number> | undefined
+engine.getNode('foobar');          // ← TS error: not a Path<KYCSchema>
+engine.updateNode('age', { value: 'wrong' }); // ← TS error: value must be number
+```
+
+Inside a `DashFormProvider`, the schema is inferred automatically from
+`defaultValues` — you don't need to pass a generic anywhere:
+
+```tsx
+<DashFormProvider defaultValues={{ firstName: '', age: 0 }}>
+  {/* engine.getNode('firstName') is Node<string> | undefined here */}
+</DashFormProvider>
+```
+
+**Backward compatibility.** `createEngine()` without a generic argument
+resolves to `Engine<Record<string, unknown>>`. In that case `Path<T>`
+degrades to `string` and `PathValue<T, P>` to `unknown`, so every existing
+untyped consumer keeps compiling exactly as it did before this change —
+you only opt in to the stricter surface by passing a schema.
+
+Nested paths (`"user.address.city"`) are supported via TypeScript template
+literal types. Arrays are treated as leaves for now — array element paths
+(`items.0.name`) will be added in a future release.
+
 ## Documentation
 
 - [Package CHANGELOG](./CHANGELOG.md) — release history for this package.

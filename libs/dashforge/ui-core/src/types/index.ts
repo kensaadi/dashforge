@@ -14,3 +14,6 @@ export { isRule } from './rule.types';
 
 // Engine types
 export type { Engine, EngineConfig, EngineState } from './engine.types';
+
+// Path types (schema-aware node identifiers)
+export type { Path, PathValue } from './path.types';

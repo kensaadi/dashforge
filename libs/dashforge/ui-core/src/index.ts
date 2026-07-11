@@ -46,6 +46,10 @@ export type {
   Engine,
   EngineConfig,
   EngineState,
+
+  // Path types (schema-aware node identifiers)
+  Path,
+  PathValue,
 } from './types';
 
 export { isNode, isRule } from './types';
@@ -255,8 +259,6 @@ export type {
   UseEngineRHFResult,
   RHFMappedNode,
   FieldValues,
-  Path,
-  PathValue,
   FieldError,
 } from './integrations';
 
