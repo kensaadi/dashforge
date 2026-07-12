@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { confirmDialogVariants } from './confirmDialog.variants.js';
 import type {
@@ -72,7 +73,19 @@ export function useConfirm(): ConfirmFn {
  *   - First focusable element receives focus on open (browser-managed).
  */
 export function ConfirmDialogProvider(props: ConfirmDialogProviderProps) {
-  const { children, defaults, slotProps: providerSlotProps, severity } = props;
+  const themeDefaults = useComponentDefaults('ConfirmDialog');
+  const themeSeverity = themeDefaults?.defaults?.severity;
+  const themeInvocationDefaults = themeDefaults?.defaults?.invocationDefaults;
+  const {
+    children,
+    defaults: propDefaults,
+    slotProps: providerSlotProps,
+    severity = themeSeverity,
+  } = props;
+  const defaults: ConfirmOptions | undefined =
+    themeInvocationDefaults || propDefaults
+      ? { ...themeInvocationDefaults, ...propDefaults }
+      : undefined;
 
   const [active, setActive] = useState<ActiveRequest | null>(null);
   // FIFO queue of pending requests. We process them strictly in order

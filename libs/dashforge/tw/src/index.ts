@@ -196,6 +196,7 @@ export {
 export type {
   ConfirmDialogProviderProps,
   ConfirmDialogSlotProps,
+  ConfirmDialogVariantProps,
   ConfirmFn,
   ConfirmOptions,
   ConfirmSeverity,

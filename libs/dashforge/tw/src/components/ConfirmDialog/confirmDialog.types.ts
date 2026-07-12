@@ -68,3 +68,24 @@ export interface ConfirmDialogProviderProps extends ConfirmDialogVariants {
   /** Per-slot className overrides applied to ALL invocations. */
   slotProps?: ConfirmDialogSlotProps;
 }
+
+/**
+ * Subset of `<ConfirmDialogProvider>` props theme-configurable via
+ * `theme.components.ConfirmDialog.defaults` (Option C).
+ *
+ * `invocationDefaults` are merged UNDER the provider's own `defaults`
+ * (provider wins on collision), and further overridden by the
+ * per-invocation `confirm(options)` call.
+ */
+export interface ConfirmDialogVariantProps {
+  severity?: ConfirmSeverity;
+  invocationDefaults?: ConfirmOptions;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    ConfirmDialog?: {
+      defaults?: Partial<ConfirmDialogVariantProps>;
+    };
+  }
+}
