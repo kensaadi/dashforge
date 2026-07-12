@@ -4,6 +4,29 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { BoxVariants } from './box.variants.js';
 
 /**
+ * Subset of `<Box>` props theme-configurable via
+ * `theme.components.Box.defaults` (Option C).
+ *
+ * Exposes the design-identity axes (`variant`, `color`, `elevation`,
+ * `rounded`, `fullWidth`, `fullHeight`). Per-instance spacing (`p`,
+ * `px`, `py`, `m`, `mx`, `my`) is intentionally excluded — spacing is
+ * a layout choice, not a component identity, and would encourage
+ * antipattern global-margin/padding overrides.
+ */
+export type BoxVariantProps = Pick<
+  BoxVariants,
+  'variant' | 'color' | 'elevation' | 'rounded' | 'fullWidth' | 'fullHeight'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Box?: {
+      defaults?: Partial<BoxVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<Box>` — the surface primitive.
  *
  * What lives in props (typed, ergonomic):

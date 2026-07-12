@@ -1,6 +1,7 @@
 import { forwardRef, useContext, type ElementType, type ReactElement } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { boxVariants } from './box.variants.js';
@@ -41,6 +42,12 @@ import type { BoxProps } from './box.types.js';
  */
 export const Box = forwardRef<HTMLElement, BoxProps>(
   function Box(props, ref) {
+    // Option C precedence chain:
+    //   TV `defaultVariants` < theme override < instance prop < sx
+    // Spread order (`{ ...theme.defaults, ...props }`) enforces
+    // theme < instance; `sx` layers last via `cn()` + tailwind-merge.
+    const themeDefaults = useComponentDefaults('Box');
+    const merged: BoxProps = { ...themeDefaults?.defaults, ...props };
     const {
       variant,
       color,
@@ -56,7 +63,7 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
       access,
       children,
       ...rest
-    } = props;
+    } = merged;
 
     // Bridge — hooks called unconditionally (rules-of-hooks).
     // `useEngineVisibility` subscribes to engine state inside a

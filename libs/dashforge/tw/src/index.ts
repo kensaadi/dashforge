@@ -381,7 +381,10 @@ export type { TypographyProps } from './components/Typography/typography.types.j
 export { typographyVariants } from './components/Typography/typography.variants.js';
 
 export { Box } from './components/Box/Box.js';
-export type { BoxProps } from './components/Box/box.types.js';
+export type {
+  BoxProps,
+  BoxVariantProps,
+} from './components/Box/box.types.js';
 export { boxVariants } from './components/Box/box.variants.js';
 
 export { Stack } from './components/Stack/Stack.js';
