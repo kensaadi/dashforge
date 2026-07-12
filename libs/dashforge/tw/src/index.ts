@@ -399,6 +399,7 @@ export type {
   GridProps,
   GridContainerProps,
   GridItemProps,
+  GridVariantProps,
   ColSpan,
   GridSpacingStep,
 } from './components/Grid/grid.types.js';

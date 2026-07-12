@@ -1,5 +1,6 @@
 import { forwardRef, type ElementType, type ReactElement } from 'react';
 import { Slot } from '@radix-ui/react-slot';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { gridVariants } from './grid.variants.js';
 import type {
@@ -40,7 +41,13 @@ import type {
  * test asserts the wrapping still emits the right class chain.
  */
 export const Grid = forwardRef<HTMLElement, GridProps>(
-  function Grid(props, ref) {
+  function Grid(_props, ref) {
+    // Option C: theme defaults only apply to container-role axes
+    // (cols, spacing, spacingX, spacingY, autoFlow). Item-role props
+    // never overlap the theme keys so the merge is safe on both
+    // branches of the discriminated union.
+    const themeDefaults = useComponentDefaults('Grid');
+    const props = { ...themeDefaults?.defaults, ..._props } as GridProps;
     const { as, asChild = false, sx, children, ...rest } = props as GridProps & {
       as?: ElementType;
       asChild?: boolean;

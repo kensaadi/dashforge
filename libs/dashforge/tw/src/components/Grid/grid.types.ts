@@ -110,3 +110,24 @@ interface GridCommonProps extends Omit<HTMLAttributes<HTMLDivElement>, 'classNam
  * `<Grid>` props — discriminated union: container OR item, never both.
  */
 export type GridProps = (GridContainerProps | GridItemProps) & GridCommonProps;
+
+/**
+ * Subset of `<Grid container>` props theme-configurable via
+ * `theme.components.Grid.defaults` (Option C).
+ *
+ * Only container-role axes are exposed — item breakpoints (`xs`, `sm`,
+ * `md`, `lg`, `xl`) are per-instance responsive layout choices and are
+ * intentionally excluded.
+ */
+export type GridVariantProps = Pick<
+  GridContainerProps,
+  'cols' | 'spacing' | 'spacingX' | 'spacingY' | 'autoFlow'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Grid?: {
+      defaults?: Partial<GridVariantProps>;
+    };
+  }
+}
