@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Slot } from '@radix-ui/react-slot';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { stackVariants } from './stack.variants.js';
 import type { StackProps } from './stack.types.js';
@@ -71,6 +72,8 @@ function interleaveDividers(children: ReactNode, divider: ReactNode): ReactNode[
  */
 export const Stack = forwardRef<HTMLElement, StackProps>(
   function Stack(props, ref) {
+    const themeDefaults = useComponentDefaults('Stack');
+    const merged: StackProps = { ...themeDefaults?.defaults, ...props };
     const {
       direction,
       align,
@@ -85,7 +88,7 @@ export const Stack = forwardRef<HTMLElement, StackProps>(
       sx,
       children,
       ...rest
-    } = props;
+    } = merged;
 
     const classes = cn(
       stackVariants({ direction, align, justify, gap, wrap, fullWidth, fullHeight }),

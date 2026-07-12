@@ -388,7 +388,10 @@ export type {
 export { boxVariants } from './components/Box/box.variants.js';
 
 export { Stack } from './components/Stack/Stack.js';
-export type { StackProps } from './components/Stack/stack.types.js';
+export type {
+  StackProps,
+  StackVariantProps,
+} from './components/Stack/stack.types.js';
 export { stackVariants } from './components/Stack/stack.variants.js';
 
 export { Grid } from './components/Grid/Grid.js';

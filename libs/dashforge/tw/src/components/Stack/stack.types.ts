@@ -2,6 +2,23 @@ import type { ElementType, HTMLAttributes, ReactNode } from 'react';
 import type { StackVariants } from './stack.variants.js';
 
 /**
+ * Subset of `<Stack>` props theme-configurable via
+ * `theme.components.Stack.defaults` (Option C).
+ */
+export type StackVariantProps = Pick<
+  StackVariants,
+  'direction' | 'align' | 'justify' | 'gap' | 'wrap' | 'fullWidth' | 'fullHeight'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Stack?: {
+      defaults?: Partial<StackVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<Stack>` — flex container 1D, the layout primitive.
  *
  * Axes:
