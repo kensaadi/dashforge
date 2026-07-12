@@ -231,7 +231,10 @@ export { alertVariants } from './components/Alert/alert.variants.js';
 // `slotProps` by design (icon-only buttons are single-DOM-element
 // action triggers, not content surfaces).
 export { IconButton } from './components/IconButton/IconButton.js';
-export type { IconButtonProps } from './components/IconButton/iconButton.types.js';
+export type {
+  IconButtonProps,
+  IconButtonVariantProps,
+} from './components/IconButton/iconButton.types.js';
 export {
   ICON_BUTTON_BASE,
   ICON_BUTTON_SIZE_OVERRIDES,

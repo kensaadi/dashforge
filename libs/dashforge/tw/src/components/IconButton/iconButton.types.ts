@@ -5,6 +5,24 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { ButtonVariants } from '../Button/button.variants.js';
 
 /**
+ * Subset of `<IconButton>` props theme-configurable via
+ * `theme.components.IconButton.defaults` (Option C). Same variant axes
+ * as `<Button>` since IconButton reuses `buttonVariants`.
+ */
+export type IconButtonVariantProps = Pick<
+  ButtonVariants,
+  'variant' | 'color' | 'size' | 'loading'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    IconButton?: {
+      defaults?: Partial<IconButtonVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<IconButton>`.
  *
  * IconButton is the **icon-only variant of `<Button>`** — it reuses

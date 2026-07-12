@@ -1,6 +1,7 @@
 import { forwardRef, useContext } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { buttonVariants } from '../Button/button.variants.js';
@@ -78,6 +79,8 @@ function iconButtonSizeToSpinnerSize(size: 'sm' | 'md' | 'lg'): SpinnerSize {
  */
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   function IconButton(props, ref) {
+    const themeDefaults = useComponentDefaults('IconButton');
+    const merged: IconButtonProps = { ...themeDefaults?.defaults, ...props };
     const {
       access,
       visibleWhen,
@@ -91,7 +94,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       className,
       children,
       ...rest
-    } = props;
+    } = merged;
 
     // Bridge — both hooks called unconditionally (rules-of-hooks).
     const bridge = useContext(DashFormContext);
