@@ -35,6 +35,7 @@ export { buttonVariants } from './components/Button/button.variants.js';
 export { TextField } from './components/TextField/TextField.js';
 export type {
   TextFieldProps,
+  TextFieldVariantProps,
   TextFieldSlotProps,
 } from './components/TextField/textField.types.js';
 export { textFieldVariants } from './components/TextField/textField.variants.js';

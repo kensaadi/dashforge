@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useId, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -31,6 +32,8 @@ import type { TextFieldProps } from './textField.types.js';
  *   - Required fields get the native `required` attribute + a visual `*`.
  */
 export function TextField(props: TextFieldProps) {
+  const themeDefaults = useComponentDefaults('TextField');
+  const merged: TextFieldProps = { ...themeDefaults?.defaults, ...props };
   const {
     name,
     rules,
@@ -53,7 +56,7 @@ export function TextField(props: TextFieldProps) {
     value: userValue,
     defaultValue,
     ...rest
-  } = props;
+  } = merged;
 
   // ───── Hooks (unconditional) ─────
   const bridge = useContext(DashFormContext) as DashFormBridge | null;

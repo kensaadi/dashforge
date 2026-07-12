@@ -4,6 +4,23 @@ import type { Engine } from '@dashforge/ui-core';
 import type { TextFieldVariants } from './textField.variants.js';
 
 /**
+ * Subset of `<TextField>` props theme-configurable via
+ * `theme.components.TextField.defaults` (Option C).
+ */
+export type TextFieldVariantProps = Pick<
+  TextFieldVariants,
+  'size' | 'layout' | 'fullWidth'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    TextField?: {
+      defaults?: Partial<TextFieldVariantProps>;
+    };
+  }
+}
+
+/**
  * Per-slot overrides for `<TextField>`.
  *
  * Each slot accepts `{ className: string }` (and, for `prefix` /
