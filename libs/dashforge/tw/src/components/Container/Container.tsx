@@ -1,5 +1,6 @@
 import { forwardRef, type ElementType, type ReactElement } from 'react';
 import { Slot } from '@radix-ui/react-slot';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { containerVariants } from './container.variants.js';
 import type { ContainerProps } from './container.types.js';
@@ -38,6 +39,8 @@ import type { ContainerProps } from './container.types.js';
  */
 export const Container = forwardRef<HTMLElement, ContainerProps>(
   function Container(props, ref) {
+    const themeDefaults = useComponentDefaults('Container');
+    const merged: ContainerProps = { ...themeDefaults?.defaults, ...props };
     const {
       size,
       px,
@@ -47,7 +50,7 @@ export const Container = forwardRef<HTMLElement, ContainerProps>(
       sx,
       children,
       ...rest
-    } = props;
+    } = merged;
 
     const classes = cn(
       containerVariants({ size, px, centerContent }),

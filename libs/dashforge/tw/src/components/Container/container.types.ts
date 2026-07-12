@@ -2,6 +2,23 @@ import type { ElementType, HTMLAttributes } from 'react';
 import type { ContainerVariants } from './container.variants.js';
 
 /**
+ * Subset of `<Container>` props theme-configurable via
+ * `theme.components.Container.defaults` (Option C).
+ */
+export type ContainerVariantProps = Pick<
+  ContainerVariants,
+  'size' | 'px' | 'centerContent'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Container?: {
+      defaults?: Partial<ContainerVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<Container>` — page-level centered max-width wrapper.
  *
  * Use at the page-root level (or section-root) to constrain content

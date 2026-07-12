@@ -411,7 +411,10 @@ export { gridVariants } from './components/Grid/grid.variants.js';
 // Chakra/Mantine/Joy ship for layout-level primitives.
 
 export { Container } from './components/Container/Container.js';
-export type { ContainerProps } from './components/Container/container.types.js';
+export type {
+  ContainerProps,
+  ContainerVariantProps,
+} from './components/Container/container.types.js';
 export { containerVariants } from './components/Container/container.variants.js';
 
 export { Divider } from './components/Divider/Divider.js';
