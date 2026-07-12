@@ -284,6 +284,7 @@ export type {
   MenuSkeletonProps,
   MenuPlacement,
   MenuItemColor,
+  MenuVariantProps,
 } from './components/Menu/menu.types.js';
 export { menuVariants } from './components/Menu/menu.variants.js';
 

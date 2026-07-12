@@ -74,6 +74,28 @@ export interface MenuProps {
 }
 
 /**
+ * Subset of `<Menu>` props theme-configurable via
+ * `theme.components.Menu.defaults` (Option C).
+ *
+ * Note: `placement` / `sideOffset` are documented on `MenuProps` but
+ * not yet wired through to `<MenuContent>` (Sprint 4.4-bis follow-up),
+ * so the theme surface only exposes what actually affects rendering
+ * today.
+ */
+export interface MenuVariantProps {
+  closeOnItemClick?: boolean;
+  modal?: boolean;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Menu?: {
+      defaults?: Partial<MenuVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<MenuTrigger>` — the element that opens the menu.
  *
  * Always renders via Radix Slot — the immediate child element

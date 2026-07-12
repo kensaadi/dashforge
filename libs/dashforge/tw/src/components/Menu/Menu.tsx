@@ -7,6 +7,7 @@ import {
 } from 'react';
 import * as RadixMenu from '@radix-ui/react-dropdown-menu';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { menuVariants, placementToRadix } from './menu.variants.js';
@@ -63,14 +64,17 @@ const MenuContext = createContext<MenuCtx>({ closeOnItemClick: true });
  * scope for v1 (Sprint 4.4) — composable via Radix primitives if
  * needed via explicit sub-component opt-in (future).
  */
-export function Menu({
-  children,
-  open,
-  defaultOpen,
-  onOpenChange,
-  closeOnItemClick = true,
-  modal = false,
-}: MenuProps) {
+export function Menu(props: MenuProps) {
+  const themeDefaults = useComponentDefaults('Menu');
+  const merged: MenuProps = { ...themeDefaults?.defaults, ...props };
+  const {
+    children,
+    open,
+    defaultOpen,
+    onOpenChange,
+    closeOnItemClick = true,
+    modal = false,
+  } = merged;
   return (
     <MenuContext.Provider value={{ closeOnItemClick }}>
       <RadixMenu.Root
