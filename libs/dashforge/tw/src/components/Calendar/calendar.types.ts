@@ -1,5 +1,22 @@
 import type { ISODate, WeekDay } from '@dashforge/calendar-core';
 
+/**
+ * Subset of `<Calendar>` props theme-configurable via
+ * `theme.components.Calendar.defaults` (Option C).
+ */
+export interface CalendarVariantProps {
+  weekStartDay?: WeekDay;
+  locale?: string;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Calendar?: {
+      defaults?: Partial<CalendarVariantProps>;
+    };
+  }
+}
+
 /** Per-slot `className` overrides for `<Calendar>`. */
 export interface CalendarSlotProps {
   root?: { className?: string };

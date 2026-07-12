@@ -114,6 +114,7 @@ export { Calendar } from './components/Calendar/Calendar.js';
 export type {
   CalendarProps,
   CalendarSlotProps,
+  CalendarVariantProps,
 } from './components/Calendar/calendar.types.js';
 export {
   calendarVariants,

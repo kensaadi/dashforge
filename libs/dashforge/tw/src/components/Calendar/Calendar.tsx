@@ -6,6 +6,7 @@ import {
   useCalendar,
 } from '@dashforge/calendar-core';
 import type { ISODate } from '@dashforge/calendar-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { calendarDayVariants, calendarVariants } from './calendar.variants.js';
 import type { CalendarProps } from './calendar.types.js';
@@ -63,6 +64,8 @@ function ChevronRightIcon() {
  * for a form-bound date field.
  */
 export function Calendar(props: CalendarProps) {
+  const themeDefaults = useComponentDefaults('Calendar');
+  const merged: CalendarProps = { ...themeDefaults?.defaults, ...props };
   const {
     value,
     defaultValue,
@@ -85,7 +88,7 @@ export function Calendar(props: CalendarProps) {
     slotProps,
     testId,
     'aria-label': ariaLabel = 'Calendar',
-  } = props;
+  } = merged;
 
   const isValueControlled = value !== undefined;
   const [internalValue, setInternalValue] = useState<ISODate | null>(
