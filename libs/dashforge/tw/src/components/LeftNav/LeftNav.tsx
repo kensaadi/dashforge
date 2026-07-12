@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { leftNavVariants } from './leftNav.variants.js';
@@ -246,6 +247,8 @@ function NavGroupRow({
  *   - Group expand/collapse re-renders ONLY that group (local state).
  */
 export function LeftNav(props: LeftNavProps) {
+  const themeDefaults = useComponentDefaults('LeftNav');
+  const merged: LeftNavProps = { ...themeDefaults?.defaults, ...props };
   const {
     items,
     activeId,
@@ -260,7 +263,7 @@ export function LeftNav(props: LeftNavProps) {
     sx,
     slotProps,
     showCollapseToggle = true,
-  } = props;
+  } = merged;
 
   const v = leftNavVariants({ width, collapsed });
 

@@ -8,6 +8,20 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { LeftNavVariants } from './leftNav.variants.js';
 
 /**
+ * Subset of `<LeftNav>` props theme-configurable via
+ * `theme.components.LeftNav.defaults` (Option C).
+ */
+export type LeftNavVariantProps = Pick<LeftNavVariants, 'width' | 'collapsed'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    LeftNav?: {
+      defaults?: Partial<LeftNavVariantProps>;
+    };
+  }
+}
+
+/**
  * One row in the LeftNav. May be either a clickable item OR a group
  * (a header that owns nested children, optionally collapsible).
  */

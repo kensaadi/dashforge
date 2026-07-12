@@ -171,6 +171,7 @@ export type {
   LeftNavGroup,
   LeftNavSlotProps,
   LeftNavLinkComponent,
+  LeftNavVariantProps,
 } from './components/LeftNav/leftNav.types.js';
 export { leftNavVariants } from './components/LeftNav/leftNav.variants.js';
 
