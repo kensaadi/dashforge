@@ -1,5 +1,6 @@
 import { forwardRef, useContext, type KeyboardEvent, type MouseEvent } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { chipVariants } from './chip.variants.js';
@@ -97,6 +98,8 @@ export const Chip = forwardRef<HTMLElement, ChipProps>(function Chip(
   props,
   ref
 ) {
+  const themeDefaults = useComponentDefaults('Chip');
+  const merged: ChipProps = { ...themeDefaults?.defaults, ...props };
   const {
     label,
     icon,
@@ -115,7 +118,7 @@ export const Chip = forwardRef<HTMLElement, ChipProps>(function Chip(
     access,
     sx,
     className,
-  } = props;
+  } = merged;
 
   // Bridge — both hooks called unconditionally (rules-of-hooks).
   // Inside a `<DashForm>`, `useEngineVisibility` subscribes to engine

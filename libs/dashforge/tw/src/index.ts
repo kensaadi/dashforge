@@ -370,7 +370,10 @@ export type {
 // access RBAC integration; selected for filter-pill patterns;
 // onDelete for removable tags.
 export { Chip } from './components/Chip/Chip.js';
-export type { ChipProps } from './components/Chip/chip.types.js';
+export type {
+  ChipProps,
+  ChipVariantProps,
+} from './components/Chip/chip.types.js';
 export { chipVariants } from './components/Chip/chip.variants.js';
 export type { ChipVariants } from './components/Chip/chip.variants.js';
 

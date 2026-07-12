@@ -5,6 +5,23 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { ChipVariants } from './chip.variants.js';
 
 /**
+ * Subset of `<Chip>` props theme-configurable via
+ * `theme.components.Chip.defaults` (Option C).
+ */
+export type ChipVariantProps = Pick<
+  ChipVariants,
+  'color' | 'variant' | 'size'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Chip?: {
+      defaults?: Partial<ChipVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<Chip>` — status / filter / tag pill.
  *
  * Mirrors MUI Chip's API surface where it makes sense (label, icon,
