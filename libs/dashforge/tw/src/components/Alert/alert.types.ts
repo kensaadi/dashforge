@@ -3,6 +3,24 @@ import type { ClassValue } from 'tailwind-variants';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { Severity, SeverityVariant } from '../_shared/severity/severity.types.js';
+import type { AlertVariantProps as AlertRecipeVariants } from './alert.variants.js';
+
+/**
+ * Subset of `<Alert>` props theme-configurable via
+ * `theme.components.Alert.defaults` (Option C).
+ */
+export interface AlertDefaultVariantProps {
+  variant?: SeverityVariant;
+  density?: AlertRecipeVariants['density'];
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Alert?: {
+      defaults?: Partial<AlertDefaultVariantProps>;
+    };
+  }
+}
 
 /**
  * Per-slot override props for `<Alert>`. Mirrors the standard

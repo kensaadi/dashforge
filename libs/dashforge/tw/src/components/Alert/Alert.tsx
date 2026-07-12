@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import {
@@ -80,21 +81,26 @@ export function AlertTitle({ children, className }: AlertTitleProps) {
  *   Couldn't save — 3 fields below contain validation errors.
  * </Alert>
  */
-export function Alert({
-  severity,
-  variant = 'standard',
-  children,
-  icon: iconProp,
-  onClose,
-  closeText = 'Close',
-  action,
-  role: roleProp,
-  visibleWhen,
-  access,
-  sx,
-  className,
-  slotProps,
-}: AlertProps) {
+export function Alert(props: AlertProps) {
+  const themeDefaults = useComponentDefaults('Alert');
+  const merged: AlertProps = { ...themeDefaults?.defaults, ...props };
+  const {
+    severity,
+    variant = 'standard',
+    children,
+    icon: iconProp,
+    onClose,
+    closeText = 'Close',
+    action,
+    role: roleProp,
+    visibleWhen,
+    access,
+    sx,
+    className,
+    slotProps,
+  } = merged;
+  const density = themeDefaults?.defaults?.density;
+
   // Bridge — both hooks safely return defaults outside a DashForm /
   // RbacProvider, matching the TextField pattern.
   const bridge = useContext(DashFormContext);
@@ -103,7 +109,7 @@ export function Alert({
 
   if (!isVisible || !accessState.visible) return null;
 
-  const v = alertVariants();
+  const v = alertVariants({ density });
   const severityClasses = getSeverityClasses(variant, severity);
   const role = roleProp ?? getSeverityRole(severity);
 

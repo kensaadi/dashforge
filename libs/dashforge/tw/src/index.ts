@@ -229,6 +229,7 @@ export type {
   AlertProps,
   AlertTitleProps,
   AlertSlotProps,
+  AlertDefaultVariantProps,
 } from './components/Alert/alert.types.js';
 export { alertVariants } from './components/Alert/alert.variants.js';
 
