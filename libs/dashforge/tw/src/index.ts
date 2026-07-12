@@ -581,6 +581,7 @@ export type {
   DataGridSelectAllScope,
   DataGridServerSideFlags,
   DataGridPaginationConfig,
+  DataGridVariantProps,
 } from './components/DataGrid/dataGrid.types.js';
 export { dataGridVariants } from './components/DataGrid/dataGrid.variants.js';
 

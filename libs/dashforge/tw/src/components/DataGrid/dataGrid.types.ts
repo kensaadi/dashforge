@@ -9,6 +9,23 @@ import type {
   TableLabels,
 } from '../Table/table.types.js';
 
+/**
+ * Subset of `<DataGrid>` props theme-configurable via
+ * `theme.components.DataGrid.defaults` (Option C).
+ */
+export type DataGridVariantProps = Pick<
+  DataGridVariants,
+  'variant' | 'size' | 'density'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    DataGrid?: {
+      defaults?: Partial<DataGridVariantProps>;
+    };
+  }
+}
+
 // Re-export the column type unchanged — DataGrid uses the SAME shape
 // as Table. Consumers writing `cols: TableColumn<T>[]` get autocomplete
 // and don't need a parallel `DataGridColumn<T>` type.

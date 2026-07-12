@@ -6,6 +6,7 @@ import {
   type MouseEvent,
   type PointerEvent as RPointerEvent,
 } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { Skeleton } from '../Skeleton/Skeleton.js';
@@ -101,7 +102,9 @@ const DEFAULT_LABELS: Required<TableLabels> = {
  *    `rows` prop
  *  - `'visible'` — toggles only the current viewport window
  */
-export function DataGrid<T extends object>(props: DataGridProps<T>) {
+export function DataGrid<T extends object>(_props: DataGridProps<T>) {
+  const themeDefaults = useComponentDefaults('DataGrid');
+  const props: DataGridProps<T> = { ...themeDefaults?.defaults, ..._props };
   const {
     rows,
     cols,
