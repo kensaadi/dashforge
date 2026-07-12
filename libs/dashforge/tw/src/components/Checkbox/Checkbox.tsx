@@ -3,6 +3,7 @@ import * as RadixCheckbox from '@radix-ui/react-checkbox';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -94,6 +95,8 @@ function DashIcon({ className }: { className?: string }) {
  *    rather than MUI slot components.
  */
 export function Checkbox(props: CheckboxProps) {
+  const themeDefaults = useComponentDefaults('Checkbox');
+  const merged: CheckboxProps = { ...themeDefaults?.defaults, ...props };
   const {
     name,
     rules,
@@ -109,7 +112,7 @@ export function Checkbox(props: CheckboxProps) {
     onCheckedChange,
     sx,
     slotProps,
-  } = props;
+  } = merged;
 
   // ───── Hooks (always called, unconditional) ─────
   const bridge = useContext(DashFormContext) as DashFormBridge | null;

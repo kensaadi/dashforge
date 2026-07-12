@@ -4,6 +4,20 @@ import type { Engine } from '@dashforge/ui-core';
 import type { CheckboxVariants } from './checkbox.variants.js';
 
 /**
+ * Subset of `<Checkbox>` props theme-configurable via
+ * `theme.components.Checkbox.defaults` (Option C).
+ */
+export type CheckboxVariantProps = Pick<CheckboxVariants, 'size'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Checkbox?: {
+      defaults?: Partial<CheckboxVariantProps>;
+    };
+  }
+}
+
+/**
  * Per-slot className overrides for `<Checkbox>`. Shape mirrors the
  * MUI-side `slotProps` convention: object-per-slot with a `className`
  * key, so future extensions (style, aria-*, data-*) are additive.

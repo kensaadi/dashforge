@@ -44,6 +44,7 @@ export { Checkbox } from './components/Checkbox/Checkbox.js';
 export type {
   CheckboxProps,
   CheckboxSlotProps,
+  CheckboxVariantProps,
 } from './components/Checkbox/checkbox.types.js';
 export { checkboxVariants } from './components/Checkbox/checkbox.variants.js';
 
