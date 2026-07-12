@@ -1,5 +1,24 @@
 import type { ReactNode } from 'react';
 
+/**
+ * Subset of `<Popover>` props theme-configurable via
+ * `theme.components.Popover.defaults` (Option C).
+ */
+export interface PopoverVariantProps {
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  showArrow?: boolean;
+  sideOffset?: number;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Popover?: {
+      defaults?: Partial<PopoverVariantProps>;
+    };
+  }
+}
+
 export interface PopoverSlotProps {
   content?: { className?: string };
   arrow?: { className?: string };

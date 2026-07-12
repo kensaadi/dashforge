@@ -1,4 +1,5 @@
 import * as RadixPopover from '@radix-ui/react-popover';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { popoverVariants } from './popover.variants.js';
 import type { PopoverProps } from './popover.types.js';
@@ -16,6 +17,8 @@ import type { PopoverProps } from './popover.types.js';
  * interactive children. Use `<Tooltip>` for read-only hints.
  */
 export function Popover(props: PopoverProps) {
+  const themeDefaults = useComponentDefaults('Popover');
+  const merged: PopoverProps = { ...themeDefaults?.defaults, ...props };
   const {
     children,
     content,
@@ -27,7 +30,7 @@ export function Popover(props: PopoverProps) {
     sideOffset = 8,
     width,
     slotProps,
-  } = props;
+  } = merged;
 
   const v = popoverVariants();
 

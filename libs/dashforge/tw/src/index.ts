@@ -485,6 +485,7 @@ export { Popover } from './components/Popover/Popover.js';
 export type {
   PopoverProps,
   PopoverSlotProps,
+  PopoverVariantProps,
 } from './components/Popover/popover.types.js';
 export { popoverVariants } from './components/Popover/popover.variants.js';
 
