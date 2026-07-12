@@ -47,15 +47,62 @@ export interface TextareaProps
   extends Omit<
       TextareaHTMLAttributes<HTMLTextAreaElement>,
       'name' | 'size' | 'onChange' | 'onBlur' | 'value' | 'defaultValue'
-    >,
-    TextareaVariants {
+    > {
+  /**
+   * Density tier — drives wrapper padding + font-size.
+   * @default 'md'
+   */
+  size?: TextareaVariants['size'];
+
+  /**
+   * Label placement — `'stacked'` (above the textarea) or `'inline'`
+   * (left of the textarea).
+   * @default 'stacked'
+   */
+  layout?: TextareaVariants['layout'];
+
+  /**
+   * Stretch the root wrapper + textarea to the container's width.
+   * @default false
+   */
+  fullWidth?: TextareaVariants['fullWidth'];
+
+  /**
+   * User-drag resize behavior via the native `resize` CSS property.
+   * @default 'vertical'
+   */
+  resize?: TextareaVariants['resize'];
+
+  /** Bridge field name (required when used inside `DashFormProvider`). */
   name: string;
+
+  /** RHF validation rules — opaque, forwarded to the bridge. */
   rules?: unknown;
+
+  /** Visible label above (or left of, per `layout`) the textarea. */
   label?: ReactNode;
+
+  /** Helper line below the textarea. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;
+
+  /**
+   * Renders the required `*` marker + sets the native `required` attribute.
+   * @default false
+   */
   required?: boolean;
+
+  /**
+   * Explicit error semaphore. Overrides the bridge's auto-detected error.
+   * @default false
+   */
   error?: boolean;
+
+  /**
+   * Disables the textarea — ORed with RBAC `denied:disable`.
+   * @default false
+   */
   disabled?: boolean;
+
   /** Engine predicate — textarea not rendered when it returns `false`. */
   visibleWhen?: (engine: Engine) => boolean;
   /** RBAC access requirement (combines with explicit `disabled`). */

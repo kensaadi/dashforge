@@ -65,7 +65,20 @@ export interface RadioGroupSlotProps {
  * same `name` / `rules` / `visibleWhen` / `access` semantics, same
  * Form Closure v1 error gating, same option-level RBAC.
  */
-export interface RadioGroupProps extends RadioGroupVariants {
+export interface RadioGroupProps {
+  /**
+   * Density tier — drives radio dot size + label font-size.
+   * @default 'md'
+   */
+  size?: RadioGroupVariants['size'];
+
+  /**
+   * Option list direction. `'stacked'` (default) is vertical;
+   * `'row'` is horizontal.
+   * @default 'stacked'
+   */
+  layout?: RadioGroupVariants['layout'];
+
   /** Field name registered with the bridge. */
   name: string;
   /** Array of selectable options. Order is render order. */

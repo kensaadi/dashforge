@@ -73,8 +73,26 @@ export interface TextFieldSlotProps {
  * `rules`, `visibleWhen`, `access`).
  */
 export interface TextFieldProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'className'>,
-    Pick<TextFieldVariants, 'size' | 'layout' | 'fullWidth'> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'className'> {
+  /**
+   * Density tier — drives input height + padding + font-size.
+   * @default 'md'
+   */
+  size?: TextFieldVariants['size'];
+
+  /**
+   * Label placement — `'stacked'` (above the input) or `'inline'`
+   * (left of the input, useful for horizontal forms).
+   * @default 'stacked'
+   */
+  layout?: TextFieldVariants['layout'];
+
+  /**
+   * Stretch the root wrapper + input to the container's width.
+   * @default false
+   */
+  fullWidth?: TextFieldVariants['fullWidth'];
+
   /** Bridge field name (required when used inside `DashFormProvider`). */
   name: string;
 

@@ -54,15 +54,56 @@ export interface NumberFieldProps
   extends Omit<
       InputHTMLAttributes<HTMLInputElement>,
       'name' | 'type' | 'size' | 'onChange' | 'onBlur' | 'value' | 'defaultValue'
-    >,
-    NumberFieldVariants {
+    > {
+  /**
+   * Density tier — drives input height + padding + font-size.
+   * @default 'md'
+   */
+  size?: NumberFieldVariants['size'];
+
+  /**
+   * Label placement — `'stacked'` (above the input) or `'inline'`
+   * (left of the input).
+   * @default 'stacked'
+   */
+  layout?: NumberFieldVariants['layout'];
+
+  /**
+   * Stretch root wrapper + input to the container's width.
+   * @default false
+   */
+  fullWidth?: NumberFieldVariants['fullWidth'];
+
+  /** Bridge field name (required when used inside `DashFormProvider`). */
   name: string;
+
+  /** RHF validation rules — opaque, forwarded to the bridge. */
   rules?: unknown;
+
+  /** Visible label above (or left of, per `layout`) the input. */
   label?: ReactNode;
+
+  /** Helper line below the input. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;
+
+  /**
+   * Renders the required `*` marker + sets the native `required` attribute.
+   * @default false
+   */
   required?: boolean;
+
+  /**
+   * Explicit error semaphore. Overrides the bridge's auto-detected error.
+   * @default false
+   */
   error?: boolean;
+
+  /**
+   * Disables the input — ORed with RBAC `denied:disable`.
+   * @default false
+   */
   disabled?: boolean;
+
   /** Engine predicate — field not rendered when it returns `false`. */
   visibleWhen?: (engine: Engine) => boolean;
   /** RBAC access requirement (combines with explicit `disabled`). */
@@ -85,5 +126,7 @@ export interface NumberFieldProps
   showStepper?: boolean;
   /** Change handler — receives the native event; consume value via bridge. */
   onChange?: ChangeEventHandler<HTMLInputElement>;
+
+  /** Blur handler — fires after bridge onBlur (form mode). */
   onBlur?: FocusEventHandler<HTMLInputElement>;
 }

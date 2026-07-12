@@ -97,16 +97,59 @@ export type AutocompleteValue = string | string[] | null;
  *                     Pass `<TOption>` + `getOptionValue` / `getOptionLabel`
  *                     for arbitrary domain types.
  */
-export interface AutocompleteProps<TOption = AutocompleteOption>
-  extends AutocompleteVariants {
+export interface AutocompleteProps<TOption = AutocompleteOption> {
+  /**
+   * Density tier — drives wrapper padding + input font-size.
+   * @default 'md'
+   */
+  size?: AutocompleteVariants['size'];
+
+  /**
+   * Label placement — `'stacked'` (above the combobox) or `'inline'`
+   * (left of the combobox).
+   * @default 'stacked'
+   */
+  layout?: AutocompleteVariants['layout'];
+
+  /**
+   * Stretch root wrapper + input to the container's width.
+   * @default false
+   */
+  fullWidth?: AutocompleteVariants['fullWidth'];
+
+  /** Bridge field name (required when used inside `DashFormProvider`). */
   name: string;
+
+  /** RHF validation rules — opaque, forwarded to the bridge. */
   rules?: unknown;
+
+  /** Selectable options — an array of `TOption` (defaults to `AutocompleteOption`). */
   options: TOption[];
+
+  /** Visible label above (or left of, per `layout`) the combobox. */
   label?: ReactNode;
+
+  /** Helper line below the combobox. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;
+
+  /**
+   * Renders the required `*` marker + sets the native `required` attribute.
+   * @default false
+   */
   required?: boolean;
+
+  /**
+   * Explicit error semaphore. Overrides the bridge's auto-detected error.
+   * @default false
+   */
   error?: boolean;
+
+  /**
+   * Disables input + list — ORed with RBAC `denied:disable`.
+   * @default false
+   */
   disabled?: boolean;
+
   /** Placeholder shown when the input is empty. */
   placeholder?: string;
   /** Engine predicate — field not rendered when it returns `false`. */

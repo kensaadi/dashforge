@@ -44,8 +44,13 @@ export interface CheckboxSlotProps {
  * `checkboxVariants({ error })` internally. The variant axis name and
  * the prop name happen to coincide — same meaning.
  */
-export interface CheckboxProps
-  extends Pick<CheckboxVariants, 'size'> {
+export interface CheckboxProps {
+  /**
+   * Density tier — drives control box + label font-size.
+   * @default 'md'
+   */
+  size?: CheckboxVariants['size'];
+
   /** Bridge field name (required when used inside `DashFormProvider`). */
   name: string;
 

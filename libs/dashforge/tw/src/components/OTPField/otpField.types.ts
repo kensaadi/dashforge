@@ -41,14 +41,43 @@ export interface OTPFieldSlotProps {
  * Anything else is dropped. Paste content is sanitised the same way and
  * fills slots sequentially.
  */
-export interface OTPFieldProps extends OTPFieldVariants {
+export interface OTPFieldProps {
+  /**
+   * Density tier — drives slot cell size + typed-character font.
+   * @default 'md'
+   */
+  size?: OTPFieldVariants['size'];
+
+  /** Bridge field name (required when used inside `DashFormProvider`). */
   name: string;
+
+  /** RHF validation rules — opaque, forwarded to the bridge. */
   rules?: unknown;
+
+  /** Visible label above the slot row. */
   label?: ReactNode;
+
+  /** Helper line below the slot row. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;
+
+  /**
+   * Renders the required `*` marker + sets the native `required` attribute.
+   * @default false
+   */
   required?: boolean;
+
+  /**
+   * Explicit error semaphore. Overrides the bridge's auto-detected error.
+   * @default false
+   */
   error?: boolean;
+
+  /**
+   * Disables all slots + hidden input.
+   * @default false
+   */
   disabled?: boolean;
+
   /** Engine predicate — field not rendered when it returns `false`. */
   visibleWhen?: (engine: Engine) => boolean;
   /** RBAC access requirement (combines with explicit `disabled`). */
