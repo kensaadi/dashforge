@@ -1,6 +1,7 @@
 import { forwardRef, useContext } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { Spinner } from '../Spinner/Spinner.js';
@@ -64,6 +65,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   props,
   ref
 ) {
+  // Option C precedence chain:
+  //   TV `defaultVariants` < theme override < instance prop < sx
+  //
+  // Spread order (`{ ...theme.defaults, ...props }`) is what enforces
+  // step 2 → 3: theme fills fields the caller left `undefined`; any
+  // field the caller sets explicitly wins. `sx` layers last inside
+  // `cn()` (step 4) via tailwind-merge. When BOTH theme and caller
+  // omit a field, TV picks its `defaultVariants` value (step 1).
+  const themeDefaults = useComponentDefaults('Button');
+  const merged: ButtonProps = { ...themeDefaults?.defaults, ...props };
   const {
     access,
     visibleWhen,
@@ -77,7 +88,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     sx,
     children,
     ...rest
-  } = props;
+  } = merged;
 
   // Bridge — both hooks called unconditionally (rules-of-hooks).
   // Inside a `<DashForm>`, `useEngineVisibility` subscribes to engine

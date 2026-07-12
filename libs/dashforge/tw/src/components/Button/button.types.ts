@@ -4,6 +4,37 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { ButtonVariants } from './button.variants.js';
 
 /**
+ * Subset of `<Button>` props that are configurable via
+ * `theme.components.Button.defaults` (Option C).
+ *
+ * Only design-oriented variant axes are exposed — non-design fields
+ * (`access`, `visibleWhen`, event handlers, ARIA, etc.) are NOT
+ * theme-configurable because they carry per-instance semantics that
+ * do not generalize across a whole app.
+ */
+export type ButtonVariantProps = Pick<
+  ButtonVariants,
+  'variant' | 'color' | 'size' | 'fullWidth' | 'loading'
+>;
+
+/**
+ * Register `<Button>` with the theme's component defaults registry.
+ *
+ * This makes `theme.components.Button.defaults` type-check the way
+ * consumers expect: only the variant axes above are allowed, with
+ * autocomplete on each. `useComponentDefaults('Button')` then returns
+ * the configured entry (or `undefined`) to `Button.tsx`, which merges
+ * theme values under instance props via `{ ...theme.defaults, ...props }`.
+ */
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Button?: {
+      defaults?: Partial<ButtonVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for the Dashforge TW `<Button>` component.
  *
  * Extends the native `<button>` attributes (so `onClick`, `type`,

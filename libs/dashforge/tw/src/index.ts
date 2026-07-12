@@ -26,7 +26,10 @@
 
 // ───── Components ─────
 export { Button } from './components/Button/Button.js';
-export type { ButtonProps } from './components/Button/button.types.js';
+export type {
+  ButtonProps,
+  ButtonVariantProps,
+} from './components/Button/button.types.js';
 export { buttonVariants } from './components/Button/button.variants.js';
 
 export { TextField } from './components/TextField/TextField.js';
