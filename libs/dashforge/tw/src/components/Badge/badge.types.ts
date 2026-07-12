@@ -120,10 +120,17 @@ export interface BadgeProps {
   invisible?: boolean;
 
   // ─── Visual ────────────────────────────────────────────────────
-  /** @default 'danger' — typical "needs attention" notification color. */
+  /**
+   * Semantic intent for the badge surface. Drives bg + text color pair.
+   * Default `'danger'` mirrors the typical "needs attention" notification bubble.
+   * @default 'danger'
+   */
   color?: BadgeColor;
 
-  /** @default 'top-right' */
+  /**
+   * Corner of the anchor the badge attaches to.
+   * @default 'top-right'
+   */
   placement?: BadgePlacement;
 
   /**

@@ -120,7 +120,11 @@ export interface AvatarProps {
    */
   radius?: BoxProps['rounded'];
 
-  /** @default 'md' */
+  /**
+   * Diameter tier — `xs` (20px) → `xl` (64px). Propagates to nested
+   * initials + fallback icon.
+   * @default 'md'
+   */
   size?: AvatarSize;
 
   /**

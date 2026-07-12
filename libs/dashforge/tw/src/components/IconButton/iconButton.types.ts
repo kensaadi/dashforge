@@ -73,8 +73,37 @@ export interface IconButtonProps
   extends Omit<
       ButtonHTMLAttributes<HTMLButtonElement>,
       'color' | 'children'
-    >,
-    Pick<ButtonVariants, 'variant' | 'color' | 'size' | 'loading'> {
+    > {
+  /**
+   * Semantic intent role — same axis as `<Button>`, though the
+   * default here is `'neutral'` (icon-only surfaces usually deserve
+   * a subtler default variant than solid + primary).
+   * @default 'neutral'
+   */
+  color?: ButtonVariants['color'];
+
+  /**
+   * Visual treatment. Same axis as `<Button>`; default is `'ghost'`
+   * because icon-only actions are typically secondary.
+   * @default 'ghost'
+   */
+  variant?: ButtonVariants['variant'];
+
+  /**
+   * Square hit-area tier — matches Button's height scale so a
+   * `<Button size="md">` and `<IconButton size="md">` align in the
+   * same row.
+   * @default 'md'
+   */
+  size?: ButtonVariants['size'];
+
+  /**
+   * When `true`, replace the icon with a `<Spinner>`, short-circuit
+   * clicks, and set `aria-busy="true"`.
+   * @default false
+   */
+  loading?: ButtonVariants['loading'];
+
   /**
    * The icon — typically an SVG element from the consumer's icon
    * library (Lucide / Phosphor / Tabler / inline SVG). A single

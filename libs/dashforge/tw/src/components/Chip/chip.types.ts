@@ -37,11 +37,39 @@ declare module '@dashforge/tw-tokens' {
  *
  * @see https://mui.com/material-ui/api/chip/
  */
-export interface ChipProps
-  extends Pick<
-    ChipVariants,
-    'color' | 'variant' | 'size' | 'selected' | 'disabled'
-  > {
+export interface ChipProps {
+  /**
+   * Semantic intent role. Drives bg/fg color pair.
+   * @default 'neutral'
+   */
+  color?: ChipVariants['color'];
+
+  /**
+   * Visual treatment — `soft` (tinted bg + saturated text), `solid`
+   * (filled), `outline` (border + transparent bg).
+   * @default 'soft'
+   */
+  variant?: ChipVariants['variant'];
+
+  /**
+   * Density tier.
+   * @default 'md'
+   */
+  size?: ChipVariants['size'];
+
+  /**
+   * Toggle-style selected state. When `true`, sets `aria-pressed` on
+   * the clickable chip for filter-chip patterns.
+   * @default false
+   */
+  selected?: ChipVariants['selected'];
+
+  /**
+   * Disable both the main click and the delete button.
+   * @default false
+   */
+  disabled?: ChipVariants['disabled'];
+
   /**
    * The chip's textual content. Named `label` for MUI parity — most
    * design systems (MUI, Radix Themes, Mantine, Tremor) use `label`
