@@ -48,7 +48,14 @@ export interface DialogSlotProps {
  * Three size variants (`sm` / `md` / `lg`) with sensible defaults.
  * Backdrop + content animations respect `prefers-reduced-motion`.
  */
-export interface DialogProps extends Pick<DialogVariants, 'size'> {
+export interface DialogProps {
+  /**
+   * Content max-width tier — `sm` (28rem) / `md` (32rem, default) /
+   * `lg` (48rem). Useful for tuning to the content density.
+   * @default 'md'
+   */
+  size?: DialogVariants['size'];
+
   /** Controlled open state. */
   open: boolean;
   /** Called when the dialog requests to change open state. */
