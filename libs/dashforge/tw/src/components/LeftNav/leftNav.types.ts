@@ -104,15 +104,24 @@ export interface LeftNavSlotProps {
  * component renders the actual nav content and exposes a `collapsed`
  * prop for the icon-only "rail" rendering.
  */
-export interface LeftNavProps extends LeftNavVariants {
+export interface LeftNavProps {
+  /**
+   * Expanded-mode width tier — sm:w-48, md:w-60, lg:w-72.
+   * @default 'md'
+   */
+  width?: LeftNavVariants['width'];
+
+  /**
+   * Rail mode — icons only, labels visually hidden but kept in DOM
+   * for a11y (`sr-only`). Group children collapse under a caret.
+   * @default false
+   */
+  collapsed?: LeftNavVariants['collapsed'];
+
+  /** Nav items — a mix of `LeftNavItem` and `LeftNavGroup`. */
   items: LeftNavNode[];
   /** Currently-active item id (highlight + `aria-current="page"`). */
   activeId?: string;
-  /**
-   * Icon-only rail mode. When `true`, labels and group children are
-   * visually hidden (kept for screen readers via `sr-only`).
-   */
-  collapsed?: boolean;
   /** Fired when the user clicks the collapse-toggle button. */
   onCollapseChange?: (collapsed: boolean) => void;
   /** Fired when a group's expanded state changes (controlled or not). */

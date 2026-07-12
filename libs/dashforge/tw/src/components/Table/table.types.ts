@@ -372,10 +372,32 @@ export interface TableExpandableConfig<T> {
  * directly). All internal label strings configurable via `labels`
  * prop with English defaults.
  */
-export interface TableProps<T extends object>
-  extends Pick<TableVariants, 'variant' | 'size' | 'density'> {
+export interface TableProps<T extends object> {
+  /**
+   * Overall visual treatment — `plain`, `lines` (default), `striped`,
+   * `bordered`, or `card` (rounded surface with elevation).
+   * @default 'lines'
+   */
+  variant?: TableVariants['variant'];
+
+  /**
+   * Text-size + padding density.
+   * @default 'md'
+   */
+  size?: TableVariants['size'];
+
+  /**
+   * Row height — independent from `size` (density is a spacing axis,
+   * size is a typography axis).
+   * @default 'comfortable'
+   */
+  density?: TableVariants['density'];
+
   // ───── Data ─────
+  /** Source rows to render. Order is display order (before sort). */
   rows: T[];
+
+  /** Column definitions — see `TableColumn<T>` for the full shape. */
   cols: TableColumn<T>[];
   /**
    * Stable row-id resolver — the React key + the identity used by

@@ -129,8 +129,26 @@ export interface DataGridSlotProps {
  *    row actions / RBAC / variants / i18n labels / sx / slotProps
  */
 export interface DataGridProps<T extends object>
-  extends Pick<DataGridVariants, 'variant' | 'size' | 'density'>,
-    DataGridServerSideFlags {
+  extends DataGridServerSideFlags {
+  /**
+   * Overall visual treatment. Note: `card` variant from Table is
+   * intentionally excluded — incompatible with virtualization.
+   * @default 'lines'
+   */
+  variant?: DataGridVariants['variant'];
+
+  /**
+   * Text-size + padding density.
+   * @default 'md'
+   */
+  size?: DataGridVariants['size'];
+
+  /**
+   * Row height — independent from `size`.
+   * @default 'comfortable'
+   */
+  density?: DataGridVariants['density'];
+
   // ───── Data ─────
   rows: T[];
   cols: TableColumn<T>[];

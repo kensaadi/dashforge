@@ -38,7 +38,20 @@ export interface TopBarSlotProps {
  * regions. All semantics (e.g., `<header role="banner">`) come for
  * free from rendering as an HTML `<header>` element.
  */
-export interface TopBarProps extends TopBarVariants {
+export interface TopBarProps {
+  /**
+   * Bar height tier — sm:h-12, md:h-14, lg:h-16.
+   * @default 'md'
+   */
+  height?: TopBarVariants['height'];
+
+  /**
+   * Apply `position: sticky; top: 0` so the bar stays pinned during
+   * page scroll.
+   * @default true
+   */
+  sticky?: TopBarVariants['sticky'];
+
   /** Left-aligned slot (mobile menu, brand). */
   start?: ReactNode;
   /** Center slot (breadcrumbs, title). Grows to fill remaining space. */
