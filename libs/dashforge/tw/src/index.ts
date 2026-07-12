@@ -158,6 +158,7 @@ export type {
   BreadcrumbsProps,
   BreadcrumbItem,
   BreadcrumbsSlotProps,
+  BreadcrumbsVariantProps,
   BreadcrumbLinkComponent,
 } from './components/Breadcrumbs/breadcrumbs.types.js';
 export { breadcrumbsVariants } from './components/Breadcrumbs/breadcrumbs.variants.js';

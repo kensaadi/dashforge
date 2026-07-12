@@ -2,6 +2,26 @@ import type { ReactNode, ComponentType, AnchorHTMLAttributes } from 'react';
 import type { BreadcrumbsVariants } from './breadcrumbs.variants.js';
 
 /**
+ * Subset of `<Breadcrumbs>` props theme-configurable via
+ * `theme.components.Breadcrumbs.defaults` (Option C).
+ */
+export interface BreadcrumbsVariantProps {
+  size?: BreadcrumbsVariants['size'];
+  maxItems?: number;
+  itemsBeforeCollapse?: number;
+  itemsAfterCollapse?: number;
+  separator?: ReactNode;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Breadcrumbs?: {
+      defaults?: Partial<BreadcrumbsVariantProps>;
+    };
+  }
+}
+
+/**
  * A single crumb in the trail.
  *
  * - `label` is the visible text (or any React node).

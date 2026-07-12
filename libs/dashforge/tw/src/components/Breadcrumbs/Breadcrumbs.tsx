@@ -1,4 +1,5 @@
 import { Fragment, useMemo } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { breadcrumbsVariants } from './breadcrumbs.variants.js';
 import type {
@@ -27,6 +28,8 @@ import type {
  *   - The truncation ellipsis is a `<span aria-label="More breadcrumbs">`
  */
 export function Breadcrumbs(props: BreadcrumbsProps) {
+  const themeDefaults = useComponentDefaults('Breadcrumbs');
+  const merged: BreadcrumbsProps = { ...themeDefaults?.defaults, ...props };
   const {
     items,
     separator = '/',
@@ -40,7 +43,7 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
       React.AnchorHTMLAttributes<HTMLAnchorElement>
     >,
     ariaLabel = 'Breadcrumb',
-  } = props;
+  } = merged;
 
   const v = breadcrumbsVariants({ size });
 
