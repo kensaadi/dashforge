@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { skeletonVariants } from './skeleton.variants.js';
 import type { SkeletonProps } from './skeleton.types.js';
@@ -24,7 +25,9 @@ import type { SkeletonProps } from './skeleton.types.js';
  * ```
  */
 export function Skeleton(props: SkeletonProps) {
-  const { variant = 'text', animation = 'pulse', width, height, sx, slotProps } = props;
+  const themeDefaults = useComponentDefaults('Skeleton');
+  const merged: SkeletonProps = { ...themeDefaults?.defaults, ...props };
+  const { variant = 'text', animation = 'pulse', width, height, sx, slotProps } = merged;
   const v = skeletonVariants({ variant, animation });
 
   // Width / height come through as inline style — Tailwind doesn't

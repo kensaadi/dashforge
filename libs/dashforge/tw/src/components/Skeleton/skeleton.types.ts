@@ -1,5 +1,19 @@
 import type { SkeletonVariants } from './skeleton.variants.js';
 
+/**
+ * Subset of `<Skeleton>` props theme-configurable via
+ * `theme.components.Skeleton.defaults` (Option C).
+ */
+export type SkeletonVariantProps = Pick<SkeletonVariants, 'variant' | 'animation'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Skeleton?: {
+      defaults?: Partial<SkeletonVariantProps>;
+    };
+  }
+}
+
 export interface SkeletonSlotProps {
   /** Root element override. */
   root?: { className?: string };

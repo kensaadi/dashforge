@@ -498,6 +498,7 @@ export { Skeleton } from './components/Skeleton/Skeleton.js';
 export type {
   SkeletonProps,
   SkeletonSlotProps,
+  SkeletonVariantProps,
 } from './components/Skeleton/skeleton.types.js';
 export { skeletonVariants } from './components/Skeleton/skeleton.variants.js';
 
