@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useId, useRef, useState } from 'rea
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -61,6 +62,8 @@ function parseFromInput(str: string): number | null | undefined {
  *    `aria-valuemin` / `aria-valuemax` automatically)
  */
 export function NumberField(props: NumberFieldProps) {
+  const themeDefaults = useComponentDefaults('NumberField');
+  const merged: NumberFieldProps = { ...themeDefaults?.defaults, ...props };
   const {
     name,
     rules,
@@ -86,7 +89,7 @@ export function NumberField(props: NumberFieldProps) {
     value: userValue,
     defaultValue,
     ...rest
-  } = props;
+  } = merged;
 
   // ───── Hooks (unconditional) ─────
   const bridge = useContext(DashFormContext) as DashFormBridge | null;

@@ -8,6 +8,23 @@ import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { NumberFieldVariants } from './numberField.variants.js';
 
+/**
+ * Subset of `<NumberField>` props theme-configurable via
+ * `theme.components.NumberField.defaults` (Option C).
+ */
+export type NumberFieldVariantProps = Pick<
+  NumberFieldVariants,
+  'size' | 'layout' | 'fullWidth'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    NumberField?: {
+      defaults?: Partial<NumberFieldVariantProps>;
+    };
+  }
+}
+
 export interface NumberFieldSlotProps {
   root?: { className?: string };
   label?: { className?: string };

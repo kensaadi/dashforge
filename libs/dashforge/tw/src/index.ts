@@ -77,6 +77,7 @@ export { textareaVariants } from './components/Textarea/textarea.variants.js';
 export { NumberField } from './components/NumberField/NumberField.js';
 export type {
   NumberFieldProps,
+  NumberFieldVariantProps,
   NumberFieldSlotProps,
 } from './components/NumberField/numberField.types.js';
 export { numberFieldVariants } from './components/NumberField/numberField.variants.js';
