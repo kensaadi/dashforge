@@ -29,6 +29,7 @@ export function Popover(props: PopoverProps) {
     onOpenChange,
     sideOffset = 8,
     width,
+    sx,
     slotProps,
   } = merged;
 
@@ -43,7 +44,7 @@ export function Popover(props: PopoverProps) {
           align={align}
           sideOffset={sideOffset}
           style={width != null ? { width } : undefined}
-          className={cn(v.content(), slotProps?.content?.className)}
+          className={cn(v.content(), sx, slotProps?.content?.className)}
         >
           {content}
           {showArrow && (

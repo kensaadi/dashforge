@@ -43,6 +43,7 @@ export function Tooltip(props: TooltipProps) {
     open,
     onOpenChange,
     sideOffset = 4,
+    sx,
     slotProps,
   } = merged;
 
@@ -57,7 +58,7 @@ export function Tooltip(props: TooltipProps) {
             side={side}
             align={align}
             sideOffset={sideOffset}
-            className={cn(v.content(), slotProps?.content?.className)}
+            className={cn(v.content(), sx, slotProps?.content?.className)}
           >
             {content}
             {!hideArrow && (

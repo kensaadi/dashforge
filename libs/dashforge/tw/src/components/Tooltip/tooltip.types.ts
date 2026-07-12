@@ -59,6 +59,17 @@ export interface TooltipProps {
   onOpenChange?: (open: boolean) => void;
   /** Side offset in pixels from the trigger. @default 4 */
   sideOffset?: number;
+  /**
+   * Shortcut for `slotProps.content.className` — Tailwind utility
+   * classes appended to the tooltip surface via `tailwind-merge`
+   * (later wins on conflicts). Same ergonomic pattern as
+   * `<Dialog sx="...">`.
+   *
+   * Use this for one-off overrides (`sx="bg-primary-600 text-white"`);
+   * reach for `slotProps` when you also need to target the arrow
+   * or attach non-class props.
+   */
+  sx?: string;
   /** Per-slot overrides. */
   slotProps?: TooltipSlotProps;
 }

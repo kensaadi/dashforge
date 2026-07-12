@@ -56,6 +56,17 @@ export interface PopoverProps {
   sideOffset?: number;
   /** Width of the popover content. CSS value. */
   width?: string;
+  /**
+   * Shortcut for `slotProps.content.className` — Tailwind utility
+   * classes appended to the floating panel via `tailwind-merge`
+   * (later wins on conflicts). Same ergonomic pattern as
+   * `<Dialog sx="...">`.
+   *
+   * Use this for one-off overrides (`sx="w-72 shadow-2xl"`); reach
+   * for `slotProps` when you also need to target the arrow or want
+   * to attach non-class props.
+   */
+  sx?: string;
   /** Per-slot overrides. */
   slotProps?: PopoverSlotProps;
 }
