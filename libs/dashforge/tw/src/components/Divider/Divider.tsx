@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { dividerVariants, dividerLineVariants } from './divider.variants.js';
 import type { DividerProps } from './divider.types.js';
@@ -52,6 +53,8 @@ import type { DividerProps } from './divider.types.js';
  */
 export const Divider = forwardRef<HTMLElement, DividerProps>(
   function Divider(props, ref) {
+    const themeDefaults = useComponentDefaults('Divider');
+    const merged: DividerProps = { ...themeDefaults?.defaults, ...props };
     const {
       orientation = 'horizontal',
       align = 'center',
@@ -61,7 +64,7 @@ export const Divider = forwardRef<HTMLElement, DividerProps>(
       flexItem,  // currently a no-op (see types) — `self-stretch` is in TV base
       sx,
       ...rest
-    } = props;
+    } = merged;
 
     // Reference flexItem to silence unused-var lint while keeping it in the
     // public API for parity with MUI Divider. Forward-compat hook.

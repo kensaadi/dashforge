@@ -418,7 +418,10 @@ export type {
 export { containerVariants } from './components/Container/container.variants.js';
 
 export { Divider } from './components/Divider/Divider.js';
-export type { DividerProps } from './components/Divider/divider.types.js';
+export type {
+  DividerProps,
+  DividerVariantProps,
+} from './components/Divider/divider.types.js';
 export {
   dividerVariants,
   dividerLineVariants,

@@ -2,6 +2,21 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import type { DividerVariants, DividerLineVariants } from './divider.variants.js';
 
 /**
+ * Subset of `<Divider>` props theme-configurable via
+ * `theme.components.Divider.defaults` (Option C).
+ */
+export type DividerVariantProps = Pick<DividerVariants, 'orientation' | 'align'>
+  & Pick<DividerLineVariants, 'variant' | 'color'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Divider?: {
+      defaults?: Partial<DividerVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<Divider>` — visual separator with optional inline label.
  *
  * Two rendering modes:
