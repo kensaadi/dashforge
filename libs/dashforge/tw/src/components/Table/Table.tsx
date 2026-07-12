@@ -1,4 +1,5 @@
 import { useMemo, useEffect, type ReactNode, type MouseEvent } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { Skeleton } from '../Skeleton/Skeleton.js';
@@ -80,7 +81,9 @@ const DEFAULT_GET_ROW_ID = <T extends object>(_row: T, index: number) => String(
  * `labels={{ searchPlaceholder: t('...'), ... }}` for internal default
  * strings.
  */
-export function Table<T extends object>(props: TableProps<T>) {
+export function Table<T extends object>(_props: TableProps<T>) {
+  const themeDefaults = useComponentDefaults('Table');
+  const props: TableProps<T> = { ...themeDefaults?.defaults, ..._props };
   const {
     rows,
     cols,

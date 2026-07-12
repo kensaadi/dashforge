@@ -544,6 +544,7 @@ export type {
   TableExpandableConfig,
   TableLabels,
   TableSlotProps,
+  TableVariantProps,
   NestedKeyOf,
 } from './components/Table/table.types.js';
 export { tableVariants } from './components/Table/table.variants.js';

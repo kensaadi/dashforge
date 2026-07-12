@@ -2,6 +2,23 @@ import type { ReactNode } from 'react';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { TableVariants } from './table.variants.js';
 
+/**
+ * Subset of `<Table>` props theme-configurable via
+ * `theme.components.Table.defaults` (Option C).
+ */
+export type TableVariantProps = Pick<
+  TableVariants,
+  'variant' | 'size' | 'density' | 'stickyHeader'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Table?: {
+      defaults?: Partial<TableVariantProps>;
+    };
+  }
+}
+
 // ───── Nested key util ─────
 
 /**
