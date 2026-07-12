@@ -30,9 +30,35 @@ declare module '@dashforge/tw-tokens' {
  * the mode based on whether `children` is provided.
  */
 export interface DividerProps
-  extends Omit<HTMLAttributes<HTMLElement>, 'className' | 'color' | 'children'>,
-          Pick<DividerVariants, 'orientation' | 'align'>,
-          Pick<DividerLineVariants, 'variant' | 'color'> {
+  extends Omit<HTMLAttributes<HTMLElement>, 'className' | 'color' | 'children'> {
+  /**
+   * Line direction. `'horizontal'` renders as `<hr>` (line-only) or a
+   * `<div role="separator">` (labeled). `'vertical'` renders as a
+   * `<div>` because `<hr>` can't be styled vertical cross-browser.
+   * @default 'horizontal'
+   */
+  orientation?: DividerVariants['orientation'];
+
+  /**
+   * Label position — only meaningful in labeled mode (when `children`
+   * is provided).
+   * @default 'center'
+   */
+  align?: DividerVariants['align'];
+
+  /**
+   * Border style of the line segments.
+   * @default 'solid'
+   */
+  variant?: DividerLineVariants['variant'];
+
+  /**
+   * Semantic color of the line — drives the border color via the
+   * corresponding token palette.
+   * @default 'neutral'
+   */
+  color?: DividerLineVariants['color'];
+
   /**
    * Optional inline label. When present, the divider switches from
    * "single line" to "two segments + label" layout — the canonical

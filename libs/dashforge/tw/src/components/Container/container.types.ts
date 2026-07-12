@@ -30,8 +30,26 @@ declare module '@dashforge/tw-tokens' {
  *     via tailwind-merge — same convention as Box/Stack/Grid/Typography).
  */
 export interface ContainerProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'>,
-          Pick<ContainerVariants, 'size' | 'px' | 'centerContent'> {
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
+  /**
+   * Max-width tier. `'fluid'` disables the cap and keeps `w-full`.
+   * @default 'xl'
+   */
+  size?: ContainerVariants['size'];
+
+  /**
+   * Responsive horizontal padding ramp (`px-4 sm:px-6 lg:px-8`).
+   * Set to `false` to opt out (rare — usually you want the ramp).
+   * @default true
+   */
+  px?: ContainerVariants['px'];
+
+  /**
+   * Center children as a flex column (`mx-auto` + `flex flex-col items-center`).
+   * @default false
+   */
+  centerContent?: ContainerVariants['centerContent'];
+
   /**
    * Override the rendered HTML tag. Defaults to `'div'`. Use
    * `as="main"` for the primary content region of a page,

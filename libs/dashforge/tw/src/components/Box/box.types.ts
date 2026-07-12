@@ -50,11 +50,59 @@ declare module '@dashforge/tw-tokens' {
  *     attribute. Our typed `color` (intent) is the right one.
  */
 export interface BoxProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'color'>,
-          Pick<BoxVariants,
-            'variant' | 'color' | 'elevation' | 'rounded'
-            | 'p' | 'px' | 'py' | 'm' | 'mx' | 'my'
-            | 'fullWidth' | 'fullHeight'> {
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'color'> {
+  /**
+   * Surface treatment: `plain` (transparent), `outlined` (bordered),
+   * `elevated` (shadow), `soft` (tinted bg), `solid` (filled).
+   * @default 'plain'
+   */
+  variant?: BoxVariants['variant'];
+
+  /**
+   * Intent role. Applied by `outlined` / `soft` / `solid`; ignored by
+   * `plain` / `elevated` where color is not part of the surface identity.
+   * @default 'neutral'
+   */
+  color?: BoxVariants['color'];
+
+  /**
+   * Shadow scale — primarily useful with `variant='elevated'`. `0`
+   * removes the shadow entirely.
+   * @default 0
+   */
+  elevation?: BoxVariants['elevation'];
+
+  /**
+   * Border-radius identity.
+   * @default 'none'
+   */
+  rounded?: BoxVariants['rounded'];
+
+  /** Uniform padding — spacing token step. */
+  p?: BoxVariants['p'];
+  /** Horizontal padding — spacing token step. */
+  px?: BoxVariants['px'];
+  /** Vertical padding — spacing token step. */
+  py?: BoxVariants['py'];
+  /** Uniform margin — spacing token step. */
+  m?: BoxVariants['m'];
+  /** Horizontal margin — spacing token step. */
+  mx?: BoxVariants['mx'];
+  /** Vertical margin — spacing token step. */
+  my?: BoxVariants['my'];
+
+  /**
+   * Stretch to fill the container's width (`w-full`).
+   * @default false
+   */
+  fullWidth?: BoxVariants['fullWidth'];
+
+  /**
+   * Stretch to fill the container's height (`h-full`).
+   * @default false
+   */
+  fullHeight?: BoxVariants['fullHeight'];
+
   /**
    * Override the rendered HTML tag. Defaults to `'div'`. Useful when
    * the surface should also carry semantic meaning — `<Box as="section">`

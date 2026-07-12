@@ -40,10 +40,40 @@ declare module '@dashforge/tw-tokens' {
  *   • Text styling                          → <Typography>
  */
 export interface StackProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'>,
-          Pick<StackVariants,
-            'direction' | 'align' | 'justify' | 'gap' | 'wrap'
-            | 'fullWidth' | 'fullHeight'> {
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
+  /**
+   * Flex direction.
+   * @default 'col'
+   */
+  direction?: StackVariants['direction'];
+
+  /** Cross-axis alignment (`items-*`). */
+  align?: StackVariants['align'];
+
+  /** Main-axis alignment (`justify-*`). */
+  justify?: StackVariants['justify'];
+
+  /** Gap between children — spacing token step. */
+  gap?: StackVariants['gap'];
+
+  /**
+   * Allow children to wrap to the next line (`flex-wrap`).
+   * @default false
+   */
+  wrap?: StackVariants['wrap'];
+
+  /**
+   * Stretch to fill the container's width.
+   * @default false
+   */
+  fullWidth?: StackVariants['fullWidth'];
+
+  /**
+   * Stretch to fill the container's height.
+   * @default false
+   */
+  fullHeight?: StackVariants['fullHeight'];
+
   /**
    * Node rendered N-1 times BETWEEN children — mirror of MUI Stack's
    * divider prop. Useful for visual separators (a `<hr>`, a thin

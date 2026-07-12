@@ -50,8 +50,48 @@ declare module '@dashforge/tw-tokens' {
  *            the rationale.
  */
 export interface TypographyProps
-  extends Omit<HTMLAttributes<HTMLElement>, 'className' | 'color'>,
-          Pick<TypographyVariants, 'variant' | 'color' | 'weight' | 'align' | 'truncate' | 'noWrap' | 'gutterBottom'> {
+  extends Omit<HTMLAttributes<HTMLElement>, 'className' | 'color'> {
+  /**
+   * Type scale — drives font-size, line-height, weight, and the default
+   * HTML tag inferred by `as`.
+   * @default 'body1'
+   */
+  variant?: TypographyVariants['variant'];
+
+  /**
+   * Semantic intent. `'inherit'` uses the parent's text color;
+   * `'muted'` renders as a lightened neutral for secondary info.
+   * @default 'neutral'
+   */
+  color?: TypographyVariants['color'];
+
+  /** Overrides the variant's default font-weight. */
+  weight?: TypographyVariants['weight'];
+
+  /**
+   * Text alignment.
+   * @default 'left'
+   */
+  align?: TypographyVariants['align'];
+
+  /**
+   * Single-line ellipsis (`text-ellipsis overflow-hidden whitespace-nowrap`).
+   * @default false
+   */
+  truncate?: TypographyVariants['truncate'];
+
+  /**
+   * Single-line without ellipsis (`whitespace-nowrap`).
+   * @default false
+   */
+  noWrap?: TypographyVariants['noWrap'];
+
+  /**
+   * Adds `mb-3` for the canonical heading→paragraph rhythm.
+   * @default false
+   */
+  gutterBottom?: TypographyVariants['gutterBottom'];
+
   /**
    * Override the HTML tag. Defaults to a sensible mapping per variant
    * (h1→h1, …, body1→p, caption→span, overline→span). Use when the
