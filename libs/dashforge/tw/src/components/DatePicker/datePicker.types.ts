@@ -25,6 +25,25 @@ export interface DatePickerSlotProps {
  * is consistent across both ecosystems; only the styling escape hatches
  * (`sx` / `slotProps`) follow the Tailwind conventions.
  */
+/**
+ * Subset of `<DatePicker>` props theme-configurable via
+ * `theme.components.DatePicker.defaults` (Option C).
+ */
+export interface DatePickerVariantProps {
+  layout?: 'stacked' | 'inline';
+  weekStartDay?: WeekDay;
+  locale?: string;
+  fullWidth?: boolean;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    DatePicker?: {
+      defaults?: Partial<DatePickerVariantProps>;
+    };
+  }
+}
+
 export interface DatePickerProps {
   /** Field name — the bridge registration key. Required. */
   name: string;

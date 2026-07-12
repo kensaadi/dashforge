@@ -125,6 +125,7 @@ export { DatePicker } from './components/DatePicker/DatePicker.js';
 export type {
   DatePickerProps,
   DatePickerSlotProps,
+  DatePickerVariantProps,
 } from './components/DatePicker/datePicker.types.js';
 export { datePickerVariants } from './components/DatePicker/datePicker.variants.js';
 

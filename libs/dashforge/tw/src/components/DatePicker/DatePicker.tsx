@@ -4,6 +4,7 @@ import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import { parseISODate } from '@dashforge/calendar-core';
 import type { ISODate } from '@dashforge/calendar-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -74,7 +75,9 @@ function formatDisplayDate(
  * Storage contract: an ISO `YYYY-MM-DD` string, or `null` — shared with the
  * MUI `@dashforge/ui` `DatePicker`.
  */
-export function DatePicker(props: DatePickerProps) {
+export function DatePicker(_props: DatePickerProps) {
+  const themeDefaults = useComponentDefaults('DatePicker');
+  const props: DatePickerProps = { ...themeDefaults?.defaults, ..._props };
   const {
     name,
     rules,
