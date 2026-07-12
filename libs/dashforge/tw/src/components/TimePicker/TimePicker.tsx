@@ -7,6 +7,7 @@ import {
   generateTimeOptions,
   timeStringToMinutes,
 } from '@dashforge/calendar-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -39,7 +40,9 @@ function ClockIcon() {
  * Storage contract: a canonical 24-hour `"HH:mm"` string, or `null` —
  * shared with the MUI `@dashforge/ui` `TimePicker`. `hour12` is display-only.
  */
-export function TimePicker(props: TimePickerProps) {
+export function TimePicker(_props: TimePickerProps) {
+  const themeDefaults = useComponentDefaults('TimePicker');
+  const props: TimePickerProps = { ...themeDefaults?.defaults, ..._props };
   const {
     name,
     rules,

@@ -22,6 +22,25 @@ export interface DateRangePickerSlotProps {
  *
  * The prop surface mirrors the MUI `@dashforge/ui` `DateRangePicker`.
  */
+/**
+ * Subset of `<DateRangePicker>` props theme-configurable via
+ * `theme.components.DateRangePicker.defaults` (Option C).
+ */
+export interface DateRangePickerVariantProps {
+  layout?: 'stacked' | 'inline';
+  weekStartDay?: WeekDay;
+  locale?: string;
+  fullWidth?: boolean;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    DateRangePicker?: {
+      defaults?: Partial<DateRangePickerVariantProps>;
+    };
+  }
+}
+
 export interface DateRangePickerProps {
   /** Field name — the bridge registration key. Required. */
   name: string;

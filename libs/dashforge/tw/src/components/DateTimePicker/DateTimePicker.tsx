@@ -9,6 +9,7 @@ import {
   parseISODate,
 } from '@dashforge/calendar-core';
 import type { ISODate } from '@dashforge/calendar-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -103,7 +104,9 @@ function formatDateTime(
  * Storage contract: a naive ISO datetime `"YYYY-MM-DDTHH:mm"` — no seconds,
  * no timezone. Shared with the MUI `@dashforge/ui` `DateTimePicker`.
  */
-export function DateTimePicker(props: DateTimePickerProps) {
+export function DateTimePicker(_props: DateTimePickerProps) {
+  const themeDefaults = useComponentDefaults('DateTimePicker');
+  const props: DateTimePickerProps = { ...themeDefaults?.defaults, ..._props };
   const {
     name,
     rules,

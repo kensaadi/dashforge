@@ -23,6 +23,27 @@ export interface DateTimePickerSlotProps {
  * For a date-only field use `<DatePicker>`; for time-only use `<TimePicker>`.
  * The prop surface mirrors the MUI `@dashforge/ui` `DateTimePicker`.
  */
+/**
+ * Subset of `<DateTimePicker>` props theme-configurable via
+ * `theme.components.DateTimePicker.defaults` (Option C).
+ */
+export interface DateTimePickerVariantProps {
+  layout?: 'stacked' | 'inline';
+  weekStartDay?: WeekDay;
+  locale?: string;
+  stepMinutes?: number;
+  hour12?: boolean;
+  fullWidth?: boolean;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    DateTimePicker?: {
+      defaults?: Partial<DateTimePickerVariantProps>;
+    };
+  }
+}
+
 export interface DateTimePickerProps {
   /** Field name — the bridge registration key. Required. */
   name: string;

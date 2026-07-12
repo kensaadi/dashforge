@@ -17,6 +17,7 @@ import {
   useDateRange,
 } from '@dashforge/calendar-core';
 import type { DateRange, ISODate, WeekDay } from '@dashforge/calendar-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -295,7 +296,9 @@ function RangeCalendar(props: RangeCalendarProps) {
  * Storage contract: a `{ start, end }` pair of ISO `YYYY-MM-DD` dates —
  * shared with the MUI `@dashforge/ui` `DateRangePicker`.
  */
-export function DateRangePicker(props: DateRangePickerProps) {
+export function DateRangePicker(_props: DateRangePickerProps) {
+  const themeDefaults = useComponentDefaults('DateRangePicker');
+  const props: DateRangePickerProps = { ...themeDefaults?.defaults, ..._props };
   const {
     name,
     rules,

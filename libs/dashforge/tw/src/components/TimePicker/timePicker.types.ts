@@ -21,6 +21,25 @@ export interface TimePickerSlotProps {
  *
  * The prop surface mirrors the MUI `@dashforge/ui` `TimePicker`.
  */
+/**
+ * Subset of `<TimePicker>` props theme-configurable via
+ * `theme.components.TimePicker.defaults` (Option C).
+ */
+export interface TimePickerVariantProps {
+  layout?: 'stacked' | 'inline';
+  stepMinutes?: number;
+  hour12?: boolean;
+  fullWidth?: boolean;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    TimePicker?: {
+      defaults?: Partial<TimePickerVariantProps>;
+    };
+  }
+}
+
 export interface TimePickerProps {
   /** Field name — the bridge registration key. Required. */
   name: string;

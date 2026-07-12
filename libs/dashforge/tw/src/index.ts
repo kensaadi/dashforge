@@ -133,6 +133,7 @@ export { TimePicker } from './components/TimePicker/TimePicker.js';
 export type {
   TimePickerProps,
   TimePickerSlotProps,
+  TimePickerVariantProps,
 } from './components/TimePicker/timePicker.types.js';
 export { timePickerVariants } from './components/TimePicker/timePicker.variants.js';
 
@@ -140,6 +141,7 @@ export { DateTimePicker } from './components/DateTimePicker/DateTimePicker.js';
 export type {
   DateTimePickerProps,
   DateTimePickerSlotProps,
+  DateTimePickerVariantProps,
 } from './components/DateTimePicker/dateTimePicker.types.js';
 export { dateTimePickerVariants } from './components/DateTimePicker/dateTimePicker.variants.js';
 
@@ -147,6 +149,7 @@ export { DateRangePicker } from './components/DateRangePicker/DateRangePicker.js
 export type {
   DateRangePickerProps,
   DateRangePickerSlotProps,
+  DateRangePickerVariantProps,
 } from './components/DateRangePicker/dateRangePicker.types.js';
 export {
   dateRangePickerVariants,
