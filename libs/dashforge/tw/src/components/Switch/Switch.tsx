@@ -3,6 +3,7 @@ import * as RadixSwitch from '@radix-ui/react-switch';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -22,6 +23,8 @@ import type { SwitchProps } from './switch.types.js';
  *    translate-x distance so the knob lands flush at each end.
  */
 export function Switch(props: SwitchProps) {
+  const themeDefaults = useComponentDefaults('Switch');
+  const merged: SwitchProps = { ...themeDefaults?.defaults, ...props };
   const {
     name,
     rules,
@@ -37,7 +40,7 @@ export function Switch(props: SwitchProps) {
     onCheckedChange,
     sx,
     slotProps,
-  } = props;
+  } = merged;
 
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
   const isVisible = useEngineVisibility(bridge?.engine, visibleWhen);

@@ -3,6 +3,20 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { Engine } from '@dashforge/ui-core';
 import type { SwitchVariants } from './switch.variants.js';
 
+/**
+ * Subset of `<Switch>` props theme-configurable via
+ * `theme.components.Switch.defaults` (Option C).
+ */
+export type SwitchVariantProps = Pick<SwitchVariants, 'size'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Switch?: {
+      defaults?: Partial<SwitchVariantProps>;
+    };
+  }
+}
+
 export interface SwitchSlotProps {
   root?: { className?: string };
   control?: { className?: string };

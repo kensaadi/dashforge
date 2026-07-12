@@ -52,6 +52,7 @@ export { Switch } from './components/Switch/Switch.js';
 export type {
   SwitchProps,
   SwitchSlotProps,
+  SwitchVariantProps,
 } from './components/Switch/switch.types.js';
 export { switchVariants } from './components/Switch/switch.variants.js';
 
