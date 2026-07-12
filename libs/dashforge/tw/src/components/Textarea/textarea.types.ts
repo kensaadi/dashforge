@@ -8,6 +8,23 @@ import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { TextareaVariants } from './textarea.variants.js';
 
+/**
+ * Subset of `<Textarea>` props theme-configurable via
+ * `theme.components.Textarea.defaults` (Option C).
+ */
+export type TextareaVariantProps = Pick<
+  TextareaVariants,
+  'size' | 'layout' | 'fullWidth' | 'resize'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Textarea?: {
+      defaults?: Partial<TextareaVariantProps>;
+    };
+  }
+}
+
 export interface TextareaSlotProps {
   root?: { className?: string };
   label?: { className?: string };

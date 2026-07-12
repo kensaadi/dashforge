@@ -67,6 +67,7 @@ export { radioGroupVariants } from './components/RadioGroup/radioGroup.variants.
 export { Textarea } from './components/Textarea/Textarea.js';
 export type {
   TextareaProps,
+  TextareaVariantProps,
   TextareaSlotProps,
 } from './components/Textarea/textarea.types.js';
 export { textareaVariants } from './components/Textarea/textarea.variants.js';
