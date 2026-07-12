@@ -421,57 +421,135 @@ export interface TableProps<T extends object> {
   getRowId?: (row: T, index: number) => string;
 
   // ───── Sort ─────
+  /**
+   * Controlled sort model — an ordered array of `{ field, direction }`
+   * items (multi-sort). Pass with `onSortChange` to lift state up.
+   * Omit for uncontrolled (Table owns the sort state internally).
+   */
   sortModel?: TableSortModel;
+
+  /** Called when the user cycles a column header (single-sort) or shift-clicks (multi-sort). */
   onSortChange?: (model: TableSortModel) => void;
-  /** Default sort applied when uncontrolled. */
+
+  /**
+   * Default sort applied when uncontrolled — mirrors
+   * `defaultChecked` / `defaultValue` semantics.
+   */
   defaultSortModel?: TableSortModel;
 
   // ───── Search ─────
+  /**
+   * Render the search input above the table. When `false`, the
+   * toolbar row collapses to zero height.
+   * @default false
+   */
   enableSearch?: boolean;
+
+  /** Controlled search query. Pass with `onSearchQueryChange`. */
   searchQuery?: string;
+
+  /** Called on every keystroke in the search input (post-debounce). */
   onSearchQueryChange?: (q: string) => void;
+
+  /**
+   * Placeholder text of the search input.
+   * @default 'Search…' (from `labels`)
+   */
   searchPlaceholder?: string;
+
+  /**
+   * Debounce window for `onSearchQueryChange`, in milliseconds.
+   * @default 200
+   */
   searchDebounceMs?: number;
 
   // ───── Per-column filter ─────
+  /**
+   * Controlled per-column filter model — array of active filter
+   * clauses (per-column UI shipped in 0.8.0-beta; set
+   * `cols[i].filterable=true` to expose the header menu).
+   */
   filterModel?: TableFilterModel;
+
+  /** Called when the user adds / removes / edits a per-column filter clause. */
   onFilterChange?: (model: TableFilterModel) => void;
 
   // ───── Selection ─────
+  /**
+   * Row selection mode — `none` (default), `single`, `multiple`.
+   * @default 'none'
+   */
   rowSelection?: TableRowSelectionMode;
+
+  /** Controlled selected-row ids. Pass with `onSelectionChange`. */
   selectedRowIds?: string[];
+
+  /** Called when the selection changes (checkbox click, shift-range, select-all). */
   onSelectionChange?: (ids: string[]) => void;
-  /** Sticky bulk action footer (visible only when selection > 0). */
+
+  /** Sticky bulk-action footer (visible only when selection > 0). */
   bulkActions?: (selectedRows: T[]) => ReactNode;
 
   // ───── Expandable rows ─────
+  /**
+   * Enables the expandable-row column — `render(row)` returns the
+   * detail JSX, and `expandedRowIds` + `onExpandChange` control state.
+   */
   expandable?: TableExpandableConfig<T>;
 
   // ───── Row actions (revealed on hover) ─────
+  /** Per-row action slot — receives the row, returns JSX rendered on hover. */
   rowActions?: (row: T) => ReactNode;
 
   // ───── States ─────
+  /**
+   * When `true`, render `loadingRowCount` skeleton rows instead of
+   * the data.
+   * @default false
+   */
   loading?: boolean;
-  /** Number of skeleton rows shown while `loading=true`. @default 5 */
+
+  /**
+   * Number of skeleton rows shown while `loading=true`.
+   * @default 5
+   */
   loadingRowCount?: number;
+
+  /** Rendered when `rows.length === 0`. Falls back to a labeled "No data" state. */
   emptyState?: ReactNode;
 
   // ───── A11Y ─────
-  /** Sticky header. @default true */
+  /**
+   * Pin `<thead>` during vertical scroll (`position: sticky; top: 0`).
+   * @default true
+   */
   stickyHeader?: boolean;
-  /** Optional caption for screen readers. */
+
+  /** Optional caption — screen readers announce it as the table's name. */
   caption?: ReactNode;
-  /** Renders the caption visually too (otherwise sr-only). @default false */
+
+  /**
+   * Render the caption visually too. When `false`, the caption is
+   * `sr-only`.
+   * @default false
+   */
   showCaption?: boolean;
 
   // ───── RBAC ─────
-  /** Table-level RBAC. `hide` returns null; `disable` greys everything. */
+  /**
+   * Table-level RBAC. `hide` returns `null`; `disable` greys the
+   * whole table; `readonly` disables interaction but keeps content.
+   */
   access?: AccessRequirement;
 
   // ───── i18n ─────
+  /** i18n string overrides — see `TableLabels` for the full shape. */
   labels?: TableLabels;
 
   // ───── Customization escape hatches ─────
+  /** Escape hatch for utility classes — appended to the root. Wins over variant classes via `tailwind-merge`. */
   sx?: string;
+
+  /** Per-slot className overrides — see `TableSlotProps`. */
   slotProps?: TableSlotProps;
 }

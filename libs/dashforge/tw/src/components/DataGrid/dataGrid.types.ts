@@ -58,13 +58,32 @@ export type DataGridSelectAllScope = 'visible' | 'allLoaded';
  * — the consumer is expected to provide the resulting `rows` array.
  */
 export interface DataGridServerSideFlags {
-  serverSideSort?: boolean;
-  serverSideFilter?: boolean;
-  serverSideSearch?: boolean;
   /**
-   * When true, DataGrid does NOT slice `rows` for pagination. The
+   * When `true`, DataGrid skips local sort and only emits
+   * `onSortChange`. The consumer refetches and passes fresh `rows`.
+   * @default false
+   */
+  serverSideSort?: boolean;
+
+  /**
+   * When `true`, DataGrid skips local per-column filter and only
+   * emits `onFilterChange`.
+   * @default false
+   */
+  serverSideFilter?: boolean;
+
+  /**
+   * When `true`, DataGrid skips local search filter and only emits
+   * `onSearchQueryChange`.
+   * @default false
+   */
+  serverSideSearch?: boolean;
+
+  /**
+   * When `true`, DataGrid does NOT slice `rows` for pagination. The
    * virtualization math uses `totalCount` (required) to size the
    * scroll container.
+   * @default false
    */
   serverSidePagination?: boolean;
 }
@@ -150,38 +169,83 @@ export interface DataGridProps<T extends object>
   density?: DataGridVariants['density'];
 
   // ───── Data ─────
+  /** Source rows currently in the visible window. In `serverSidePagination` mode this is only the current page's slice. */
   rows: T[];
+
+  /** Column definitions — same shape as `<Table>` (`TableColumn<T>`). */
   cols: TableColumn<T>[];
+
+  /**
+   * Stable row-id resolver — **required** on DataGrid because virt +
+   * server pagination make the positional index unsafe. Pass a value
+   * derived from the data (e.g. `row => row.id`).
+   */
   getRowId: (row: T, index: number) => string;
 
-  /** Required: total dataset count. In client-side mode equals
-   *  `rows.length`; in `serverSidePagination` mode the consumer
-   *  provides the full count so the virtual scroll height matches. */
+  /**
+   * Total dataset count. In client-side mode this equals `rows.length`;
+   * in `serverSidePagination` mode the consumer provides the full count
+   * so the virtual scroll height matches the total.
+   */
   totalCount?: number;
 
   // ───── Virtualization (REQUIRED) ─────
   /** Fixed row height in pixels. Required for windowing math. */
   rowHeight: number;
-  /** Rows rendered above/below the viewport. @default 5 */
+
+  /**
+   * Rows rendered above/below the visible viewport as a smoothing
+   * buffer.
+   * @default 5
+   */
   overscan?: number;
-  /** Container height in CSS units (e.g. `"600px"`, `"100vh"`).
-   *  Required for the scroll container to bound the virtualization. */
+
+  /**
+   * Scroll-container height in CSS units (e.g. `'600px'`, `'100vh'`).
+   * Required to bound the virtualization.
+   */
   height?: string;
 
   // ───── Sort ─────
+  /** Controlled sort model. Pass with `onSortChange` (or `serverSideSort=true`) to lift state up. */
   sortModel?: TableSortModel;
+
+  /** Called when the user cycles a column header. */
   onSortChange?: (model: TableSortModel) => void;
+
+  /** Default sort applied when uncontrolled. */
   defaultSortModel?: TableSortModel;
 
   // ───── Search ─────
+  /**
+   * Render the search input above the grid.
+   * @default false
+   */
   enableSearch?: boolean;
+
+  /** Controlled search query. */
   searchQuery?: string;
+
+  /** Called on every keystroke (post-debounce). */
   onSearchQueryChange?: (q: string) => void;
+
+  /**
+   * Placeholder text of the search input.
+   * @default 'Search…' (from `labels`)
+   */
   searchPlaceholder?: string;
+
+  /**
+   * Debounce window for `onSearchQueryChange`, in milliseconds.
+   * @default 200
+   */
   searchDebounceMs?: number;
 
   // ───── Filter (model + in-header per-column UI) ─────
+  /** Controlled per-column filter model. Set `cols[i].filterable=true` to expose the header menu. */
   filterModel?: TableFilterModel;
+
+  /** Called when the user adds / removes / edits a filter clause. */
   onFilterChange?: (model: TableFilterModel) => void;
 
   // ───── Column visibility (dialog UI in toolbar) ─────
@@ -234,40 +298,84 @@ export interface DataGridProps<T extends object>
   enableColumnReorder?: boolean;
 
   // ───── Selection ─────
-  rowSelection?: TableRowSelectionMode;
-  selectedRowIds?: string[];
-  onSelectionChange?: (ids: string[]) => void;
-  /** Bulk action sticky footer (visible only when selection > 0). */
-  bulkActions?: (selectedRows: T[]) => ReactNode;
   /**
-   * Scope of the "select all" header checkbox.
+   * Row selection mode.
+   * @default 'none'
+   */
+  rowSelection?: TableRowSelectionMode;
+
+  /** Controlled selected-row ids. Pass with `onSelectionChange`. */
+  selectedRowIds?: string[];
+
+  /** Called when the selection changes. */
+  onSelectionChange?: (ids: string[]) => void;
+
+  /** Sticky bulk-action footer (visible only when selection > 0). */
+  bulkActions?: (selectedRows: T[]) => ReactNode;
+
+  /**
+   * Scope of the header "select all" checkbox — `'visible'` selects
+   * only the current window, `'allLoaded'` selects every row currently
+   * in memory.
    * @default 'allLoaded'
    */
   selectAllScope?: DataGridSelectAllScope;
 
   // ───── Internal pagination (opt-in) ─────
+  /**
+   * Enable the built-in `<Pagination>` component rendered below the
+   * grid. Pass the config object; omit for scroll-only virtualization.
+   */
   pagination?: DataGridPaginationConfig;
 
   // ───── Row actions ─────
+  /** Per-row action slot — receives the row, returns JSX rendered on hover. */
   rowActions?: (row: T) => ReactNode;
 
   // ───── States ─────
+  /**
+   * Render skeleton rows in place of the data while `true`.
+   * @default false
+   */
   loading?: boolean;
+
+  /**
+   * Skeleton row count while `loading=true`.
+   * @default 8
+   */
   loadingRowCount?: number;
+
+  /** Custom placeholder when `rows.length === 0`. */
   emptyState?: ReactNode;
 
   // ───── A11Y ─────
+  /**
+   * Pin `<thead>` during vertical scroll.
+   * @default true
+   */
   stickyHeader?: boolean;
+
+  /** Optional caption — screen readers announce it as the grid's name. */
   caption?: ReactNode;
+
+  /**
+   * Render the caption visually too. When `false`, the caption is `sr-only`.
+   * @default false
+   */
   showCaption?: boolean;
 
   // ───── RBAC ─────
+  /** Grid-level RBAC. `hide` returns `null`; `disable` greys the whole grid. */
   access?: AccessRequirement;
 
   // ───── i18n ─────
+  /** i18n string overrides — shares `TableLabels` with `<Table>`. */
   labels?: TableLabels;
 
   // ───── Customization ─────
+  /** Escape hatch for utility classes — appended to the root scroll container. */
   sx?: string;
+
+  /** Per-slot className overrides — see `DataGridSlotProps` for the full slot list. */
   slotProps?: DataGridSlotProps;
 }
