@@ -4,6 +4,20 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { RadioGroupVariants } from './radioGroup.variants.js';
 
 /**
+ * Subset of `<RadioGroup>` props theme-configurable via
+ * `theme.components.RadioGroup.defaults` (Option C).
+ */
+export type RadioGroupVariantProps = Pick<RadioGroupVariants, 'size' | 'layout'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    RadioGroup?: {
+      defaults?: Partial<RadioGroupVariantProps>;
+    };
+  }
+}
+
+/**
  * A single selectable option in a `<RadioGroup>`.
  */
 export interface RadioGroupOption {

@@ -63,6 +63,7 @@ export type {
   RadioGroupProps,
   RadioGroupOption,
   RadioGroupSlotProps,
+  RadioGroupVariantProps,
 } from './components/RadioGroup/radioGroup.types.js';
 export { radioGroupVariants } from './components/RadioGroup/radioGroup.variants.js';
 

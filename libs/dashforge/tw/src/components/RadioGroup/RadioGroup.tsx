@@ -3,6 +3,7 @@ import * as RadixRadioGroup from '@radix-ui/react-radio-group';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -42,6 +43,8 @@ import type { RadioGroupProps } from './radioGroup.types.js';
  *     keyboard-accessible by default (arrow keys move selection).
  */
 export function RadioGroup(props: RadioGroupProps) {
+  const themeDefaults = useComponentDefaults('RadioGroup');
+  const merged: RadioGroupProps = { ...themeDefaults?.defaults, ...props };
   const {
     name,
     options,
@@ -60,7 +63,7 @@ export function RadioGroup(props: RadioGroupProps) {
     value: explicitValue,
     defaultValue,
     onValueChange,
-  } = props;
+  } = merged;
 
   // ───── Hooks (unconditional) ─────
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
