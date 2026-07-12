@@ -64,7 +64,21 @@ export interface PaginationLabels {
  * />
  * ```
  */
-export interface PaginationProps extends Pick<PaginationVariants, 'variant' | 'size'> {
+export interface PaginationProps {
+  /**
+   * UI mode — `default` shows the full toolbar, `compact` drops the
+   * summary + selector + jump input, `minimal` renders "Page X of Y"
+   * with prev/next only.
+   * @default 'default'
+   */
+  variant?: PaginationVariants['variant'];
+
+  /**
+   * Visual density tier for buttons and font-size.
+   * @default 'md'
+   */
+  size?: PaginationVariants['size'];
+
   /** Current page, **1-indexed**. */
   page: number;
 

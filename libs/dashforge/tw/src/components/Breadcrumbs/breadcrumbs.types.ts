@@ -79,7 +79,14 @@ export type BreadcrumbLinkComponent = ComponentType<
  * crumb. Tunable via `itemsBeforeCollapse` / `itemsAfterCollapse` for
  * asymmetric trails (defaults: 1 + 1).
  */
-export interface BreadcrumbsProps extends BreadcrumbsVariants {
+export interface BreadcrumbsProps {
+  /**
+   * Density tier — drives font-size + gap between crumbs.
+   * @default 'md'
+   */
+  size?: BreadcrumbsVariants['size'];
+
+  /** The crumb trail — an array of `BreadcrumbItem`. */
   items: BreadcrumbItem[];
   /** Separator node between crumbs. @default '/' */
   separator?: ReactNode;

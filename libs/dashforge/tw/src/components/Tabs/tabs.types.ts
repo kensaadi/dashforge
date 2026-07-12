@@ -48,7 +48,21 @@ export interface TabItem {
  * Supports controlled (`value` + `onValueChange`) and uncontrolled
  * (`defaultValue`) modes — the `value` prop wins when both are set.
  */
-export interface TabsProps extends TabsVariants {
+export interface TabsProps {
+  /**
+   * Visual style of the trigger strip — `underline` shows a bottom
+   * border under the active tab, `pill` renders active tabs as pills.
+   * @default 'underline'
+   */
+  variant?: TabsVariants['variant'];
+
+  /**
+   * Trigger strip axis. `vertical` orientation also switches arrow-key
+   * navigation direction.
+   * @default 'horizontal'
+   */
+  orientation?: TabsVariants['orientation'];
+
   /** Tab items array. */
   items: TabItem[];
   /** Controlled active value. */

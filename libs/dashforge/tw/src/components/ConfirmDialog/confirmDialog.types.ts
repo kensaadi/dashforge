@@ -61,11 +61,22 @@ export interface ConfirmOptions {
  */
 export type ConfirmFn = (options?: ConfirmOptions) => Promise<boolean>;
 
-export interface ConfirmDialogProviderProps extends ConfirmDialogVariants {
+export interface ConfirmDialogProviderProps {
+  /** App tree to wrap. Required. */
   children: ReactNode;
+
+  /**
+   * Provider-wide confirm button intent — drives the color of the
+   * primary action across every `confirm()` invocation under this
+   * provider.
+   * @default 'info'
+   */
+  severity?: ConfirmDialogVariants['severity'];
+
   /** Default options merged into every `confirm()` invocation. */
   defaults?: ConfirmOptions;
-  /** Per-slot className overrides applied to ALL invocations. */
+
+  /** Per-slot className overrides applied to every dialog. */
   slotProps?: ConfirmDialogSlotProps;
 }
 
