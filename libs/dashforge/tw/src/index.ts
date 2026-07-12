@@ -179,6 +179,7 @@ export { TopBar } from './components/TopBar/TopBar.js';
 export type {
   TopBarProps,
   TopBarSlotProps,
+  TopBarVariantProps,
 } from './components/TopBar/topBar.types.js';
 export { topBarVariants } from './components/TopBar/topBar.variants.js';
 

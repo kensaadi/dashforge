@@ -1,6 +1,20 @@
 import type { ReactNode } from 'react';
 import type { TopBarVariants } from './topBar.variants.js';
 
+/**
+ * Subset of `<TopBar>` props theme-configurable via
+ * `theme.components.TopBar.defaults` (Option C).
+ */
+export type TopBarVariantProps = Pick<TopBarVariants, 'height' | 'sticky'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    TopBar?: {
+      defaults?: Partial<TopBarVariantProps>;
+    };
+  }
+}
+
 export interface TopBarSlotProps {
   root?: { className?: string };
   start?: { className?: string };

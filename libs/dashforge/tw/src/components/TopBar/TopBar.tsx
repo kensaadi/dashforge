@@ -1,3 +1,4 @@
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { topBarVariants } from './topBar.variants.js';
 import type { TopBarProps } from './topBar.types.js';
@@ -33,6 +34,8 @@ import type { TopBarProps } from './topBar.types.js';
  *     appropriate roles (`<nav>`, `<search>`, etc.) where needed.
  */
 export function TopBar(props: TopBarProps) {
+  const themeDefaults = useComponentDefaults('TopBar');
+  const merged: TopBarProps = { ...themeDefaults?.defaults, ...props };
   const {
     start,
     center,
@@ -43,7 +46,7 @@ export function TopBar(props: TopBarProps) {
     asDiv,
     sx,
     slotProps,
-  } = props;
+  } = merged;
 
   const v = topBarVariants({ height, sticky });
   const Tag = (asDiv ? 'div' : 'header') as 'header';
