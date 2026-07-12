@@ -58,10 +58,41 @@ declare module '@dashforge/tw-tokens' {
 export interface ButtonProps
   // `color` is omitted from the native `<button>` attributes because
   // HTML's legacy `color` attribute (string) collides with our variant
-  // axis (`'primary' | 'secondary' | …`). The Picked variant version
-  // is the canonical one.
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'color'>,
-    Pick<ButtonVariants, 'variant' | 'color' | 'size' | 'fullWidth' | 'loading'> {
+  // axis (`'primary' | 'secondary' | …`). Declared explicitly below so
+  // JSDoc + defaults surface through the docs auto-sync pipeline
+  // (`pnpm sync:props` in dashforge-docs-lab).
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'color'> {
+  /**
+   * Semantic intent role. Drives both bg/fg and hover/active states.
+   * @default 'primary'
+   */
+  color?: ButtonVariants['color'];
+
+  /**
+   * Visual treatment.
+   * @default 'solid'
+   */
+  variant?: ButtonVariants['variant'];
+
+  /**
+   * Height + padding + font size density.
+   * @default 'md'
+   */
+  size?: ButtonVariants['size'];
+
+  /**
+   * When `true`, replace the label with a `<Spinner>`, short-circuit
+   * click handlers, and set `aria-busy="true"`.
+   * @default false
+   */
+  loading?: ButtonVariants['loading'];
+
+  /**
+   * Stretch the button to fill its container's width (`w-full`).
+   * @default false
+   */
+  fullWidth?: ButtonVariants['fullWidth'];
+
   /**
    * RBAC access control requirement.
    *
