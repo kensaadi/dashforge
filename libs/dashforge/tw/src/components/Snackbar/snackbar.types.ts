@@ -125,3 +125,27 @@ export interface SnackbarProviderProps extends SnackbarVariants {
   /** Per-slot className overrides. */
   slotProps?: SnackbarSlotProps;
 }
+
+/**
+ * Subset of `<SnackbarProvider>` props theme-configurable via
+ * `theme.components.Snackbar.defaults` (Option C).
+ *
+ * `enqueueDefaults` is theme-level per-enqueue defaults — merged BEFORE
+ * the provider's own `defaults` prop (which wins).
+ */
+export interface SnackbarVariantProps {
+  position?: SnackbarPosition;
+  maxVisible?: number;
+  enqueueDefaults?: Pick<
+    SnackbarOptions,
+    'severity' | 'variant' | 'autoHideMs' | 'showClose'
+  >;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Snackbar?: {
+      defaults?: Partial<SnackbarVariantProps>;
+    };
+  }
+}

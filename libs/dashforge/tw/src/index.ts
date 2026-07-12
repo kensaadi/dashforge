@@ -215,6 +215,7 @@ export type {
   SnackbarVariant,
   SnackbarPosition,
   SnackbarSlotProps,
+  SnackbarVariantProps,
 } from './components/Snackbar/snackbar.types.js';
 export { snackbarVariants } from './components/Snackbar/snackbar.variants.js';
 

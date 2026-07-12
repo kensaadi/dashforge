@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { snackbarVariants } from './snackbar.variants.js';
 import {
@@ -66,13 +67,18 @@ export function useSnackbar(): SnackbarApi {
  *     so they can safely pass `enqueue` to `useEffect` deps.
  */
 export function SnackbarProvider(props: SnackbarProviderProps) {
+  const themeDefaults = useComponentDefaults('Snackbar');
+  const themePosition = themeDefaults?.defaults?.position;
+  const themeMaxVisible = themeDefaults?.defaults?.maxVisible;
+  const themeEnqueueDefaults = themeDefaults?.defaults?.enqueueDefaults;
   const {
     children,
-    position = 'bottom-right',
-    maxVisible = 5,
-    defaults,
+    position = themePosition ?? 'bottom-right',
+    maxVisible = themeMaxVisible ?? 5,
+    defaults: propDefaults,
     slotProps,
   } = props;
+  const defaults = { ...themeEnqueueDefaults, ...propDefaults };
 
   /**
    * The set of CURRENTLY-RENDERED snackbars. Extras enqueued past
