@@ -1,5 +1,6 @@
 import { forwardRef, useContext } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { badgeVariants } from './badge.variants.js';
@@ -104,6 +105,8 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
   props,
   ref
 ) {
+  const themeDefaults = useComponentDefaults('Badge');
+  const merged: BadgeProps = { ...themeDefaults?.defaults, ...props };
   const {
     children,
     content,
@@ -120,7 +123,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
     sx,
     className,
     slotProps,
-  } = props;
+  } = merged;
 
   // Bridge — both hooks called unconditionally (rules-of-hooks).
   const bridge = useContext(DashFormContext);

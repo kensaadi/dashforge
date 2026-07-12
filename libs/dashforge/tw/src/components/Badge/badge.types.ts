@@ -3,6 +3,25 @@ import type { ClassValue } from 'tailwind-variants';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 
+// Forward-declared for augmentation below. Concrete types defined further down.
+export type BadgeVariantProps = {
+  color?: BadgeColorForwardRef;
+  placement?: BadgePlacementForwardRef;
+  overlap?: BadgeOverlapForwardRef;
+  withRing?: boolean;
+};
+type BadgeColorForwardRef = 'neutral' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
+type BadgePlacementForwardRef = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+type BadgeOverlapForwardRef = 'rectangular' | 'circular';
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Badge?: {
+      defaults?: Partial<BadgeVariantProps>;
+    };
+  }
+}
+
 /**
  * Intent color — drives the badge background. Default is `danger`
  * because the most common notification UX expects a red dot/count

@@ -286,6 +286,7 @@ export { menuVariants } from './components/Menu/menu.variants.js';
 export { Badge } from './components/Badge/Badge.js';
 export type {
   BadgeProps,
+  BadgeVariantProps,
   BadgeColor,
   BadgePlacement,
   BadgeOverlap,
