@@ -1,5 +1,6 @@
 import { forwardRef, useContext, useEffect, useState } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import {
   SPINNER_STROKE_WIDTH,
@@ -53,6 +54,8 @@ export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(function Spinne
   props,
   ref
 ) {
+  const themeDefaults = useComponentDefaults('Spinner');
+  const merged: SpinnerProps = { ...themeDefaults?.defaults, ...props };
   const {
     size = 'md',
     color,
@@ -63,7 +66,7 @@ export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(function Spinne
     visibleWhen,
     sx,
     className,
-  } = props;
+  } = merged;
 
   // Bridge — engine-reactive visibility. Hook called unconditionally
   // (rules-of-hooks). Outside a `<DashForm>`, predicate evaluated as

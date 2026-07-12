@@ -320,6 +320,7 @@ export type {
   SpinnerSize,
   SpinnerColor,
   SpinnerThickness,
+  SpinnerVariantProps,
 } from './components/Spinner/spinner.types.js';
 export {
   spinnerVariants,

@@ -111,3 +111,20 @@ export interface SpinnerProps {
   className?: string;
   sx?: ClassValue;
 }
+
+/**
+ * Subset of `<Spinner>` props theme-configurable via
+ * `theme.components.Spinner.defaults` (Option C).
+ */
+export type SpinnerVariantProps = Pick<
+  SpinnerProps,
+  'size' | 'color' | 'thickness' | 'withTrack'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Spinner?: {
+      defaults?: Partial<SpinnerVariantProps>;
+    };
+  }
+}
