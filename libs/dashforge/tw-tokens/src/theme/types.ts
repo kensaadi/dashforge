@@ -122,6 +122,53 @@ export interface TWThemeMeta {
 }
 
 /**
+ * Registry of per-component default configs — component variant defaults
+ * and, for compound components, slot-level overrides.
+ *
+ * INTENTIONALLY EMPTY at the Foundation level. Each component in
+ * `@dashforge/tw` augments this interface via TypeScript declaration
+ * merging when it lands its variant-axis refactor (Track A) or its
+ * slot-level defaults (Track B). See Option C RFC (#60).
+ *
+ * The default (empty) registry means untyped consumers still compile
+ * cleanly, and any augmentation flows through to `useComponentDefaults`
+ * and `useSlotProps` autocomplete at zero runtime cost.
+ *
+ * @example (from a hypothetical Button refactor)
+ * ```ts
+ * declare module '@dashforge/tw-tokens' {
+ *   interface TWComponentDefaults {
+ *     Button?: {
+ *       defaults?: Partial<ButtonVariantProps>;
+ *     };
+ *   }
+ * }
+ * ```
+ *
+ * @example (compound with slots)
+ * ```ts
+ * declare module '@dashforge/tw-tokens' {
+ *   interface TWComponentDefaults {
+ *     DataGrid?: {
+ *       defaults?: Partial<DataGridVariantProps>;
+ *       slotProps?: {
+ *         root?: SlotProps;
+ *         header?: SlotProps;
+ *         cell?: SlotProps;
+ *         // ...
+ *       };
+ *     };
+ *   }
+ * }
+ * ```
+ */
+/* eslint-disable @typescript-eslint/no-empty-interface, @typescript-eslint/no-empty-object-type */
+export interface TWComponentDefaults {
+  // Populated by each component's TS declaration merging when it lands.
+}
+/* eslint-enable @typescript-eslint/no-empty-interface, @typescript-eslint/no-empty-object-type */
+
+/**
  * Top-level Dashforge TW theme object.
  *
  * Concrete defaults exposed by `defaultTWThemeLight` / `defaultTWThemeDark`
@@ -137,4 +184,13 @@ export interface TWTheme {
   radius: TWRadiusTokens;
   fontSize: TWFontSizeTokens;
   shadow: TWShadowTokens;
+  /**
+   * Per-component defaults + slot-level overrides.
+   *
+   * Optional — untyped consumers keep working; `useComponentDefaults`
+   * returns `undefined` when this field is absent. Populated per-component
+   * via TS declaration merging on `TWComponentDefaults` (see there for
+   * the pattern). Introduced in `@dashforge/tw-tokens@1.2.0` (Option C).
+   */
+  components?: TWComponentDefaults;
 }

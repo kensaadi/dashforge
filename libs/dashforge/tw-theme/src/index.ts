@@ -46,6 +46,9 @@ export {
 } from './provider/DashforgeTailwindProvider.js';
 
 export { useDashTWTheme } from './hooks/useDashTWTheme.js';
+export { useComponentDefaults } from './hooks/useComponentDefaults.js';
+export { useSlotProps } from './hooks/useSlotProps.js';
+export { mergeSlotProps } from './hooks/mergeSlotProps.js';
 
 export {
   setTheme,
@@ -70,6 +73,7 @@ export type {
   TWSpacingScale,
   TWRadiusTokens,
   TWFontSizeTokens,
+  TWComponentDefaults,
 } from '@dashforge/tw-tokens';
 
 /**
