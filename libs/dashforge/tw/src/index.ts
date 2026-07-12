@@ -514,6 +514,7 @@ export type {
   PaginationProps,
   PaginationSlotProps,
   PaginationLabels,
+  PaginationVariantProps,
 } from './components/Pagination/pagination.types.js';
 export { paginationVariants } from './components/Pagination/pagination.variants.js';
 

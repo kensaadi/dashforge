@@ -1,5 +1,19 @@
 import type { PaginationVariants } from './pagination.variants.js';
 
+/**
+ * Subset of `<Pagination>` props theme-configurable via
+ * `theme.components.Pagination.defaults` (Option C).
+ */
+export type PaginationVariantProps = Pick<PaginationVariants, 'variant' | 'size'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Pagination?: {
+      defaults?: Partial<PaginationVariantProps>;
+    };
+  }
+}
+
 export interface PaginationSlotProps {
   root?: { className?: string };
   summary?: { className?: string };

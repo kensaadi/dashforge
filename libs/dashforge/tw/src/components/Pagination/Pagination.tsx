@@ -1,4 +1,5 @@
 import { useState, useCallback, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { paginationVariants } from './pagination.variants.js';
 import { computePageRange } from './pagination.helpers.js';
@@ -48,6 +49,8 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
  * ```
  */
 export function Pagination(props: PaginationProps) {
+  const themeDefaults = useComponentDefaults('Pagination');
+  const merged: PaginationProps = { ...themeDefaults?.defaults, ...props };
   const {
     page,
     pageSize,
@@ -65,7 +68,7 @@ export function Pagination(props: PaginationProps) {
     size = 'md',
     sx,
     slotProps,
-  } = props;
+  } = merged;
 
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const v = paginationVariants({ variant, size });
