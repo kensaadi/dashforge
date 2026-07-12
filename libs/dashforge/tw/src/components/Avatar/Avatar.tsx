@@ -117,6 +117,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
     fallbackIcon,
     sx,
     className,
+    ...rest
   } = props;
 
   // Track image-load failures so we can fall through to initials/icon
@@ -174,6 +175,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
       className={rootClasses}
       role="img"
       aria-label={alt ?? name ?? undefined}
+      {...rest}
     >
       {showImage ? (
         // Inner img is DECORATIVE (alt="") — the parent span carries
