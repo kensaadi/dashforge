@@ -2,6 +2,7 @@ import { useContext, useEffect, useId, useRef, useState } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -45,6 +46,8 @@ function sanitize(input: string, mode: OTPFieldMode, max: number): string {
  * so iOS Safari + Android Chrome trigger SMS autofill correctly.
  */
 export function OTPField(props: OTPFieldProps) {
+  const themeDefaults = useComponentDefaults('OTPField');
+  const merged: OTPFieldProps = { ...themeDefaults?.defaults, ...props };
   const {
     name,
     rules,
@@ -64,7 +67,7 @@ export function OTPField(props: OTPFieldProps) {
     defaultValue,
     onChange: userOnChange,
     onComplete,
-  } = props;
+  } = merged;
 
   // ───── Hooks (unconditional) ─────
   const bridge = useContext(DashFormContext) as DashFormBridge | null;

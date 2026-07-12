@@ -85,6 +85,7 @@ export { numberFieldVariants } from './components/NumberField/numberField.varian
 export { OTPField } from './components/OTPField/OTPField.js';
 export type {
   OTPFieldProps,
+  OTPFieldVariantProps,
   OTPFieldSlotProps,
   OTPFieldMode,
 } from './components/OTPField/otpField.types.js';

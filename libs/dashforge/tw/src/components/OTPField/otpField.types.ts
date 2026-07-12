@@ -3,6 +3,20 @@ import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { OTPFieldVariants } from './otpField.variants.js';
 
+/**
+ * Subset of `<OTPField>` props theme-configurable via
+ * `theme.components.OTPField.defaults` (Option C).
+ */
+export type OTPFieldVariantProps = Pick<OTPFieldVariants, 'size'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    OTPField?: {
+      defaults?: Partial<OTPFieldVariantProps>;
+    };
+  }
+}
+
 export type OTPFieldMode = 'numeric' | 'alphanumeric';
 
 export interface OTPFieldSlotProps {
