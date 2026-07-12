@@ -332,6 +332,7 @@ export {
 export { Avatar, AvatarGroup } from './components/Avatar/Avatar.js';
 export type {
   AvatarProps,
+  AvatarVariantProps,
   AvatarGroupProps,
   AvatarSize,
   AvatarShape,

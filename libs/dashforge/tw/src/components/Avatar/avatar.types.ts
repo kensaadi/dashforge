@@ -2,6 +2,10 @@ import type { ImgHTMLAttributes, ReactNode } from 'react';
 import type { ClassValue } from 'tailwind-variants';
 import type { BoxProps } from '../Box/box.types.js';
 
+// AvatarVariantProps + declaration merging appear near the end of this
+// file, after AvatarShape / AvatarSize / AvatarColor / AvatarTone are
+// declared. See below.
+
 /**
  * Avatar size scale — maps to spacing tokens via avatar.variants.ts:
  *   - xs → w-5  / 20px
@@ -202,4 +206,21 @@ export interface AvatarGroupProps {
 
   /** sx escape hatch. */
   sx?: ClassValue;
+}
+
+/**
+ * Subset of `<Avatar>` props theme-configurable via
+ * `theme.components.Avatar.defaults` (Option C).
+ */
+export type AvatarVariantProps = Pick<
+  AvatarProps,
+  'shape' | 'radius' | 'size' | 'color' | 'tone'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Avatar?: {
+      defaults?: Partial<AvatarVariantProps>;
+    };
+  }
 }

@@ -6,6 +6,7 @@ import {
   useState,
   type ReactElement,
 } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import {
   AVATAR_SOFT_FALLBACK,
@@ -104,6 +105,8 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
   props,
   ref
 ) {
+  const themeDefaults = useComponentDefaults('Avatar');
+  const merged: AvatarProps = { ...themeDefaults?.defaults, ...props };
   const {
     src,
     alt,
@@ -118,7 +121,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
     sx,
     className,
     ...rest
-  } = props;
+  } = merged;
 
   // Track image-load failures so we can fall through to initials/icon
   // dynamically. `imgLoaded` distinguishes between "still loading"
