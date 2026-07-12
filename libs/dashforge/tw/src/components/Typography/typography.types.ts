@@ -2,6 +2,23 @@ import type { ElementType, HTMLAttributes } from 'react';
 import type { TypographyVariants } from './typography.variants.js';
 
 /**
+ * Subset of `<Typography>` props theme-configurable via
+ * `theme.components.Typography.defaults` (Option C).
+ */
+export type TypographyVariantProps = Pick<
+  TypographyVariants,
+  'variant' | 'color' | 'weight' | 'align' | 'truncate' | 'noWrap' | 'gutterBottom'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Typography?: {
+      defaults?: Partial<TypographyVariantProps>;
+    };
+  }
+}
+
+/**
  * Props for `<Typography>`.
  *
  * Composition with native `HTMLAttributes`:

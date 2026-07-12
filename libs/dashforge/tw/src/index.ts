@@ -377,7 +377,10 @@ export type { ChipVariants } from './components/Chip/chip.variants.js';
 // before it reaches for any specific UI atom.
 
 export { Typography } from './components/Typography/Typography.js';
-export type { TypographyProps } from './components/Typography/typography.types.js';
+export type {
+  TypographyProps,
+  TypographyVariantProps,
+} from './components/Typography/typography.types.js';
 export { typographyVariants } from './components/Typography/typography.variants.js';
 
 export { Box } from './components/Box/Box.js';

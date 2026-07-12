@@ -1,5 +1,6 @@
 import { forwardRef, type ElementType, type ReactElement } from 'react';
 import { Slot } from '@radix-ui/react-slot';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { typographyVariants } from './typography.variants.js';
 import type { TypographyProps } from './typography.types.js';
@@ -69,6 +70,8 @@ const VARIANT_TO_TAG: Record<NonNullable<TypographyProps['variant']>, ElementTyp
  */
 export const Typography = forwardRef<HTMLElement, TypographyProps>(
   function Typography(props, ref) {
+    const themeDefaults = useComponentDefaults('Typography');
+    const merged: TypographyProps = { ...themeDefaults?.defaults, ...props };
     const {
       variant = 'body1',
       color,
@@ -82,7 +85,7 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
       sx,
       children,
       ...rest
-    } = props;
+    } = merged;
 
     const classes = cn(
       typographyVariants({ variant, color, weight, align, truncate, noWrap, gutterBottom }),
