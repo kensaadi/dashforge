@@ -473,6 +473,7 @@ export type {
   TabsProps,
   TabsSlotProps,
   TabItem,
+  TabsVariantProps,
 } from './components/Tabs/tabs.types.js';
 export { tabsVariants } from './components/Tabs/tabs.variants.js';
 

@@ -1,3 +1,4 @@
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { tabsVariants } from './tabs.variants.js';
 import { useTabs } from './useTabs.js';
@@ -20,6 +21,8 @@ import type { TabsProps } from './tabs.types.js';
  * panel is mounted).
  */
 export function Tabs(props: TabsProps) {
+  const themeDefaults = useComponentDefaults('Tabs');
+  const merged: TabsProps = { ...themeDefaults?.defaults, ...props };
   const {
     items,
     value,
@@ -30,7 +33,7 @@ export function Tabs(props: TabsProps) {
     keepMounted = false,
     sx,
     slotProps,
-  } = props;
+  } = merged;
 
   const v = tabsVariants({ variant, orientation });
   const tabs = useTabs({

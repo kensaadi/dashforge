@@ -1,6 +1,20 @@
 import type { ReactNode } from 'react';
 import type { TabsVariants } from './tabs.variants.js';
 
+/**
+ * Subset of `<Tabs>` props theme-configurable via
+ * `theme.components.Tabs.defaults` (Option C).
+ */
+export type TabsVariantProps = Pick<TabsVariants, 'variant' | 'orientation'>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Tabs?: {
+      defaults?: Partial<TabsVariantProps>;
+    };
+  }
+}
+
 export interface TabsSlotProps {
   root?: { className?: string };
   list?: { className?: string };
