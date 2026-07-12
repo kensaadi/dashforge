@@ -2,6 +2,25 @@ import type { ReactNode } from 'react';
 import type { DialogVariants } from './dialog.variants.js';
 
 /**
+ * Subset of `<Dialog>` props theme-configurable via
+ * `theme.components.Dialog.defaults` (Option C).
+ */
+export interface DialogVariantProps {
+  size?: DialogVariants['size'];
+  showCloseButton?: boolean;
+  disableBackdropClose?: boolean;
+  disableEscapeClose?: boolean;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Dialog?: {
+      defaults?: Partial<DialogVariantProps>;
+    };
+  }
+}
+
+/**
  * Per-slot className overrides for `<Dialog>`. Mirrors the
  * canonical TW slotProps shape: `{ slot?: { className?: string } }`.
  */

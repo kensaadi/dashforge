@@ -1,4 +1,5 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { dialogVariants } from './dialog.variants.js';
 import type { DialogProps } from './dialog.types.js';
@@ -18,6 +19,8 @@ import type { DialogProps } from './dialog.types.js';
  * the control flow living in your component tree.
  */
 export function Dialog(props: DialogProps) {
+  const themeDefaults = useComponentDefaults('Dialog');
+  const merged: DialogProps = { ...themeDefaults?.defaults, ...props };
   const {
     open,
     onOpenChange,
@@ -30,7 +33,7 @@ export function Dialog(props: DialogProps) {
     size = 'md',
     sx,
     slotProps,
-  } = props;
+  } = merged;
 
   const v = dialogVariants({ size });
 

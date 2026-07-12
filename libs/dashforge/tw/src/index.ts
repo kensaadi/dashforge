@@ -462,6 +462,7 @@ export { Dialog } from './components/Dialog/Dialog.js';
 export type {
   DialogProps,
   DialogSlotProps,
+  DialogVariantProps,
 } from './components/Dialog/dialog.types.js';
 export { dialogVariants } from './components/Dialog/dialog.variants.js';
 
