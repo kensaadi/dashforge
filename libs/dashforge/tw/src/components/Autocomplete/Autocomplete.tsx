@@ -13,6 +13,7 @@ import {
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -147,6 +148,11 @@ const defaultGetOptionDisabled = (option: unknown): boolean =>
 export function Autocomplete<TOption = AutocompleteOption>(
   props: AutocompleteProps<TOption>
 ) {
+  const themeDefaults = useComponentDefaults('Autocomplete');
+  const merged: AutocompleteProps<TOption> = {
+    ...themeDefaults?.defaults,
+    ...props,
+  };
   const {
     name,
     rules,
@@ -177,7 +183,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
     loadOptions,
     loadDebounceMs = 250,
     loadingMessage = 'Loading…',
-  } = props;
+  } = merged;
 
   const isMulti = Boolean(multiple);
 

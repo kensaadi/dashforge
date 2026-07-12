@@ -102,6 +102,7 @@ export type {
   AutocompleteOption,
   AutocompleteSlotProps,
   AutocompleteValue,
+  AutocompleteVariantProps,
 } from './components/Autocomplete/autocomplete.types.js';
 export { autocompleteVariants } from './components/Autocomplete/autocomplete.variants.js';
 

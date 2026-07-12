@@ -4,6 +4,23 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { AutocompleteVariants } from './autocomplete.variants.js';
 
 /**
+ * Subset of `<Autocomplete>` props theme-configurable via
+ * `theme.components.Autocomplete.defaults` (Option C).
+ */
+export type AutocompleteVariantProps = Pick<
+  AutocompleteVariants,
+  'size' | 'layout' | 'fullWidth'
+>;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Autocomplete?: {
+      defaults?: Partial<AutocompleteVariantProps>;
+    };
+  }
+}
+
+/**
  * Default `{ value, label, disabled? }` option shape.
  *
  * The simplest shape and the one used by the component when no
