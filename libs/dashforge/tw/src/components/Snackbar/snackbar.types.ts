@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import type { SnackbarVariants } from './snackbar.variants.js';
 import type {
   Severity,
   SeverityVariant,
@@ -108,21 +107,30 @@ export interface SnackbarApi {
   dismissAll: () => void;
 }
 
-export interface SnackbarProviderProps extends SnackbarVariants {
+export interface SnackbarProviderProps {
+  /** App tree to wrap. Required. */
   children: ReactNode;
-  /** Corner the stack anchors to. @default 'bottom-right' */
+
+  /**
+   * Corner the stack anchors to.
+   * @default 'bottom-right'
+   */
   position?: SnackbarPosition;
+
   /**
    * Hard cap on simultaneously visible snackbars. Excess enqueued
-   * items wait FIFO until a slot frees up. @default 5
+   * items wait FIFO until a slot frees up.
+   * @default 5
    */
   maxVisible?: number;
+
   /** Defaults merged into every enqueue. */
   defaults?: Pick<
     SnackbarOptions,
     'severity' | 'variant' | 'autoHideMs' | 'showClose'
   >;
-  /** Per-slot className overrides. */
+
+  /** Per-slot className overrides applied to every snackbar. */
   slotProps?: SnackbarSlotProps;
 }
 

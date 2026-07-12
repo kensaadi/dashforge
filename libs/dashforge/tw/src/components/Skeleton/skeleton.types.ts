@@ -49,8 +49,20 @@ export interface SkeletonSlotProps {
  * </div>
  * ```
  */
-export interface SkeletonProps
-  extends Pick<SkeletonVariants, 'variant' | 'animation'> {
+export interface SkeletonProps {
+  /**
+   * Shape preset — `text` (rounded rectangle sized for a line),
+   * `rectangle` (larger block), `circle` (avatar shape).
+   * @default 'text'
+   */
+  variant?: SkeletonVariants['variant'];
+
+  /**
+   * Loading animation style. Always `motion-reduce` safe.
+   * @default 'pulse'
+   */
+  animation?: SkeletonVariants['animation'];
+
   /**
    * CSS width (e.g. `"200px"`, `"100%"`, `"60%"`).
    *

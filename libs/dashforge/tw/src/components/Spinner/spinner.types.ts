@@ -38,7 +38,10 @@ export type SpinnerThickness = 'thin' | 'md' | 'thick';
  */
 export interface SpinnerProps {
   // ─── Visual ────────────────────────────────────────────────────
-  /** @default 'md' */
+  /**
+   * Diameter tier — xs:12px, sm:16px, md:20px, lg:24px, xl:32px.
+   * @default 'md'
+   */
   size?: SpinnerSize;
 
   /**
@@ -49,7 +52,10 @@ export interface SpinnerProps {
    */
   color?: SpinnerColor;
 
-  /** @default 'md' */
+  /**
+   * SVG stroke-width — thin:1.5, md:2.25, thick:3.
+   * @default 'md'
+   */
   thickness?: SpinnerThickness;
 
   /**
@@ -108,7 +114,10 @@ export interface SpinnerProps {
   // category. For permission-gated spinners, wrap in `<Box access>`.
 
   // ─── Override ──────────────────────────────────────────────────
+  /** Standard React `className` — appended to the root via `cn()`. */
   className?: string;
+
+  /** Root-element class shortcut (string or clsx-compatible value). Wins over variant classes via `tailwind-merge`. */
   sx?: ClassValue;
 }
 
