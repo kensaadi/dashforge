@@ -1,4 +1,5 @@
 import * as RadixTooltip from '@radix-ui/react-tooltip';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { tooltipVariants } from './tooltip.variants.js';
 import type { TooltipProps } from './tooltip.types.js';
@@ -30,6 +31,8 @@ import type { TooltipProps } from './tooltip.types.js';
  * include a per-component provider here for ease-of-use.
  */
 export function Tooltip(props: TooltipProps) {
+  const themeDefaults = useComponentDefaults('Tooltip');
+  const merged: TooltipProps = { ...themeDefaults?.defaults, ...props };
   const {
     children,
     content,
@@ -41,7 +44,7 @@ export function Tooltip(props: TooltipProps) {
     onOpenChange,
     sideOffset = 4,
     slotProps,
-  } = props;
+  } = merged;
 
   const v = tooltipVariants();
 

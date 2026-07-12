@@ -1,5 +1,25 @@
 import type { ReactNode } from 'react';
 
+/**
+ * Subset of `<Tooltip>` props theme-configurable via
+ * `theme.components.Tooltip.defaults` (Option C).
+ */
+export interface TooltipVariantProps {
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  hideArrow?: boolean;
+  delayDuration?: number;
+  sideOffset?: number;
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Tooltip?: {
+      defaults?: Partial<TooltipVariantProps>;
+    };
+  }
+}
+
 export interface TooltipSlotProps {
   content?: { className?: string };
   arrow?: { className?: string };

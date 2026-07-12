@@ -478,6 +478,7 @@ export { Tooltip } from './components/Tooltip/Tooltip.js';
 export type {
   TooltipProps,
   TooltipSlotProps,
+  TooltipVariantProps,
 } from './components/Tooltip/tooltip.types.js';
 export { tooltipVariants } from './components/Tooltip/tooltip.variants.js';
 
