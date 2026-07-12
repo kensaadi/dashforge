@@ -1,6 +1,7 @@
 import { forwardRef, useContext } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { Box } from '../Box/Box.js';
@@ -51,6 +52,8 @@ export const Card = forwardRef<HTMLElement, CardProps>(function Card(
   props,
   ref
 ) {
+  const themeDefaults = useComponentDefaults('Card');
+  const merged: CardProps = { ...themeDefaults?.defaults, ...props };
   const {
     variant = 'outlined',
     rounded = 'lg',
@@ -58,7 +61,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(function Card(
     p = 0,
     children,
     ...rest
-  } = props;
+  } = merged;
 
   return (
     <Box

@@ -377,6 +377,7 @@ export type {
   CardProps,
   CardContentProps,
   CardActionAreaProps,
+  CardVariantProps,
 } from './components/Card/card.types.js';
 
 // Chip — status / filter / tag pill. Promoted from the internal

@@ -5,6 +5,25 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import type { BoxProps } from '../Box/box.types.js';
 
 /**
+ * Subset of `<Card>` props theme-configurable via
+ * `theme.components.Card.defaults` (Option C).
+ */
+export interface CardVariantProps {
+  variant?: 'outlined' | 'elevated' | 'plain';
+  rounded?: BoxProps['rounded'];
+  elevation?: BoxProps['elevation'];
+  p?: BoxProps['p'];
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Card?: {
+      defaults?: Partial<CardVariantProps>;
+    };
+  }
+}
+
+/**
  * `<Card>` — opinionated surface preset over `<Box>`.
  *
  * Architectural note: `<Box>` already implements the full surface
