@@ -259,6 +259,22 @@ export {
   ICON_BUTTON_SIZE_OVERRIDES,
 } from './components/IconButton/iconButton.variants.js';
 
+// Progress — determinate progress indicator (Sprint 6 SHIP #2).
+// Display-only. Two visual flavors on the same primitive: `linear`
+// (bar) or `circular` (SVG arc). Requires `value` — indeterminate
+// loading (unknown ETA) is <Spinner>'s job. 6 color intents + size
+// + thickness axes, all Option C configurable. Bridge integration is
+// NOT applicable (display-only, no value writes). `visibleWhen` +
+// `access` follow the catalog convention.
+export { Progress } from './components/Progress/Progress.js';
+export type {
+  ProgressProps,
+  ProgressVariantProps,
+  ProgressSlotProps,
+  ProgressThickness,
+} from './components/Progress/progress.types.js';
+export { progressVariants } from './components/Progress/progress.variants.js';
+
 // Slider — token-driven numeric picker (Sprint 6 SHIP #1).
 // Single value or [min, max] range via `range?: boolean`. Bridge
 // commit on drag-end (opt-in per-tick via `commitOnChange`). Optional
