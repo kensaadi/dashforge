@@ -259,6 +259,24 @@ export {
   ICON_BUTTON_SIZE_OVERRIDES,
 } from './components/IconButton/iconButton.variants.js';
 
+// Slider — token-driven numeric picker (Sprint 6 SHIP #1).
+// Single value or [min, max] range via `range?: boolean`. Bridge
+// commit on drag-end (opt-in per-tick via `commitOnChange`). Optional
+// marks (explicit list or auto at every step), value label tooltip
+// with formatter, 6 color intents (Option C). Built on
+// `@radix-ui/react-slider` for keyboard nav + a11y.
+export { Slider } from './components/Slider/Slider.js';
+export type {
+  SliderProps,
+  SliderSingleProps,
+  SliderRangeProps,
+  SliderValue,
+  SliderMark,
+  SliderVariantProps,
+  SliderSlotProps,
+} from './components/Slider/slider.types.js';
+export { sliderVariants } from './components/Slider/slider.variants.js';
+
 // Select — dedicated enum picker (Sprint 6 / #60 DECIDE bucket).
 // Ships as a lightweight complement to <Autocomplete>: no search input,
 // no async loading, no typeahead-driven filter. Optimised for the
