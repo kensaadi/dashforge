@@ -306,4 +306,64 @@ describe('<Stack>', () => {
       expect(container.querySelectorAll('[data-testid="d"]').length).toBe(0);
     });
   });
+
+  // ─── #112 (G-28) — className sneak-in via untyped spread ─────────────
+  // The `StackProps` interface Omit-excludes `className`, but TS-loose
+  // consumers can still smuggle one in at runtime via untyped
+  // `{...anyProps}` spreads. The runtime safety-net must:
+  //   (a) preserve variant classes (`flex flex-col gap-*`)
+  //   (b) merge the consumer's utility class alongside them
+  //   (c) NOT emit `className=""` or a stale value as a raw DOM attribute
+  describe('#112 (G-28) className sneak-in safety net', () => {
+    it('preserves variant classes when a non-conflicting className is smuggled in', () => {
+      const smuggled = { className: 'min-h-0' } as Record<string, unknown>;
+      const { container } = render(
+        <Stack direction="col" gap={3} {...(smuggled as never)}>
+          x
+        </Stack>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('flex');
+      expect(cls).toContain('flex-col');
+      expect(cls).toContain('gap-3');
+      expect(cls).toContain('min-h-0');
+    });
+
+    it('lets tailwind-merge resolve when the smuggled class conflicts with a variant', () => {
+      // Consumer smuggles `gap-6` — this WOULD collide with `gap-3` from the
+      // variant. Later argument to `cn()` wins under tailwind-merge, so
+      // `gap-6` (consumer) survives and `gap-3` (variant) is dropped. `sx`
+      // then wins over both if provided; not exercised here — see the
+      // precedence test file for that.
+      const smuggled = { className: 'gap-6' } as Record<string, unknown>;
+      const { container } = render(
+        <Stack direction="col" gap={3} {...(smuggled as never)}>
+          x
+        </Stack>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('gap-6');
+      expect(cls).not.toContain('gap-3');
+    });
+
+    it('does not double-emit className as a DOM attribute', () => {
+      // Regression for the JSX prop-override root cause: the smuggled
+      // className must be consumed by the destructure, not survive into
+      // `...safeRest` and clobber the final `className={classes}`.
+      const smuggled = { className: 'min-h-0' } as Record<string, unknown>;
+      const { container } = render(
+        <Stack direction="col" gap={3} {...(smuggled as never)}>
+          x
+        </Stack>,
+      );
+      // The variant classes must survive alongside the smuggled utility —
+      // if the DOM `className` were the raw `"min-h-0"` from JSX override,
+      // `flex flex-col gap-3` would be gone entirely.
+      const el = container.firstElementChild as HTMLElement;
+      expect(el.classList.contains('flex')).toBe(true);
+      expect(el.classList.contains('flex-col')).toBe(true);
+      expect(el.classList.contains('gap-3')).toBe(true);
+      expect(el.classList.contains('min-h-0')).toBe(true);
+    });
+  });
 });

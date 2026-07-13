@@ -90,15 +90,30 @@ export const Stack = forwardRef<HTMLElement, StackProps>(
       ...rest
     } = merged;
 
+    // Runtime safety-net for #112 (G-28): the `StackProps` interface
+    // Omit-excludes `className`, forcing typed consumers to use `sx`. But
+    // TS-loose consumers (unchecked casts, `{...anyProps}` spreads) can
+    // still smuggle a `className` in at runtime. Left alone, the JSX
+    // spread order `<Tag className={classes} {...rest}>` would let that
+    // stray `className` clobber the entire variant chain via last-wins
+    // prop override — the exact bug the Blueprint dogfood report caught.
+    // Extract it, feed it through `cn` so tailwind-merge preserves the
+    // non-conflicting utility (e.g. consumer's `min-h-0` + variant
+    // `flex flex-col gap-3`), and drop it from the DOM spread.
+    const { className: consumerClassName, ...safeRest } = rest as typeof rest & {
+      className?: string;
+    };
+
     const classes = cn(
       stackVariants({ direction, align, justify, gap, wrap, fullWidth, fullHeight }),
+      consumerClassName,
       sx,
     );
 
     if (asChild) {
       // Slot expects a single child; divider has no place here.
       return (
-        <Slot ref={ref} className={classes} {...rest}>
+        <Slot ref={ref} className={classes} {...safeRest}>
           {children as ReactElement}
         </Slot>
       );
@@ -108,7 +123,7 @@ export const Stack = forwardRef<HTMLElement, StackProps>(
     const content = divider != null ? interleaveDividers(children, divider) : children;
 
     return (
-      <Tag ref={ref as never} className={classes} {...rest}>
+      <Tag ref={ref as never} className={classes} {...safeRest}>
         {content}
       </Tag>
     );

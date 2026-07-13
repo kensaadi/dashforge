@@ -78,6 +78,13 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
     // Early return — predicate false OR RBAC denies visibility.
     if (!isVisible || !accessState.visible) return null;
 
+    // #112 (G-28): salvage a stray untyped `className` that snuck in via
+    // spread props so the JSX `{...rest}` doesn't clobber the variant
+    // chain via last-wins prop override.
+    const { className: consumerClassName, ...safeRest } = rest as typeof rest & {
+      className?: string;
+    };
+
     const classes = cn(
       boxVariants({
         variant, color, elevation, rounded,
@@ -89,6 +96,7 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
       // assistive tech can react.
       accessState.disabled && 'opacity-60',
       accessState.readonly && 'opacity-80',
+      consumerClassName,
       sx,
     );
 
@@ -101,7 +109,7 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
 
     if (asChild) {
       return (
-        <Slot ref={ref} className={classes} {...ariaProps} {...rest}>
+        <Slot ref={ref} className={classes} {...ariaProps} {...safeRest}>
           {children as ReactElement}
         </Slot>
       );
@@ -109,7 +117,7 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
 
     const Tag = (as ?? 'div') as ElementType;
     return (
-      <Tag ref={ref as never} className={classes} {...ariaProps} {...rest}>
+      <Tag ref={ref as never} className={classes} {...ariaProps} {...safeRest}>
         {children}
       </Tag>
     );

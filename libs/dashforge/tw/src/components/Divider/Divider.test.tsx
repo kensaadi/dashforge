@@ -240,4 +240,39 @@ describe('<Divider>', () => {
       expect(el.hasAttribute('flexItem')).toBe(false);
     });
   });
+
+  // #112 (G-28) — untyped className snuck in via spread must NOT clobber
+  // the variant chain via JSX last-wins prop override. Applies to all
+  // three render paths (horizontal line, vertical line, labeled).
+  describe('#112 (G-28) className sneak-in safety net', () => {
+    it('horizontal line-only preserves variant classes with smuggled className', () => {
+      const smuggled = { className: 'my-4' } as Record<string, unknown>;
+      const { container } = render(
+        <Divider orientation="horizontal" {...(smuggled as never)} />,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('border-t');
+      expect(cls).toContain('my-4');
+    });
+
+    it('vertical line-only preserves variant classes with smuggled className', () => {
+      const smuggled = { className: 'mx-4' } as Record<string, unknown>;
+      const { container } = render(
+        <Divider orientation="vertical" {...(smuggled as never)} />,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('border-l');
+      expect(cls).toContain('mx-4');
+    });
+
+    it('labeled preserves variant classes with smuggled className', () => {
+      const smuggled = { className: 'my-8' } as Record<string, unknown>;
+      const { container } = render(
+        <Divider {...(smuggled as never)}>Section</Divider>,
+      );
+      const cls = container.firstElementChild?.className ?? '';
+      expect(cls).toContain('flex');
+      expect(cls).toContain('my-8');
+    });
+  });
 });

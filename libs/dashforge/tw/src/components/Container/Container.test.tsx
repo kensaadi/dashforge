@@ -206,4 +206,17 @@ describe('<Container>', () => {
       expect(container.firstElementChild?.className).toContain(`max-w-screen-${s}`);
     });
   });
+
+  // #112 (G-28) — untyped className snuck in via spread must NOT clobber
+  // the variant chain via JSX last-wins prop override.
+  it('#112: preserves variant classes when className is smuggled via spread', () => {
+    const smuggled = { className: 'min-h-0' } as Record<string, unknown>;
+    const { container } = render(
+      <Container size="lg" {...(smuggled as never)}>x</Container>,
+    );
+    const cls = container.firstElementChild?.className ?? '';
+    expect(cls).toContain('max-w-screen-lg');
+    expect(cls).toContain('mx-auto');
+    expect(cls).toContain('min-h-0');
+  });
 });

@@ -318,4 +318,31 @@ describe('<Grid>', () => {
       expect(outer?.children.length).toBe(2);
     });
   });
+
+  // #112 (G-28) — untyped className snuck in via spread must NOT clobber
+  // the variant chain via JSX last-wins prop override. Covers both the
+  // container and the item branch of the discriminated union.
+  describe('#112 (G-28) className sneak-in safety net', () => {
+    it('container branch preserves variant classes when className is smuggled', () => {
+      const smuggled = { className: 'min-h-0' } as Record<string, unknown>;
+      const { container: r } = render(
+        <Grid container cols={12} spacing={4} {...(smuggled as never)}>x</Grid>,
+      );
+      const cls = r.firstElementChild?.className ?? '';
+      expect(cls).toContain('grid');
+      expect(cls).toContain('grid-cols-12');
+      expect(cls).toContain('gap-4');
+      expect(cls).toContain('min-h-0');
+    });
+
+    it('item branch preserves variant classes when className is smuggled', () => {
+      const smuggled = { className: 'min-w-0' } as Record<string, unknown>;
+      const { container: r } = render(
+        <Grid xs={6} {...(smuggled as never)}>x</Grid>,
+      );
+      const cls = r.firstElementChild?.className ?? '';
+      expect(cls).toContain('col-span-6');
+      expect(cls).toContain('min-w-0');
+    });
+  });
 });

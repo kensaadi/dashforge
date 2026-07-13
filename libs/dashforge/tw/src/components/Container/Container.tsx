@@ -52,14 +52,22 @@ export const Container = forwardRef<HTMLElement, ContainerProps>(
       ...rest
     } = merged;
 
+    // Runtime safety-net for #112 (G-28) — same rationale as Stack:
+    // salvage a stray untyped `className` from the spread props so the
+    // variant chain isn't clobbered via JSX last-wins prop override.
+    const { className: consumerClassName, ...safeRest } = rest as typeof rest & {
+      className?: string;
+    };
+
     const classes = cn(
       containerVariants({ size, px, centerContent }),
+      consumerClassName,
       sx,
     );
 
     if (asChild) {
       return (
-        <Slot ref={ref} className={classes} {...rest}>
+        <Slot ref={ref} className={classes} {...safeRest}>
           {children as ReactElement}
         </Slot>
       );
@@ -67,7 +75,7 @@ export const Container = forwardRef<HTMLElement, ContainerProps>(
 
     const Tag = (as ?? 'div') as ElementType;
     return (
-      <Tag ref={ref as never} className={classes} {...rest}>
+      <Tag ref={ref as never} className={classes} {...safeRest}>
         {children}
       </Tag>
     );

@@ -48,12 +48,18 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
     // branches of the discriminated union.
     const themeDefaults = useComponentDefaults('Grid');
     const props = { ...themeDefaults?.defaults, ..._props } as GridProps;
-    const { as, asChild = false, sx, children, ...rest } = props as GridProps & {
-      as?: ElementType;
-      asChild?: boolean;
-      sx?: string;
-      children?: React.ReactNode;
-    };
+    const { as, asChild = false, sx, children, className: consumerClassName, ...rest } =
+      props as GridProps & {
+        as?: ElementType;
+        asChild?: boolean;
+        sx?: string;
+        children?: React.ReactNode;
+        className?: string;
+      };
+    // #112 (G-28): salvage a stray untyped `className` that snuck in via
+    // spread props so the JSX spread doesn't clobber the variant chain
+    // via last-wins prop override. Merged through `cn` in both branches
+    // below so tailwind-merge preserves the non-conflicting utility.
     /*
      * Discriminated union runtime branch.
      *
@@ -87,6 +93,7 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
           spacingY: containerPayload.spacingY,
           autoFlow: containerPayload.autoFlow,
         }),
+        consumerClassName,
         sx,
       );
     } else {
@@ -103,6 +110,7 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
           lg: itemPayload.lg,
           xl: itemPayload.xl,
         }),
+        consumerClassName,
         sx,
       );
     }

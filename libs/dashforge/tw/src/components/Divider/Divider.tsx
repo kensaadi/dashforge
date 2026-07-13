@@ -70,10 +70,19 @@ export const Divider = forwardRef<HTMLElement, DividerProps>(
     // public API for parity with MUI Divider. Forward-compat hook.
     void flexItem;
 
+    // #112 (G-28): salvage a stray untyped `className` that snuck in via
+    // spread props so the JSX `{...rest}` doesn't clobber the variant
+    // chain via last-wins prop override. Applied to all three render
+    // paths (horizontal line, vertical line, labeled) below.
+    const { className: consumerClassName, ...safeRest } = rest as typeof rest & {
+      className?: string;
+    };
+
     // ─── Mode 1: line-only (no children) ─────────────────────────────
     if (children == null) {
       const lineClasses = cn(
         dividerLineVariants({ orientation, variant, color, segment: 'full' }),
+        consumerClassName,
         sx,
       );
 
@@ -88,7 +97,7 @@ export const Divider = forwardRef<HTMLElement, DividerProps>(
             role="separator"
             aria-orientation="horizontal"
             className={cn('border-0', lineClasses)}
-            {...rest}
+            {...safeRest}
           />
         );
       }
@@ -98,13 +107,17 @@ export const Divider = forwardRef<HTMLElement, DividerProps>(
           role="separator"
           aria-orientation="vertical"
           className={lineClasses}
-          {...rest}
+          {...safeRest}
         />
       );
     }
 
     // ─── Mode 2: labeled (with children) ─────────────────────────────
-    const rootClasses = cn(dividerVariants({ orientation, align }), sx);
+    const rootClasses = cn(
+      dividerVariants({ orientation, align }),
+      consumerClassName,
+      sx,
+    );
 
     /*
      * Segment widths per `align`:
@@ -128,7 +141,7 @@ export const Divider = forwardRef<HTMLElement, DividerProps>(
         role="separator"
         aria-orientation={orientation}
         className={rootClasses}
-        {...rest}
+        {...safeRest}
       >
         <span aria-hidden="true" className={cn(lineCommon, leftStubClass)} />
         <span className={cn('shrink-0 text-sm text-neutral-500', labelPadding)}>

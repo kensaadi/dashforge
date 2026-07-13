@@ -388,4 +388,17 @@ describe('<Box>', () => {
       expect(container.firstChild).toBeTruthy();
     });
   });
+
+  // #112 (G-28) — untyped className snuck in via spread must NOT clobber
+  // the variant chain via JSX last-wins prop override.
+  it('#112: preserves variant classes when className is smuggled via spread', () => {
+    const smuggled = { className: 'min-h-0' } as Record<string, unknown>;
+    const { container } = render(
+      <Box variant="outlined" rounded="md" {...(smuggled as never)}>x</Box>,
+    );
+    const cls = container.firstElementChild?.className ?? '';
+    expect(cls).toContain('border');
+    expect(cls).toContain('rounded-md');
+    expect(cls).toContain('min-h-0');
+  });
 });
