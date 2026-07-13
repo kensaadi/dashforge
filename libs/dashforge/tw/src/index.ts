@@ -275,6 +275,30 @@ export type {
 } from './components/Progress/progress.types.js';
 export { progressVariants } from './components/Progress/progress.variants.js';
 
+// Stepper — declarative multi-step navigation (Sprint 6 SHIP #3).
+// Compound children (<Stepper><Step /></Stepper>) with per-step config
+// (name, label, helperText, icon, optional, fields, isValid,
+// visibleWhen, access). `useStep()` hook exposes goNext / goBack /
+// goToStep / reset + errors[] for consumer-driven error routing on
+// review steps. `fields` trigger runs via bridge.trigger (added in
+// this ship as an optional method on DashFormBridge). Horizontal +
+// vertical orientation, labelPlacement 'end' | 'below' (MUI
+// alternativeLabel parity), initialStep for resume/deep-link.
+export { Stepper } from './components/Stepper/Stepper.js';
+export { Step } from './components/Stepper/Step.js';
+export { useStep } from './components/Stepper/useStep.js';
+export type {
+  StepperProps,
+  StepperVariantProps,
+  StepperSlotProps,
+  StepProps,
+  StepState,
+  StepError,
+  UseStepReturn,
+  OnStepInvalidPayload,
+} from './components/Stepper/stepper.types.js';
+export { stepperVariants } from './components/Stepper/stepper.variants.js';
+
 // Slider — token-driven numeric picker (Sprint 6 SHIP #1).
 // Single value or [min, max] range via `range?: boolean`. Bridge
 // commit on drag-end (opt-in per-tick via `commitOnChange`). Optional

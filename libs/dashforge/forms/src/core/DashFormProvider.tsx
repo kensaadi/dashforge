@@ -458,6 +458,34 @@ export function DashFormProvider<
       getValue: (name: string) => {
         return rhf.getValues(name as FieldPath<TFieldValues>);
       },
+      trigger: async (name?: string | string[]) => {
+        const paths =
+          name === undefined
+            ? undefined
+            : ((Array.isArray(name) ? name : [name]) as FieldPath<TFieldValues>[]);
+        const ok = paths === undefined ? await rhf.trigger() : await rhf.trigger(paths);
+        // Read errors via `rhf.getFieldState(name)` — this bypasses the
+        // React subscription cycle and reads directly from RHF's
+        // internal state, so it's fresh immediately after `trigger`
+        // resolves (unlike `rhf.formState.errors`, which is only
+        // populated on the next render).
+        if (paths) {
+          const merged: Record<string, unknown> = { ...(errorsRef.current ?? {}) };
+          paths.forEach((p) => {
+            const state = rhf.getFieldState(p);
+            if (state.error) {
+              merged[p as string] = state.error;
+            } else {
+              delete merged[p as string];
+            }
+          });
+          errorsRef.current = merged as typeof errorsRef.current;
+        } else {
+          errorsRef.current = rhf.formState.errors;
+        }
+        touchedFieldsRef.current = rhf.formState.touchedFields;
+        return ok;
+      },
       debug,
     }),
     // Identity-stable bridge: deps include only the long-lived references.

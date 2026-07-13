@@ -242,6 +242,21 @@ export interface DashFormBridge {
    * Debug mode flag.
    */
   debug?: boolean;
+
+  /**
+   * Trigger validation for a subset of fields (or the whole form if omitted).
+   * Returns `true` when every requested field passes, `false` otherwise.
+   *
+   * Optional / feature-gated: implementations backed by react-hook-form
+   * proxy this to `rhf.trigger(name?)`. Consumers that want to gate a
+   * step boundary (e.g. `<Stepper>` moving to the next step) should
+   * probe for `bridge.trigger` before calling — a missing implementation
+   * means "no manual validation available; rely on the reactive error
+   * state already populated on the bridge".
+   *
+   * @param name - Field name or array of field names. Omit for the whole form.
+   */
+  trigger?: (name?: string | string[]) => Promise<boolean>;
 }
 
 /**

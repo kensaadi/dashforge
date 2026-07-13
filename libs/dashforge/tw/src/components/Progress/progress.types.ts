@@ -175,9 +175,11 @@ export interface ProgressProps {
 
   /**
    * Formatter for the value label. Receives the current value AND the
-   * max so consumers can render `${value}/${max}` or `Step 3 of 5`
-   * without an extra closure over max.
-   * @default (value, max) => `${Math.round((value / max) * 100)}%`
+   * max so consumers can render `value/max` compositions or free-form
+   * copy like `Step 3 of 5` without an extra closure over `max`.
+   *
+   * Default returns the ratio rounded to a whole percent — e.g.
+   * value=42, max=100 renders `42%`.
    */
   formatLabel?: (value: number, max: number) => ReactNode;
 
