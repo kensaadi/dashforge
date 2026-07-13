@@ -259,6 +259,26 @@ export {
   ICON_BUTTON_SIZE_OVERRIDES,
 } from './components/IconButton/iconButton.variants.js';
 
+// Select — dedicated enum picker (Sprint 6 / #60 DECIDE bucket).
+// Ships as a lightweight complement to <Autocomplete>: no search input,
+// no async loading, no typeahead-driven filter. Optimised for the
+// 3-10 static option case (Blueprint Inspector, admin form enums,
+// config panels). Same bridge integration pattern as TextField /
+// Autocomplete. Single + multi select in v1. Two-arg onChange so
+// consumers with rich SelectOption shapes can access custom fields
+// in the callback.
+export { Select } from './components/Select/Select.js';
+export type {
+  SelectProps,
+  SelectOption,
+  SelectValue,
+  SelectVariantProps,
+  SelectSlotProps,
+  SelectChangeHandler,
+  SelectMultiChangeHandler,
+} from './components/Select/select.types.js';
+export { selectVariants } from './components/Select/select.variants.js';
+
 // Link — token-driven anchor primitive (Sprint 6 / #60 DECIDE bucket).
 // Every visual axis (color / underline / weight / size) is
 // theme-configurable via `theme.components.Link.defaults` so the DS
