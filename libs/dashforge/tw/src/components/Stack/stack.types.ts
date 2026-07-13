@@ -1,14 +1,20 @@
 import type { ElementType, HTMLAttributes, ReactNode } from 'react';
-import type { StackVariants } from './stack.variants.js';
+import type { StackGap, StackVariants } from './stack.variants.js';
 
 /**
  * Subset of `<Stack>` props theme-configurable via
  * `theme.components.Stack.defaults` (Option C).
+ *
+ * `gap` is deliberately overridden to the strict `StackGap` literal
+ * union rather than the `VariantProps`-widened `string` — see
+ * `stack.variants.ts` and issue #111 (G-27) for the widening bug.
  */
 export type StackVariantProps = Pick<
   StackVariants,
-  'direction' | 'align' | 'justify' | 'gap' | 'wrap' | 'fullWidth' | 'fullHeight'
->;
+  'direction' | 'align' | 'justify' | 'wrap' | 'fullWidth' | 'fullHeight'
+> & {
+  gap?: StackGap;
+};
 
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
@@ -53,8 +59,15 @@ export interface StackProps
   /** Main-axis alignment (`justify-*`). */
   justify?: StackVariants['justify'];
 
-  /** Gap between children — spacing token step. */
-  gap?: StackVariants['gap'];
+  /**
+   * Gap between children — spacing token step. Accepts one of eleven
+   * numeric literals matching Box's spacing scale: `0 | 0.5 | 1 | 2 |
+   * 3 | 4 | 6 | 8 | 12 | 16 | 24`. Token strings (`'xs' | 'sm' | 'md'`)
+   * are **not** accepted — TypeScript rejects them at compile time,
+   * and a runtime pass through with an unknown value emits a
+   * dev-only `console.warn` (issue #111 / G-27).
+   */
+  gap?: StackGap;
 
   /**
    * Allow children to wrap to the next line (`flex-wrap`).

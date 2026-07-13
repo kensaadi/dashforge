@@ -78,3 +78,41 @@ export const stackVariants = tv({
 });
 
 export type StackVariants = VariantProps<typeof stackVariants>;
+
+/**
+ * The 11 accepted values for `<Stack gap>` — same set as Box's spacing
+ * axes (p, m, etc.). Exported so the JSDoc, the runtime dev-warn, and
+ * the `<Stack>` prop type all speak the same list.
+ *
+ * Why re-declared instead of derived from `stackVariants.variants.gap`
+ * via `VariantProps`: `tailwind-variants` 3.x widens variant value
+ * types to `string | undefined` when the variant object has mixed-type
+ * keys (numeric literals + string literals like `'0.5'`), which is why
+ * TS silently accepted `<Stack gap="md">` before #111 — that's the
+ * whole bug this literal union closes. Keep this list in sync with
+ * the `gap` object in the `variants` block above.
+ *
+ * @see Issue #111 — silent-fail when `gap` receives a token value that
+ * isn't on the numeric scale (G-27).
+ */
+export type StackGap =
+  | 0
+  | 0.5
+  | 1
+  | 2
+  | 3
+  | 4
+  | 6
+  | 8
+  | 12
+  | 16
+  | 24;
+
+/**
+ * Runtime allow-list, for the dev-warn to check against a passed
+ * `gap` value at render time. Same set as {@link StackGap}. Frozen
+ * so callers can't mutate the source of truth.
+ */
+export const STACK_GAP_VALUES: readonly StackGap[] = Object.freeze([
+  0, 0.5, 1, 2, 3, 4, 6, 8, 12, 16, 24,
+]);

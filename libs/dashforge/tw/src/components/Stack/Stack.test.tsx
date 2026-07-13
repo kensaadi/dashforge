@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { Stack } from './Stack.js';
 
@@ -304,6 +304,82 @@ describe('<Stack>', () => {
     it('empty Stack with divider does NOT render the divider', () => {
       const { container } = render(<Stack divider={<hr data-testid="d" />} />);
       expect(container.querySelectorAll('[data-testid="d"]').length).toBe(0);
+    });
+  });
+
+  // ─── #111 (G-27) — gap type widening + runtime dev-warn ─────────────
+  // The `<Stack gap>` prop is TS-narrowed to the 11-value literal union
+  // `0 | 0.5 | 1 | 2 | 3 | 4 | 6 | 8 | 12 | 16 | 24`. A dynamic value
+  // that slips past the type check (e.g. `gap={someProps.spacing}`
+  // where the spacing prop is loosely typed) triggers a dev-only
+  // console.warn per unknown value.
+  describe('#111 (G-27) gap runtime dev-warn', () => {
+    let warnSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      warnSpy.mockRestore();
+      vi.unstubAllEnvs();
+    });
+
+    it('warns when gap is a token string like "md"', () => {
+      render(
+        <Stack direction="col" gap={'md' as never}>
+          x
+        </Stack>,
+      );
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0][0]).toContain('<Stack gap={"md"}>');
+      expect(warnSpy.mock.calls[0][0]).toContain('token-scale set');
+    });
+
+    it('warns when gap is an off-scale numeric like 5', () => {
+      render(
+        <Stack direction="col" gap={5 as never}>
+          x
+        </Stack>,
+      );
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0][0]).toContain('<Stack gap={5}>');
+    });
+
+    it('does NOT warn when gap is on the accepted scale', () => {
+      render(
+        <>
+          <Stack direction="col" gap={0}>x</Stack>
+          <Stack direction="col" gap={0.5}>x</Stack>
+          <Stack direction="col" gap={3}>x</Stack>
+          <Stack direction="col" gap={24}>x</Stack>
+        </>,
+      );
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it('does NOT warn when gap is omitted', () => {
+      render(<Stack direction="col">x</Stack>);
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it('warns at most once per unknown value across the module lifetime', () => {
+      // Two Stacks with the SAME unknown gap — one warning total.
+      render(
+        <>
+          <Stack gap={'unique-sentinel-1' as never}>x</Stack>
+          <Stack gap={'unique-sentinel-1' as never}>y</Stack>
+        </>,
+      );
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('is a no-op in production builds', () => {
+      vi.stubEnv('NODE_ENV', 'production');
+      render(
+        <Stack gap={'unique-sentinel-prod' as never}>x</Stack>,
+      );
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 

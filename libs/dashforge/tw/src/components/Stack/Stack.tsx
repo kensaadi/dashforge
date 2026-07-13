@@ -11,8 +11,17 @@ import {
 import { Slot } from '@radix-ui/react-slot';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
-import { stackVariants } from './stack.variants.js';
+import { STACK_GAP_VALUES, stackVariants } from './stack.variants.js';
+import type { StackVariants } from './stack.variants.js';
 import type { StackProps } from './stack.types.js';
+
+/**
+ * Track already-warned `gap` values per module lifetime so the same
+ * unknown value doesn't flood the console — mirrors the
+ * useStandaloneFieldWarning "warn once" ergonomic. `Set<unknown>` so
+ * `null` / arbitrary strings share the same bucket as `NaN`.
+ */
+const warnedGapValues = new Set<unknown>();
 
 /**
  * Walk the children, inserting `divider` BETWEEN every consecutive pair.
@@ -90,6 +99,28 @@ export const Stack = forwardRef<HTMLElement, StackProps>(
       ...rest
     } = merged;
 
+    // Dev-only guard for #111 (G-27): `<Stack gap>` is typed to the
+    // strict `StackGap` literal union, but a dynamic runtime value
+    // (e.g. `gap={someProps.spacing}` where `someProps` is loosely
+    // typed) can still slip through. Warn once per unknown value so
+    // consumers get a real signal instead of silent `rowGap: normal`.
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      gap !== undefined &&
+      !STACK_GAP_VALUES.includes(gap as never) &&
+      !warnedGapValues.has(gap)
+    ) {
+      warnedGapValues.add(gap);
+      // eslint-disable-next-line no-console -- dev-only guard, guarded by NODE_ENV above.
+      console.warn(
+        `[@dashforge/tw] <Stack gap={${JSON.stringify(gap)}}> is not on the ` +
+          `token-scale set (${STACK_GAP_VALUES.join(', ')}). The variant ` +
+          `mapping silently falls back to no gap. Use a numeric literal ` +
+          `from the accepted set — token strings like "sm" / "md" / "lg" ` +
+          `are not supported.`,
+      );
+    }
+
     // Runtime safety-net for #112 (G-28): the `StackProps` interface
     // Omit-excludes `className`, forcing typed consumers to use `sx`. But
     // TS-loose consumers (unchecked casts, `{...anyProps}` spreads) can
@@ -105,7 +136,23 @@ export const Stack = forwardRef<HTMLElement, StackProps>(
     };
 
     const classes = cn(
-      stackVariants({ direction, align, justify, gap, wrap, fullWidth, fullHeight }),
+      stackVariants({
+        direction,
+        align,
+        justify,
+        // `StackGap` is a numeric-only literal union (`0 | 0.5 | 1 | ...`)
+        // for a clean consumer-facing API, but `tailwind-variants` sees
+        // the object's mixed key set (`'0.5'` is a string literal at the
+        // TypeScript level, the rest are numbers) and asks for that mixed
+        // shape here. The JS runtime coerces object keys to strings on
+        // lookup, so `stackVariants({ gap: 0.5 })` and
+        // `stackVariants({ gap: '0.5' })` both resolve to `'gap-0.5'` —
+        // the cast is a compile-time bridge only.
+        gap: gap as StackVariants['gap'],
+        wrap,
+        fullWidth,
+        fullHeight,
+      }),
       consumerClassName,
       sx,
     );
