@@ -6,6 +6,7 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
+import { useStandaloneFieldWarning } from '../../hooks/useStandaloneFieldWarning.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { radioGroupVariants } from './radioGroup.variants.js';
 import type { RadioGroupProps } from './radioGroup.types.js';
@@ -101,6 +102,17 @@ export function RadioGroup(props: RadioGroupProps) {
       });
     };
   }, []);
+
+  // Dev-only guard against a standalone widget without controlled props —
+  // must run before the visibility early-returns so hook ordering is
+  // consistent across renders. See #113 / useStandaloneFieldWarning.
+  useStandaloneFieldWarning(
+    'RadioGroup',
+    name,
+    Boolean(bridge?.register),
+    explicitValue,
+    onValueChange,
+  );
 
   // ───── Early returns ─────
   if (!isVisible) return null;

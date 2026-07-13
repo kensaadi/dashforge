@@ -6,6 +6,7 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
+import { useStandaloneFieldWarning } from '../../hooks/useStandaloneFieldWarning.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { switchVariants } from './switch.variants.js';
 import type { SwitchProps } from './switch.types.js';
@@ -65,6 +66,17 @@ export function Switch(props: SwitchProps) {
       });
     };
   }, []);
+
+  // Dev-only guard against a standalone widget without controlled props —
+  // must run before the visibility early-returns so hook ordering is
+  // consistent across renders. See #113 / useStandaloneFieldWarning.
+  useStandaloneFieldWarning(
+    'Switch',
+    name,
+    Boolean(bridge?.register),
+    checked,
+    onCheckedChange,
+  );
 
   if (!isVisible) return null;
   if (!accessState.visible) return null;

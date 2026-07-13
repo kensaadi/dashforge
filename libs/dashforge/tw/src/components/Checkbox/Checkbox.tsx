@@ -6,6 +6,7 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
+import { useStandaloneFieldWarning } from '../../hooks/useStandaloneFieldWarning.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { checkboxVariants } from './checkbox.variants.js';
 import type { CheckboxProps } from './checkbox.types.js';
@@ -142,6 +143,17 @@ export function Checkbox(props: CheckboxProps) {
       });
     };
   }, []);
+
+  // Dev-only guard against a standalone widget without controlled props —
+  // must run before the visibility early-returns so hook ordering is
+  // consistent across renders. See #113 / useStandaloneFieldWarning.
+  useStandaloneFieldWarning(
+    'Checkbox',
+    name,
+    Boolean(bridge?.register),
+    checked,
+    onCheckedChange,
+  );
 
   // ───── Early returns ─────
   if (!isVisible) return null;

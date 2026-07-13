@@ -5,6 +5,7 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
+import { useStandaloneFieldWarning } from '../../hooks/useStandaloneFieldWarning.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { textareaVariants } from './textarea.variants.js';
 import type { TextareaProps } from './textarea.types.js';
@@ -80,6 +81,7 @@ export function Textarea(props: TextareaProps) {
   const effectiveReadOnly = accessState.readonly;
 
   const isFormMode = Boolean(bridge?.register);
+  useStandaloneFieldWarning('Textarea', name, isFormMode, userValue, userOnChange);
 
   let resolvedError = error;
   let resolvedHelperText: typeof helperText = helperText;

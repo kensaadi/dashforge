@@ -5,6 +5,7 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
+import { useStandaloneFieldWarning } from '../../hooks/useStandaloneFieldWarning.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { numberFieldVariants } from './numberField.variants.js';
 import type { NumberFieldProps } from './numberField.types.js';
@@ -140,6 +141,7 @@ export function NumberField(props: NumberFieldProps) {
   const effectiveReadOnly = accessState.readonly;
 
   const isFormMode = Boolean(bridge?.register);
+  useStandaloneFieldWarning('NumberField', name, isFormMode, userValue, userOnChange);
 
   let resolvedError = error;
   let resolvedHelperText: typeof helperText = helperText;

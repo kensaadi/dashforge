@@ -5,6 +5,7 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
+import { useStandaloneFieldWarning } from '../../hooks/useStandaloneFieldWarning.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { textFieldVariants } from './textField.variants.js';
 import type { TextFieldProps } from './textField.types.js';
@@ -93,6 +94,7 @@ export function TextField(props: TextFieldProps) {
   const effectiveReadOnly = accessState.readonly;
 
   const isFormMode = Boolean(bridge?.register);
+  useStandaloneFieldWarning('TextField', name, isFormMode, userValue, userOnChange);
 
   let resolvedError = error;
   let resolvedHelperText: typeof helperText = helperText;
