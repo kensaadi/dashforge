@@ -259,6 +259,18 @@ export {
   ICON_BUTTON_SIZE_OVERRIDES,
 } from './components/IconButton/iconButton.variants.js';
 
+// Link — token-driven anchor primitive (Sprint 6 / #60 DECIDE bucket).
+// Every visual axis (color / underline / weight / size) is
+// theme-configurable via `theme.components.Link.defaults` so the DS
+// anchors identity in the theme, not in every JSX call. startIcon /
+// endIcon accept any ReactNode (icon library, inline <svg>, <img> from
+// S3, etc.). `external` toggles `target="_blank"` + `rel` without
+// auto-appending any glyph — the dev owns the visual affordance.
+// `asChild` (Radix Slot) is the router-integration escape hatch.
+export { Link } from './components/Link/Link.js';
+export type { LinkProps, LinkVariantProps, LinkSlotProps } from './components/Link/link.types.js';
+export { linkVariants } from './components/Link/link.variants.js';
+
 // Menu family — compound action menu built on
 // `@radix-ui/react-dropdown-menu` (purpose-built menu primitive
 // with full WAI-ARIA menu pattern + keyboard nav + type-ahead +
