@@ -78,4 +78,41 @@ describe('DatePicker', () => {
     // touched-marking blur that fires as the popup closes.
     expect(state?.values.startDate).toBe('2026-05-15');
   });
+
+  // Regression for #114: with the bridge default value at `null`, the first
+  // day-cell click has to commit to the bridge (null → valid transition).
+  // The user-reported symptom was "popup closes but the input stays empty"
+  // because `handleCalendarChange` was believed not to fire. In hindsight
+  // the live path works end-to-end; keep this test so a future refactor
+  // that breaks the null-seeded controlled path (e.g. `useCalendar`
+  // treating `selected === null` as "no controlled state" and skipping
+  // `onSelect`) is caught in CI instead of the next dash smoke session.
+  //
+  // Fake system time so the calendar opens on a known month regardless of
+  // the wall clock — with `defaultValue == null` the calendar seeds off
+  // `today`, so the day button label we click must live in that month.
+  it('commits from a null default value (issue #114)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-05-13T12:00:00Z'));
+    try {
+      const { state } = renderWithBridge(
+        <DatePicker
+          name="startDate"
+          label="Start"
+          minDate="2026-05-01"
+          maxDate="2026-07-31"
+        />,
+        { mockBridgeOptions: { defaultValues: { startDate: null } } },
+      );
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(state?.values.startDate).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Open calendar' }));
+      fireEvent.click(screen.getByRole('button', { name: /May 15, 2026/ }));
+      expect(state?.values.startDate).toBe('2026-05-15');
+      expect(screen.getByRole('textbox')).toHaveValue('May 15, 2026');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
