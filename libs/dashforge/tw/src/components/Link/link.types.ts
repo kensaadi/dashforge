@@ -171,7 +171,9 @@ export interface LinkProps
   sx?: string;
 
   /**
-   * Per-slot overrides. See {@link LinkSlotProps}.
+   * Per-slot overrides. Each slot accepts a `{ className?: string }`
+   * override — see the `LinkSlotProps` type for the three slot names
+   * (`root`, `startIcon`, `endIcon`).
    */
   slotProps?: LinkSlotProps;
 }
