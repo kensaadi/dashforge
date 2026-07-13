@@ -144,3 +144,147 @@ describe('DashforgeTailwindProvider — robustness', () => {
       .toBe('59 130 246');
   });
 });
+
+// ─── #110 (G-23) — mode sync discoverability ─────────────────────────
+// Two-part fix:
+//   Option A — dev-warn via MutationObserver when someone bypasses the
+//              provider by writing `data-dash-tw-theme` directly on
+//              `<html>`. The attribute value ends up out of sync with
+//              the store, so the user needs a signal.
+//   Option B — controlled `mode` + `onModeChange` prop on the provider,
+//              so consumer React state can drive theming without
+//              reaching for the imperative `setMode()` helper.
+describe('DashforgeTailwindProvider — #110 controlled mode (Option B)', () => {
+  it('syncs the store to the `mode` prop on mount', async () => {
+    const { DashforgeTailwindProvider, twThemeStore } = await freshImport();
+    render(<DashforgeTailwindProvider mode="dark">x</DashforgeTailwindProvider>);
+    expect(twThemeStore.meta.mode).toBe('dark');
+    expect(document.documentElement.getAttribute('data-dash-tw-theme')).toBe('dark');
+  });
+
+  it('syncs the store when `mode` prop changes across renders', async () => {
+    const { DashforgeTailwindProvider, twThemeStore } = await freshImport();
+    const { rerender } = render(
+      <DashforgeTailwindProvider mode="light">x</DashforgeTailwindProvider>
+    );
+    expect(twThemeStore.meta.mode).toBe('light');
+
+    await act(async () => {
+      rerender(<DashforgeTailwindProvider mode="dark">x</DashforgeTailwindProvider>);
+    });
+    expect(twThemeStore.meta.mode).toBe('dark');
+    expect(document.documentElement.getAttribute('data-dash-tw-theme')).toBe('dark');
+  });
+
+  it('calls `onModeChange` when the store mode transitions', async () => {
+    const { DashforgeTailwindProvider, setMode } = await freshImport();
+    const onModeChange = vi.fn();
+    render(
+      <DashforgeTailwindProvider onModeChange={onModeChange}>x</DashforgeTailwindProvider>
+    );
+
+    // No fire on the initial commit — there was no "previous" mode.
+    expect(onModeChange).not.toHaveBeenCalled();
+
+    await act(async () => {
+      setMode('dark');
+    });
+    expect(onModeChange).toHaveBeenCalledTimes(1);
+    expect(onModeChange).toHaveBeenLastCalledWith('dark');
+
+    await act(async () => {
+      setMode('light');
+    });
+    expect(onModeChange).toHaveBeenCalledTimes(2);
+    expect(onModeChange).toHaveBeenLastCalledWith('light');
+  });
+
+  it('does not fire `onModeChange` when the same mode is re-set', async () => {
+    const { DashforgeTailwindProvider, setMode } = await freshImport();
+    const onModeChange = vi.fn();
+    render(
+      <DashforgeTailwindProvider onModeChange={onModeChange}>x</DashforgeTailwindProvider>
+    );
+
+    // Store already at 'light' from mount — setting it again should be a no-op.
+    await act(async () => {
+      setMode('light');
+    });
+    expect(onModeChange).not.toHaveBeenCalled();
+  });
+
+  it('does not loop when the consumer wires mode + onModeChange', async () => {
+    // Standard React controlled pattern: consumer holds React state,
+    // passes it in as `mode`, updates it in `onModeChange`. Provider
+    // MUST NOT emit onModeChange as a reaction to its own controlled
+    // effect for the same value.
+    const { DashforgeTailwindProvider } = await freshImport();
+    const onModeChange = vi.fn();
+    render(
+      <DashforgeTailwindProvider mode="dark" onModeChange={onModeChange}>
+        x
+      </DashforgeTailwindProvider>
+    );
+    // Provider syncs store to 'dark' on mount, but the initial-commit
+    // guard suppresses the emit. Second render (react will flush) has
+    // no further store change → no extra emits.
+    expect(onModeChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('DashforgeTailwindProvider — #110 dev-warn on external writes (Option A)', () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  it('warns when data-dash-tw-theme is written outside the provider', async () => {
+    const { DashforgeTailwindProvider } = await freshImport();
+    render(<DashforgeTailwindProvider>x</DashforgeTailwindProvider>);
+    warnSpy.mockClear();
+
+    // Simulate the Blueprint mistake: consumer writes the attribute
+    // directly. The store stays at 'light' but the attribute reads
+    // 'dark' → mismatch → warn.
+    await act(async () => {
+      document.documentElement.setAttribute('data-dash-tw-theme', 'dark');
+      // Give the MutationObserver a tick to fire its callback.
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(warnSpy).toHaveBeenCalled();
+    const message = warnSpy.mock.calls[0][0] as string;
+    expect(message).toContain('data-dash-tw-theme');
+    expect(message).toContain('setMode()');
+  });
+
+  it('does NOT warn when the provider itself writes the attribute', async () => {
+    const { DashforgeTailwindProvider, setMode } = await freshImport();
+    render(<DashforgeTailwindProvider>x</DashforgeTailwindProvider>);
+    warnSpy.mockClear();
+
+    await act(async () => {
+      setMode('dark');
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    // The store transitioned to 'dark' and the provider mirrored it —
+    // attribute value matches the store, no warn.
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it('does NOT warn when the attribute is written to the current store mode', async () => {
+    const { DashforgeTailwindProvider } = await freshImport();
+    render(<DashforgeTailwindProvider>x</DashforgeTailwindProvider>);
+    warnSpy.mockClear();
+
+    // Redundant write to the same value — attribute matches store.
+    await act(async () => {
+      document.documentElement.setAttribute('data-dash-tw-theme', 'light');
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+});
