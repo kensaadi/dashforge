@@ -275,6 +275,29 @@ export type {
 } from './components/Progress/progress.types.js';
 export { progressVariants } from './components/Progress/progress.variants.js';
 
+// Drawer — edge-anchored sliding panel (Sprint 6 SHIP #4).
+// Distinct from Dialog (viewport-centered), Popover (trigger-attached),
+// and Menu (contextual list): Drawer anchors to one of the four
+// viewport edges. Two variants: `temporary` (modal, backdrop, focus
+// trap, scroll lock) and `persistent` (non-modal, coexists with page
+// content, no backdrop). Built on `@radix-ui/react-dialog` — `modal`
+// prop toggles the semantics. Optional resize handle on the free edge
+// with pointer drag + keyboard step + localStorage persistence
+// (namespaced under `df.drawer.<resizeKey>`). 4 positions × 4 sizes ×
+// 2 variants, all Option C configurable via
+// `theme.components.Drawer.defaults` + `slotProps`. `visibleWhen` +
+// `access` follow the catalog convention.
+export { Drawer } from './components/Drawer/Drawer.js';
+export type {
+  DrawerProps,
+  DrawerVariantProps,
+  DrawerSlotProps,
+} from './components/Drawer/drawer.types.js';
+export {
+  drawerVariants,
+  DRAWER_SIZE_PRESETS,
+} from './components/Drawer/drawer.variants.js';
+
 // Stepper — declarative multi-step navigation (Sprint 6 SHIP #3).
 // Compound children (<Stepper><Step /></Stepper>) with per-step config
 // (name, label, helperText, icon, optional, fields, isValid,
