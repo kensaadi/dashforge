@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { appShellVariants } from './appShell.variants.js';
 import type { AppShellProps } from './appShell.types.js';
@@ -71,6 +72,7 @@ const FOCUSABLE_SELECTOR = [
  *     overlay rather than just an aside.
  */
 export function AppShell(props: AppShellProps) {
+  const themeDefaults = useComponentDefaults('AppShell');
   const {
     header,
     nav,
@@ -81,6 +83,8 @@ export function AppShell(props: AppShellProps) {
     sx,
     slotProps,
   } = props;
+  // Theme-level slotProps (Option C Track B).
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const v = appShellVariants({ navOpen });
 
@@ -185,9 +189,9 @@ export function AppShell(props: AppShellProps) {
   }, [navOpen]);
 
   return (
-    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <div className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}>
       {header && (
-        <div className={cn(v.header(), slotProps?.header?.className)}>
+        <div className={cn(v.header(), themeSlotProps?.header?.className, slotProps?.header?.className)}>
           {header}
         </div>
       )}
@@ -195,12 +199,12 @@ export function AppShell(props: AppShellProps) {
       <div className={v.body()}>
         {nav && (
           <>
-            <aside className={cn(v.nav(), slotProps?.nav?.className)}>
+            <aside className={cn(v.nav(), themeSlotProps?.nav?.className, slotProps?.nav?.className)}>
               {nav}
             </aside>
             <aside
               ref={drawerRef}
-              className={cn(v.navMobile(), slotProps?.navMobile?.className)}
+              className={cn(v.navMobile(), themeSlotProps?.navMobile?.className, slotProps?.navMobile?.className)}
               aria-hidden={!navOpen}
               // When open, the drawer is a modal overlay — `dialog` +
               // `aria-modal="true"` so screen readers announce it as
@@ -216,7 +220,7 @@ export function AppShell(props: AppShellProps) {
               {nav}
             </aside>
             <div
-              className={cn(v.backdrop(), slotProps?.backdrop?.className)}
+              className={cn(v.backdrop(), themeSlotProps?.backdrop?.className, slotProps?.backdrop?.className)}
               role="presentation"
               onClick={() => onNavOpenChange?.(false)}
               data-testid="appshell-backdrop"
@@ -224,13 +228,13 @@ export function AppShell(props: AppShellProps) {
           </>
         )}
 
-        <main className={cn(v.main(), slotProps?.main?.className)}>
+        <main className={cn(v.main(), themeSlotProps?.main?.className, slotProps?.main?.className)}>
           {children}
         </main>
       </div>
 
       {footer && (
-        <div className={cn(v.footer(), slotProps?.footer?.className)}>
+        <div className={cn(v.footer(), themeSlotProps?.footer?.className, slotProps?.footer?.className)}>
           {footer}
         </div>
       )}

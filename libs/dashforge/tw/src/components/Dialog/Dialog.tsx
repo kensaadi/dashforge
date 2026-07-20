@@ -34,6 +34,10 @@ export function Dialog(props: DialogProps) {
     sx,
     slotProps,
   } = merged;
+  // Theme-level slotProps (Option C Track B). Theme classes go first,
+  // instance classes second, so `tailwind-merge` picks the instance
+  // where they collide.
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const v = dialogVariants({ size });
 
@@ -41,10 +45,19 @@ export function Dialog(props: DialogProps) {
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
         <RadixDialog.Overlay
-          className={cn(v.overlay(), slotProps?.overlay?.className)}
+          className={cn(
+            v.overlay(),
+            themeSlotProps?.overlay?.className,
+            slotProps?.overlay?.className,
+          )}
         />
         <RadixDialog.Content
-          className={cn(v.content(), sx, slotProps?.content?.className)}
+          className={cn(
+            v.content(),
+            themeSlotProps?.content?.className,
+            slotProps?.content?.className,
+            sx,
+          )}
           // When no `description` is supplied we render no
           // `<RadixDialog.Description>`. Radix then logs a dev warning
           // unless the Content explicitly opts out via
@@ -63,25 +76,43 @@ export function Dialog(props: DialogProps) {
         >
           {title != null && (
             <RadixDialog.Title
-              className={cn(v.title(), slotProps?.title?.className)}
+              className={cn(
+                v.title(),
+                themeSlotProps?.title?.className,
+                slotProps?.title?.className,
+              )}
             >
               {title}
             </RadixDialog.Title>
           )}
           {description != null && (
             <RadixDialog.Description
-              className={cn(v.description(), slotProps?.description?.className)}
+              className={cn(
+                v.description(),
+                themeSlotProps?.description?.className,
+                slotProps?.description?.className,
+              )}
             >
               {description}
             </RadixDialog.Description>
           )}
-          <div className={cn(v.body(), slotProps?.body?.className)}>
+          <div
+            className={cn(
+              v.body(),
+              themeSlotProps?.body?.className,
+              slotProps?.body?.className,
+            )}
+          >
             {children}
           </div>
           {showCloseButton && (
             <RadixDialog.Close
               aria-label="Close"
-              className={cn(v.closeButton(), slotProps?.closeButton?.className)}
+              className={cn(
+                v.closeButton(),
+                themeSlotProps?.closeButton?.className,
+                slotProps?.closeButton?.className,
+              )}
             >
               <svg
                 width="1em"

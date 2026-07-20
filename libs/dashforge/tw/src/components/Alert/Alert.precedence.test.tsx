@@ -57,6 +57,18 @@ describe('Alert precedence chain — Option C (Track A)', () => {
     expect(root?.className).toMatch(/px-3/);
   });
 
+  it('slotProps precedence — instance slotProps merged onto the icon slot', () => {
+    const { container } = render(
+      <Alert
+        severity="info"
+        slotProps={{ icon: { className: 'df-slot-alert-icon-token' } }}
+      >
+        Hi
+      </Alert>,
+    );
+    expect(container.querySelector('.df-slot-alert-icon-token')).toBeTruthy();
+  });
+
   it('no axes leak onto DOM', () => {
     act(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

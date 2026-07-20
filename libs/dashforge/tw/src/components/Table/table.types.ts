@@ -15,6 +15,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Table?: {
       defaults?: Partial<TableVariantProps>;
+      slotProps?: TableSlotProps;
     };
   }
 }

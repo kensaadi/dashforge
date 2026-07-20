@@ -37,6 +37,7 @@ function NavItemRow({
   v: ReturnType<typeof leftNavVariants>;
   slotProps: LeftNavProps['slotProps'];
 }) {
+  const themeSlotProps = useComponentDefaults('LeftNav')?.slotProps;
   const accessState = useAccessState(item.access);
   if (!accessState.visible) return null;
 
@@ -46,8 +47,8 @@ function NavItemRow({
   const linkClasses = cn(
     v.itemLink(),
     isActive && v.itemActive(),
-    slotProps?.itemLink?.className,
-    isActive && slotProps?.itemActive?.className
+    themeSlotProps?.itemLink?.className, slotProps?.itemLink?.className,
+    isActive && themeSlotProps?.itemActive?.className, slotProps?.itemActive?.className
   );
 
   // Visual content — same in `<a>` / `<button>` branches below.
@@ -56,16 +57,16 @@ function NavItemRow({
       {item.icon && (
         <span
           aria-hidden="true"
-          className={cn(v.itemIcon(), slotProps?.itemIcon?.className)}
+          className={cn(v.itemIcon(), themeSlotProps?.itemIcon?.className, slotProps?.itemIcon?.className)}
         >
           {item.icon}
         </span>
       )}
-      <span className={cn(v.itemLabel(), slotProps?.itemLabel?.className)}>
+      <span className={cn(v.itemLabel(), themeSlotProps?.itemLabel?.className, slotProps?.itemLabel?.className)}>
         {item.label}
       </span>
       {!collapsed && item.badge != null && (
-        <span className={cn(v.itemBadge(), slotProps?.itemBadge?.className)}>
+        <span className={cn(v.itemBadge(), themeSlotProps?.itemBadge?.className, slotProps?.itemBadge?.className)}>
           {item.badge}
         </span>
       )}
@@ -73,7 +74,7 @@ function NavItemRow({
   );
 
   return (
-    <li className={cn(v.item(), slotProps?.item?.className)}>
+    <li className={cn(v.item(), themeSlotProps?.item?.className, slotProps?.item?.className)}>
       {item.href !== undefined ? (
         <Link
           href={item.href}
@@ -136,6 +137,7 @@ function NavGroupRow({
   v: ReturnType<typeof leftNavVariants>;
   slotProps: LeftNavProps['slotProps'];
 }) {
+  const themeSlotProps = useComponentDefaults('LeftNav')?.slotProps;
   const accessState = useAccessState(group.access);
   const isControlled = group.expanded !== undefined;
   const [localExpanded, setLocalExpanded] = useState<boolean>(
@@ -159,7 +161,7 @@ function NavGroupRow({
   const regionId = `${group.id}-region`;
 
   return (
-    <li className={cn(v.group(), slotProps?.group?.className)}>
+    <li className={cn(v.group(), themeSlotProps?.group?.className, slotProps?.group?.className)}>
       <button
         id={headerId}
         type="button"
@@ -169,17 +171,17 @@ function NavGroupRow({
         aria-disabled={isDisabled || undefined}
         disabled={isDisabled}
         title={collapsed && typeof group.label === 'string' ? group.label : undefined}
-        className={cn(v.groupHeader(), slotProps?.groupHeader?.className)}
+        className={cn(v.groupHeader(), themeSlotProps?.groupHeader?.className, slotProps?.groupHeader?.className)}
       >
         {group.icon && (
           <span
             aria-hidden="true"
-            className={cn(v.itemIcon(), slotProps?.itemIcon?.className)}
+            className={cn(v.itemIcon(), themeSlotProps?.itemIcon?.className, slotProps?.itemIcon?.className)}
           >
             {group.icon}
           </span>
         )}
-        <span className={cn(v.itemLabel(), slotProps?.itemLabel?.className)}>
+        <span className={cn(v.itemLabel(), themeSlotProps?.itemLabel?.className, slotProps?.itemLabel?.className)}>
           {group.label}
         </span>
         {!collapsed && (
@@ -195,7 +197,7 @@ function NavGroupRow({
           aria-labelledby={headerId}
           className={cn(
             v.groupChildren(),
-            slotProps?.groupChildren?.className
+            themeSlotProps?.groupChildren?.className, slotProps?.groupChildren?.className
           )}
         >
           {group.children.map((child) => (
@@ -249,6 +251,7 @@ function NavGroupRow({
 export function LeftNav(props: LeftNavProps) {
   const themeDefaults = useComponentDefaults('LeftNav');
   const merged: LeftNavProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     items,
     activeId,
@@ -274,10 +277,10 @@ export function LeftNav(props: LeftNavProps) {
   return (
     <nav
       aria-label={ariaLabel}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
       {(brand || (showCollapseToggle && onCollapseChange)) && (
-        <div className={cn(v.brand(), slotProps?.brand?.className)}>
+        <div className={cn(v.brand(), themeSlotProps?.brand?.className, slotProps?.brand?.className)}>
           {brand && <div className="flex-1 min-w-0 truncate">{brand}</div>}
           {showCollapseToggle && onCollapseChange && (
             <button
@@ -287,7 +290,7 @@ export function LeftNav(props: LeftNavProps) {
               aria-pressed={collapsed}
               className={cn(
                 v.collapseToggle(),
-                slotProps?.collapseToggle?.className
+                themeSlotProps?.collapseToggle?.className, slotProps?.collapseToggle?.className
               )}
             >
               {collapsed ? '»' : '«'}
@@ -296,7 +299,7 @@ export function LeftNav(props: LeftNavProps) {
         </div>
       )}
 
-      <ul className={cn(v.list(), slotProps?.list?.className)}>
+      <ul className={cn(v.list(), themeSlotProps?.list?.className, slotProps?.list?.className)}>
         {items.map((node) =>
           isGroup(node) ? (
             <NavGroupRow
@@ -324,7 +327,7 @@ export function LeftNav(props: LeftNavProps) {
       </ul>
 
       {footer && (
-        <div className={cn(v.footer(), slotProps?.footer?.className)}>
+        <div className={cn(v.footer(), themeSlotProps?.footer?.className, slotProps?.footer?.className)}>
           {footer}
         </div>
       )}

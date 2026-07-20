@@ -98,6 +98,7 @@ function DashIcon({ className }: { className?: string }) {
 export function Checkbox(props: CheckboxProps) {
   const themeDefaults = useComponentDefaults('Checkbox');
   const merged: CheckboxProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -228,7 +229,7 @@ export function Checkbox(props: CheckboxProps) {
       : { defaultChecked: defaultChecked ?? false };
 
   return (
-    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <div className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}>
       <RadixCheckbox.Root
         id={controlId}
         name={name}
@@ -237,7 +238,7 @@ export function Checkbox(props: CheckboxProps) {
         onCheckedChange={handleCheckedChange}
         onBlur={handleBlur}
         ref={registration?.ref as React.Ref<HTMLButtonElement> | undefined}
-        className={cn(v.control(), slotProps?.control?.className)}
+        className={cn(v.control(), themeSlotProps?.control?.className, slotProps?.control?.className)}
       >
         {/*
          * Radix.Indicator natively mounts only when `data-state` is
@@ -267,7 +268,7 @@ export function Checkbox(props: CheckboxProps) {
          * the single source of truth.
          */}
         <RadixCheckbox.Indicator
-          className={cn(v.indicator(), 'group', slotProps?.indicator?.className)}
+          className={cn(v.indicator(), 'group', themeSlotProps?.indicator?.className, slotProps?.indicator?.className)}
         >
           <CheckIcon className="h-full w-full group-data-[state=indeterminate]:hidden" />
           <DashIcon className="h-full w-full group-data-[state=checked]:hidden" />
@@ -278,7 +279,7 @@ export function Checkbox(props: CheckboxProps) {
         {label && (
           <label
             htmlFor={controlId}
-            className={cn(v.label(), slotProps?.label?.className)}
+            className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
           >
             {label}
           </label>
@@ -288,8 +289,8 @@ export function Checkbox(props: CheckboxProps) {
             className={cn(
               resolvedError ? v.errorText() : v.helperText(),
               resolvedError
-                ? slotProps?.errorText?.className
-                : slotProps?.helperText?.className
+                ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+                : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className]
             )}
           >
             {resolvedHelperText}

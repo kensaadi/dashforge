@@ -173,6 +173,11 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
     sx,
     slotProps,
   } = props;
+  // Theme-level slotProps (Option C Track B). Instance `slotProps` wins
+  // per-slot via the `cn()` order below — theme classes come first,
+  // instance classes second, so `tailwind-merge` picks the instance
+  // where they collide.
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const gridAccessState = useAccessState(gridAccess);
@@ -404,14 +409,14 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
 
   return (
     <div
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
       data-disabled={!isInteractive ? 'true' : undefined}
     >
       {/* ───── Toolbar ───── */}
       {(enableSearch || enableColumnVisibility) && (
-        <div className={cn(v.toolbar(), slotProps?.toolbar?.className)}>
+        <div className={cn(v.toolbar(), themeSlotProps?.toolbar?.className, slotProps?.toolbar?.className)}>
           {enableSearch && (
-            <label className={cn(v.search(), slotProps?.search?.className)}>
+            <label className={cn(v.search(), themeSlotProps?.search?.className, slotProps?.search?.className)}>
               <span className="sr-only">{labels.searchPlaceholder}</span>
               <SearchIcon className="ml-2 shrink-0 text-neutral-500" />
               <input
@@ -452,7 +457,7 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
       {/* ───── Scroll wrapper (bounded height — required for virt) ───── */}
       <div
         ref={scrollRef}
-        className={cn(v.scroll(), slotProps?.scroll?.className)}
+        className={cn(v.scroll(), themeSlotProps?.scroll?.className, slotProps?.scroll?.className)}
         style={height ? { height, maxHeight: height } : undefined}
       >
         {/*
@@ -465,7 +470,7 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
           is unknown/zero keeps it a valid (ignored) value.
         */}
         <table
-          className={cn(v.table(), slotProps?.table?.className)}
+          className={cn(v.table(), themeSlotProps?.table?.className, slotProps?.table?.className)}
           aria-rowcount={effectiveTotalCount > 0 ? effectiveTotalCount + 1 : -1}
         >
           {caption != null && (
@@ -477,12 +482,12 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
           <thead
             className={cn(
               stickyHeader ? v.thead() : 'bg-neutral-50',
-              slotProps?.thead?.className,
+              themeSlotProps?.thead?.className, slotProps?.thead?.className,
             )}
           >
             <tr
               aria-rowindex={1}
-              className={cn(v.headerRow(), slotProps?.headerRow?.className)}
+              className={cn(v.headerRow(), themeSlotProps?.headerRow?.className, slotProps?.headerRow?.className)}
             >
               {showSelectionColumn && (
                 <th
@@ -491,8 +496,8 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
                     v.headerCell(),
                     v.selectionCell(),
                     v.stickyLeftHeaderCell(),
-                    slotProps?.headerCell?.className,
-                    slotProps?.selectionCell?.className,
+                    themeSlotProps?.headerCell?.className, slotProps?.headerCell?.className,
+                    themeSlotProps?.selectionCell?.className, slotProps?.selectionCell?.className,
                   )}
                 >
                   {rowSelection === 'multiple' && (
@@ -540,7 +545,7 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
                     v.headerCell(),
                     col.sticky === 'left' && v.stickyLeftHeaderCell(),
                     col.sticky === 'right' && v.stickyRightHeaderCell(),
-                    slotProps?.headerCell?.className,
+                    themeSlotProps?.headerCell?.className, slotProps?.headerCell?.className,
                   )}
                   buttonClassName={v.headerCellButton()}
                   disabled={!isInteractive}
@@ -554,14 +559,14 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
                   className={cn(
                     v.headerCell(),
                     'w-12',
-                    slotProps?.headerCell?.className,
+                    themeSlotProps?.headerCell?.className, slotProps?.headerCell?.className,
                   )}
                 />
               )}
             </tr>
           </thead>
 
-          <tbody className={cn(v.tbody(), slotProps?.tbody?.className)}>
+          <tbody className={cn(v.tbody(), themeSlotProps?.tbody?.className, slotProps?.tbody?.className)}>
             {loading
               ? renderLoadingRows({
                   count: loadingRowCount,
@@ -569,8 +574,8 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
                   showSelectionColumn,
                   showRowActionsColumn,
                   rowHeight,
-                  rowClass: cn(v.row(), slotProps?.row?.className),
-                  cellClass: cn(v.cell(), slotProps?.cell?.className),
+                  rowClass: cn(v.row(), themeSlotProps?.row?.className, slotProps?.row?.className),
+                  cellClass: cn(v.cell(), themeSlotProps?.cell?.className, slotProps?.cell?.className),
                 })
               : sortedRows.length === 0
                 ? renderEmptyState({
@@ -589,7 +594,7 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
                     cellClass: cn(
                       v.cell(),
                       v.emptyState(),
-                      slotProps?.emptyState?.className,
+                      themeSlotProps?.emptyState?.className, slotProps?.emptyState?.className,
                     ),
                   })
                 : renderVirtualizedBody({
@@ -609,22 +614,22 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
                     labels,
                     serverSidePagination,
                     classes: {
-                      row: cn(v.row(), slotProps?.row?.className),
-                      cell: cn(v.cell(), slotProps?.cell?.className),
+                      row: cn(v.row(), themeSlotProps?.row?.className, slotProps?.row?.className),
+                      cell: cn(v.cell(), themeSlotProps?.cell?.className, slotProps?.cell?.className),
                       selectionCell: cn(
                         v.cell(),
                         v.selectionCell(),
                         v.stickyLeftCell(),
-                        slotProps?.cell?.className,
-                        slotProps?.selectionCell?.className,
+                        themeSlotProps?.cell?.className, slotProps?.cell?.className,
+                        themeSlotProps?.selectionCell?.className, slotProps?.selectionCell?.className,
                       ),
                       stickyLeftCell: v.stickyLeftCell(),
                       stickyRightCell: v.stickyRightCell(),
                       rowActionsCell: cn(
                         v.cell(),
                         v.rowActionsCell(),
-                        slotProps?.cell?.className,
-                        slotProps?.rowActionsCell?.className,
+                        themeSlotProps?.cell?.className, slotProps?.cell?.className,
+                        themeSlotProps?.rowActionsCell?.className, slotProps?.rowActionsCell?.className,
                       ),
                     },
                   })}
@@ -635,7 +640,7 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
       {/* ───── Bulk action footer ───── */}
       {bulkActions && selectedRows.length > 0 && (
         <div
-          className={cn(v.bulkActionFooter(), slotProps?.bulkActionFooter?.className)}
+          className={cn(v.bulkActionFooter(), themeSlotProps?.bulkActionFooter?.className, slotProps?.bulkActionFooter?.className)}
           role="region"
           aria-label={labels.selectedCount.replace(
             '{count}',
@@ -664,7 +669,7 @@ export function DataGrid<T extends object>(_props: DataGridProps<T>) {
 
       {/* ───── Optional pagination footer ───── */}
       {pagination && (
-        <div className={cn(v.paginationFooter(), slotProps?.pagination?.className)}>
+        <div className={cn(v.paginationFooter(), themeSlotProps?.pagination?.className, slotProps?.pagination?.className)}>
           <Pagination
             page={pagination.page}
             pageSize={pagination.pageSize}

@@ -84,6 +84,7 @@ const DEFAULT_GET_ROW_ID = <T extends object>(_row: T, index: number) => String(
 export function Table<T extends object>(_props: TableProps<T>) {
   const themeDefaults = useComponentDefaults('Table');
   const props: TableProps<T> = { ...themeDefaults?.defaults, ..._props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     rows,
     cols,
@@ -246,13 +247,13 @@ export function Table<T extends object>(_props: TableProps<T>) {
 
   return (
     <div
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
       data-disabled={!isTableInteractive ? 'true' : undefined}
     >
       {/* ───── Toolbar (search) ───── */}
       {enableSearch && (
-        <div className={cn(v.toolbar(), slotProps?.toolbar?.className)}>
-          <label className={cn(v.search(), slotProps?.search?.className)}>
+        <div className={cn(v.toolbar(), themeSlotProps?.toolbar?.className, slotProps?.toolbar?.className)}>
+          <label className={cn(v.search(), themeSlotProps?.search?.className, slotProps?.search?.className)}>
             <span className="sr-only">{labels.searchPlaceholder}</span>
             <SearchIcon className="ml-2 shrink-0 text-neutral-500" />
             <input
@@ -275,8 +276,8 @@ export function Table<T extends object>(_props: TableProps<T>) {
       )}
 
       {/* ───── Scroll wrapper ───── */}
-      <div className={cn(v.scroll(), slotProps?.scroll?.className)}>
-        <table className={cn(v.table(), slotProps?.table?.className)}>
+      <div className={cn(v.scroll(), themeSlotProps?.scroll?.className, slotProps?.scroll?.className)}>
+        <table className={cn(v.table(), themeSlotProps?.table?.className, slotProps?.table?.className)}>
           {caption != null && (
             <caption className={cn(!showCaption && 'sr-only', 'py-2 text-sm text-neutral-500')}>
               {caption}
@@ -284,16 +285,16 @@ export function Table<T extends object>(_props: TableProps<T>) {
           )}
 
           {/* ───── Header ───── */}
-          <thead className={cn(v.thead(), slotProps?.thead?.className)}>
-            <tr className={cn(v.headerRow(), slotProps?.headerRow?.className)}>
+          <thead className={cn(v.thead(), themeSlotProps?.thead?.className, slotProps?.thead?.className)}>
+            <tr className={cn(v.headerRow(), themeSlotProps?.headerRow?.className, slotProps?.headerRow?.className)}>
               {showSelectionColumn && (
                 <th
                   scope="col"
                   className={cn(
                     v.headerCell(),
                     v.selectionCell(),
-                    slotProps?.headerCell?.className,
-                    slotProps?.selectionCell?.className,
+                    themeSlotProps?.headerCell?.className, slotProps?.headerCell?.className,
+                    themeSlotProps?.selectionCell?.className, slotProps?.selectionCell?.className,
                   )}
                 >
                   {rowSelection === 'multiple' && (
@@ -319,8 +320,8 @@ export function Table<T extends object>(_props: TableProps<T>) {
                   className={cn(
                     v.headerCell(),
                     v.expandToggleCell(),
-                    slotProps?.headerCell?.className,
-                    slotProps?.expandToggleCell?.className,
+                    themeSlotProps?.headerCell?.className, slotProps?.headerCell?.className,
+                    themeSlotProps?.expandToggleCell?.className, slotProps?.expandToggleCell?.className,
                   )}
                 />
               )}
@@ -333,7 +334,7 @@ export function Table<T extends object>(_props: TableProps<T>) {
                   onSortClick={(e) => handleSortClick(col, e, sortModel, setSortModel)}
                   inferredType={columnTypes.get(col.field as string)}
                   labels={labels}
-                  className={cn(v.headerCell(), slotProps?.headerCell?.className)}
+                  className={cn(v.headerCell(), themeSlotProps?.headerCell?.className, slotProps?.headerCell?.className)}
                   buttonClassName={v.headerCellButton()}
                   disabled={!isTableInteractive}
                 />
@@ -346,7 +347,7 @@ export function Table<T extends object>(_props: TableProps<T>) {
                   className={cn(
                     v.headerCell(),
                     'w-12',
-                    slotProps?.headerCell?.className,
+                    themeSlotProps?.headerCell?.className, slotProps?.headerCell?.className,
                   )}
                 />
               )}
@@ -354,7 +355,7 @@ export function Table<T extends object>(_props: TableProps<T>) {
           </thead>
 
           {/* ───── Body ───── */}
-          <tbody className={cn(v.tbody(), slotProps?.tbody?.className)}>
+          <tbody className={cn(v.tbody(), themeSlotProps?.tbody?.className, slotProps?.tbody?.className)}>
             {loading
               ? renderLoadingRows({
                   count: loadingRowCount,
@@ -362,8 +363,8 @@ export function Table<T extends object>(_props: TableProps<T>) {
                   showSelectionColumn,
                   showExpandColumn,
                   showRowActionsColumn,
-                  rowClass: cn(v.row(), slotProps?.row?.className),
-                  cellClass: cn(v.cell(), slotProps?.cell?.className),
+                  rowClass: cn(v.row(), themeSlotProps?.row?.className, slotProps?.row?.className),
+                  cellClass: cn(v.cell(), themeSlotProps?.cell?.className, slotProps?.cell?.className),
                 })
               : sortedRows.length === 0
                 ? renderEmptyState({
@@ -377,7 +378,7 @@ export function Table<T extends object>(_props: TableProps<T>) {
                         filterModel.length > 0)
                         ? labels.noResults
                         : labels.noData,
-                    cellClass: cn(v.cell(), v.emptyState(), slotProps?.emptyState?.className),
+                    cellClass: cn(v.cell(), v.emptyState(), themeSlotProps?.emptyState?.className, slotProps?.emptyState?.className),
                   })
                 : sortedRows.map((row, idx) => {
                     const rowId = getRowId(row, idx);
@@ -409,27 +410,27 @@ export function Table<T extends object>(_props: TableProps<T>) {
                           )
                         }
                         isInteractive={isTableInteractive}
-                        rowClass={cn(v.row(), slotProps?.row?.className)}
-                        cellClass={cn(v.cell(), slotProps?.cell?.className)}
+                        rowClass={cn(v.row(), themeSlotProps?.row?.className, slotProps?.row?.className)}
+                        cellClass={cn(v.cell(), themeSlotProps?.cell?.className, slotProps?.cell?.className)}
                         selectionCellClass={cn(
                           v.cell(),
                           v.selectionCell(),
-                          slotProps?.cell?.className,
-                          slotProps?.selectionCell?.className,
+                          themeSlotProps?.cell?.className, slotProps?.cell?.className,
+                          themeSlotProps?.selectionCell?.className, slotProps?.selectionCell?.className,
                         )}
                         expandToggleCellClass={cn(
                           v.cell(),
                           v.expandToggleCell(),
-                          slotProps?.cell?.className,
-                          slotProps?.expandToggleCell?.className,
+                          themeSlotProps?.cell?.className, slotProps?.cell?.className,
+                          themeSlotProps?.expandToggleCell?.className, slotProps?.expandToggleCell?.className,
                         )}
                         rowActionsCellClass={cn(
                           v.cell(),
                           v.rowActionsCell(),
-                          slotProps?.cell?.className,
-                          slotProps?.rowActionsCell?.className,
+                          themeSlotProps?.cell?.className, slotProps?.cell?.className,
+                          themeSlotProps?.rowActionsCell?.className, slotProps?.rowActionsCell?.className,
                         )}
-                        expandedRowClass={cn(v.expandedRow(), slotProps?.expandedRow?.className)}
+                        expandedRowClass={cn(v.expandedRow(), themeSlotProps?.expandedRow?.className, slotProps?.expandedRow?.className)}
                         totalColumnCount={totalColumnCount}
                       />
                     );
@@ -441,7 +442,7 @@ export function Table<T extends object>(_props: TableProps<T>) {
       {/* ───── Bulk action footer (sticky) ───── */}
       {bulkActions && selectedRows.length > 0 && (
         <div
-          className={cn(v.bulkActionFooter(), slotProps?.bulkActionFooter?.className)}
+          className={cn(v.bulkActionFooter(), themeSlotProps?.bulkActionFooter?.className, slotProps?.bulkActionFooter?.className)}
           role="region"
           aria-label={labels.selectedCount.replace('{count}', String(selectedRows.length))}
         >

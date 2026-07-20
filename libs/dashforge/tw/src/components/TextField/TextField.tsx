@@ -35,6 +35,7 @@ import type { TextFieldProps } from './textField.types.js';
 export function TextField(props: TextFieldProps) {
   const themeDefaults = useComponentDefaults('TextField');
   const merged: TextFieldProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -164,17 +165,17 @@ export function TextField(props: TextFieldProps) {
   });
 
   return (
-    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <div className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}>
       {label && (
         <label
           htmlFor={inputId}
-          className={cn(v.label(), slotProps?.label?.className)}
+          className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
           {label}
           {required && (
             <span
               aria-hidden="true"
-              className={cn(v.requiredMark(), slotProps?.requiredMark?.className)}
+              className={cn(v.requiredMark(), themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className)}
             >
               *
             </span>
@@ -182,7 +183,7 @@ export function TextField(props: TextFieldProps) {
         </label>
       )}
 
-      <div className={cn(v.inputWrapper(), slotProps?.inputWrapper?.className)}>
+      <div className={cn(v.inputWrapper(), themeSlotProps?.inputWrapper?.className, slotProps?.inputWrapper?.className)}>
         {/*
          * Prefix slot (Sprint 2 P4.1) — inline adornment rendered
          * BEFORE the input. Mounts only when `slotProps.prefix.children`
@@ -215,7 +216,7 @@ export function TextField(props: TextFieldProps) {
           onChange={handleChange}
           onBlur={handleBlur}
           ref={inputRef}
-          className={cn(v.input(), slotProps?.input?.className)}
+          className={cn(v.input(), themeSlotProps?.input?.className, slotProps?.input?.className)}
         />
         {/*
          * Suffix slot (Sprint 2 P4.1) — same pattern as prefix,
@@ -238,8 +239,8 @@ export function TextField(props: TextFieldProps) {
           className={cn(
             resolvedError ? v.errorText() : v.helperText(),
             resolvedError
-              ? slotProps?.errorText?.className
-              : slotProps?.helperText?.className
+              ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+              : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className]
           )}
         >
           {resolvedHelperText}

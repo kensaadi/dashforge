@@ -37,6 +37,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     DateRangePicker?: {
       defaults?: Partial<DateRangePickerVariantProps>;
+      slotProps?: DateRangePickerSlotProps;
     };
   }
 }

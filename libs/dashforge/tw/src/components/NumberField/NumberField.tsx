@@ -65,6 +65,7 @@ function parseFromInput(str: string): number | null | undefined {
 export function NumberField(props: NumberFieldProps) {
   const themeDefaults = useComponentDefaults('NumberField');
   const merged: NumberFieldProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -239,17 +240,17 @@ export function NumberField(props: NumberFieldProps) {
   });
 
   return (
-    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <div className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}>
       {label && (
         <label
           htmlFor={inputId}
-          className={cn(v.label(), slotProps?.label?.className)}
+          className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
           {label}
           {required && (
             <span
               aria-hidden="true"
-              className={cn(v.requiredMark(), slotProps?.requiredMark?.className)}
+              className={cn(v.requiredMark(), themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className)}
             >
               *
             </span>
@@ -257,7 +258,7 @@ export function NumberField(props: NumberFieldProps) {
         </label>
       )}
 
-      <div className={cn(v.inputWrapper(), slotProps?.inputWrapper?.className)}>
+      <div className={cn(v.inputWrapper(), themeSlotProps?.inputWrapper?.className, slotProps?.inputWrapper?.className)}>
         <input
           {...rest}
           id={inputId}
@@ -276,12 +277,12 @@ export function NumberField(props: NumberFieldProps) {
           onChange={handleChange}
           onBlur={handleBlur}
           ref={inputRef}
-          className={cn(v.input(), slotProps?.input?.className)}
+          className={cn(v.input(), themeSlotProps?.input?.className, slotProps?.input?.className)}
         />
 
         {showStepper && (
           <div
-            className={cn(v.stepper(), slotProps?.stepper?.className)}
+            className={cn(v.stepper(), themeSlotProps?.stepper?.className, slotProps?.stepper?.className)}
             aria-hidden="true"
           >
             <button
@@ -289,7 +290,7 @@ export function NumberField(props: NumberFieldProps) {
               tabIndex={-1}
               onClick={() => stepBy(step)}
               disabled={!canIncrement}
-              className={cn(v.stepperButton(), slotProps?.stepperButton?.className)}
+              className={cn(v.stepperButton(), themeSlotProps?.stepperButton?.className, slotProps?.stepperButton?.className)}
               aria-label="Increment"
             >
               ▲
@@ -299,7 +300,7 @@ export function NumberField(props: NumberFieldProps) {
               tabIndex={-1}
               onClick={() => stepBy(-step)}
               disabled={!canDecrement}
-              className={cn(v.stepperButton(), slotProps?.stepperButton?.className)}
+              className={cn(v.stepperButton(), themeSlotProps?.stepperButton?.className, slotProps?.stepperButton?.className)}
               aria-label="Decrement"
             >
               ▼
@@ -314,8 +315,8 @@ export function NumberField(props: NumberFieldProps) {
           className={cn(
             resolvedError ? v.errorText() : v.helperText(),
             resolvedError
-              ? slotProps?.errorText?.className
-              : slotProps?.helperText?.className
+              ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+              : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className]
           )}
         >
           {resolvedHelperText}

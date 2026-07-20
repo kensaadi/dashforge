@@ -33,6 +33,7 @@ import type { TooltipProps } from './tooltip.types.js';
 export function Tooltip(props: TooltipProps) {
   const themeDefaults = useComponentDefaults('Tooltip');
   const merged: TooltipProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     children,
     content,
@@ -58,12 +59,12 @@ export function Tooltip(props: TooltipProps) {
             side={side}
             align={align}
             sideOffset={sideOffset}
-            className={cn(v.content(), sx, slotProps?.content?.className)}
+            className={cn(v.content(), sx, themeSlotProps?.content?.className, slotProps?.content?.className)}
           >
             {content}
             {!hideArrow && (
               <RadixTooltip.Arrow
-                className={cn(v.arrow(), slotProps?.arrow?.className)}
+                className={cn(v.arrow(), themeSlotProps?.arrow?.className, slotProps?.arrow?.className)}
               />
             )}
           </RadixTooltip.Content>

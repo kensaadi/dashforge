@@ -13,6 +13,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     RadioGroup?: {
       defaults?: Partial<RadioGroupVariantProps>;
+      slotProps?: RadioGroupSlotProps;
     };
   }
 }

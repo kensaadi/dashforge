@@ -10,6 +10,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Skeleton?: {
       defaults?: Partial<SkeletonVariantProps>;
+      slotProps?: SkeletonSlotProps;
     };
   }
 }

@@ -15,6 +15,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Popover?: {
       defaults?: Partial<PopoverVariantProps>;
+      slotProps?: PopoverSlotProps;
     };
   }
 }

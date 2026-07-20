@@ -43,6 +43,7 @@ function ClockIcon() {
 export function TimePicker(_props: TimePickerProps) {
   const themeDefaults = useComponentDefaults('TimePicker');
   const props: TimePickerProps = { ...themeDefaults?.defaults, ..._props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -197,18 +198,18 @@ export function TimePicker(_props: TimePickerProps) {
   return (
     <div
       data-testid={testId}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
       {label && (
         <label
           htmlFor={fieldId}
-          className={cn(v.label(), slotProps?.label?.className)}
+          className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
           {label}
           {required && (
             <span
               aria-hidden="true"
-              className={cn(v.requiredMark(), slotProps?.requiredMark?.className)}
+              className={cn(v.requiredMark(), themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className)}
             >
               *
             </span>
@@ -248,7 +249,7 @@ export function TimePicker(_props: TimePickerProps) {
           disabled={effectiveDisabled}
           aria-invalid={resolvedError ? true : undefined}
           aria-describedby={resolvedHelperText ? helperId : undefined}
-          className={cn(v.trigger(), slotProps?.trigger?.className)}
+          className={cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className)}
         >
           <span className={displayValue ? v.value() : v.placeholder()}>
             {displayValue || placeholder || 'Select a time'}
@@ -265,8 +266,8 @@ export function TimePicker(_props: TimePickerProps) {
           className={cn(
             resolvedError ? v.errorText() : v.helperText(),
             resolvedError
-              ? slotProps?.errorText?.className
-              : slotProps?.helperText?.className,
+              ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+              : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className],
           )}
         >
           {resolvedHelperText}

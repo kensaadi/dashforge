@@ -74,6 +74,7 @@ function flattenChildren(children: ReactNode): ReactNode[] {
 export function Stepper(props: StepperProps) {
   const themeDefaults = useComponentDefaults('Stepper');
   const merged: StepperProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     children,
     initialStep,
@@ -392,9 +393,9 @@ export function Stepper(props: StepperProps) {
     labelPlacement,
   });
 
-  const rootClasses = cn(v.root(), sx, slotProps?.root?.className);
-  const stripClasses = cn(v.strip(), slotProps?.strip?.className);
-  const contentClasses = cn(v.content(), slotProps?.content?.className);
+  const rootClasses = cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className);
+  const stripClasses = cn(v.strip(), themeSlotProps?.strip?.className, slotProps?.strip?.className);
+  const contentClasses = cn(v.content(), themeSlotProps?.content?.className, slotProps?.content?.className);
 
   return (
     <StepperContext.Provider value={contextValue}>
@@ -413,24 +414,24 @@ export function Stepper(props: StepperProps) {
               v.step(),
               'group/step',
               isClickable && 'cursor-pointer',
-              slotProps?.step?.className,
+              themeSlotProps?.step?.className, slotProps?.step?.className,
             );
             const indicatorClass = cn(
               v.indicator(),
-              slotProps?.indicator?.className,
+              themeSlotProps?.indicator?.className, slotProps?.indicator?.className,
             );
             const labelGroupClass = cn(
               v.labelGroup(),
-              slotProps?.labelGroup?.className,
+              themeSlotProps?.labelGroup?.className, slotProps?.labelGroup?.className,
             );
-            const labelClass = cn(v.label(), slotProps?.label?.className);
+            const labelClass = cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className);
             const helperClass = cn(
               v.helperText(),
-              slotProps?.helperText?.className,
+              themeSlotProps?.helperText?.className, slotProps?.helperText?.className,
             );
             const optionalClass = cn(
               v.optionalTag(),
-              slotProps?.optionalTag?.className,
+              themeSlotProps?.optionalTag?.className, slotProps?.optionalTag?.className,
             );
 
             return (
@@ -473,7 +474,7 @@ export function Stepper(props: StepperProps) {
                     aria-hidden="true"
                     className={cn(
                       v.connector(),
-                      slotProps?.connector?.className,
+                      themeSlotProps?.connector?.className, slotProps?.connector?.className,
                     )}
                     data-completed={index < currentStepIndex || undefined}
                   />

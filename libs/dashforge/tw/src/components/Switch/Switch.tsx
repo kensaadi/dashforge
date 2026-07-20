@@ -26,6 +26,7 @@ import type { SwitchProps } from './switch.types.js';
 export function Switch(props: SwitchProps) {
   const themeDefaults = useComponentDefaults('Switch');
   const merged: SwitchProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -132,7 +133,7 @@ export function Switch(props: SwitchProps) {
       : { defaultChecked: defaultChecked ?? false };
 
   return (
-    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <div className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}>
       <RadixSwitch.Root
         id={controlId}
         name={name}
@@ -141,16 +142,16 @@ export function Switch(props: SwitchProps) {
         onCheckedChange={handleCheckedChange}
         onBlur={handleBlur}
         ref={registration?.ref as React.Ref<HTMLButtonElement> | undefined}
-        className={cn(v.control(), slotProps?.control?.className)}
+        className={cn(v.control(), themeSlotProps?.control?.className, slotProps?.control?.className)}
       >
-        <RadixSwitch.Thumb className={cn(v.thumb(), slotProps?.thumb?.className)} />
+        <RadixSwitch.Thumb className={cn(v.thumb(), themeSlotProps?.thumb?.className, slotProps?.thumb?.className)} />
       </RadixSwitch.Root>
 
       <div className="flex flex-col">
         {label && (
           <label
             htmlFor={controlId}
-            className={cn(v.label(), slotProps?.label?.className)}
+            className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
           >
             {label}
           </label>
@@ -160,8 +161,8 @@ export function Switch(props: SwitchProps) {
             className={cn(
               resolvedError ? v.errorText() : v.helperText(),
               resolvedError
-                ? slotProps?.errorText?.className
-                : slotProps?.helperText?.className
+                ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+                : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className]
             )}
           >
             {resolvedHelperText}

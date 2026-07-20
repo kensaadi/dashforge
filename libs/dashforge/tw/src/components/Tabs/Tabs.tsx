@@ -34,6 +34,8 @@ export function Tabs(props: TabsProps) {
     sx,
     slotProps,
   } = merged;
+  // Theme-level slotProps (Option C Track B).
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const v = tabsVariants({ variant, orientation });
   const tabs = useTabs({
@@ -50,17 +52,32 @@ export function Tabs(props: TabsProps) {
     : items.filter((item) => item.value === tabs.activeValue);
 
   return (
-    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <div
+      className={cn(
+        v.root(),
+        themeSlotProps?.root?.className,
+        slotProps?.root?.className,
+        sx,
+      )}
+    >
       <div
         {...tabs.getTabListProps()}
-        className={cn(v.list(), slotProps?.list?.className)}
+        className={cn(
+          v.list(),
+          themeSlotProps?.list?.className,
+          slotProps?.list?.className,
+        )}
       >
         {items.map((item) => (
           <button
             key={item.value}
             type="button"
             {...tabs.getTabProps(item)}
-            className={cn(v.trigger(), slotProps?.trigger?.className)}
+            className={cn(
+              v.trigger(),
+              themeSlotProps?.trigger?.className,
+              slotProps?.trigger?.className,
+            )}
           >
             {item.label}
           </button>
@@ -70,7 +87,11 @@ export function Tabs(props: TabsProps) {
         <div
           key={item.value}
           {...tabs.getPanelProps(item)}
-          className={cn(v.content(), slotProps?.content?.className)}
+          className={cn(
+            v.content(),
+            themeSlotProps?.content?.className,
+            slotProps?.content?.className,
+          )}
         >
           {item.content}
         </div>

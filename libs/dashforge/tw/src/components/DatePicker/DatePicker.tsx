@@ -78,6 +78,7 @@ function formatDisplayDate(
 export function DatePicker(_props: DatePickerProps) {
   const themeDefaults = useComponentDefaults('DatePicker');
   const props: DatePickerProps = { ...themeDefaults?.defaults, ..._props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -230,12 +231,12 @@ export function DatePicker(_props: DatePickerProps) {
   return (
     <div
       data-testid={testId}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
       {label && (
         <label
           htmlFor={fieldId}
-          className={cn(v.label(), slotProps?.label?.className)}
+          className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
           {label}
           {required && (
@@ -243,7 +244,7 @@ export function DatePicker(_props: DatePickerProps) {
               aria-hidden="true"
               className={cn(
                 v.requiredMark(),
-                slotProps?.requiredMark?.className,
+                themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className,
               )}
             >
               *
@@ -279,7 +280,7 @@ export function DatePicker(_props: DatePickerProps) {
           disabled={effectiveDisabled}
           aria-invalid={resolvedError ? true : undefined}
           aria-describedby={resolvedHelperText ? helperId : undefined}
-          className={cn(v.trigger(), slotProps?.trigger?.className)}
+          className={cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className)}
         >
           <span className={displayValue ? v.value() : v.placeholder()}>
             {displayValue || placeholder || 'Select a date'}
@@ -296,8 +297,8 @@ export function DatePicker(_props: DatePickerProps) {
           className={cn(
             resolvedError ? v.errorText() : v.helperText(),
             resolvedError
-              ? slotProps?.errorText?.className
-              : slotProps?.helperText?.className,
+              ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+              : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className],
           )}
         >
           {resolvedHelperText}

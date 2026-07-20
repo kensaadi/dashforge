@@ -17,6 +17,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Breadcrumbs?: {
       defaults?: Partial<BreadcrumbsVariantProps>;
+      slotProps?: BreadcrumbsSlotProps;
     };
   }
 }

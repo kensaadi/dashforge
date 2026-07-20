@@ -68,6 +68,7 @@ export function useSnackbar(): SnackbarApi {
  */
 export function SnackbarProvider(props: SnackbarProviderProps) {
   const themeDefaults = useComponentDefaults('Snackbar');
+  const themeSlotProps = themeDefaults?.slotProps;
   const themePosition = themeDefaults?.defaults?.position;
   const themeMaxVisible = themeDefaults?.defaults?.maxVisible;
   const themeEnqueueDefaults = themeDefaults?.defaults?.enqueueDefaults;
@@ -216,7 +217,7 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
     <SnackbarContext.Provider value={api}>
       {children}
       <div
-        className={cn(v.container(), slotProps?.container?.className)}
+        className={cn(v.container(), themeSlotProps?.container?.className, slotProps?.container?.className)}
         role="region"
         aria-label="Notifications"
         aria-live="polite"
@@ -251,7 +252,7 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
                 itemClasses.item(),
                 severityClasses.surface,
                 severityClasses.border,
-                slotProps?.item?.className
+                themeSlotProps?.item?.className, slotProps?.item?.className
               )}
             >
               {renderedIcon !== null && (
@@ -259,7 +260,7 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
                   className={cn(
                     itemClasses.icon(),
                     severityClasses.icon,
-                    slotProps?.icon?.className
+                    themeSlotProps?.icon?.className, slotProps?.icon?.className
                   )}
                 >
                   {renderedIcon}
@@ -268,7 +269,7 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
               <div
                 className={cn(
                   itemClasses.message(),
-                  slotProps?.message?.className
+                  themeSlotProps?.message?.className, slotProps?.message?.className
                 )}
               >
                 {rec.message}
@@ -282,7 +283,7 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
                   }}
                   className={cn(
                     itemClasses.action(),
-                    slotProps?.action?.className
+                    themeSlotProps?.action?.className, slotProps?.action?.className
                   )}
                 >
                   {rec.action.label}
@@ -295,7 +296,7 @@ export function SnackbarProvider(props: SnackbarProviderProps) {
                   onClick={() => dismiss(rec.id)}
                   className={cn(
                     itemClasses.closeButton(),
-                    slotProps?.closeButton?.className
+                    themeSlotProps?.closeButton?.className, slotProps?.closeButton?.className
                   )}
                 >
                   <svg

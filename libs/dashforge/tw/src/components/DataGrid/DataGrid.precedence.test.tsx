@@ -55,6 +55,18 @@ describe('DataGrid precedence chain — Option C (Track A)', () => {
     expect(container.querySelector('table')).not.toBeNull();
   });
 
+  it('slotProps precedence — instance slotProps merged onto the table wrapper', () => {
+    const { container } = render(
+      <DataGrid
+        rows={ROWS}
+        cols={COLS}
+        getRowId={(r) => r.id}
+        slotProps={{ root: { className: 'df-slot-datagrid-root-token' } }}
+      />,
+    );
+    expect(container.querySelector('.df-slot-datagrid-root-token')).toBeTruthy();
+  });
+
   it('no axes leak onto DOM', () => {
     act(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

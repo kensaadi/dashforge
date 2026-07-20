@@ -13,6 +13,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Checkbox?: {
       defaults?: Partial<CheckboxVariantProps>;
+      slotProps?: CheckboxSlotProps;
     };
   }
 }

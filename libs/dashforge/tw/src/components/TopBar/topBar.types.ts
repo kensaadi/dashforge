@@ -11,6 +11,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     TopBar?: {
       defaults?: Partial<TopBarVariantProps>;
+      slotProps?: TopBarSlotProps;
     };
   }
 }

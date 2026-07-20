@@ -7,19 +7,20 @@ import type { TabsVariants } from './tabs.variants.js';
  */
 export type TabsVariantProps = Pick<TabsVariants, 'variant' | 'orientation'>;
 
-declare module '@dashforge/tw-tokens' {
-  interface TWComponentDefaults {
-    Tabs?: {
-      defaults?: Partial<TabsVariantProps>;
-    };
-  }
-}
-
 export interface TabsSlotProps {
   root?: { className?: string };
   list?: { className?: string };
   trigger?: { className?: string };
   content?: { className?: string };
+}
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Tabs?: {
+      defaults?: Partial<TabsVariantProps>;
+      slotProps?: TabsSlotProps;
+    };
+  }
 }
 
 /**

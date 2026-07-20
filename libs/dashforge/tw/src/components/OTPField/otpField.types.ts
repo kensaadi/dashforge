@@ -13,6 +13,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     OTPField?: {
       defaults?: Partial<OTPFieldVariantProps>;
+      slotProps?: OTPFieldSlotProps;
     };
   }
 }

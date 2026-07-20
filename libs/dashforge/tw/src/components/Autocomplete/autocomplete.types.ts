@@ -16,6 +16,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Autocomplete?: {
       defaults?: Partial<AutocompleteVariantProps>;
+      slotProps?: AutocompleteSlotProps;
     };
   }
 }

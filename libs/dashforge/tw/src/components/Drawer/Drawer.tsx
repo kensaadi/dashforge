@@ -117,6 +117,11 @@ function clamp(value: number, min: number, max: number): number {
 export function Drawer(props: DrawerProps) {
   const themeDefaults = useComponentDefaults('Drawer');
   const merged: DrawerProps = { ...themeDefaults?.defaults, ...props };
+  // Theme-level slotProps (Option C Track B). Instance `slotProps` wins
+  // per-slot via the `cn()` order below — theme classes come first,
+  // instance classes second, so `tailwind-merge` picks the instance
+  // where they collide.
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const {
     open,
@@ -334,8 +339,9 @@ export function Drawer(props: DrawerProps) {
     // resized. Once resized, inline style takes over so drag operations
     // don't stutter against the class-derived size.
     resizedSize == null ? sizeClass : undefined,
-    sx,
+    themeSlotProps?.content?.className,
     slotProps?.content?.className,
+    sx,
   );
   const contentStyle: CSSProperties | undefined =
     resizedSize != null
@@ -356,7 +362,11 @@ export function Drawer(props: DrawerProps) {
       <RadixDialog.Portal>
         {isModal && (
           <RadixDialog.Overlay
-            className={cn(v.overlay(), slotProps?.overlay?.className)}
+            className={cn(
+              v.overlay(),
+              themeSlotProps?.overlay?.className,
+              slotProps?.overlay?.className,
+            )}
           />
         )}
         <RadixDialog.Content
@@ -409,7 +419,11 @@ export function Drawer(props: DrawerProps) {
           ) : null}
           {(title != null || showCloseButton) && (
             <div
-              className={cn(v.header(), slotProps?.header?.className)}
+              className={cn(
+                v.header(),
+                themeSlotProps?.header?.className,
+                slotProps?.header?.className,
+              )}
               data-close-position={closeButtonPosition}
             >
               {showCloseButton && closeButtonPosition === 'start' && (
@@ -417,6 +431,7 @@ export function Drawer(props: DrawerProps) {
                   aria-label="Close"
                   className={cn(
                     v.closeButton(),
+                    themeSlotProps?.closeButton?.className,
                     slotProps?.closeButton?.className,
                   )}
                   onClick={onCloseClick}
@@ -426,7 +441,11 @@ export function Drawer(props: DrawerProps) {
               )}
               {title != null ? (
                 <RadixDialog.Title
-                  className={cn(v.title(), slotProps?.title?.className)}
+                  className={cn(
+                    v.title(),
+                    themeSlotProps?.title?.className,
+                    slotProps?.title?.className,
+                  )}
                 >
                   {title}
                 </RadixDialog.Title>
@@ -440,6 +459,7 @@ export function Drawer(props: DrawerProps) {
                   aria-label="Close"
                   className={cn(
                     v.closeButton(),
+                    themeSlotProps?.closeButton?.className,
                     slotProps?.closeButton?.className,
                   )}
                   onClick={onCloseClick}
@@ -450,12 +470,24 @@ export function Drawer(props: DrawerProps) {
             </div>
           )}
 
-          <div className={cn(v.body(), slotProps?.body?.className)}>
+          <div
+            className={cn(
+              v.body(),
+              themeSlotProps?.body?.className,
+              slotProps?.body?.className,
+            )}
+          >
             {children}
           </div>
 
           {footer != null && (
-            <div className={cn(v.footer(), slotProps?.footer?.className)}>
+            <div
+              className={cn(
+                v.footer(),
+                themeSlotProps?.footer?.className,
+                slotProps?.footer?.className,
+              )}
+            >
               {footer}
             </div>
           )}
@@ -472,6 +504,7 @@ export function Drawer(props: DrawerProps) {
               data-testid={testId ? `${testId}-resize-handle` : undefined}
               className={cn(
                 v.resizeHandle(),
+                themeSlotProps?.resizeHandle?.className,
                 slotProps?.resizeHandle?.className,
               )}
               onPointerDown={handlePointerDown}

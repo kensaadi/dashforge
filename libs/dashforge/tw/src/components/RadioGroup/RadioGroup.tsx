@@ -46,6 +46,7 @@ import type { RadioGroupProps } from './radioGroup.types.js';
 export function RadioGroup(props: RadioGroupProps) {
   const themeDefaults = useComponentDefaults('RadioGroup');
   const merged: RadioGroupProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     options,
@@ -195,19 +196,19 @@ export function RadioGroup(props: RadioGroupProps) {
 
   return (
     <div
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
       aria-describedby={resolvedHelperText ? helperId : undefined}
     >
       {label && (
         <div
           id={labelId}
-          className={cn(v.label(), slotProps?.label?.className)}
+          className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
           {label}
           {required && (
             <span
               aria-hidden="true"
-              className={cn(v.requiredMark(), slotProps?.requiredMark?.className)}
+              className={cn(v.requiredMark(), themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className)}
             >
               *
             </span>
@@ -246,23 +247,23 @@ export function RadioGroup(props: RadioGroupProps) {
         required={required}
         aria-labelledby={label ? labelId : undefined}
         aria-invalid={resolvedError || undefined}
-        className={cn(v.optionList(), slotProps?.optionList?.className)}
+        className={cn(v.optionList(), themeSlotProps?.optionList?.className, slotProps?.optionList?.className)}
       >
         {processedOptions.map((option) => {
           const optionLabelId = `${labelId}-opt-${option.value}`;
           return (
             <div
               key={option.value}
-              className={cn(v.option(), slotProps?.option?.className)}
+              className={cn(v.option(), themeSlotProps?.option?.className, slotProps?.option?.className)}
             >
               <RadixRadioGroup.Item
                 value={option.value}
                 id={optionLabelId}
                 disabled={option.effectiveDisabled}
-                className={cn(v.control(), slotProps?.control?.className)}
+                className={cn(v.control(), themeSlotProps?.control?.className, slotProps?.control?.className)}
               >
                 <RadixRadioGroup.Indicator
-                  className={cn(v.indicator(), slotProps?.indicator?.className)}
+                  className={cn(v.indicator(), themeSlotProps?.indicator?.className, slotProps?.indicator?.className)}
                 />
               </RadixRadioGroup.Item>
               <label
@@ -270,7 +271,7 @@ export function RadioGroup(props: RadioGroupProps) {
                 className={cn(
                   v.optionLabel(),
                   option.effectiveDisabled && 'cursor-not-allowed opacity-60',
-                  slotProps?.optionLabel?.className
+                  themeSlotProps?.optionLabel?.className, slotProps?.optionLabel?.className
                 )}
               >
                 {option.label}
@@ -286,8 +287,8 @@ export function RadioGroup(props: RadioGroupProps) {
           className={cn(
             resolvedError ? v.errorText() : v.helperText(),
             resolvedError
-              ? slotProps?.errorText?.className
-              : slotProps?.helperText?.className
+              ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+              : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className]
           )}
         >
           {resolvedHelperText}

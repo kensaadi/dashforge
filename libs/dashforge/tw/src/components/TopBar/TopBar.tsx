@@ -36,6 +36,7 @@ import type { TopBarProps } from './topBar.types.js';
 export function TopBar(props: TopBarProps) {
   const themeDefaults = useComponentDefaults('TopBar');
   const merged: TopBarProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     start,
     center,
@@ -52,17 +53,17 @@ export function TopBar(props: TopBarProps) {
   const Tag = (asDiv ? 'div' : 'header') as 'header';
 
   return (
-    <Tag className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <Tag className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}>
       {(start != null) && (
-        <div className={cn(v.start(), slotProps?.start?.className)}>
+        <div className={cn(v.start(), themeSlotProps?.start?.className, slotProps?.start?.className)}>
           {start}
         </div>
       )}
-      <div className={cn(v.center(), slotProps?.center?.className)}>
+      <div className={cn(v.center(), themeSlotProps?.center?.className, slotProps?.center?.className)}>
         {center ?? children}
       </div>
       {(end != null) && (
-        <div className={cn(v.end(), slotProps?.end?.className)}>{end}</div>
+        <div className={cn(v.end(), themeSlotProps?.end?.className, slotProps?.end?.className)}>{end}</div>
       )}
     </Tag>
   );

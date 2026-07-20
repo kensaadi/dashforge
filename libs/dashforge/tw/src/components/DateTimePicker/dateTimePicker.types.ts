@@ -40,6 +40,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     DateTimePicker?: {
       defaults?: Partial<DateTimePickerVariantProps>;
+      slotProps?: DateTimePickerSlotProps;
     };
   }
 }

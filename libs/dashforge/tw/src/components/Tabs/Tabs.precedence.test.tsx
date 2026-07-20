@@ -63,6 +63,16 @@ describe('Tabs precedence chain — Option C (Track A)', () => {
     expect(list?.className).toMatch(/flex-col/);
   });
 
+  it('slotProps precedence — instance slotProps merged onto tab list', () => {
+    const { container } = render(
+      <Tabs
+        items={ITEMS}
+        slotProps={{ list: { className: 'df-slot-tabs-list-token' } }}
+      />,
+    );
+    expect(container.querySelector('.df-slot-tabs-list-token')).toBeTruthy();
+  });
+
   it('no axes leak onto DOM', () => {
     act(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

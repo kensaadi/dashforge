@@ -84,6 +84,7 @@ export function AlertTitle({ children, className }: AlertTitleProps) {
 export function Alert(props: AlertProps) {
   const themeDefaults = useComponentDefaults('Alert');
   const merged: AlertProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     severity,
     variant = 'standard',
@@ -133,7 +134,7 @@ export function Alert(props: AlertProps) {
         severityClasses.border,
         sx,
         className,
-        slotProps?.root?.className
+        themeSlotProps?.root?.className, slotProps?.root?.className
       )}
       {...slotProps?.root}
     >
@@ -142,7 +143,7 @@ export function Alert(props: AlertProps) {
           className={cn(
             v.icon(),
             severityClasses.icon,
-            slotProps?.icon?.className
+            themeSlotProps?.icon?.className, slotProps?.icon?.className
           )}
           {...slotProps?.icon}
         >
@@ -151,7 +152,7 @@ export function Alert(props: AlertProps) {
       )}
 
       <div
-        className={cn(v.content(), slotProps?.content?.className)}
+        className={cn(v.content(), themeSlotProps?.content?.className, slotProps?.content?.className)}
         {...slotProps?.content}
       >
         {children}
@@ -159,7 +160,7 @@ export function Alert(props: AlertProps) {
 
       {action ? (
         <div
-          className={cn(v.action(), slotProps?.action?.className)}
+          className={cn(v.action(), themeSlotProps?.action?.className, slotProps?.action?.className)}
           {...slotProps?.action}
         >
           {action}
@@ -169,7 +170,7 @@ export function Alert(props: AlertProps) {
           type="button"
           aria-label={closeText}
           onClick={onClose}
-          className={cn(v.closeButton(), slotProps?.closeButton?.className)}
+          className={cn(v.closeButton(), themeSlotProps?.closeButton?.className, slotProps?.closeButton?.className)}
           {...slotProps?.closeButton}
         >
           <svg

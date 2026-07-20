@@ -66,6 +66,7 @@ function ChevronRightIcon() {
 export function Calendar(props: CalendarProps) {
   const themeDefaults = useComponentDefaults('Calendar');
   const merged: CalendarProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     value,
     defaultValue,
@@ -173,10 +174,10 @@ export function Calendar(props: CalendarProps) {
   return (
     <div
       data-testid={testId}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
       {/* Header: month navigation + label */}
-      <div className={cn(v.header(), slotProps?.header?.className)}>
+      <div className={cn(v.header(), themeSlotProps?.header?.className, slotProps?.header?.className)}>
         <button
           type="button"
           className={v.navButton()}
@@ -209,7 +210,7 @@ export function Calendar(props: CalendarProps) {
         role="grid"
         aria-label={ariaLabel}
         onKeyDown={handleKeyDown}
-        className={cn(v.grid(), slotProps?.grid?.className)}
+        className={cn(v.grid(), themeSlotProps?.grid?.className, slotProps?.grid?.className)}
       >
         <div role="row" className={v.weekdayRow()}>
           {calendar.weekdayNames.map((dayName, index) => (
@@ -251,7 +252,7 @@ export function Calendar(props: CalendarProps) {
                         selected: day.isSelected,
                         disabled: day.isDisabled,
                       }),
-                      slotProps?.day?.className,
+                      themeSlotProps?.day?.className, slotProps?.day?.className,
                     )}
                   >
                     {day.day}

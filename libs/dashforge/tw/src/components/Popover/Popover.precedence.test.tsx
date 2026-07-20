@@ -69,6 +69,20 @@ describe('Popover precedence chain — Option C (Track A)', () => {
     expect(content?.getAttribute('data-align')).toBe('start');
   });
 
+  it('slotProps precedence — instance slotProps merged onto the content slot', () => {
+    render(
+      <Popover
+        open
+        content={<div>x</div>}
+        slotProps={{ content: { className: 'df-slot-popover-content-token' } }}
+      >
+        <button>t</button>
+      </Popover>,
+    );
+    const el = document.querySelector('.df-slot-popover-content-token');
+    expect(el).toBeTruthy();
+  });
+
   it('no axes leak onto DOM', () => {
     act(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -16,6 +16,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Tooltip?: {
       defaults?: Partial<TooltipVariantProps>;
+      slotProps?: TooltipSlotProps;
     };
   }
 }

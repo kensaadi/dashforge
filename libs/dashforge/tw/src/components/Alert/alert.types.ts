@@ -18,6 +18,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Alert?: {
       defaults?: Partial<AlertDefaultVariantProps>;
+      slotProps?: AlertSlotProps;
     };
   }
 }

@@ -48,6 +48,7 @@ function sanitize(input: string, mode: OTPFieldMode, max: number): string {
 export function OTPField(props: OTPFieldProps) {
   const themeDefaults = useComponentDefaults('OTPField');
   const merged: OTPFieldProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -175,18 +176,18 @@ export function OTPField(props: OTPFieldProps) {
   const inputMode = mode === 'numeric' ? 'numeric' : 'text';
 
   return (
-    <div className={cn(v.root(), sx, slotProps?.root?.className)}>
+    <div className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}>
       {label && (
         <label
           id={labelId}
           htmlFor={inputId}
-          className={cn(v.label(), slotProps?.label?.className)}
+          className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
           {label}
           {required && (
             <span
               aria-hidden="true"
-              className={cn(v.requiredMark(), slotProps?.requiredMark?.className)}
+              className={cn(v.requiredMark(), themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className)}
             >
               *
             </span>
@@ -194,7 +195,7 @@ export function OTPField(props: OTPFieldProps) {
         </label>
       )}
 
-      <div className={cn(v.slotsRow(), slotProps?.slotsRow?.className)}>
+      <div className={cn(v.slotsRow(), themeSlotProps?.slotsRow?.className, slotProps?.slotsRow?.className)}>
         {Array.from({ length }, (_, i) => {
           const char = resolvedValue[i] ?? '';
           const isActive = isFocused && !effectiveDisabled && i === activeSlotIndex;
@@ -203,10 +204,10 @@ export function OTPField(props: OTPFieldProps) {
               key={i}
               data-active={isActive || undefined}
               data-disabled={effectiveDisabled || undefined}
-              className={cn(v.slot(), slotProps?.slot?.className)}
+              className={cn(v.slot(), themeSlotProps?.slot?.className, slotProps?.slot?.className)}
               aria-hidden="true"
             >
-              <span className={cn(v.slotChar(), slotProps?.slotChar?.className)}>
+              <span className={cn(v.slotChar(), themeSlotProps?.slotChar?.className, slotProps?.slotChar?.className)}>
                 {char}
               </span>
             </div>
@@ -231,7 +232,7 @@ export function OTPField(props: OTPFieldProps) {
           onFocus={() => setIsFocused(true)}
           onBlur={handleBlur}
           ref={registration?.ref as React.Ref<HTMLInputElement> | undefined}
-          className={cn(v.hiddenInput(), slotProps?.hiddenInput?.className)}
+          className={cn(v.hiddenInput(), themeSlotProps?.hiddenInput?.className, slotProps?.hiddenInput?.className)}
         />
       </div>
 
@@ -241,8 +242,8 @@ export function OTPField(props: OTPFieldProps) {
           className={cn(
             resolvedError ? v.errorText() : v.helperText(),
             resolvedError
-              ? slotProps?.errorText?.className
-              : slotProps?.helperText?.className
+              ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+              : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className]
           )}
         >
           {resolvedHelperText}

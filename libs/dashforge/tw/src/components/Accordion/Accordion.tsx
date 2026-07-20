@@ -1,4 +1,5 @@
 import * as RadixAccordion from '@radix-ui/react-accordion';
+import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { accordionVariants } from './accordion.variants.js';
 import type {
@@ -26,6 +27,8 @@ import type {
  * (`data-state=open` selector) — no React state, no JS animation.
  */
 export function Accordion(props: AccordionProps) {
+  const themeDefaults = useComponentDefaults('Accordion');
+  const themeSlotProps = themeDefaults?.slotProps;
   const v = accordionVariants();
   const { items, sx, slotProps } = props;
 
@@ -35,17 +38,17 @@ export function Accordion(props: AccordionProps) {
         key={item.value}
         value={item.value}
         disabled={item.disabled}
-        className={cn(v.item(), slotProps?.item?.className)}
+        className={cn(v.item(), themeSlotProps?.item?.className, slotProps?.item?.className)}
       >
         <RadixAccordion.Header
-          className={cn(v.header(), slotProps?.header?.className)}
+          className={cn(v.header(), themeSlotProps?.header?.className, slotProps?.header?.className)}
         >
           <RadixAccordion.Trigger
-            className={cn(v.trigger(), slotProps?.trigger?.className)}
+            className={cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className)}
           >
             {item.header}
             <svg
-              className={cn(v.chevron(), slotProps?.chevron?.className)}
+              className={cn(v.chevron(), themeSlotProps?.chevron?.className, slotProps?.chevron?.className)}
               width="1em"
               height="1em"
               viewBox="0 0 16 16"
@@ -61,7 +64,7 @@ export function Accordion(props: AccordionProps) {
           </RadixAccordion.Trigger>
         </RadixAccordion.Header>
         <RadixAccordion.Content
-          className={cn(v.content(), slotProps?.content?.className)}
+          className={cn(v.content(), themeSlotProps?.content?.className, slotProps?.content?.className)}
         >
           <div className="pb-3 pt-0">{item.content}</div>
         </RadixAccordion.Content>
@@ -75,7 +78,7 @@ export function Accordion(props: AccordionProps) {
         value={props.value}
         defaultValue={props.defaultValue}
         onValueChange={props.onValueChange}
-        className={cn(v.root(), sx, slotProps?.root?.className)}
+        className={cn(v.root(), themeSlotProps?.root?.className, slotProps?.root?.className, sx)}
       >
         {renderItems(items, slotProps)}
       </RadixAccordion.Root>
@@ -89,7 +92,7 @@ export function Accordion(props: AccordionProps) {
       value={props.value}
       defaultValue={props.defaultValue}
       onValueChange={props.onValueChange}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), themeSlotProps?.root?.className, slotProps?.root?.className, sx)}
     >
       {renderItems(items, slotProps)}
     </RadixAccordion.Root>

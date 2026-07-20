@@ -107,6 +107,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
 ) {
   const themeDefaults = useComponentDefaults('Badge');
   const merged: BadgeProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     children,
     content,
@@ -155,12 +156,12 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
   return (
     <span
       ref={ref}
-      className={cn(v.root(), sx, className, slotProps?.root?.className)}
+      className={cn(v.root(), sx, className, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
       {children}
       {shouldRenderBadge && (
         <span
-          className={cn(v.badge(), slotProps?.badge?.className)}
+          className={cn(v.badge(), themeSlotProps?.badge?.className, slotProps?.badge?.className)}
           // Use `aria-hidden` because the count itself is decorative
           // — consumers should pair Badge with the anchor's
           // `aria-label` to convey the count semantically

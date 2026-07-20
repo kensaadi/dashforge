@@ -51,6 +51,7 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 export function Pagination(props: PaginationProps) {
   const themeDefaults = useComponentDefaults('Pagination');
   const merged: PaginationProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     page,
     pageSize,
@@ -128,25 +129,25 @@ export function Pagination(props: PaginationProps) {
   return (
     <nav
       aria-label="Pagination"
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
       {/* Summary — only in `default` variant. `compact` skips it entirely.
           `minimal` renders a different "Page X of Y" summary below. */}
       {variant === 'default' && (
-        <span className={cn(v.summary(), slotProps?.summary?.className)}>
+        <span className={cn(v.summary(), themeSlotProps?.summary?.className, slotProps?.summary?.className)}>
           {labels.showing} {firstItem}-{lastItem} {labels.of} {totalCount}
         </span>
       )}
 
       {/* Minimal-mode summary (text-only "Page X of Y") */}
       {isMinimal && (
-        <span className={cn(v.summary(), 'text-sm', slotProps?.summary?.className)}>
+        <span className={cn(v.summary(), 'text-sm', themeSlotProps?.summary?.className, slotProps?.summary?.className)}>
           {labels.page} {safePage} {labels.of} {totalPages}
         </span>
       )}
 
       {/* Nav buttons + page list */}
-      <ul className={cn(v.list(), slotProps?.list?.className)}>
+      <ul className={cn(v.list(), themeSlotProps?.list?.className, slotProps?.list?.className)}>
         {showFirstLast && !isMinimal && (
           <li>
             <button
@@ -154,7 +155,7 @@ export function Pagination(props: PaginationProps) {
               aria-label={labels.first}
               disabled={disabled || safePage === 1}
               onClick={() => goTo(1)}
-              className={cn(v.navButton(), slotProps?.navButton?.className)}
+              className={cn(v.navButton(), themeSlotProps?.navButton?.className, slotProps?.navButton?.className)}
             >
               «
             </button>
@@ -166,7 +167,7 @@ export function Pagination(props: PaginationProps) {
             aria-label={labels.prev}
             disabled={disabled || safePage === 1}
             onClick={() => goTo(safePage - 1)}
-            className={cn(v.navButton(), slotProps?.navButton?.className)}
+            className={cn(v.navButton(), themeSlotProps?.navButton?.className, slotProps?.navButton?.className)}
           >
             ‹
           </button>
@@ -178,7 +179,7 @@ export function Pagination(props: PaginationProps) {
               <li key={`e-${idx}`}>
                 <span
                   aria-hidden="true"
-                  className={cn(v.ellipsis(), slotProps?.ellipsis?.className)}
+                  className={cn(v.ellipsis(), themeSlotProps?.ellipsis?.className, slotProps?.ellipsis?.className)}
                 >
                   …
                 </span>
@@ -194,8 +195,8 @@ export function Pagination(props: PaginationProps) {
                   className={cn(
                     v.pageButton(),
                     entry === safePage && v.activeButton(),
-                    slotProps?.pageButton?.className,
-                    entry === safePage && slotProps?.activeButton?.className,
+                    themeSlotProps?.pageButton?.className, slotProps?.pageButton?.className,
+                    entry === safePage && themeSlotProps?.activeButton?.className, slotProps?.activeButton?.className,
                   )}
                 >
                   {entry}
@@ -209,7 +210,7 @@ export function Pagination(props: PaginationProps) {
             aria-label={labels.next}
             disabled={disabled || safePage === totalPages}
             onClick={() => goTo(safePage + 1)}
-            className={cn(v.navButton(), slotProps?.navButton?.className)}
+            className={cn(v.navButton(), themeSlotProps?.navButton?.className, slotProps?.navButton?.className)}
           >
             ›
           </button>
@@ -221,7 +222,7 @@ export function Pagination(props: PaginationProps) {
               aria-label={labels.last}
               disabled={disabled || safePage === totalPages}
               onClick={() => goTo(totalPages)}
-              className={cn(v.navButton(), slotProps?.navButton?.className)}
+              className={cn(v.navButton(), themeSlotProps?.navButton?.className, slotProps?.navButton?.className)}
             >
               »
             </button>
@@ -232,7 +233,7 @@ export function Pagination(props: PaginationProps) {
       {/* Page-size selector + jump input — only in default variant */}
       {variant === 'default' && onPageSizeChange && (
         <label
-          className={cn(v.pageSizeSelector(), slotProps?.pageSizeSelector?.className)}
+          className={cn(v.pageSizeSelector(), themeSlotProps?.pageSizeSelector?.className, slotProps?.pageSizeSelector?.className)}
         >
           <span className="sr-only">{labels.perPage}</span>
           <select
@@ -271,7 +272,7 @@ export function Pagination(props: PaginationProps) {
             onKeyDown={onJumpKeyDown}
             onBlur={commitJump}
             aria-label={labels.goToPage}
-            className={cn(v.jumpInput(), slotProps?.jumpInput?.className)}
+            className={cn(v.jumpInput(), themeSlotProps?.jumpInput?.className, slotProps?.jumpInput?.className)}
           />
         </label>
       )}

@@ -154,6 +154,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Snackbar?: {
       defaults?: Partial<SnackbarVariantProps>;
+      slotProps?: SnackbarSlotProps;
     };
   }
 }

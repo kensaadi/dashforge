@@ -10,6 +10,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Pagination?: {
       defaults?: Partial<PaginationVariantProps>;
+      slotProps?: PaginationSlotProps;
     };
   }
 }

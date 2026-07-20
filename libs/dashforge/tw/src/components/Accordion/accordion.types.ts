@@ -64,3 +64,11 @@ export interface AccordionMultipleProps extends AccordionBaseProps {
  *  - `type="multiple"` — `value` is `string[]`.
  */
 export type AccordionProps = AccordionSingleProps | AccordionMultipleProps;
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    Accordion?: {
+      slotProps?: AccordionSlotProps;
+    };
+  }
+}

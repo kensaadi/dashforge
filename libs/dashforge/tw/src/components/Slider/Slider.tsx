@@ -108,6 +108,7 @@ export const Slider = forwardRef<HTMLSpanElement, SliderProps>(function Slider(
   // with the spread merge.
   const themeDefaults = useComponentDefaults('Slider');
   const merged = { ...themeDefaults?.defaults, ...rawProps } as SliderProps;
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const {
     name,
@@ -332,23 +333,23 @@ export const Slider = forwardRef<HTMLSpanElement, SliderProps>(function Slider(
     disabled: effectiveDisabled,
   });
 
-  const rootClasses = cn(v.root(), slotProps?.root?.className);
-  const labelClasses = cn(v.label(), slotProps?.label?.className);
-  const requiredMarkClasses = cn(v.requiredMark(), slotProps?.requiredMark?.className);
+  const rootClasses = cn(v.root(), themeSlotProps?.root?.className, slotProps?.root?.className);
+  const labelClasses = cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className);
+  const requiredMarkClasses = cn(v.requiredMark(), themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className);
   const controlWrapperClasses = cn(
     v.controlWrapper(),
-    themeDefaults?.slotProps?.controlWrapper?.className,
+    themeSlotProps?.controlWrapper?.className,
     slotProps?.controlWrapper?.className,
     sx,
   );
-  const trackClasses = cn(v.track(), slotProps?.track?.className);
-  const rangeSegmentClasses = cn(v.rangeSegment(), slotProps?.rangeSegment?.className);
-  const thumbClasses = cn(v.thumb(), slotProps?.thumb?.className);
-  const markClasses = cn(v.mark(), slotProps?.mark?.className);
-  const markLabelClasses = cn(v.markLabel(), slotProps?.markLabel?.className);
-  const valueLabelClasses = cn(v.valueLabel(), slotProps?.valueLabel?.className);
-  const helperTextClasses = cn(v.helperText(), slotProps?.helperText?.className);
-  const errorTextClasses = cn(v.errorText(), slotProps?.errorText?.className);
+  const trackClasses = cn(v.track(), themeSlotProps?.track?.className, slotProps?.track?.className);
+  const rangeSegmentClasses = cn(v.rangeSegment(), themeSlotProps?.rangeSegment?.className, slotProps?.rangeSegment?.className);
+  const thumbClasses = cn(v.thumb(), themeSlotProps?.thumb?.className, slotProps?.thumb?.className);
+  const markClasses = cn(v.mark(), themeSlotProps?.mark?.className, slotProps?.mark?.className);
+  const markLabelClasses = cn(v.markLabel(), themeSlotProps?.markLabel?.className, slotProps?.markLabel?.className);
+  const valueLabelClasses = cn(v.valueLabel(), themeSlotProps?.valueLabel?.className, slotProps?.valueLabel?.className);
+  const helperTextClasses = cn(v.helperText(), themeSlotProps?.helperText?.className, slotProps?.helperText?.className);
+  const errorTextClasses = cn(v.errorText(), themeSlotProps?.errorText?.className, slotProps?.errorText?.className);
 
   const hasError = Boolean(resolvedError);
   const showValueLabelResolved =

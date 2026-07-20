@@ -136,6 +136,7 @@ function SelectInner<V extends SelectValue = string>(
 ): ReactElement | null {
   const themeDefaults = useComponentDefaults('Select');
   const merged: SelectProps<V> = { ...themeDefaults?.defaults, ...props } as SelectProps<V>;
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const {
     name,
@@ -445,21 +446,21 @@ function SelectInner<V extends SelectValue = string>(
     disabled: effectiveDisabled,
   });
 
-  const rootClasses = cn(v.root(), slotProps?.root?.className);
-  const labelClasses = cn(v.label(), slotProps?.label?.className);
-  const requiredMarkClasses = cn(v.requiredMark(), slotProps?.requiredMark?.className);
-  const triggerClasses = cn(v.trigger(), themeDefaults?.slotProps?.trigger?.className, slotProps?.trigger?.className, sx);
-  const triggerTextClasses = cn(v.triggerText(), slotProps?.triggerText?.className);
-  const triggerPlaceholderClasses = cn(v.triggerPlaceholder(), slotProps?.triggerPlaceholder?.className);
-  const chevronClasses = cn(v.chevron(), slotProps?.chevron?.className);
-  const popoverClasses = cn(v.popover(), slotProps?.popover?.className);
-  const listBoxClasses = cn(v.listBox(), slotProps?.listBox?.className);
-  const emptyStateClasses = cn(v.emptyState(), slotProps?.emptyState?.className);
-  const helperTextClasses = cn(v.helperText(), slotProps?.helperText?.className);
-  const errorTextClasses = cn(v.errorText(), slotProps?.errorText?.className);
-  const chipsListClasses = cn(v.chipsList(), slotProps?.chipsList?.className);
-  const chipClasses = cn(v.chip(), slotProps?.chip?.className);
-  const chipRemoveClasses = cn(v.chipRemove(), slotProps?.chipRemove?.className);
+  const rootClasses = cn(v.root(), themeSlotProps?.root?.className, slotProps?.root?.className);
+  const labelClasses = cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className);
+  const requiredMarkClasses = cn(v.requiredMark(), themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className);
+  const triggerClasses = cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className, sx);
+  const triggerTextClasses = cn(v.triggerText(), themeSlotProps?.triggerText?.className, slotProps?.triggerText?.className);
+  const triggerPlaceholderClasses = cn(v.triggerPlaceholder(), themeSlotProps?.triggerPlaceholder?.className, slotProps?.triggerPlaceholder?.className);
+  const chevronClasses = cn(v.chevron(), themeSlotProps?.chevron?.className, slotProps?.chevron?.className);
+  const popoverClasses = cn(v.popover(), themeSlotProps?.popover?.className, slotProps?.popover?.className);
+  const listBoxClasses = cn(v.listBox(), themeSlotProps?.listBox?.className, slotProps?.listBox?.className);
+  const emptyStateClasses = cn(v.emptyState(), themeSlotProps?.emptyState?.className, slotProps?.emptyState?.className);
+  const helperTextClasses = cn(v.helperText(), themeSlotProps?.helperText?.className, slotProps?.helperText?.className);
+  const errorTextClasses = cn(v.errorText(), themeSlotProps?.errorText?.className, slotProps?.errorText?.className);
+  const chipsListClasses = cn(v.chipsList(), themeSlotProps?.chipsList?.className, slotProps?.chipsList?.className);
+  const chipClasses = cn(v.chip(), themeSlotProps?.chip?.className, slotProps?.chip?.className);
+  const chipRemoveClasses = cn(v.chipRemove(), themeSlotProps?.chipRemove?.className, slotProps?.chipRemove?.className);
 
   // Trigger content — chips (multi) OR selected label OR placeholder
   let triggerContent: ReactNode;
@@ -587,7 +588,7 @@ function SelectInner<V extends SelectValue = string>(
                       data-focused={focused ? 'true' : 'false'}
                       data-selected={selected ? 'true' : 'false'}
                       data-disabled={opt.disabled ? 'true' : 'false'}
-                      className={cn(v.listItem(), slotProps?.listItem?.className)}
+                      className={cn(v.listItem(), themeSlotProps?.listItem?.className, slotProps?.listItem?.className)}
                       onMouseEnter={() => setFocusedIndex(idx)}
                       onClick={(e) => {
                         e.preventDefault();
@@ -597,7 +598,7 @@ function SelectInner<V extends SelectValue = string>(
                       <CheckIcon
                         className={cn(
                           v.listItemIndicator(),
-                          slotProps?.listItemIndicator?.className,
+                          themeSlotProps?.listItemIndicator?.className, slotProps?.listItemIndicator?.className,
                         )}
                       />
                       <span className="truncate">{opt.label}</span>

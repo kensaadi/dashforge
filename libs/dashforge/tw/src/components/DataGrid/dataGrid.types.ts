@@ -22,6 +22,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     DataGrid?: {
       defaults?: Partial<DataGridVariantProps>;
+      slotProps?: DataGridSlotProps;
     };
   }
 }

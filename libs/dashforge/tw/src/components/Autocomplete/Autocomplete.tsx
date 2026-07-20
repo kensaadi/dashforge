@@ -153,6 +153,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
     ...themeDefaults?.defaults,
     ...props,
   };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     name,
     rules,
@@ -845,13 +846,13 @@ export function Autocomplete<TOption = AutocompleteOption>(
   return (
     <div
       ref={rootRef}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
       {label && (
         <label
           id={labelId}
           htmlFor={`${baseId}-input`}
-          className={cn(v.label(), slotProps?.label?.className)}
+          className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
           {label}
           {required && (
@@ -859,7 +860,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
               aria-hidden="true"
               className={cn(
                 v.requiredMark(),
-                slotProps?.requiredMark?.className
+                themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className
               )}
             >
               *
@@ -874,14 +875,14 @@ export function Autocomplete<TOption = AutocompleteOption>(
           // Multi mode: let chips wrap and replace the fixed `h-*`
           // with `min-h-*` so the wrapper grows with selections.
           isMulti && 'flex-wrap min-h-[var(--ac-min-h,2.5rem)] !h-auto py-1',
-          slotProps?.inputWrapper?.className
+          themeSlotProps?.inputWrapper?.className, slotProps?.inputWrapper?.className
         )}
       >
         {isMulti && selectedKeys.size > 0 && (
           <div
             className={cn(
               v.chipsList(),
-              slotProps?.chipsList?.className
+              themeSlotProps?.chipsList?.className, slotProps?.chipsList?.className
             )}
           >
             {Array.from(selectedKeys).map((key) => {
@@ -891,7 +892,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
               return (
                 <span
                   key={key}
-                  className={cn(v.chip(), slotProps?.chip?.className)}
+                  className={cn(v.chip(), themeSlotProps?.chip?.className, slotProps?.chip?.className)}
                   data-chip-key={key}
                 >
                   {labelNode}
@@ -907,7 +908,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
                       tabIndex={-1}
                       className={cn(
                         v.chipRemove(),
-                        slotProps?.chipRemove?.className
+                        themeSlotProps?.chipRemove?.className, slotProps?.chipRemove?.className
                       )}
                     >
                       <CloseIcon />
@@ -953,7 +954,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
           className={cn(
             v.input(),
             isMulti && 'min-w-[6rem] flex-1 basis-24',
-            slotProps?.input?.className
+            themeSlotProps?.input?.className, slotProps?.input?.className
           )}
         />
 
@@ -964,7 +965,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
             onClick={handleClearClick}
             aria-label="Clear selection"
             tabIndex={-1}
-            className={cn(v.clearButton(), slotProps?.clearButton?.className)}
+            className={cn(v.clearButton(), themeSlotProps?.clearButton?.className, slotProps?.clearButton?.className)}
           >
             <CloseIcon />
           </button>
@@ -979,7 +980,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
           aria-expanded={isOpen}
           tabIndex={-1}
           disabled={effectiveDisabled}
-          className={cn(v.trigger(), slotProps?.trigger?.className)}
+          className={cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className)}
         >
           {/*
            * Chevron flips up when popover is open (CSS-only, driven by
@@ -1000,15 +1001,15 @@ export function Autocomplete<TOption = AutocompleteOption>(
               v.popover(),
               'absolute left-0 right-0 top-full',
               v.listBox(),
-              slotProps?.popover?.className,
-              slotProps?.listBox?.className
+              themeSlotProps?.popover?.className, slotProps?.popover?.className,
+              themeSlotProps?.listBox?.className, slotProps?.listBox?.className
             )}
           >
             {isLoading ? (
               <li
                 className={cn(
                   v.emptyState(),
-                  slotProps?.emptyState?.className
+                  themeSlotProps?.emptyState?.className, slotProps?.emptyState?.className
                 )}
                 aria-live="polite"
                 aria-busy="true"
@@ -1019,7 +1020,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
               <li
                 className={cn(
                   v.emptyState(),
-                  slotProps?.emptyState?.className
+                  themeSlotProps?.emptyState?.className, slotProps?.emptyState?.className
                 )}
               >
                 {emptyMessage}
@@ -1045,7 +1046,7 @@ export function Autocomplete<TOption = AutocompleteOption>(
                     onMouseEnter={() => setHighlightedIndex(idx)}
                     className={cn(
                       v.listItem(),
-                      slotProps?.listItem?.className
+                      themeSlotProps?.listItem?.className, slotProps?.listItem?.className
                     )}
                   >
                     {getOptionLabel(opt)}
@@ -1063,8 +1064,8 @@ export function Autocomplete<TOption = AutocompleteOption>(
           className={cn(
             resolvedError ? v.errorText() : v.helperText(),
             resolvedError
-              ? slotProps?.errorText?.className
-              : slotProps?.helperText?.className
+              ? [themeSlotProps?.errorText?.className, slotProps?.errorText?.className]
+              : [themeSlotProps?.helperText?.className, slotProps?.helperText?.className]
           )}
         >
           {resolvedHelperText}

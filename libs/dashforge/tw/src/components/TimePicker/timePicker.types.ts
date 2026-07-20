@@ -36,6 +36,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     TimePicker?: {
       defaults?: Partial<TimePickerVariantProps>;
+      slotProps?: TimePickerSlotProps;
     };
   }
 }

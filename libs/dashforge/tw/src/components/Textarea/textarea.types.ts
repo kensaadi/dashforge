@@ -21,6 +21,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Textarea?: {
       defaults?: Partial<TextareaVariantProps>;
+      slotProps?: TextareaSlotProps;
     };
   }
 }

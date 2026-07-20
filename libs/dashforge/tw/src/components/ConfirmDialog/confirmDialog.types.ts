@@ -97,6 +97,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     ConfirmDialog?: {
       defaults?: Partial<ConfirmDialogVariantProps>;
+      slotProps?: ConfirmDialogSlotProps;
     };
   }
 }

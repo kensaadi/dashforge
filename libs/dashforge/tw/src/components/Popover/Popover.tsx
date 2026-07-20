@@ -32,6 +32,8 @@ export function Popover(props: PopoverProps) {
     sx,
     slotProps,
   } = merged;
+  // Theme-level slotProps (Option C Track B).
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const v = popoverVariants();
 
@@ -44,12 +46,21 @@ export function Popover(props: PopoverProps) {
           align={align}
           sideOffset={sideOffset}
           style={width != null ? { width } : undefined}
-          className={cn(v.content(), sx, slotProps?.content?.className)}
+          className={cn(
+            v.content(),
+            themeSlotProps?.content?.className,
+            slotProps?.content?.className,
+            sx,
+          )}
         >
           {content}
           {showArrow && (
             <RadixPopover.Arrow
-              className={cn(v.arrow(), slotProps?.arrow?.className)}
+              className={cn(
+                v.arrow(),
+                themeSlotProps?.arrow?.className,
+                slotProps?.arrow?.className,
+              )}
             />
           )}
         </RadixPopover.Content>

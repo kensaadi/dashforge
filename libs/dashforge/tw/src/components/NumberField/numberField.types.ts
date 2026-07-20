@@ -21,6 +21,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     NumberField?: {
       defaults?: Partial<NumberFieldVariantProps>;
+      slotProps?: NumberFieldSlotProps;
     };
   }
 }

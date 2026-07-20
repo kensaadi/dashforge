@@ -47,3 +47,11 @@ export interface AppShellProps extends AppShellVariants {
   /** Per-slot className overrides. */
   slotProps?: AppShellSlotProps;
 }
+
+declare module '@dashforge/tw-tokens' {
+  interface TWComponentDefaults {
+    AppShell?: {
+      slotProps?: AppShellSlotProps;
+    };
+  }
+}

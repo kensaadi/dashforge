@@ -53,7 +53,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
   const rootClasses = cn(
     linkVariants({ color, underline, weight, size }),
     themeSlotProps?.root?.className,
-    slotProps?.root?.className,
+    themeSlotProps?.root?.className, slotProps?.root?.className,
     consumerClassName,
     sx,
   );
@@ -97,12 +97,12 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
   const startIconClasses = cn(
     'inline-flex items-center shrink-0',
     themeSlotProps?.startIcon?.className,
-    slotProps?.startIcon?.className,
+    themeSlotProps?.startIcon?.className, slotProps?.startIcon?.className,
   );
   const endIconClasses = cn(
     'inline-flex items-center shrink-0',
     themeSlotProps?.endIcon?.className,
-    slotProps?.endIcon?.className,
+    themeSlotProps?.endIcon?.className, slotProps?.endIcon?.className,
   );
 
   return (

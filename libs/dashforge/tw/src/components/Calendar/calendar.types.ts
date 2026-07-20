@@ -13,6 +13,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Calendar?: {
       defaults?: Partial<CalendarVariantProps>;
+      slotProps?: CalendarSlotProps;
     };
   }
 }

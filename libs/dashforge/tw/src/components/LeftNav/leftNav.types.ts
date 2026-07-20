@@ -17,6 +17,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     LeftNav?: {
       defaults?: Partial<LeftNavVariantProps>;
+      slotProps?: LeftNavSlotProps;
     };
   }
 }

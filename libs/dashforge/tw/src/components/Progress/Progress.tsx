@@ -48,6 +48,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
 ) {
   const themeDefaults = useComponentDefaults('Progress');
   const merged: ProgressProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
 
   const {
     value: rawValue,
@@ -95,13 +96,13 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
   });
 
   // ───── Class chain ─────
-  const rootClasses = cn(v.root(), sx, slotProps?.root?.className);
-  const labelClasses = cn(v.label(), slotProps?.label?.className);
-  const controlClasses = cn(v.control(), slotProps?.control?.className);
-  const trackClasses = cn(v.track(), slotProps?.track?.className);
-  const barClasses = cn(v.bar(), slotProps?.bar?.className);
-  const arcClasses = cn(v.arc(), slotProps?.arc?.className);
-  const valueLabelClasses = cn(v.valueLabel(), slotProps?.valueLabel?.className);
+  const rootClasses = cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className);
+  const labelClasses = cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className);
+  const controlClasses = cn(v.control(), themeSlotProps?.control?.className, slotProps?.control?.className);
+  const trackClasses = cn(v.track(), themeSlotProps?.track?.className, slotProps?.track?.className);
+  const barClasses = cn(v.bar(), themeSlotProps?.bar?.className, slotProps?.bar?.className);
+  const arcClasses = cn(v.arc(), themeSlotProps?.arc?.className, slotProps?.arc?.className);
+  const valueLabelClasses = cn(v.valueLabel(), themeSlotProps?.valueLabel?.className, slotProps?.valueLabel?.className);
 
   const resolvedAriaLabel =
     ariaLabelProp ??
@@ -145,7 +146,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
           max={max}
           ariaLabel={resolvedAriaLabel}
           arcClass={arcClasses}
-          trackClass={cn('stroke-neutral-200', slotProps?.track?.className)}
+          trackClass={cn('stroke-neutral-200', themeSlotProps?.track?.className, slotProps?.track?.className)}
           controlClass={controlClasses}
           valueLabelClass={valueLabelClasses}
           displayLabel={displayLabel}

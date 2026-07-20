@@ -16,6 +16,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     TextField?: {
       defaults?: Partial<TextFieldVariantProps>;
+      slotProps?: TextFieldSlotProps;
     };
   }
 }

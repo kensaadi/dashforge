@@ -30,6 +30,7 @@ import type {
 export function Breadcrumbs(props: BreadcrumbsProps) {
   const themeDefaults = useComponentDefaults('Breadcrumbs');
   const merged: BreadcrumbsProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const {
     items,
     separator = '/',
@@ -93,9 +94,9 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
   return (
     <nav
       aria-label={ariaLabel}
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
     >
-      <ol className={cn(v.list(), slotProps?.list?.className)}>
+      <ol className={cn(v.list(), themeSlotProps?.list?.className, slotProps?.list?.className)}>
         {entries.map((entry, i) => {
           // Trailing-separator policy: every entry EXCEPT the last one
           // is followed by a separator. We render both inside the same
@@ -107,13 +108,13 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
             return (
               <li
                 key="__ellipsis__"
-                className={cn(v.item(), slotProps?.item?.className)}
+                className={cn(v.item(), themeSlotProps?.item?.className, slotProps?.item?.className)}
               >
                 <span
                   aria-label="More breadcrumbs"
                   className={cn(
                     v.ellipsis(),
-                    slotProps?.ellipsis?.className
+                    themeSlotProps?.ellipsis?.className, slotProps?.ellipsis?.className
                   )}
                 >
                   …
@@ -123,7 +124,7 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
                     aria-hidden="true"
                     className={cn(
                       v.separator(),
-                      slotProps?.separator?.className
+                      themeSlotProps?.separator?.className, slotProps?.separator?.className
                     )}
                   >
                     {separator}
@@ -147,13 +148,13 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
           return (
             <li
               key={item.id}
-              className={cn(v.item(), slotProps?.item?.className)}
+              className={cn(v.item(), themeSlotProps?.item?.className, slotProps?.item?.className)}
             >
               {isInteractive ? (
                 <Link
                   href={item.href}
                   onClick={item.onClick}
-                  className={cn(v.link(), slotProps?.link?.className)}
+                  className={cn(v.link(), themeSlotProps?.link?.className, slotProps?.link?.className)}
                 >
                   {item.icon ? (
                     <Fragment>
@@ -171,8 +172,8 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
                   className={cn(
                     isCurrent ? v.current() : v.link(),
                     isCurrent
-                      ? slotProps?.current?.className
-                      : slotProps?.link?.className
+                      ? [themeSlotProps?.current?.className, slotProps?.current?.className]
+                      : [themeSlotProps?.link?.className, slotProps?.link?.className]
                   )}
                 >
                   {item.icon ? (
@@ -191,7 +192,7 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
                   aria-hidden="true"
                   className={cn(
                     v.separator(),
-                    slotProps?.separator?.className
+                    themeSlotProps?.separator?.className, slotProps?.separator?.className
                   )}
                 >
                   {separator}

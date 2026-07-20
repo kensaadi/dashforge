@@ -13,6 +13,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Switch?: {
       defaults?: Partial<SwitchVariantProps>;
+      slotProps?: SwitchSlotProps;
     };
   }
 }

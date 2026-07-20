@@ -27,6 +27,7 @@ import type { SkeletonProps } from './skeleton.types.js';
 export function Skeleton(props: SkeletonProps) {
   const themeDefaults = useComponentDefaults('Skeleton');
   const merged: SkeletonProps = { ...themeDefaults?.defaults, ...props };
+  const themeSlotProps = themeDefaults?.slotProps;
   const { variant = 'text', animation = 'pulse', width, height, sx, slotProps } = merged;
   const v = skeletonVariants({ variant, animation });
 
@@ -45,7 +46,7 @@ export function Skeleton(props: SkeletonProps) {
     <span
       aria-hidden="true"
       role="presentation"
-      className={cn(v.root(), sx, slotProps?.root?.className)}
+      className={cn(v.root(), sx, themeSlotProps?.root?.className, slotProps?.root?.className)}
       style={style}
     />
   );

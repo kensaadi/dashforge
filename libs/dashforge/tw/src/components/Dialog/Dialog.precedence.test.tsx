@@ -79,6 +79,36 @@ describe('Dialog precedence chain — Option C (Track A)', () => {
     expect(closeBtn).toBeNull();
   });
 
+  it('slotProps precedence — instance slotProps merged onto content', () => {
+    render(
+      <Dialog
+        open
+        onOpenChange={() => {}}
+        title="T"
+        slotProps={{ content: { className: 'df-slot-content-token' } }}
+      >
+        Body
+      </Dialog>
+    );
+    const content = document.querySelector('.df-slot-content-token');
+    expect(content).toBeTruthy();
+  });
+
+  it('slotProps precedence — instance slotProps merged onto title slot', () => {
+    render(
+      <Dialog
+        open
+        onOpenChange={() => {}}
+        title="T"
+        slotProps={{ title: { className: 'df-slot-title-token' } }}
+      >
+        Body
+      </Dialog>
+    );
+    const title = document.querySelector('.df-slot-title-token');
+    expect(title).toBeTruthy();
+  });
+
   it('no axes leak onto DOM', () => {
     act(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

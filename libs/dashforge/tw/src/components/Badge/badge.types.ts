@@ -18,6 +18,7 @@ declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Badge?: {
       defaults?: Partial<BadgeVariantProps>;
+      slotProps?: BadgeSlotProps;
     };
   }
 }
