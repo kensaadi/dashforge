@@ -12,6 +12,119 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.2.0] — 2026-07-14
+
+Sprint 6 — closes the Option C rollout (`theme.components.<Name>.defaults`)
+across the full catalog and adds 6 new primitives (Link, Select, Slider,
+Progress, Stepper, Drawer). No breaking changes vs 1.1.1 — every
+existing consumer works unchanged.
+
+### Added — new primitives
+
+- **`<Link>`** — token-driven anchor primitive. Every visual axis
+  (`color` / `underline` / `weight` / `size`) is Option C configurable.
+  `startIcon` / `endIcon` accept any ReactNode; `external` toggles
+  `target="_blank"` + `rel="noopener noreferrer"`; `asChild` for router
+  integration via Radix Slot. 32 unit + precedence tests.
+- **`<Select>`** — dedicated enum picker, narrower than Autocomplete
+  (no search, no async, no typeahead). Options shape
+  `{ value, label, disabled? }` mirrors AutocompleteOption. Two-arg
+  `onChange(value, option)`. Bridge + standalone controlled modes.
+  Multi-select shipped in v1. Generic `V extends string | number`.
+  22 unit + 6 precedence tests. Unblocks Blueprint G-25.
+- **`<Slider>`** — token-driven numeric picker. Single value or
+  `[min, max]` range via `range?: boolean` discriminated union.
+  Bridge commits on drag-end by default; opt into per-tick via
+  `commitOnChange`. Marks (explicit or auto). Value label tooltip with
+  formatter (`'auto' | 'always' | 'off'`). 6 color intents. Built on
+  `@radix-ui/react-slider`. 24 unit + 6 precedence tests.
+- **`<Progress>`** — determinate progress indicator. Two visual flavors
+  on the same primitive: `variant='linear'` (bar) and `variant='circular'`
+  (SVG arc). Display-only (no bridge). `value` required (Spinner covers
+  indeterminate). 6 color intents, size + independent `thickness` axis,
+  custom `formatLabel`. 24 unit + 6 precedence tests.
+- **`<Stepper>` + `<Step>` + `useStep()`** — declarative multi-step
+  wizard. Compound children with per-step config: `name`, `label`,
+  `helperText`, `icon`, `optional`, `fields` (RHF-triggered validation),
+  `isValid` (custom async, AND semantics with `fields`), `visibleWhen`
+  (reactive predicate for dynamic step composition), `access` (RBAC).
+  `useStep()` hook exposes navigation state + API. Horizontal + vertical
+  orientation, `labelPlacement 'end' | 'below'` (MUI `alternativeLabel`
+  parity), `initialStep` for name-based resume, `allowJumpTo: 'visited' | 'none'`.
+  Docs cover 4 error surfaces. 35 unit + precedence tests.
+- **`<Drawer>`** — edge-anchored sliding panel. 4 positions
+  (`left`/`right`/`top`/`bottom`), 3 variants (`temporary` default,
+  `persistent`, `sticky`). `title: string | ReactNode`,
+  `closeButtonPosition: 'start' | 'end'` (bordered × styling),
+  `onCloseClick` side-effect hook, `onOpenAutoFocus` a11y customization
+  hook. Resize handle on the free edge with pointer drag + keyboard
+  step + localStorage persistence under `df.drawer.<resizeKey>`.
+  Curtain-like slide animation via inline `@keyframes` module-level
+  injection — `tailwindcss-animate` not required. `z-[1400]/[1410]`
+  stacks above MUI AppBar for MUI-coexistence. `visibleWhen` + `access`
+  catalog-uniform. 66 unit + precedence tests. Closes
+  [#108](https://github.com/kensaadi/dashforge/issues/108) (Blueprint
+  Builder V2 G-12 blocker).
+
+### Added — Option C coverage
+
+- **`theme.components.<Name>.defaults`** wired across the full catalog
+  (46 components with visual axes; VisuallyHidden, AspectRatio,
+  Accordion, AppShell, Flex skipped with rationale — no theme-configurable
+  visual axes). Each consumer can now set application-wide defaults for
+  any component: `patchTheme({ components: { Button: { defaults: { size: 'lg' } } } })`.
+- **`theme.components.<Name>.slotProps`** wired for compound components
+  where slot-level defaults have DS-identity value (Dialog, Popover,
+  Menu, DataGrid, Tabs, LeftNav, TopBar, Drawer, Stepper, Slider, Link,
+  Select).
+- **47 `.precedence.test.tsx` files** shipped, verifying the 4-level
+  precedence chain (TV defaults → `theme.components.defaults` → instance
+  props → `sx`) across the whole catalog. Backward-compat guarantee:
+  every test's baseline confirms no-config behavior identical to 1.1.x.
+
+### Changed
+
+- **`DashFormBridge` — new optional `trigger?: (name?: string | string[]) => Promise<boolean>`**
+  method on the bridge contract, implemented by `DashFormProvider`. Uses
+  `rhf.getFieldState()` internally to read fresh errors synchronously
+  after RHF trigger (bypasses React's render cycle where
+  `rhf.formState.errors` would be stale). Feature-gated / non-breaking —
+  consumers that don't call `bridge.trigger` are unaffected. Powers
+  `<Step fields={...}>` validation.
+- **Stack `gap` type narrowed** from wide `string` to the 11-value
+  numeric union (Fix [#111](https://github.com/kensaadi/dashforge/issues/111)).
+  TypeScript now rejects `<Stack gap="md">`; a runtime dev-warn fires
+  when a non-numeric value slips through.
+- **5 layout primitives (Box / Stack / Grid / Container / Flex)** —
+  runtime className sneak-in via `sx` no longer clobbers TV variant
+  classes; the merge chain is deterministic (Fix
+  [#112](https://github.com/kensaadi/dashforge/issues/112)).
+
+### Fixed
+
+- **Standalone form widgets now dev-warn** when rendered outside a
+  `<DashFormProvider>` and without a controlled `value` / `onChange`
+  pair. Previously silent no-op that consumers couldn't diagnose
+  ([#113](https://github.com/kensaadi/dashforge/issues/113)).
+- **`<DatePicker>` inside `<DashForm>`** now commits the value on
+  day-click when the field is bridge-registered
+  ([#114](https://github.com/kensaadi/dashforge/issues/114)).
+
+### Internal
+
+- **`tw-theme` mode sync**: `patchTheme({ meta: { mode: 'dark' } })` now
+  correctly synchronizes the `data-dash-tw-theme` attribute + document
+  class (Fix [#110](https://github.com/kensaadi/dashforge/issues/110)).
+- **JSDoc backfill**: every `*Props` interface now carries per-prop
+  JSDoc with `@default` tags. Powers `sync-props` MDX doc generation
+  in `dashforge-docs-lab`.
+
+### Migration
+
+See [`docs/migration/1.2.0.md`](../../docs/migration/1.2.0.md) for the
+full migration guide (all changes are additive — no code changes
+required to upgrade).
+
 ## [1.1.1] — 2026-06-18
 
 > **Re-issued from the unpublished `1.1.0`** — `1.1.0` was published

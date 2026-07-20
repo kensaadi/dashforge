@@ -176,6 +176,51 @@ variant defaults regardless of stylesheet order.
 
 ---
 
+## Theme-level component defaults (Option C, since 1.2.0)
+
+Instead of repeating `sx` / instance props on every component, pin
+your DS identity once in the theme and every instance inherits it.
+
+```tsx
+import { patchTheme } from '@dashforge/tw-theme';
+
+patchTheme({
+  components: {
+    // Component-level defaults — apply to every <Button> in the app
+    Button: {
+      defaults: { variant: 'solid', color: 'primary', size: 'md' },
+    },
+    Drawer: {
+      defaults: { position: 'right', size: 'md', variant: 'temporary' },
+    },
+    // Slot-level defaults for compound components — override the visual
+    // chrome without touching consumer call sites
+    DataGrid: {
+      slotProps: {
+        header: { className: 'bg-neutral-100 font-semibold' },
+        cell:   { className: 'py-3 text-sm' },
+      },
+    },
+  },
+});
+```
+
+**Precedence chain** (lowest → highest):
+
+1. Tailwind-variants `defaultVariants` — component-level baseline
+2. `theme.components.<Name>.defaults` — consumer-wide DS identity
+3. Instance props — `<Button size="lg">` beats theme default
+4. `sx` prop — merged last via `tailwind-merge`
+
+Same 4-level chain applies to `slotProps` (theme slotProps → instance
+slotProps). Backward-compat: consumers who don't set `theme.components`
+get behavior identical to 1.1.x.
+
+Full guide + per-component playgrounds:
+[`/tw/docs/theme-system/component-defaults`](https://dashforge-docs-lab.pages.dev/tw/docs/theme-system/component-defaults).
+
+---
+
 ## Common consumer pitfalls
 
 The following are **not library bugs** — they're use-time issues that
