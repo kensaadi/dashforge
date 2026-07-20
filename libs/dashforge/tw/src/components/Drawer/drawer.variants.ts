@@ -61,11 +61,12 @@ export const drawerVariants = tv({
       'flex items-center justify-between shrink-0',
       'border-b border-neutral-200 px-4 py-3',
     ],
-    // `m-0` explicit — Radix renders the title as an `<h2>`, which
-    // carries the browser's default `margin: 0.83em 0` when the
-    // consumer disables Tailwind preflight (e.g. docs-lab's coexistence
-    // config). Without `m-0` the h2 pushes off-center inside the header
-    // flex row.
+    // `m-0` explicit — Radix's `Dialog.Title` renders an `<h2>` (or the
+    // asChild target). Typography's own recipe now emits `m-0` (fixed in
+    // #131) but this slot is styled directly on Radix's h2, NOT via
+    // <Typography>, so the UA-margin reset must live here too — belt-
+    // and-suspenders that survives if Radix ever changes the rendered
+    // element or a consumer disables Tailwind preflight.
     title: 'text-base font-semibold leading-tight text-neutral-900 m-0',
     closeButton: [
       'inline-flex items-center justify-center h-8 w-8 shrink-0',

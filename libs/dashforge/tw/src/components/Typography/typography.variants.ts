@@ -20,7 +20,13 @@ import { tv, type VariantProps } from 'tailwind-variants';
  * heading precedes a paragraph block (mirror of MUI's same flag).
  */
 export const typographyVariants = tv({
-  base: 'text-inherit',
+  // `m-0` is deliberate — resets the UA stylesheet's default block-element
+  // margins (`<h1>` 0.67em, `<h2>` 0.83em, `<p>` 1em, etc.) so vertical
+  // rhythm is owned by the design system (Stack gap / Box mb / sx), not
+  // the browser. Consumers who disable Tailwind's `preflight` core plugin
+  // (typical for MUI / Ant / Chakra coexistence) would otherwise ship UA
+  // margins on every Typography-based element — fixed in #131.
+  base: 'text-inherit m-0',
 
   variants: {
     /*

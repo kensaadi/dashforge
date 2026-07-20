@@ -228,6 +228,29 @@ describe('<Typography>', () => {
     });
   });
 
+  // ─── UA-margin reset (regression guard for #131) ────────────────────
+  //
+  // Consumers who disable Tailwind's `preflight` core plugin (typical for
+  // MUI / Ant / Chakra coexistence) don't get the UA-margin reset for
+  // free — every `<Typography variant="h*">` would inherit its element's
+  // browser default (0.67em–1em top/bottom). The base recipe MUST emit
+  // `m-0` on every element so the DS owns vertical rhythm.
+  //
+  // Assertion is on className (deterministic) rather than getComputedStyle
+  // (jsdom does not apply a full UA stylesheet, so a bare `<h2>` returns
+  // an empty margin string regardless of the fix). A real-browser check
+  // lives in the docs-lab preview smoke.
+  describe('UA margin reset (#131)', () => {
+    const BLOCK_VARIANTS = [
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'subtitle1', 'subtitle2', 'body1', 'body2',
+    ] as const;
+    it.each(BLOCK_VARIANTS)('variant="%s" ships with m-0 on the element', (variant) => {
+      const { container } = render(<Typography variant={variant}>x</Typography>);
+      expect(container.firstElementChild?.className).toContain('m-0');
+    });
+  });
+
   describe('color edge cases', () => {
     const INTENTS = ['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'muted'] as const;
     it.each(INTENTS)('color="%s" emits the right text-* + dark pair', (color) => {
