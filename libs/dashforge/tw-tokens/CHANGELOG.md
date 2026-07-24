@@ -13,6 +13,12 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.2.0] — 2026-07-24
+
+**Coupled release bump.** No code changes since `1.0.0` — this bump exists so all three `@dashforge/tw-*` packages share the `1.2.0` tag per the coupled release strategy documented in [#60](https://github.com/kensaadi/dashforge/issues/60). Jumps `1.1.x`.
+
+Substantive changes in the coupled release ship in the sibling packages — see [`@dashforge/tw-theme@1.2.0`](https://github.com/kensaadi/dashforge/releases/tag/@dashforge/tw-theme@1.2.0) and [`@dashforge/tw@1.2.0`](https://github.com/kensaadi/dashforge/releases/tag/@dashforge/tw@1.2.0). Full technical CHANGELOG for the coupled release lives in [`libs/dashforge/tw/CHANGELOG.md`](../tw/CHANGELOG.md#120--2026-07-24).
+
 ## [1.0.0] — 2026-05-23
 
 **Stable release.** First semver-stable version. The public API is now

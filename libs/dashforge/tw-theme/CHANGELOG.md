@@ -13,6 +13,25 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.2.0] — 2026-07-24
+
+### Added
+
+- **Option C Foundation** — hooks and types powering the `theme.components.<Name>` API surface consumed by `@dashforge/tw` components:
+  - `useComponentDefaults(name)` — reactive hook returning `TWComponentDefaults[K] | undefined`. Subscribes to the Valtio theme store so `patchTheme()` / `setTheme()` calls that touch `components.<Name>` re-render the caller.
+  - `useSlotProps(name, slot)` + `mergeSlotProps` — utilities for compound components to consume theme-level slot defaults with correct precedence (TV defaults → theme → instance).
+  - `TWComponentDefaults` interface — module-augmented per component via `declare module '@dashforge/tw-tokens'`. Each `@dashforge/tw` component extends this interface with its own `defaults?` / `slotProps?` shape.
+
+### Fixed
+
+- **[#110](https://github.com/kensaadi/dashforge/issues/110)** — `@dashforge/tw-theme` mode sync discoverability. `<DashforgeTailwindProvider mode>` now accepts a controlled prop; external writes to `data-dash-tw-theme` outside the provider emit a dev-warn instead of being silently ignored.
+
+### Coupled release
+
+Publishes alongside [`@dashforge/tw-tokens@1.2.0`](https://github.com/kensaadi/dashforge/releases/tag/@dashforge/tw-tokens@1.2.0) and [`@dashforge/tw@1.2.0`](https://github.com/kensaadi/dashforge/releases/tag/@dashforge/tw@1.2.0). Consumers should bump all three together — the `@dashforge/tw@1.2.0` peer range enforces this.
+
+Full technical CHANGELOG for the coupled release: [`libs/dashforge/tw/CHANGELOG.md`](../tw/CHANGELOG.md#120--2026-07-24).
+
 ## [1.0.0] — 2026-05-23
 
 **Stable release.** First semver-stable version. The public API is now
