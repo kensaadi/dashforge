@@ -12,7 +12,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
-## [1.2.0] — 2026-07-14
+## [1.2.0] — 2026-07-24
 
 Sprint 6 — closes the Option C rollout (`theme.components.<Name>.defaults`)
 across the full catalog and adds 6 new primitives (Link, Select, Slider,
