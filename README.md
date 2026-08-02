@@ -3,6 +3,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/kensaadi/dashforge/ci.yml?branch=main&logo=github&label=CI)](https://github.com/kensaadi/dashforge/actions/workflows/ci.yml)
 [![@dashforge/ui](https://img.shields.io/npm/v/@dashforge/ui?label=%40dashforge%2Fui&color=cb3837&logo=npm)](https://www.npmjs.com/package/@dashforge/ui)
 [![@dashforge/tw](https://img.shields.io/npm/v/@dashforge/tw?label=%40dashforge%2Ftw&color=cb3837&logo=npm)](https://www.npmjs.com/package/@dashforge/tw)
+[![dashforge-cli](https://img.shields.io/npm/v/dashforge-cli?label=dashforge-cli&color=cb3837&logo=npm)](https://www.npmjs.com/package/dashforge-cli)
 [![License](https://img.shields.io/github/license/kensaadi/dashforge?color=blue)](./LICENSE)
 [![Stars](https://img.shields.io/github/stars/kensaadi/dashforge?style=flat&logo=github&color=ffcc00)](https://github.com/kensaadi/dashforge/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/kensaadi/dashforge?logo=github)](https://github.com/kensaadi/dashforge/commits/main)
@@ -14,6 +15,7 @@ schema and access rules once, render them with either visual stack.
 
 > 📚 **[Documentation](https://dashforge-ui.com)**
 > · 🚀 **[Starter Kits](https://dashforge-ui.com/starter-kits)**
+> · 🛠️ **[CLI scaffolder](https://github.com/kensaadi/dashforge-cli)**
 > · 📝 **[Changelog](./CHANGELOG.md)**
 > · 🔄 **[Migration](./MIGRATION.md)**
 
@@ -46,13 +48,33 @@ codifies those patterns, so you stop rewriting them.
 | You want… | Use | Why |
 |---|---|---|
 | MUI v9 + Emotion as the design system | **`@dashforge/ui`** | Thin layer over `@mui/material`; for Table / DataGrid / Dialog / Tooltip / Popover use MUI X and `@mui/material` directly |
-| Tailwind CSS as the design system | **`@dashforge/tw`** | Self-contained component library (37 components incl. Table, DataGrid, Pagination, Dialog, Tooltip, Popover, Accordion, Foundation primitives) — no MUI dependency |
+| Tailwind CSS as the design system | **`@dashforge/tw`** | Self-contained component library (50+ components incl. Table, DataGrid, Pagination, Dialog, Tooltip, Popover, Accordion, Foundation primitives) — no MUI dependency |
 | Just the form bridge | **`@dashforge/forms`** + **`@dashforge/rbac`** | Visual-stack agnostic; bring your own components and use the bridge hooks |
 
 The two editions are **fully isolated** at the visual layer. They
 share only the bridge (`@dashforge/forms`, `@dashforge/rbac`, theming
 core, `@dashforge/calendar-core`). A form schema written for MUI runs
 unchanged on Tailwind and vice versa.
+
+## Fastest path — scaffold with the CLI
+
+The quickest way to try Dashforge is the official scaffolder, which
+generates a ready-to-run dashboard app (routing, layout, sample pages)
+already wired to either edition:
+
+```bash
+npx dashforge-cli my-app --lib tw   # Tailwind edition
+npx dashforge-cli my-app --lib mui  # MUI edition
+```
+
+Zero configuration, no manual `pnpm install` list, no theme
+boilerplate. Pick a variant, `cd my-app`, `pnpm dev`, and you're
+looking at a live dashboard. See
+[`kensaadi/dashforge-cli`](https://github.com/kensaadi/dashforge-cli)
+for template details and CLI flags.
+
+Prefer to wire it up yourself? The two sections below show the manual
+install for each edition.
 
 ## Quick start — MUI edition
 
@@ -198,9 +220,15 @@ Eleven publishable packages, two visual editions, one shared core.
 
 | Package | Description |
 |---|---|
-| [`@dashforge/tw`](./libs/dashforge/tw) | Component library on Tailwind — 37 components including Table, DataGrid, Pagination, Dialog, Tooltip, Popover, Accordion + Foundation primitives |
+| [`@dashforge/tw`](./libs/dashforge/tw) | Component library on Tailwind — 50+ components including Table, DataGrid, Pagination, Dialog, Tooltip, Popover, Accordion + Foundation primitives |
 | [`@dashforge/tw-theme`](./libs/dashforge/tw-theme) | Tailwind preset + reactive provider — `dashforgePreset()`, CSS-var runtime, mode switching |
 | [`@dashforge/tw-tokens`](./libs/dashforge/tw-tokens) | Design tokens for the Tailwind edition |
+
+### Tooling
+
+| Package | Description |
+|---|---|
+| [`dashforge-cli`](https://github.com/kensaadi/dashforge-cli) | Standalone scaffolder — `npx dashforge-cli <app> --lib tw\|mui` generates a full dashboard app pre-wired to the chosen edition |
 
 ### Shared bridge
 
@@ -235,14 +263,16 @@ Eleven publishable packages, two visual editions, one shared core.
 
 ### Components
 
-- **MUI** (`@dashforge/ui`): 23 components — text fields, selects,
+- **MUI** (`@dashforge/ui`): 20+ components — text fields, selects,
   autocompletes, switches, radio groups, calendar, date / time / range
   pickers, OTP field, tabs, AppShell, top bar, breadcrumbs, snackbar,
   confirm dialog, left nav, more
-- **Tailwind** (`@dashforge/tw`): 37 components — everything above plus
+- **Tailwind** (`@dashforge/tw`): 50+ components — everything above plus
   Table, DataGrid, Pagination, Skeleton, Dialog, Tooltip, Popover,
-  Accordion, and Foundation primitives (Box, Stack, Grid, Container,
-  Divider, AspectRatio, Typography, VisuallyHidden)
+  Accordion, Alert, Avatar, Badge, Card, Chip, Drawer, IconButton, Link,
+  Menu, Progress, Slider, Spinner, Stepper, and Foundation primitives
+  (Box, Stack, Grid, Container, Divider, AspectRatio, Typography,
+  VisuallyHidden)
 
 ### Theming
 
@@ -256,6 +286,8 @@ Eleven publishable packages, two visual editions, one shared core.
 - **Live docs site**: <https://dashforge-ui.com> — pages for every
   component with inline live previews and "Open in StackBlitz" sandboxes
 - **Starter kits**: <https://dashforge-ui.com/starter-kits>
+- **CLI scaffolder**: <https://github.com/kensaadi/dashforge-cli> —
+  `npx dashforge-cli` to bootstrap a full dashboard app
 - **Per-package READMEs**: `libs/dashforge/<pkg>/README.md`
 - **Per-package CHANGELOGs**: `libs/dashforge/<pkg>/CHANGELOG.md`
 - **Migration guide**: [`MIGRATION.md`](./MIGRATION.md)
@@ -270,12 +302,20 @@ Eleven publishable packages, two visual editions, one shared core.
 
 ## Status
 
-Dashforge is at **`1.0.0`** — production-ready, public API stable
-under semver. Breaking changes require a major bump.
-
-Each package versions independently post-`1.0.0`. Cross-package
+All catalog packages are **`1.0.0` or later** — production-ready, public
+API stable under semver, breaking changes require a major bump. Each
+package versions **independently** post-`1.0.0`; cross-package
 compatibility is governed by the peer-dependency ranges declared in
 each `package.json`.
+
+Latest versions (see the badges above for the live npm state):
+
+| Package | Version |
+|---|---|
+| `@dashforge/tw`, `@dashforge/tw-theme`, `@dashforge/tw-tokens` | `1.2.0` |
+| `@dashforge/ui`, `@dashforge/theme-mui`, `@dashforge/tokens` | `1.0.0` |
+| `@dashforge/forms`, `@dashforge/rbac`, `@dashforge/ui-core`, `@dashforge/theme-core`, `@dashforge/calendar-core` | `1.0.0` |
+| `dashforge-cli` | `0.1.0` |
 
 ## Contributing
 
