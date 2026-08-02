@@ -74,3 +74,8 @@ dashforge-*.tgz
 /libs/dashforge/tw/CONSUMER-VALIDATION.md
 /libs/dashforge/tw/REFINEMENT-NOTES.md
 /libs/dashforge/ui/CALENDAR-SUITE-EVALUATION.md
+
+# Local npm auth reference (contains a plaintext token; never commit).
+/.npmrc
+/npmrc.text
+/npmrc.txt
