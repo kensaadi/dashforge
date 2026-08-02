@@ -202,6 +202,11 @@ interface SliderCommonProps {
  * `defaultValue` are `number`; `onChange` / `onCommit` receive `number`.
  */
 export interface SliderSingleProps extends SliderCommonProps {
+  /**
+   * Discriminator — omit or set `false` for single-value mode. Selects
+   * the `number` value/callback shapes over the range tuple.
+   * @default false
+   */
   range?: false;
   /** Controlled value. */
   value?: number;
@@ -217,6 +222,7 @@ export interface SliderSingleProps extends SliderCommonProps {
    * what writes to the form bridge — matches MUI / Ant defaults.
    */
   onCommit?: (value: number) => void;
+  /** Fires when the thumb loses focus (after a commit). */
   onBlur?: () => void;
 }
 
@@ -225,6 +231,10 @@ export interface SliderSingleProps extends SliderCommonProps {
  * `[number, number]`; `onChange` / `onCommit` receive the tuple.
  */
 export interface SliderRangeProps extends SliderCommonProps {
+  /**
+   * Discriminator — set `true` for range mode. Selects the
+   * `[number, number]` tuple value/callback shapes over the single number.
+   */
   range: true;
   /** Controlled `[min, max]` tuple. */
   value?: readonly [number, number];
@@ -234,6 +244,7 @@ export interface SliderRangeProps extends SliderCommonProps {
   onChange?: (value: readonly [number, number]) => void;
   /** Drag-end / keyboard-step callback. Writes to the bridge. */
   onCommit?: (value: readonly [number, number]) => void;
+  /** Fires when a thumb loses focus (after a commit). */
   onBlur?: () => void;
 }
 
