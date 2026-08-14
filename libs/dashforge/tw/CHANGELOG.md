@@ -12,6 +12,30 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.4.0] — 2026-08-14
+
+Adds the `<Video>` primitive — the moving-image twin of `<Image>`. No
+breaking changes vs 1.3.0 — every existing consumer works unchanged.
+
+### Added
+
+- **`<Video>`** — a thin, declarative wrapper over the native `<video>`,
+  built on the same anti-CLS + loading + fallback machinery as `<Image>`:
+  - **No layout shift** — `aspectRatio` (or `width` + `height`) reserves
+    the box before load.
+  - **Poster + skeleton** — a `poster` shows before playback (and is the
+    loading visual); without one a cache-aware `<Skeleton>` fills the
+    reserved box until the first frame is ready.
+  - **Graceful error** — a muted fallback replaces the player on failure
+    (`fallback` to customise).
+  - **Controls on by default**; `autoPlay` / `loop` / `muted` /
+    `playsInline` / `preload` and any other native `<video>` attribute are
+    forwarded, and `<source>` children are supported for multi-format
+    delivery.
+  - `fit` (`object-fit`) and `rounded` are Option C configurable via
+    `theme.components.Video.defaults`; `sx` / `slotProps` for overrides.
+  - Supports `access` (RBAC) and `visibleWhen` gating like `<Image>`.
+
 ## [1.3.0] — 2026-08-14
 
 Adds the `<Image>` primitive. No breaking changes vs 1.2.0 — every

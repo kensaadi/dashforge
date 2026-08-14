@@ -10,6 +10,34 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [ui 1.2.0] — 2026-08-14
+
+Adds the `<Video>` display primitive — the moving-image twin of `<Image>`
+(native `<video>` wrapper: anti-CLS aspect-lock, poster + skeleton,
+graceful fallback, `access` / `visibleWhen` gating). Minor, additive; no
+breaking changes.
+Detailed per-package entry: see `libs/dashforge/ui/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/ui` | New `<Video>` (moving-image twin of `<Image>`). |
+
+## [tw 1.4.0] — 2026-08-14
+
+Adds the `<Video>` primitive — the moving-image twin of `<Image>` (native
+`<video>` wrapper: anti-CLS aspect-lock, poster + skeleton, graceful
+fallback, Option-C themable, `access` / `visibleWhen` gating). Minor,
+additive; no breaking changes.
+Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | New `<Video>` (moving-image twin of `<Image>`). |
+
 ## [ui 1.1.0] — 2026-08-14
 
 Adds the `<Image>` display primitive and gating-aware `<Box>` / `<Stack>`

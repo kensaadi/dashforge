@@ -9,6 +9,28 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.2.0] — 2026-08-14
+
+Adds the `<Video>` display primitive — the moving-image twin of
+`<Image>`. No breaking changes vs 1.1.0 — every existing consumer works
+unchanged.
+
+### Added
+
+- **`<Video>`** — the MUI-flavoured twin of `@dashforge/tw`'s `<Video>`
+  (same public API, MUI internals), and the moving-image sibling of
+  `<Image>`. A thin wrapper over the native `<video>`:
+  - **No layout shift** — `aspectRatio` (or `width` + `height`) reserves
+    the box before load.
+  - **Poster + skeleton** — a `poster` shows before playback; without one
+    a MUI `<Skeleton>` fills the reserved box until the first frame is
+    ready (cache-aware, no flash).
+  - **Graceful error** — a muted fallback replaces the player on failure.
+  - **Controls on by default**; `autoPlay` / `loop` / `muted` /
+    `playsInline` / `preload` and other native `<video>` attributes are
+    forwarded, and `<source>` children are supported for multi-format
+    delivery. Supports `access` (RBAC) and `visibleWhen` gating.
+
 ## [1.1.0] — 2026-08-14
 
 Adds the `<Image>` display primitive and gating-aware `<Box>` / `<Stack>`

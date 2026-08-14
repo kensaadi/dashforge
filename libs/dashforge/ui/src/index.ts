@@ -86,6 +86,9 @@ export type { ButtonProps } from './components/Button/Button';
 export { Image } from './components/Image/Image';
 export type { ImageProps, ImageFit, ImageRounded } from './components/Image/image.types';
 
+export { Video } from './components/Video/Video';
+export type { VideoProps, VideoFit, VideoRounded } from './components/Video/video.types';
+
 // Layout primitives — gating-aware overrides of MUI's Box / Stack / Grid.
 // Every native MUI prop is forwarded; each adds `access` (RBAC) +
 // `visibleWhen` gating like the form components.

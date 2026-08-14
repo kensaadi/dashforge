@@ -492,6 +492,19 @@ export type {
 export { imageVariants } from './components/Image/image.variants.js';
 export type { ImageVariants } from './components/Image/image.variants.js';
 
+// Video — declarative <video> wrapper (the moving-image twin of Image):
+// aspect-lock (no layout shift), poster + skeleton while loading, graceful
+// error fallback, controls by default. Supports `access` (RBAC) +
+// `visibleWhen` gating like the form components.
+export { Video } from './components/Video/Video.js';
+export type {
+  VideoProps,
+  VideoSlotProps,
+  VideoVariantProps,
+} from './components/Video/video.types.js';
+export { videoVariants } from './components/Video/video.variants.js';
+export type { VideoVariants } from './components/Video/video.variants.js';
+
 // Card family — opinionated surface preset over <Box>.
 //   • <Card>           — thin Box alias with card-shaped defaults
 //                        (variant=outlined, rounded=lg, elevation=1,
@@ -730,4 +743,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '1.3.0';
+export const VERSION = '1.4.0';
