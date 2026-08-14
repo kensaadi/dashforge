@@ -9,6 +9,40 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.1.0] — 2026-08-14
+
+Adds the `<Image>` display primitive and gating-aware `<Box>` / `<Stack>`
+/ `<Grid>` layout overrides. No breaking changes vs 1.0.0 — every existing
+consumer works unchanged.
+
+### Added
+
+- **`<Image>`** — the MUI-flavoured twin of `@dashforge/tw`'s `<Image>`
+  (same public API, MUI internals). A thin wrapper over the native
+  `<img>`: no layout shift (`aspectRatio` reserves the box), a MUI
+  `<Skeleton>` while loading (cache-aware, no flash), a graceful error
+  fallback, lazy by default. Forwards native `<img>` attributes, `fit`
+  (`object-fit`) and `rounded`. Supports `access` (RBAC) and `visibleWhen`
+  gating.
+- **`<Box>` / `<Stack>` / `<Grid>`** — gating-aware overrides of the MUI
+  layout primitives. Every native MUI prop is forwarded unchanged; each
+  adds `access` (RBAC) and `visibleWhen` (form-engine reactive), so any
+  region can be hidden or dimmed by permission or form state:
+  - `access` with `onUnauthorized: 'hide'` removes the subtree;
+    `'disable'` / `'readonly'` render it dimmed and non-interactive
+    (`opacity` + `pointer-events: none` + `aria-disabled`).
+  - `visibleWhen(engine)` renders the region only when the predicate is
+    true inside a `<DashForm>` (no-op elsewhere).
+  - Drop-in: swap the `@mui/material` import for `@dashforge/ui` — identical
+    behaviour until a gating prop is set.
+
+### Internal
+
+- Added the shared `useGating` hook (+ `gatedSx` helper) backing the
+  visibility + RBAC resolution for the layout primitives.
+- Excluded `test-utils/` and `test-setup.ts` from the published build —
+  their stray `.d.ts` declarations no longer ship in the tarball.
+
 ## [1.0.0] — 2026-05-23
 
 **Stable release.** First semver-stable version. The public API is now

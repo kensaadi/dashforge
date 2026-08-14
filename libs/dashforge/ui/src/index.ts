@@ -83,6 +83,21 @@ export type {
 export { Button } from './components/Button/Button';
 export type { ButtonProps } from './components/Button/Button';
 
+export { Image } from './components/Image/Image';
+export type { ImageProps, ImageFit, ImageRounded } from './components/Image/image.types';
+
+// Layout primitives — gating-aware overrides of MUI's Box / Stack / Grid.
+// Every native MUI prop is forwarded; each adds `access` (RBAC) +
+// `visibleWhen` gating like the form components.
+export { Box } from './components/Box/Box';
+export type { BoxProps } from './components/Box/box.types';
+
+export { Stack } from './components/Stack/Stack';
+export type { StackProps } from './components/Stack/stack.types';
+
+export { Grid } from './components/Grid/Grid';
+export type { GridProps } from './components/Grid/grid.types';
+
 export { Calendar } from './components/Calendar/Calendar';
 export type { CalendarProps } from './components/Calendar/calendar.types';
 

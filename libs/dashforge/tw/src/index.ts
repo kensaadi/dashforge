@@ -479,6 +479,19 @@ export {
   AVATAR_TONE_FALLBACK,
 } from './components/Avatar/avatar.variants.js';
 
+// Image — declarative <img> wrapper: aspect-lock (no layout shift),
+// skeleton while loading (cache-aware, no flash), graceful error
+// fallback, lazy by default. Supports `access` (RBAC) + `visibleWhen`
+// gating like the form components.
+export { Image } from './components/Image/Image.js';
+export type {
+  ImageProps,
+  ImageSlotProps,
+  ImageVariantProps,
+} from './components/Image/image.types.js';
+export { imageVariants } from './components/Image/image.variants.js';
+export type { ImageVariants } from './components/Image/image.variants.js';
+
 // Card family — opinionated surface preset over <Box>.
 //   • <Card>           — thin Box alias with card-shaped defaults
 //                        (variant=outlined, rounded=lg, elevation=1,
@@ -717,4 +730,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '1.1.1';
+export const VERSION = '1.3.0';

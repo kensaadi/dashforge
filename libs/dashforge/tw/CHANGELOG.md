@@ -12,6 +12,34 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.3.0] — 2026-08-14
+
+Adds the `<Image>` primitive. No breaking changes vs 1.2.0 — every
+existing consumer works unchanged.
+
+### Added
+
+- **`<Image>`** — a thin, declarative wrapper over the native `<img>`.
+  Zero eval, no data fetching: it renders a URL and adds what a bare
+  `<img>` lacks:
+  - **No layout shift** — `aspectRatio` (or `width` + `height`) reserves
+    the box before load via CSS `aspect-ratio`.
+  - **Loading skeleton** — fills the reserved box while loading, and is
+    skipped for already-cached images (no flash).
+  - **Graceful error** — a muted fallback replaces the broken-image glyph
+    on failure (`fallback` to customise).
+  - Lazy by default (`loading="lazy"`); native `<img>` attributes are
+    forwarded.
+  - `fit` (`object-fit`) and `rounded` are Option C configurable via
+    `theme.components.Image.defaults`; `sx` / `slotProps` for overrides.
+  - Supports `access` (RBAC) and `visibleWhen` gating like the form
+    components — `hide` removes the image, `disable` / `readonly` dim it.
+
+### Internal
+
+- Corrected the exported `VERSION` constant, which had drifted to
+  `1.1.1`; it now tracks the package version.
+
 ## [1.2.0] — 2026-07-24
 
 Sprint 6 — closes the Option C rollout (`theme.components.<Name>.defaults`)

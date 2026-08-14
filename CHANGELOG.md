@@ -10,6 +10,34 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [ui 1.1.0] — 2026-08-14
+
+Adds the `<Image>` display primitive and gating-aware `<Box>` / `<Stack>`
+/ `<Grid>` overrides of the MUI layout primitives — every native prop
+forwarded, each adding `access` (RBAC) + `visibleWhen`. Minor, additive;
+no breaking changes.
+Detailed per-package entry: see `libs/dashforge/ui/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/ui` | New `<Image>`, `<Box>`, `<Stack>`, `<Grid>` (+ gating). |
+
+## [tw 1.3.0] — 2026-08-14
+
+Adds the `<Image>` primitive — a declarative wrapper over the native
+`<img>` (no layout shift, cache-aware skeleton, graceful fallback,
+Option-C themable, `access` / `visibleWhen` gating). Minor, additive;
+no breaking changes.
+Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | New `<Image>`; fixed drifted `VERSION` constant. |
+
 ## [tw 1.1.1] — 2026-06-18
 
 **Sprint 4.4 — nine presentational primitives + universal bridge alignment**
