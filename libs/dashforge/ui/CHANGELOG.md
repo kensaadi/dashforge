@@ -9,6 +9,18 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.3.1] — 2026-08-15
+
+Patch: fixes the label ordering of the `tooltip` help icon relative to
+the required asterisk.
+
+### Fixed
+
+- **`tooltip` + `required` ordering** — the required `*` is part of the
+  primary label block and now always precedes the help `ⓘ` (`Label * ⓘ`,
+  or `ⓘ Label *` for `position: 'before'`). Previously the icon rendered
+  between the label and the asterisk. Applies to every form input.
+
 ## [1.3.0] — 2026-08-15
 
 Adds a label-help **`tooltip`** prop to every form input. No breaking

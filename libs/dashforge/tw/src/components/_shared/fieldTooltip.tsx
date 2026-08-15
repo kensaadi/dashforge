@@ -97,24 +97,39 @@ function LabelTooltipTrigger({ config }: { config: FieldTooltipConfig }) {
 }
 
 /**
- * Compose a label node with its help-tooltip trigger. Pass the resolved
- * config (from {@link resolveFieldTooltip}) or `null`. Returns the plain
- * label when there is no tooltip.
+ * Compose the primary label block — `label` plus its optional `required`
+ * mark — with the help-tooltip trigger. The required asterisk stays part
+ * of the primary block; the `ⓘ` is secondary and sits before/after that
+ * whole block. Returns the plain primary block when there is no tooltip.
+ *
+ * @param label - the label node.
+ * @param config - resolved tooltip config (from {@link resolveFieldTooltip}) or `null`.
+ * @param requiredMark - the required-asterisk node (or falsy), rendered as
+ *   part of the primary block, immediately after the label.
  */
 export function renderLabelWithTooltip(
   label: ReactNode,
   config: FieldTooltipConfig | null,
+  requiredMark?: ReactNode,
 ): ReactNode {
-  if (!config) return label;
+  const primary = requiredMark ? (
+    <>
+      {label}
+      {requiredMark}
+    </>
+  ) : (
+    label
+  );
+  if (!config) return primary;
   const trigger = <LabelTooltipTrigger config={config} />;
   return config.position === 'before' ? (
     <>
       {trigger}
-      {label}
+      {primary}
     </>
   ) : (
     <>
-      {label}
+      {primary}
       {trigger}
     </>
   );

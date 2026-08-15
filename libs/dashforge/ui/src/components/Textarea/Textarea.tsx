@@ -1,5 +1,6 @@
 import MuiTextField from '@mui/material/TextField';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
+import Box from '@mui/material/Box';
 import { useContext, useEffect, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
@@ -10,7 +11,7 @@ import type {
 } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
-import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import { renderLabelWithTooltip, normalizeFieldTooltip } from '../_internal/fieldTooltip';
 import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
@@ -132,7 +133,7 @@ export function Textarea(props: TextareaProps) {
   const shouldApplyReadonly = existingReadOnly || accessState.readonly;
 
   // Merge readonly into slotProps (preserving existing slotProps)
-  const mergedSlotProps = shouldApplyReadonly
+  const readonlySlotProps = shouldApplyReadonly
     ? {
         ...rest.slotProps,
         input: {
@@ -141,6 +142,27 @@ export function Textarea(props: TextareaProps) {
         },
       }
     : rest.slotProps;
+
+  // The required `*` is part of the PRIMARY label block; the tooltip `ⓘ` is
+  // secondary. MUI appends its own `*` after the label node — which would land
+  // after the tooltip icon — so when a tooltip is present we render the asterisk
+  // ourselves (before the icon) and disable MUI's via the inputLabel slot.
+  const hasTooltip = normalizeFieldTooltip(tooltip) != null;
+  const ownAsterisk =
+    hasTooltip && rest.required ? (
+      <Box component="span" aria-hidden sx={{ color: 'error.main', ml: '2px' }}>
+        *
+      </Box>
+    ) : null;
+  const mergedSlotProps = hasTooltip
+    ? {
+        ...readonlySlotProps,
+        inputLabel: {
+          ...(readonlySlotProps?.inputLabel as object | undefined),
+          required: false,
+        },
+      }
+    : readonlySlotProps;
 
   // If inside DashForm, register with form
   if (bridge && typeof bridge.register === 'function') {
@@ -265,7 +287,7 @@ export function Textarea(props: TextareaProps) {
         helperText={resolvedHelperText}
         disabled={effectiveDisabled}
         {...rest}
-        label={renderLabelWithTooltip(label, tooltip)}
+        label={renderLabelWithTooltip(label, tooltip, ownAsterisk)}
         // IMPORTANT: Put handlers AFTER {...rest} spread
         // to ensure they override any handlers from rest
         onChange={handleChange as MuiTextFieldProps['onChange']}

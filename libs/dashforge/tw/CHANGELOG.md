@@ -12,6 +12,19 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.5.1] — 2026-08-15
+
+Patch: fixes the label ordering of the `tooltip` help icon relative to
+the required asterisk.
+
+### Fixed
+
+- **`tooltip` + `required` ordering** — the required `*` is part of the
+  primary label block and now always precedes the help `ⓘ`. Previously the
+  icon rendered between the label and the asterisk (`Label ⓘ *`); it now
+  reads `Label * ⓘ` (and `ⓘ Label *` for `position: 'before'`). Applies to
+  every form input.
+
 ## [1.5.0] — 2026-08-15
 
 Adds a label-help **`tooltip`** prop to every form input. No breaking

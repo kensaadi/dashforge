@@ -37,6 +37,17 @@ describe('TextField — label tooltip (MUI)', () => {
     expect(container.querySelector(TRIGGER)!.querySelector('svg')).toBeNull();
   });
 
+  it('required * stays with the label — the ⓘ comes AFTER it (position after)', () => {
+    const { container } = render(
+      <TextField name="x" label="Name" layout="stacked" required tooltip="x" />,
+    );
+    const labelEl = container.querySelector('label')!;
+    const btn = labelEl.querySelector(TRIGGER)!;
+    const star = [...labelEl.querySelectorAll('span')].find((s) => s.textContent!.trim() === '*')!;
+    expect(star).toBeTruthy();
+    expect(Boolean(star.compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+  });
+
   it('position "before" places the ⓘ before the label text', () => {
     const { container } = render(
       <TextField

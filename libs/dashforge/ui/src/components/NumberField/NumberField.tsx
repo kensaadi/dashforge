@@ -1,12 +1,13 @@
 import TextField from '@mui/material/TextField';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
+import Box from '@mui/material/Box';
 import { useContext, useEffect, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import type { FieldRegistration, Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
-import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import { renderLabelWithTooltip, normalizeFieldTooltip } from '../_internal/fieldTooltip';
 import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 export interface NumberFieldProps
@@ -169,7 +170,7 @@ export function NumberField(
   const shouldApplyReadonly = existingReadOnly || accessState.readonly;
 
   // Merge readonly into slotProps (preserving existing slotProps)
-  const mergedSlotProps = shouldApplyReadonly
+  const readonlySlotProps = shouldApplyReadonly
     ? {
         ...muiProps.slotProps,
         input: {
@@ -179,11 +180,33 @@ export function NumberField(
       }
     : muiProps.slotProps;
 
+  // The required `*` is part of the PRIMARY label block; the tooltip `ⓘ` is
+  // secondary. MUI appends its own `*` after the label node — which would land
+  // after the tooltip icon — so when a tooltip is present we render the asterisk
+  // ourselves (before the icon) and disable MUI's via the inputLabel slot.
+  const hasTooltip = normalizeFieldTooltip(tooltip) != null;
+  const ownAsterisk =
+    hasTooltip && muiProps.required ? (
+      <Box component="span" aria-hidden sx={{ color: 'error.main', ml: '2px' }}>
+        *
+      </Box>
+    ) : null;
+  const mergedSlotProps = hasTooltip
+    ? {
+        ...readonlySlotProps,
+        inputLabel: {
+          ...(readonlySlotProps?.inputLabel as object | undefined),
+          required: false,
+        },
+      }
+    : readonlySlotProps;
+
   // Compose the label with its help-tooltip trigger. NumberField renders the
   // MUI TextField directly (not the intelligent one), so the `tooltip` prop is
   // forwarded through MUI's ReactNode `label` slot via the shared helper —
-  // returns the plain label unchanged when no tooltip is provided.
-  const labelNode = renderLabelWithTooltip(muiProps.label, tooltip);
+  // returns the plain label unchanged when no tooltip is provided. The required
+  // asterisk is glued to the label (before the tooltip icon) via the 3rd arg.
+  const labelNode = renderLabelWithTooltip(muiProps.label, tooltip, ownAsterisk);
 
   // Plain mode: render without bridge integration
   if (!bridge) {
@@ -206,6 +229,7 @@ export function NumberField(
           error={explicitError}
           disabled={effectiveDisabled}
           {...muiProps}
+          label={labelNode}
           slotProps={mergedSlotProps}
         />
       );

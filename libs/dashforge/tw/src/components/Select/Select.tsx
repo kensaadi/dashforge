@@ -506,8 +506,11 @@ function SelectInner<V extends SelectValue = string>(
     <div className={rootClasses} data-testid={testId}>
       {label != null && (
         <label htmlFor={controlId} className={labelClasses}>
-          {renderLabelWithTooltip(label, tooltipConfig)}
-          {required && <span className={requiredMarkClasses}>*</span>}
+          {renderLabelWithTooltip(
+            label,
+            tooltipConfig,
+            required && <span className={requiredMarkClasses}>*</span>,
+          )}
         </label>
       )}
 

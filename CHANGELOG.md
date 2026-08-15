@@ -10,6 +10,30 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [ui 1.3.1] — 2026-08-15
+
+Patch — fixes the `tooltip` help-icon ordering so the required `*` stays
+with the label and the `ⓘ` follows it (`Label * ⓘ`).
+Detailed per-package entry: see `libs/dashforge/ui/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/ui` | Fix `tooltip` + `required` label ordering. |
+
+## [tw 1.5.1] — 2026-08-15
+
+Patch — fixes the `tooltip` help-icon ordering so the required `*` stays
+with the label and the `ⓘ` follows it (`Label * ⓘ`).
+Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | Fix `tooltip` + `required` label ordering. |
+
 ## [ui 1.3.0] — 2026-08-15
 
 Adds a label-help `tooltip` prop to every form input — a `ⓘ` in the label

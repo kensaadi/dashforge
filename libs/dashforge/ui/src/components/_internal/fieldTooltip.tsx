@@ -95,18 +95,27 @@ function LabelTooltipTrigger({ config }: { config: FieldTooltipConfig }) {
 export function renderLabelWithTooltip(
   label: ReactNode,
   tooltip: FieldTooltipProp | undefined,
+  requiredMark?: ReactNode,
 ): ReactNode {
+  const primary = requiredMark ? (
+    <>
+      {label}
+      {requiredMark}
+    </>
+  ) : (
+    label
+  );
   const config = normalizeFieldTooltip(tooltip);
-  if (!config) return label;
+  if (!config) return primary;
   const trigger = <LabelTooltipTrigger config={config} />;
   return config.position === 'before' ? (
     <>
       {trigger}
-      {label}
+      {primary}
     </>
   ) : (
     <>
-      {label}
+      {primary}
       {trigger}
     </>
   );

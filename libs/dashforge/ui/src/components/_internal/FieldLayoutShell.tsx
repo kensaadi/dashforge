@@ -3,7 +3,7 @@ import FormLabel from '@mui/material/FormLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import type { ReactNode } from 'react';
 import type { DashforgeTheme } from '@dashforge/tokens';
-import { renderLabelWithTooltip, type FieldTooltipProp } from './fieldTooltip';
+import { renderLabelWithTooltip, normalizeFieldTooltip, type FieldTooltipProp } from './fieldTooltip';
 
 export type FieldLayout = 'floating' | 'stacked' | 'inline';
 export type CustomFieldLayout = 'stacked' | 'inline';
@@ -94,6 +94,23 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
     tooltip,
   } = props;
 
+  // The required `*` is part of the PRIMARY label block; the tooltip `ⓘ` is
+  // secondary. MUI's FormLabel appends its own `*` after the children — which
+  // would land before the tooltip icon — so when a tooltip is present we
+  // render the asterisk ourselves (before the icon) and disable FormLabel's.
+  const hasTooltip = normalizeFieldTooltip(tooltip) != null;
+  const ownAsterisk =
+    hasTooltip && required ? (
+      <Box
+        component="span"
+        aria-hidden
+        sx={{ color: theme.color.intent.danger, ml: '2px' }}
+      >
+        *
+      </Box>
+    ) : null;
+  const formLabelRequired = hasTooltip ? false : required;
+
   // Stacked layout: label above, control below, helper below control
   if (layout === 'stacked') {
     const stackedConfig = theme.fieldLayout.stacked;
@@ -109,7 +126,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
         {label && (
           <FormLabel
             htmlFor={htmlFor}
-            required={required}
+            required={formLabelRequired}
             error={error}
             disabled={disabled}
             sx={{
@@ -124,7 +141,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
               },
             }}
           >
-            {renderLabelWithTooltip(label, tooltip)}
+            {renderLabelWithTooltip(label, tooltip, ownAsterisk)}
           </FormLabel>
         )}
 
@@ -183,7 +200,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
             },
           }}
         >
-          {renderLabelWithTooltip(label, tooltip)}
+          {renderLabelWithTooltip(label, tooltip, ownAsterisk)}
         </FormLabel>
       )}
 

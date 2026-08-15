@@ -241,17 +241,20 @@ export function DatePicker(_props: DatePickerProps) {
           htmlFor={fieldId}
           className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
-          {renderLabelWithTooltip(label, tooltipConfig)}
-          {required && (
-            <span
-              aria-hidden="true"
-              className={cn(
-                v.requiredMark(),
-                themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className,
-              )}
-            >
-              *
-            </span>
+          {renderLabelWithTooltip(
+            label,
+            tooltipConfig,
+            required && (
+              <span
+                aria-hidden="true"
+                className={cn(
+                  v.requiredMark(),
+                  themeSlotProps?.requiredMark?.className, slotProps?.requiredMark?.className,
+                )}
+              >
+                *
+              </span>
+            ),
           )}
         </label>
       )}

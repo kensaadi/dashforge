@@ -4,7 +4,7 @@ import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import type { FieldRegistration } from '@dashforge/ui-core';
 import { useAccessState } from '../../hooks/useAccessState';
-import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import { renderLabelWithTooltip, normalizeFieldTooltip } from '../_internal/fieldTooltip';
 import type { OTPFieldProps } from './otpField.types';
 import { OTPInput } from './OTPInput';
 import { getContainerStyles } from './otpField.styles';
@@ -76,6 +76,19 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
     fullWidth = false,
   } = props;
 
+  // The required `*` is part of the PRIMARY label block; the tooltip `ⓘ` is
+  // secondary. FormLabel appends its own `*` after the children — which would
+  // land after the tooltip icon — so when a tooltip is present we render the
+  // asterisk ourselves (before the icon) and disable FormLabel's.
+  const hasTooltip = normalizeFieldTooltip(tooltip) != null;
+  const ownAsterisk =
+    hasTooltip && required ? (
+      <Box component="span" aria-hidden sx={{ color: 'error.main', ml: '2px' }}>
+        *
+      </Box>
+    ) : null;
+  const formLabelRequired = hasTooltip ? false : required;
+
   const bridge = useContext(DashFormContext);
 
   // Get engine for visibility evaluation
@@ -135,8 +148,8 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
     return (
       <Box sx={getContainerStyles(fullWidth)}>
         {label && (
-          <FormLabel required={required} error={explicitError}>
-            {renderLabelWithTooltip(label, tooltip)}
+          <FormLabel required={formLabelRequired} error={explicitError}>
+            {renderLabelWithTooltip(label, tooltip, ownAsterisk)}
           </FormLabel>
         )}
         <OTPInput
@@ -183,8 +196,8 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
     return (
       <Box sx={getContainerStyles(fullWidth)}>
         {label && (
-          <FormLabel required={required} error={explicitError}>
-            {renderLabelWithTooltip(label, tooltip)}
+          <FormLabel required={formLabelRequired} error={explicitError}>
+            {renderLabelWithTooltip(label, tooltip, ownAsterisk)}
           </FormLabel>
         )}
         <OTPInput
@@ -305,8 +318,8 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
   return (
     <Box sx={getContainerStyles(fullWidth)}>
       {label && (
-        <FormLabel required={required} error={resolvedError}>
-          {renderLabelWithTooltip(label, tooltip)}
+        <FormLabel required={formLabelRequired} error={resolvedError}>
+          {renderLabelWithTooltip(label, tooltip, ownAsterisk)}
         </FormLabel>
       )}
       <OTPInput

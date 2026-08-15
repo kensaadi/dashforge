@@ -63,6 +63,16 @@ describe('TextField — label tooltip', () => {
     expect(label.firstElementChild).toBe(btn);
   });
 
+  it('required * stays with the label — the ⓘ comes AFTER it (position after)', () => {
+    const { container } = renderInForm(<TextField name="x" label="Name" required tooltip="x" />);
+    const label = container.querySelector('label')!;
+    const btn = label.querySelector(TRIGGER)!;
+    const star = [...label.querySelectorAll('span')].find((s) => s.textContent === '*')!;
+    expect(star).toBeTruthy();
+    // the trigger follows the asterisk in DOM order → [label][*][ⓘ]
+    expect(Boolean(star.compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+  });
+
   it('Option C: theme default supplies position, instance supplies content (deep-merge)', () => {
     patchTheme({ components: { TextField: { defaults: { tooltip: { position: 'before' } } } } });
     const { container } = renderInForm(<TextField name="x" label="Name" tooltip="from instance" />);
