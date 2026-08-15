@@ -2,6 +2,7 @@ import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextFiel
 import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 /**
  * Character mode for OTP field
@@ -95,6 +96,9 @@ export interface OTPFieldProps
    * Label for the field (rendered above slots)
    */
   label?: ReactNode;
+
+  /** Optional label-help tooltip (ⓘ in the label row). String or `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
 
   /**
    * Required indicator

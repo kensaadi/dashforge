@@ -11,6 +11,8 @@ import type {
 import { useDashFieldMeta, useFieldRuntime } from '@dashforge/forms';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
+import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 // Module-level deduplication for unresolved value warnings (Phase 2)
 // Tracks warned field:value combinations per bridge instance
@@ -129,6 +131,8 @@ export interface AutocompleteProps<
   rules?: unknown;
   visibleWhen?: (engine: Engine) => boolean;
   label?: React.ReactNode;
+  /** Optional label-help tooltip (ⓘ in the label row). String or `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
   helperText?: React.ReactNode;
   error?: boolean;
   // Controlled storage value (TValue|null), explicit overrides bridge value
@@ -224,6 +228,7 @@ export function Autocomplete<
     visibleWhen,
     options,
     label,
+    tooltip,
     helperText: explicitHelperText,
     error: explicitError,
     value: explicitValue,
@@ -742,7 +747,7 @@ export function Autocomplete<
           <MuiTextField
             {...params}
             name={name}
-            label={label}
+            label={renderLabelWithTooltip(label, tooltip)}
             error={resolvedError}
             helperText={resolvedHelperText}
             // NOTE: We deliberately do NOT route `registration.ref` here.
@@ -926,7 +931,7 @@ export function Autocomplete<
         <MuiTextField
           {...params}
           name={name}
-          label={label}
+          label={renderLabelWithTooltip(label, tooltip)}
           error={explicitError}
           helperText={explicitHelperText}
           slotProps={{

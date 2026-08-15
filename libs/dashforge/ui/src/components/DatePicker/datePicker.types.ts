@@ -3,6 +3,7 @@ import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { ISODate, WeekDay } from '@dashforge/calendar-core';
 import type { FieldLayout } from '../_internal/FieldLayoutShell';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 /**
  * Props for the {@link DatePicker} form field.
@@ -32,6 +33,8 @@ export interface DatePickerProps {
   placeholder?: string;
   /** Label/control layout. `floating` is downgraded to `stacked`. */
   layout?: FieldLayout;
+  /** Optional label-help tooltip (ⓘ in the label row). String or config `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
   /** Reactive visibility predicate evaluated against the form engine. */
   visibleWhen?: (engine: Engine) => boolean;
   /** RBAC access requirement. */

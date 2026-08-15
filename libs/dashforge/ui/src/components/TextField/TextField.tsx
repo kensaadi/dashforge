@@ -57,6 +57,7 @@ export function TextField(props: TextFieldProps) {
     error: userError,
     disabled,
     fullWidth,
+    tooltip,
     __selectAvailableValues,
     access,
     ...rest
@@ -221,6 +222,7 @@ export function TextField(props: TextFieldProps) {
       <FieldLayoutShell
         layout={layout}
         label={label}
+        tooltip={tooltip}
         required={required}
         helperText={validation.helperText}
         error={validation.error}
@@ -298,6 +300,7 @@ export function TextField(props: TextFieldProps) {
       <FieldLayoutShell
         layout={layout}
         label={label}
+        tooltip={tooltip}
         required={required}
         helperText={validation.helperText}
         error={validation.error}

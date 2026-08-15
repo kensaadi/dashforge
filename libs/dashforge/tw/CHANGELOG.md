@@ -12,6 +12,35 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.5.0] — 2026-08-15
+
+Adds a label-help **`tooltip`** prop to every form input. No breaking
+changes vs 1.4.0 — every existing consumer works unchanged.
+
+### Added
+
+- **`tooltip` prop on all form inputs** — `TextField`, `NumberField`,
+  `Textarea`, `Select`, `Autocomplete`, `OTPField`, `Checkbox`, `Switch`,
+  `RadioGroup`, `DatePicker`, `TimePicker`, `DateTimePicker`,
+  `DateRangePicker`. Renders a `ⓘ` help affordance in the label row that
+  reveals its content on hover / focus:
+  - **String shorthand** — `tooltip="Your legal name"` — or a config
+    object `{ content, icon?, position?: 'before' | 'after', side? }`.
+  - **Default icon is a built-in inline SVG** (info-circle) — no
+    icon-library or webfont dependency, so it always renders. Pass any
+    `ReactNode` as `icon` to override it.
+  - **Anti-CLS** — the popup is hover-only, it never reserves layout space.
+  - **Option C themable** — set a default `tooltip` (icon / position /
+    side) per component via `theme.components.<Name>.defaults.tooltip`; the
+    per-instance `tooltip` deep-merges over it, so `tooltip="text"` alone
+    picks up the themed icon and placement.
+
+### Internal
+
+- New shared `_shared/fieldTooltip` helper (built-in icon, trigger,
+  `resolveFieldTooltip` Option C deep-merge) backing the `tooltip` prop
+  across the inputs.
+
 ## [1.4.0] — 2026-08-14
 
 Adds the `<Video>` primitive — the moving-image twin of `<Image>`. No

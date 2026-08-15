@@ -4,6 +4,7 @@ import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import type { FieldRegistration } from '@dashforge/ui-core';
 import { useAccessState } from '../../hooks/useAccessState';
+import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
 import type { OTPFieldProps } from './otpField.types';
 import { OTPInput } from './OTPInput';
 import { getContainerStyles } from './otpField.styles';
@@ -70,6 +71,7 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
     onComplete,
     autoFocus = true,
     label,
+    tooltip,
     required = false,
     fullWidth = false,
   } = props;
@@ -134,7 +136,7 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
       <Box sx={getContainerStyles(fullWidth)}>
         {label && (
           <FormLabel required={required} error={explicitError}>
-            {label}
+            {renderLabelWithTooltip(label, tooltip)}
           </FormLabel>
         )}
         <OTPInput
@@ -182,7 +184,7 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
       <Box sx={getContainerStyles(fullWidth)}>
         {label && (
           <FormLabel required={required} error={explicitError}>
-            {label}
+            {renderLabelWithTooltip(label, tooltip)}
           </FormLabel>
         )}
         <OTPInput
@@ -304,7 +306,7 @@ export function OTPField(props: OTPFieldProps): React.ReactElement | null {
     <Box sx={getContainerStyles(fullWidth)}>
       {label && (
         <FormLabel required={required} error={resolvedError}>
-          {label}
+          {renderLabelWithTooltip(label, tooltip)}
         </FormLabel>
       )}
       <OTPInput

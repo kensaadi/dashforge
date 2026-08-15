@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { AutocompleteVariants } from './autocomplete.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<Autocomplete>` props theme-configurable via
@@ -15,7 +16,7 @@ export type AutocompleteVariantProps = Pick<
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Autocomplete?: {
-      defaults?: Partial<AutocompleteVariantProps>;
+      defaults?: Partial<AutocompleteVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: AutocompleteSlotProps;
     };
   }
@@ -132,6 +133,13 @@ export interface AutocompleteProps<TOption = AutocompleteOption> {
 
   /** Helper line below the combobox. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.Autocomplete.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /**
    * Renders the required `*` marker + sets the native `required` attribute.

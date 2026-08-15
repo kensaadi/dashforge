@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { SelectVariants } from './select.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * The primitive types `<Select>` accepts as an option value.
@@ -80,7 +81,7 @@ export interface SelectSlotProps {
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Select?: {
-      defaults?: Partial<SelectVariantProps>;
+      defaults?: Partial<SelectVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: SelectSlotProps;
     };
   }
@@ -162,6 +163,13 @@ export interface SelectProps<V extends SelectValue = string> {
    * validation error when the field is invalid.
    */
   helperText?: ReactNode;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.Select.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /**
    * Force error state without consulting the bridge — useful for

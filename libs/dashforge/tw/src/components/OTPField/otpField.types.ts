@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { OTPFieldVariants } from './otpField.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<OTPField>` props theme-configurable via
@@ -12,7 +13,7 @@ export type OTPFieldVariantProps = Pick<OTPFieldVariants, 'size'>;
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     OTPField?: {
-      defaults?: Partial<OTPFieldVariantProps>;
+      defaults?: Partial<OTPFieldVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: OTPFieldSlotProps;
     };
   }
@@ -57,6 +58,13 @@ export interface OTPFieldProps {
 
   /** Visible label above the slot row. */
   label?: ReactNode;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.OTPField.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /** Helper line below the slot row. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;

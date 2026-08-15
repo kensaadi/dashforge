@@ -11,6 +11,8 @@ import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import type { FieldRegistration, Engine } from '@dashforge/ui-core';
 import { useAccessState } from '../../hooks/useAccessState';
+import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 export interface RadioGroupOption {
   value: string;
@@ -49,6 +51,8 @@ export interface RadioGroupProps extends Omit<MuiRadioGroupProps, 'name'> {
    * Combines with explicit `disabled` prop via OR logic.
    */
   access?: AccessRequirement;
+  /** Optional label-help tooltip (ⓘ in the label row). String or `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
 }
 
 /**
@@ -95,6 +99,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
     name,
     options,
     label,
+    tooltip,
     rules,
     helperText: explicitHelperText,
     error: explicitError,
@@ -209,7 +214,9 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
 
     return (
       <FormControl error={explicitError}>
-        {label && <FormLabel>{label}</FormLabel>}
+        {label && (
+          <FormLabel>{renderLabelWithTooltip(label, tooltip)}</FormLabel>
+        )}
         <MuiRadioGroup
           name={name}
           value={explicitValue ?? ''}
@@ -244,7 +251,9 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
 
     return (
       <FormControl error={explicitError}>
-        {label && <FormLabel>{label}</FormLabel>}
+        {label && (
+          <FormLabel>{renderLabelWithTooltip(label, tooltip)}</FormLabel>
+        )}
         <MuiRadioGroup
           name={name}
           value={explicitValue ?? ''}

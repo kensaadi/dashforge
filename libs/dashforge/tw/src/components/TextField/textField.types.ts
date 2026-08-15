@@ -2,6 +2,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { Engine } from '@dashforge/ui-core';
 import type { TextFieldVariants } from './textField.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<TextField>` props theme-configurable via
@@ -15,7 +16,7 @@ export type TextFieldVariantProps = Pick<
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     TextField?: {
-      defaults?: Partial<TextFieldVariantProps>;
+      defaults?: Partial<TextFieldVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: TextFieldSlotProps;
     };
   }
@@ -117,6 +118,14 @@ export interface TextFieldProps
 
   /** RBAC requirement. */
   access?: AccessRequirement;
+
+  /**
+   * Optional label-help tooltip — a `ⓘ` in the label row that reveals
+   * `content` on hover / focus. String shorthand for just the text, or a
+   * config `{ content, icon?, position?: 'before' | 'after', side? }`.
+   * A theme default can be set via `theme.components.TextField.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /** Root-level Tailwind override — wins over variant classes via `cn()`. */
   sx?: string;

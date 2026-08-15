@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { FieldLayout } from '../_internal/FieldLayoutShell';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 /**
  * Props for the {@link TimePicker} form field.
@@ -31,6 +32,8 @@ export interface TimePickerProps {
   placeholder?: string;
   /** Label/control layout. `floating` is downgraded to `stacked`. */
   layout?: FieldLayout;
+  /** Optional label-help tooltip (ⓘ in the label row). String or config `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
   /** Reactive visibility predicate evaluated against the form engine. */
   visibleWhen?: (engine: Engine) => boolean;
   /** RBAC access requirement. */

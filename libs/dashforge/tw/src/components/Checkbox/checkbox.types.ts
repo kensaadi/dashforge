@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { Engine } from '@dashforge/ui-core';
 import type { CheckboxVariants } from './checkbox.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<Checkbox>` props theme-configurable via
@@ -12,7 +13,7 @@ export type CheckboxVariantProps = Pick<CheckboxVariants, 'size'>;
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Checkbox?: {
-      defaults?: Partial<CheckboxVariantProps>;
+      defaults?: Partial<CheckboxVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: CheckboxSlotProps;
     };
   }
@@ -57,6 +58,13 @@ export interface CheckboxProps {
 
   /** Visible label rendered next to the control. Click also toggles the box. */
   label?: ReactNode;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.Checkbox.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /** Forwarded to the bridge as RHF rules — opaque to this component. */
   rules?: unknown;

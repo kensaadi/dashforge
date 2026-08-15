@@ -7,6 +7,7 @@ import type {
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { NumberFieldVariants } from './numberField.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<NumberField>` props theme-configurable via
@@ -20,7 +21,7 @@ export type NumberFieldVariantProps = Pick<
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     NumberField?: {
-      defaults?: Partial<NumberFieldVariantProps>;
+      defaults?: Partial<NumberFieldVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: NumberFieldSlotProps;
     };
   }
@@ -83,6 +84,13 @@ export interface NumberFieldProps
 
   /** Visible label above (or left of, per `layout`) the input. */
   label?: ReactNode;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.NumberField.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /** Helper line below the input. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;

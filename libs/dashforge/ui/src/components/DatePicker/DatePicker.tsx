@@ -73,6 +73,7 @@ export function DatePicker(props: DatePickerProps) {
     disabled,
     placeholder,
     layout = 'stacked',
+    tooltip,
     visibleWhen,
     access,
     value,
@@ -361,6 +362,7 @@ export function DatePicker(props: DatePickerProps) {
     <FieldLayoutShell
       layout={effectiveLayout}
       label={label}
+      tooltip={tooltip}
       required={required}
       helperText={resolvedHelperText}
       error={resolvedError}

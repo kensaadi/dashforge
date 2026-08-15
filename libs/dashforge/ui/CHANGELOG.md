@@ -9,6 +9,33 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.3.0] — 2026-08-15
+
+Adds a label-help **`tooltip`** prop to every form input. No breaking
+changes vs 1.2.0 — every existing consumer works unchanged.
+
+### Added
+
+- **`tooltip` prop on all form inputs** — `TextField`, `NumberField`,
+  `Textarea`, `Select`, `Autocomplete`, `OTPField`, `Checkbox`, `Switch`,
+  `RadioGroup`, `DatePicker`, `TimePicker`, `DateTimePicker`,
+  `DateRangePicker`. Renders a `ⓘ` help affordance in the label row that
+  reveals its content on hover / focus:
+  - **String shorthand** — `tooltip="Your legal name"` — or a config
+    object `{ content, icon?, position?: 'before' | 'after', side? }`.
+  - **Default icon is a built-in inline SVG** (info-circle) — no
+    icon-library dependency, so it always renders. Pass any `ReactNode` as
+    `icon` to override it.
+  - **Anti-CLS** — hover-only popup, no reserved layout space.
+  - The MUI twin of `@dashforge/tw`'s `tooltip` prop. (Theme-level
+    defaults via `theme.components.*` are TW-only — on MUI set `icon` /
+    `position` per instance.)
+
+### Internal
+
+- New shared `_internal/fieldTooltip` helper wired through
+  `FieldLayoutShell` and the inputs that render their own label.
+
 ## [1.2.0] — 2026-08-14
 
 Adds the `<Video>` display primitive — the moving-image twin of

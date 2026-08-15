@@ -6,6 +6,7 @@ import { DashFormContext } from '@dashforge/ui-core';
 import type { Engine, DashFormBridge } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { FieldLayout } from '../_internal/FieldLayoutShell';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 import { TextField } from '../TextField/TextField';
 
 // Module-level deduplication for unresolved value warnings (Step 05)
@@ -207,6 +208,9 @@ export interface SelectProps<T extends string | number = string | number>
   visibleWhen?: (engine: Engine) => boolean;
   layout?: FieldLayout;
   minWidth?: number;
+
+  /** Optional label-help tooltip (ⓘ in the label row). String or config `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
 }
 
 /**
@@ -257,6 +261,7 @@ export function Select<T extends string | number = string | number>(
     access,
     visibleWhen,
     layout,
+    tooltip,
     fullWidth,
     minWidth = 200,
     sx,
@@ -419,6 +424,7 @@ export function Select<T extends string | number = string | number>(
       name={name}
       rules={rules}
       label={label}
+      tooltip={tooltip}
       access={access}
       visibleWhen={visibleWhen}
       layout={layout}

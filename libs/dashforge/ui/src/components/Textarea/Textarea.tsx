@@ -10,6 +10,8 @@ import type {
 } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
+import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
   name: string;
@@ -39,6 +41,9 @@ export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
    * ```
    */
   access?: AccessRequirement;
+
+  /** Optional label-help tooltip (ⓘ in the label row). String or `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
 }
 
 /**
@@ -67,7 +72,7 @@ export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
  * It only depends on the bridge contract from @dashforge/ui-core.
  */
 export function Textarea(props: TextareaProps) {
-  const { name, rules, visibleWhen, minRows = 3, access, ...rest } = props;
+  const { name, rules, visibleWhen, minRows = 3, access, label, tooltip, ...rest } = props;
 
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
@@ -260,6 +265,7 @@ export function Textarea(props: TextareaProps) {
         helperText={resolvedHelperText}
         disabled={effectiveDisabled}
         {...rest}
+        label={renderLabelWithTooltip(label, tooltip)}
         // IMPORTANT: Put handlers AFTER {...rest} spread
         // to ensure they override any handlers from rest
         onChange={handleChange as MuiTextFieldProps['onChange']}
@@ -277,6 +283,7 @@ export function Textarea(props: TextareaProps) {
       minRows={minRows}
       disabled={effectiveDisabled}
       {...rest}
+      label={renderLabelWithTooltip(label, tooltip)}
       slotProps={mergedSlotProps}
     />
   );

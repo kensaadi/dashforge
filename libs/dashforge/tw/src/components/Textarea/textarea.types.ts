@@ -7,6 +7,7 @@ import type {
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { TextareaVariants } from './textarea.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<Textarea>` props theme-configurable via
@@ -20,7 +21,7 @@ export type TextareaVariantProps = Pick<
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Textarea?: {
-      defaults?: Partial<TextareaVariantProps>;
+      defaults?: Partial<TextareaVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: TextareaSlotProps;
     };
   }
@@ -82,6 +83,13 @@ export interface TextareaProps
 
   /** Visible label above (or left of, per `layout`) the textarea. */
   label?: ReactNode;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.Textarea.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /** Helper line below the textarea. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;

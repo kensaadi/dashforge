@@ -12,6 +12,8 @@ import type {
   Engine,
 } from '@dashforge/ui-core';
 import { useAccessState } from '../../hooks/useAccessState';
+import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 export interface SwitchProps extends Omit<MuiSwitchProps, 'name'> {
   name: string;
@@ -31,6 +33,8 @@ export interface SwitchProps extends Omit<MuiSwitchProps, 'name'> {
    * Combines with explicit `disabled` prop via OR logic.
    */
   access?: AccessRequirement;
+  /** Optional label-help tooltip (ⓘ in the label row). String or `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
 }
 
 /**
@@ -61,6 +65,7 @@ export function Switch(props: SwitchProps) {
     rules,
     visibleWhen,
     label,
+    tooltip,
     helperText,
     error,
     access,
@@ -239,7 +244,10 @@ export function Switch(props: SwitchProps) {
 
     // Wrap switch with FormControlLabel if label is provided
     const controlElement = label ? (
-      <FormControlLabel control={switchElement} label={label} />
+      <FormControlLabel
+        control={switchElement}
+        label={renderLabelWithTooltip(label, tooltip)}
+      />
     ) : (
       switchElement
     );
@@ -266,7 +274,12 @@ export function Switch(props: SwitchProps) {
 
   // Wrap switch with FormControlLabel if label is provided
   if (label) {
-    return <FormControlLabel control={switchElement} label={label} />;
+    return (
+      <FormControlLabel
+        control={switchElement}
+        label={renderLabelWithTooltip(label, tooltip)}
+      />
+    );
   }
 
   return switchElement;

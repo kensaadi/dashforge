@@ -10,6 +10,33 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [ui 1.3.0] — 2026-08-15
+
+Adds a label-help `tooltip` prop to every form input — a `ⓘ` in the label
+row (string shorthand or `{ content, icon?, position?, side? }`) with a
+built-in default icon. Minor, additive; no breaking changes.
+Detailed per-package entry: see `libs/dashforge/ui/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/ui` | `tooltip` label-help prop on all form inputs. |
+
+## [tw 1.5.0] — 2026-08-15
+
+Adds a label-help `tooltip` prop to every form input — a `ⓘ` in the label
+row (string shorthand or config), built-in default icon, **Option C**
+theme defaults (`theme.components.<Name>.defaults.tooltip`). Minor,
+additive; no breaking changes.
+Detailed per-package entry: see `libs/dashforge/tw/CHANGELOG.md`.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | `tooltip` label-help prop on all form inputs (+ Option C). |
+
 ## [ui 1.2.0] — 2026-08-14
 
 Adds the `<Video>` display primitive — the moving-image twin of `<Image>`

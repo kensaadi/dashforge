@@ -9,6 +9,7 @@ import {
 } from '@dashforge/calendar-core';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
+import { resolveFieldTooltip, renderLabelWithTooltip } from '../_shared/fieldTooltip.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
 import { Popover } from '../Popover/Popover.js';
@@ -44,6 +45,8 @@ export function TimePicker(_props: TimePickerProps) {
   const themeDefaults = useComponentDefaults('TimePicker');
   const props: TimePickerProps = { ...themeDefaults?.defaults, ..._props };
   const themeSlotProps = themeDefaults?.slotProps;
+  // Option C deep-merge: instance `tooltip` over `theme…defaults.tooltip`.
+  const tooltipConfig = resolveFieldTooltip(_props.tooltip, themeDefaults?.defaults?.tooltip);
   const {
     name,
     rules,
@@ -205,7 +208,7 @@ export function TimePicker(_props: TimePickerProps) {
           htmlFor={fieldId}
           className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
         >
-          {label}
+          {renderLabelWithTooltip(label, tooltipConfig)}
           {required && (
             <span
               aria-hidden="true"

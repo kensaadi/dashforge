@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { Engine } from '@dashforge/ui-core';
 import type { SwitchVariants } from './switch.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<Switch>` props theme-configurable via
@@ -12,7 +13,7 @@ export type SwitchVariantProps = Pick<SwitchVariants, 'size'>;
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     Switch?: {
-      defaults?: Partial<SwitchVariantProps>;
+      defaults?: Partial<SwitchVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: SwitchSlotProps;
     };
   }
@@ -46,6 +47,13 @@ export interface SwitchProps {
 
   /** Inline label rendered next to the switch. Clicking the label toggles the state. */
   label?: ReactNode;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.Switch.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /** RHF validation rules — opaque to this component, forwarded to the bridge. */
   rules?: unknown;

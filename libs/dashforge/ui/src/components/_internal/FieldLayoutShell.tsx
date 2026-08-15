@@ -3,6 +3,7 @@ import FormLabel from '@mui/material/FormLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import type { ReactNode } from 'react';
 import type { DashforgeTheme } from '@dashforge/tokens';
+import { renderLabelWithTooltip, type FieldTooltipProp } from './fieldTooltip';
 
 export type FieldLayout = 'floating' | 'stacked' | 'inline';
 export type CustomFieldLayout = 'stacked' | 'inline';
@@ -45,6 +46,12 @@ export interface FieldLayoutShellProps {
   htmlFor?: string;
 
   /**
+   * Optional label-help tooltip. String shorthand or full config — renders
+   * a help icon in the label row (before/after the label text).
+   */
+  tooltip?: FieldTooltipProp;
+
+  /**
    * The actual form control (input, select, etc.)
    */
   children: ReactNode;
@@ -84,6 +91,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
     children,
     fullWidth,
     theme,
+    tooltip,
   } = props;
 
   // Stacked layout: label above, control below, helper below control
@@ -116,7 +124,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
               },
             }}
           >
-            {label}
+            {renderLabelWithTooltip(label, tooltip)}
           </FormLabel>
         )}
 
@@ -175,7 +183,7 @@ export function FieldLayoutShell(props: FieldLayoutShellProps) {
             },
           }}
         >
-          {label}
+          {renderLabelWithTooltip(label, tooltip)}
         </FormLabel>
       )}
 

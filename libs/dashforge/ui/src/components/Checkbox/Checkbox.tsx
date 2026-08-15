@@ -12,6 +12,8 @@ import type {
   Engine,
 } from '@dashforge/ui-core';
 import { useAccessState } from '../../hooks/useAccessState';
+import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 export interface CheckboxProps extends Omit<MuiCheckboxProps, 'name'> {
   name: string;
@@ -31,6 +33,8 @@ export interface CheckboxProps extends Omit<MuiCheckboxProps, 'name'> {
    * Combines with explicit `disabled` prop via OR logic.
    */
   access?: AccessRequirement;
+  /** Optional label-help tooltip (ⓘ in the label row). String or `{ content, icon?, position?, side? }`. */
+  tooltip?: FieldTooltipProp;
 }
 
 /**
@@ -61,6 +65,7 @@ export function Checkbox(props: CheckboxProps) {
     rules,
     visibleWhen,
     label,
+    tooltip,
     helperText,
     error,
     access,
@@ -247,7 +252,10 @@ export function Checkbox(props: CheckboxProps) {
 
     // Wrap checkbox with FormControlLabel if label is provided
     const controlElement = label ? (
-      <FormControlLabel control={checkboxElement} label={label} />
+      <FormControlLabel
+        control={checkboxElement}
+        label={renderLabelWithTooltip(label, tooltip)}
+      />
     ) : (
       checkboxElement
     );
@@ -274,7 +282,12 @@ export function Checkbox(props: CheckboxProps) {
 
   // Wrap checkbox with FormControlLabel if label is provided
   if (label) {
-    return <FormControlLabel control={checkboxElement} label={label} />;
+    return (
+      <FormControlLabel
+        control={checkboxElement}
+        label={renderLabelWithTooltip(label, tooltip)}
+      />
+    );
   }
 
   return checkboxElement;

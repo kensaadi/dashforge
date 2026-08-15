@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { ISODate, WeekDay } from '@dashforge/calendar-core';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /** Per-slot `className` overrides for `<DatePicker>`. */
 export interface DatePickerSlotProps {
@@ -39,7 +40,7 @@ export interface DatePickerVariantProps {
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     DatePicker?: {
-      defaults?: Partial<DatePickerVariantProps>;
+      defaults?: Partial<DatePickerVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: DatePickerSlotProps;
     };
   }
@@ -52,6 +53,12 @@ export interface DatePickerProps {
   rules?: unknown;
   /** Field label. */
   label?: ReactNode;
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.DatePicker.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
   /** Helper text below the control (overrides a bridge error message). */
   helperText?: ReactNode;
   /** Explicit error state (overrides the bridge's auto error). */

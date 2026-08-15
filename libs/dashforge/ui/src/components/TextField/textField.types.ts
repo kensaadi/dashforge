@@ -2,6 +2,7 @@ import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextFiel
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { FieldLayout } from '../_internal/FieldLayoutShell';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 /**
  * TextField props - extends MUI TextField but:
@@ -70,6 +71,16 @@ export interface TextFieldProps
    * ```
    */
   access?: AccessRequirement;
+
+  /**
+   * Optional label-help tooltip — a `ⓘ` in the label row that reveals
+   * `content` on hover / focus. String shorthand for just the text, or a
+   * config object for `icon` / `position` (`'before' | 'after'`) / `side`.
+   *
+   * @example tooltip="Your legal first name"
+   * @example tooltip={{ content: 'As on your ID', icon: <HelpIcon/>, position: 'before' }}
+   */
+  tooltip?: FieldTooltipProp;
 
   /**
    * Internal prop: Available option values for Select mode (Step 05b).

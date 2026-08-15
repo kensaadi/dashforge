@@ -58,6 +58,7 @@ export function TimePicker(props: TimePickerProps) {
     disabled,
     placeholder,
     layout = 'stacked',
+    tooltip,
     visibleWhen,
     access,
     value,
@@ -382,6 +383,7 @@ export function TimePicker(props: TimePickerProps) {
     <FieldLayoutShell
       layout={effectiveLayout}
       label={label}
+      tooltip={tooltip}
       required={required}
       helperText={resolvedHelperText}
       error={resolvedError}

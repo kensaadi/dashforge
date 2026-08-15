@@ -6,6 +6,8 @@ import { useDashFieldMeta } from '@dashforge/forms';
 import type { FieldRegistration, Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
+import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
+import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
 export interface NumberFieldProps
   extends Omit<MuiTextFieldProps, 'name' | 'type' | 'value' | 'onChange'> {
@@ -14,6 +16,12 @@ export interface NumberFieldProps
   visibleWhen?: ((engine: Engine) => boolean) | undefined;
   value?: number | string | null;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or config
+   * `{ content, icon?, position?, side? }`.
+   */
+  tooltip?: FieldTooltipProp;
 
   /**
    * RBAC access requirement for this field.
@@ -97,6 +105,7 @@ export function NumberField(
     value: explicitValue,
     onChange: explicitOnChange,
     access,
+    tooltip,
     disabled,
     ...muiProps
   } = props;
@@ -170,6 +179,12 @@ export function NumberField(
       }
     : muiProps.slotProps;
 
+  // Compose the label with its help-tooltip trigger. NumberField renders the
+  // MUI TextField directly (not the intelligent one), so the `tooltip` prop is
+  // forwarded through MUI's ReactNode `label` slot via the shared helper —
+  // returns the plain label unchanged when no tooltip is provided.
+  const labelNode = renderLabelWithTooltip(muiProps.label, tooltip);
+
   // Plain mode: render without bridge integration
   if (!bridge) {
     // If explicit value is provided, use controlled mode
@@ -206,6 +221,7 @@ export function NumberField(
         error={explicitError}
         disabled={effectiveDisabled}
         {...muiProps}
+        label={labelNode}
         slotProps={mergedSlotProps}
       />
     );
@@ -250,6 +266,7 @@ export function NumberField(
         error={explicitError}
         disabled={effectiveDisabled}
         {...muiProps}
+        label={labelNode}
         slotProps={mergedSlotProps}
       />
     );

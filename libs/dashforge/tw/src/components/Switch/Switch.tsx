@@ -5,6 +5,7 @@ import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
+import { resolveFieldTooltip, renderLabelWithTooltip } from '../_shared/fieldTooltip.js';
 import { useAccessState } from '../../hooks/useAccessState.js';
 import { useStandaloneFieldWarning } from '../../hooks/useStandaloneFieldWarning.js';
 import { resolveValidationState } from '../_shared/resolveValidationState.js';
@@ -27,6 +28,8 @@ export function Switch(props: SwitchProps) {
   const themeDefaults = useComponentDefaults('Switch');
   const merged: SwitchProps = { ...themeDefaults?.defaults, ...props };
   const themeSlotProps = themeDefaults?.slotProps;
+  // Option C deep-merge: instance `tooltip` over `theme…defaults.tooltip`.
+  const tooltipConfig = resolveFieldTooltip(props.tooltip, themeDefaults?.defaults?.tooltip);
   const {
     name,
     rules,
@@ -153,7 +156,7 @@ export function Switch(props: SwitchProps) {
             htmlFor={controlId}
             className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
           >
-            {label}
+            {renderLabelWithTooltip(label, tooltipConfig)}
           </label>
         )}
         {resolvedHelperText && (

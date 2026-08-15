@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import type { RadioGroupVariants } from './radioGroup.variants.js';
+import type { FieldTooltipProp } from '../_shared/fieldTooltip.js';
 
 /**
  * Subset of `<RadioGroup>` props theme-configurable via
@@ -12,7 +13,7 @@ export type RadioGroupVariantProps = Pick<RadioGroupVariants, 'size' | 'layout'>
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     RadioGroup?: {
-      defaults?: Partial<RadioGroupVariantProps>;
+      defaults?: Partial<RadioGroupVariantProps> & { tooltip?: FieldTooltipProp };
       slotProps?: RadioGroupSlotProps;
     };
   }
@@ -86,6 +87,12 @@ export interface RadioGroupProps {
   options: RadioGroupOption[];
   /** Group-level label (rendered above the option list). */
   label?: ReactNode;
+  /**
+   * Optional label-help tooltip (ⓘ in the label row). String or
+   * `{ content, icon?, position?, side? }`. Theme default via
+   * `theme.components.RadioGroup.defaults.tooltip`.
+   */
+  tooltip?: FieldTooltipProp;
   /** React Hook Form validation rules — forwarded to `bridge.register`. */
   rules?: unknown;
   /** Helper text shown below the option list when not in error state. */
