@@ -67,7 +67,7 @@ export const selectVariants = tv({
       'data-[disabled=true]:opacity-50 data-[disabled=true]:cursor-not-allowed',
     ],
     listItemIndicator: [
-      'shrink-0 w-4 text-primary-700',
+      'shrink-0 w-4 h-4 text-primary-700',
       'opacity-0 data-[selected=true]:opacity-100',
     ],
     emptyState: 'px-3 py-2 text-sm text-neutral-500',

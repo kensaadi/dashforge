@@ -12,6 +12,16 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.5.2] — 2026-08-30
+
+### Fixed
+
+- **`<Select>` — the selected-option checkmark no longer stretches.** The
+  `listItemIndicator` slot set a width (`w-4`) but no height, so its inline
+  SVG (a `viewBox`-only `<svg>`) was stretched to the option row's height by
+  the flex layout — an oversized, distorted checkmark whenever the dropdown
+  was open. Added the missing `h-4`.
+
 ## [1.5.1] — 2026-08-15
 
 Patch: fixes the label ordering of the `tooltip` help icon relative to

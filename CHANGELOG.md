@@ -10,6 +10,19 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [tw 1.5.2] — 2026-08-30
+
+Patch fix for `<Select>`: the selected-option checkmark was stretched
+vertically (its `listItemIndicator` slot set a width but no height), showing an
+oversized, distorted glyph when the dropdown was open. Fixed by adding the
+missing `h-4`. Drop-in upgrade, no API change.
+
+Affected package (bumped):
+
+| Package | Notes |
+| --- | --- |
+| `@dashforge/tw` | Fix stretched `<Select>` checkmark (`listItemIndicator` missing `h-4`). |
+
 ## [ui 1.3.1] — 2026-08-15
 
 Patch — fixes the `tooltip` help-icon ordering so the required `*` stays
