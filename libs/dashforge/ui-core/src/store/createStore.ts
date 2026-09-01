@@ -50,6 +50,7 @@ export function createStore(config: StoreConfig = {}): Store {
   // Create the Valtio proxy with initial state
   const state = proxy<EngineState>({
     nodes: initialState.nodes || {},
+    arrayNodes: initialState.arrayNodes || {},
     rules: initialState.rules || {},
   });
 
@@ -93,8 +94,9 @@ export function resetStore(store: Store): void {
     console.log('[Store] Resetting store');
   }
 
-  // Clear nodes and rules
+  // Clear nodes, array nodes, and rules
   store.state.nodes = {};
+  store.state.arrayNodes = {};
   store.state.rules = {};
 
   // Reset evaluation depth

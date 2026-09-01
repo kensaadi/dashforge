@@ -36,6 +36,7 @@ export type {
   NodeMetadata,
   Node,
   NodeUpdate,
+  ArrayNode,
 
   // Rule types
   Rule,
@@ -52,7 +53,7 @@ export type {
   PathValue,
 } from './types';
 
-export { isNode, isRule } from './types';
+export { isArrayNode, isNode, isRule } from './types';
 
 // ============================================================================
 // STORE

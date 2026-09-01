@@ -3,7 +3,7 @@
  * The Engine is the core orchestrator of the reactive system.
  */
 
-import type { Node, NodeUpdate } from './node.types';
+import type { ArrayNode, Node, NodeUpdate } from './node.types';
 import type { Rule } from './rule.types';
 import type { Path, PathValue } from './path.types';
 
@@ -13,9 +13,19 @@ import type { Path, PathValue } from './path.types';
  */
 export interface EngineState {
   /**
-   * Map of all nodes in the engine, keyed by node ID.
+   * Map of all scalar nodes in the engine, keyed by node ID.
    */
   nodes: Record<string, Node>;
+
+  /**
+   * Map of all array-shaped nodes in the engine, keyed by node ID.
+   *
+   * Deliberately stored SEPARATELY from `nodes` so consumers that iterate
+   * `nodes` (e.g. `useEngineNode`, `useEngineVisibility`) continue to see
+   * only scalar nodes and don't have to discriminate between scalar and
+   * array shapes at every access site.
+   */
+  arrayNodes: Record<string, ArrayNode>;
 
   /**
    * Map of all rules in the engine, keyed by rule ID.
@@ -220,7 +230,7 @@ export interface Engine<
 
   /**
    * Reset the engine to its initial state.
-   * Clears all nodes and rules.
+   * Clears all nodes, array nodes, and rules.
    */
   reset(): void;
 
@@ -231,4 +241,115 @@ export interface Engine<
    * @returns Unsubscribe function
    */
   subscribe(callback: () => void): () => void;
+
+  // ==========================================================================
+  // ARRAY NODE API
+  // ==========================================================================
+  //
+  // Array nodes model ordered collections whose IDENTITY (stable ids + order)
+  // is owned by the engine. Item VALUES live outside the engine (in RHF for
+  // form contexts). Multiple consumers subscribed to the same array node see
+  // consistent identity across mount/unmount cycles — the key property that
+  // per-hook RHF `useFieldArray` cannot deliver.
+  //
+  // Item ids are engine-generated (monotonic counter, `_arr_<n>` format),
+  // stable within the engine's lifetime, opaque to consumers (never parse).
+
+  /**
+   * Register a new array node in the engine.
+   *
+   * Complexity: O(initialCount) to generate initial item ids; O(1) otherwise.
+   * Idempotent-safe design: throws on duplicate id, mirroring `registerNode`.
+   *
+   * @param id - The path identifier for the array root (e.g. `"users"`).
+   * @param initialCount - Optional number of pre-generated item ids. Use
+   *   this at provider mount time when `defaultValues[id]` already has
+   *   `initialCount` items — the returned ids align 1:1 with those items.
+   *   Defaults to 0 (empty array).
+   * @returns The array of generated item ids, in order.
+   * @throws Error if an array node with the same id already exists.
+   */
+  registerArrayNode(id: string, initialCount?: number): string[];
+
+  /**
+   * Remove an array node from the engine. No-op if the node does not exist.
+   *
+   * Does NOT touch scalar nodes registered at item sub-paths (e.g.
+   * `users.0.name`) — those are managed independently through the scalar
+   * node API.
+   *
+   * @param id - The array node's id.
+   */
+  unregisterArrayNode(id: string): void;
+
+  /**
+   * Get an array node by id.
+   *
+   * @param id - The array node's id.
+   * @returns The array node if found, undefined otherwise.
+   */
+  getArrayNode(id: string): ArrayNode | undefined;
+
+  /**
+   * Get all array nodes in the engine.
+   */
+  getAllArrayNodes(): ArrayNode[];
+
+  /**
+   * Append a new item to the end of an array node. Generates a fresh
+   * stable id and returns it.
+   *
+   * @param id - The array node's id.
+   * @returns The generated item id.
+   * @throws Error if the array node does not exist.
+   */
+  appendArrayItem(id: string): string;
+
+  /**
+   * Insert a new item at a specific index. Generates a fresh stable id
+   * and returns it.
+   *
+   * @param id - The array node's id.
+   * @param atIndex - Insertion index. Clamped to `[0, ids.length]`.
+   * @returns The generated item id.
+   * @throws Error if the array node does not exist.
+   */
+  insertArrayItem(id: string, atIndex: number): string;
+
+  /**
+   * Remove the item at a given index.
+   *
+   * @param id - The array node's id.
+   * @param atIndex - Index of the item to remove. No-op if out of range.
+   * @throws Error if the array node does not exist.
+   */
+  removeArrayItem(id: string, atIndex: number): void;
+
+  /**
+   * Move an item from one index to another. No-op if either index is
+   * out of range or `fromIndex === toIndex`.
+   *
+   * @param id - The array node's id.
+   * @param fromIndex - Source index.
+   * @param toIndex - Destination index.
+   * @throws Error if the array node does not exist.
+   */
+  moveArrayItem(id: string, fromIndex: number, toIndex: number): void;
+
+  /**
+   * Replace the entire ordered id list with a fresh sequence of the given
+   * length. Regenerates every id — existing item ids are discarded.
+   *
+   * Intended for external reconciliation (e.g. adapter reacting to a
+   * consumer-driven `rhf.setValue(<array root>, newArray)` write). Prefer
+   * the granular operations (`appendArrayItem`, `removeArrayItem`,
+   * `moveArrayItem`, `insertArrayItem`) for user-driven mutations, because
+   * they preserve React key stability for the items that survive.
+   *
+   * @param id - The array node's id.
+   * @param count - New length of the ids array.
+   * @returns The new list of generated ids, in order.
+   * @throws Error if the array node does not exist.
+   */
+  replaceArrayItems(id: string, count: number): string[];
 }

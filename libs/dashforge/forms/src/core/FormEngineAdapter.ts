@@ -178,9 +178,28 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
       value: value as PathValue<TFieldValues, typeof fieldName>,
     });
 
-    // NEW: Notify listeners (for reaction evaluation)
+    // Notify listeners (for reaction evaluation).
+    // Delegated to `notifyValueChange` so the two entry points share the
+    // same broadcast implementation.
+    this.notifyValueChange(fieldName);
+  }
+
+  /**
+   * Fire the value-sync listener chain for a given field name WITHOUT
+   * updating any engine node. See `IFormEngineAdapter.notifyValueChange`
+   * for the full contract.
+   *
+   * @internal
+   */
+  notifyValueChange(name: string): void {
+    if (this.debug) {
+      console.log(
+        `[FormEngineAdapter] notifyValueChange: ${name} (${this.onValueSyncCallbacks.length} listeners)`
+      );
+    }
+
     for (const callback of this.onValueSyncCallbacks) {
-      callback(fieldName);
+      callback(name);
     }
   }
 

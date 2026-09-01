@@ -1,234 +1,525 @@
 # @dashforge/forms
 
-Type-safe form bridge for react-hook-form with Dashforge UI components.
+Declarative form bridge over `react-hook-form` for the Dashforge component
+libraries (`@dashforge/ui`, `@dashforge/tw`) and any custom field that speaks
+the `DashFormBridge` contract.
 
 ## Installation
 
 ```bash
-npm install @dashforge/forms @dashforge/ui-core
-npm install react-hook-form react
+npm install @dashforge/forms @dashforge/ui-core react-hook-form
 ```
 
 ## Peer Dependencies
 
-- `react@^18.0.0 || ^19.0.0`
-- `@dashforge/ui-core@^0.1.8-alpha`
+- `react` `^18.0.0 || ^19.0.0`
+- `react-hook-form` `^7.0.0`
+- `@dashforge/ui-core` `^1.0.0`
 
-## Usage
+Version compatibility with the visual editions:
 
-### Basic Setup
+| `@dashforge/forms` | `@dashforge/ui` | `@dashforge/tw` |
+|---|---|---|
+| `1.x` | `1.x` | `1.x` |
 
-```typescript
-import { DashFormProvider, useDashForm } from '@dashforge/forms';
-import { useForm } from 'react-hook-form';
+---
 
-function MyForm() {
-  const form = useForm();
-  const bridge = useDashForm(form);
+## The two API surfaces
 
+`@dashforge/forms` intentionally exposes **two distinct surfaces**. Pick the
+right one for the situation — mixing them is not required.
+
+| Surface | What it is | When to use it |
+|---|---|---|
+| **`DashFormContext` / `DashFormBridge`** (declarative) | The primary API. Field components register with the bridge and get `getValue` / `setValue` / `getError` / `subscribeField` / access + visibility gates. Consumers write declarative schema: `defaultValues`, `reactions`, `access`, `visibleWhen`. | 99% of real-world usage. Everything expressible via schema, reactions, and access rules goes here. |
+| **`useDashFormContext()`** (imperative escape hatch) | Explicit opt-in for imperative operations. Returns the raw `useForm()` return of react-hook-form (`rhf`), the Dashforge Engine instance, the adapter, and a debug flag. | Server-side validation errors, imperative reset, integration with external state machines, undo/redo, or any pattern that genuinely requires imperative control over form state. |
+
+**The bridge does NOT expose `setError` / `clearErrors` / `setFocus` / `reset`
+by design.** Those live on the escape hatch (`useDashFormContext().rhf.*`)
+because they are imperative operations. The bridge is intentionally a
+symmetric R/W surface for values, subscription hooks, and registration —
+nothing else. Effects flow from user input through `wrappedOnChange` → engine
+→ reactions; the bridge does not fire side effects on programmatic writes.
+
+Everything else in this document breaks into either "declarative surface" or
+"escape hatch" patterns.
+
+---
+
+## Quick start (declarative)
+
+The recommended way to author a form is `<DashForm>`, which combines
+`DashFormProvider` and a native `<form>` element. Wire fields with any
+component from `@dashforge/ui` or `@dashforge/tw`.
+
+```tsx
+import { DashForm } from '@dashforge/forms';
+import { TextField, Autocomplete, Button } from '@dashforge/tw';
+
+export function SignupForm() {
   return (
-    <DashFormProvider bridge={bridge}>
-      {/* Form components automatically connect to react-hook-form */}
-    </DashFormProvider>
+    <DashForm
+      defaultValues={{ email: '', plan: 'free' }}
+      onSubmit={(data) => console.log('submit', data)}
+    >
+      <TextField name="email" rules={{ required: 'Email is required' }} />
+      <Autocomplete
+        name="plan"
+        options={[
+          { value: 'free', label: 'Free' },
+          { value: 'pro', label: 'Pro' },
+        ]}
+      />
+      <Button type="submit">Sign up</Button>
+    </DashForm>
   );
 }
 ```
 
-### Schema-Based Validation (Resolver)
+`DashForm` accepts:
 
-Dashforge forms support React Hook Form's resolver pattern for schema-based validation. This allows you to use validation libraries like Zod, Yup, Joi, etc.
+| Prop | Type | Notes |
+|---|---|---|
+| `defaultValues` | `DefaultValues<TFieldValues>` | Initial state. This is the correct place to seed values, including from server-loaded data (mount the form once the data is available). |
+| `resolver` | RHF `Resolver` | Optional schema-validation resolver (Zod, Yup, Valibot, or custom). |
+| `mode` | `'onChange' \| 'onBlur' \| 'onSubmit' \| ...` | RHF validation mode, default `'onChange'`. |
+| `reactions` | `ReactionDefinition[]` | Declarative side effects (see below). |
+| `engine` | `Engine` | Optional external Engine instance. Auto-created when omitted. |
+| `debug` | `boolean` | Log adapter / reaction activity. |
+| `onSubmit` | `SubmitHandler<TFieldValues>` | Standard RHF handler: `(data, event?) => any`. |
+| `children` | `ReactNode` | Field components and any consumer UI. |
 
-**Note:** Validation libraries are NOT bundled with Dashforge. Install them separately as needed.
+Note: `<DashForm>`'s `onSubmit` receives `(data)` only, matching the RHF
+`SubmitHandler` signature. For server-side error injection, use the escape
+hatch pattern below.
 
-#### With Zod
+## Schema-based validation
 
-```bash
-npm install zod @hookform/resolvers
-```
+Any react-hook-form resolver works out of the box.
 
-```typescript
-import { DashFormProvider } from '@dashforge/forms';
+```tsx
+import { DashForm } from '@dashforge/forms';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-// Define your schema
-const userSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  age: z.number().min(18, 'Must be at least 18 years old'),
-  username: z.string().min(3, 'Username must be at least 3 characters'),
+const schema = z.object({
+  email: z.string().email('Invalid email'),
+  age: z.number().min(18, 'Must be at least 18'),
 });
 
-type UserFormValues = z.infer<typeof userSchema>;
-
-function UserForm() {
+export function SignupForm() {
   return (
-    <DashFormProvider<UserFormValues>
-      resolver={zodResolver(userSchema)}
-      defaultValues={{ email: '', age: 0, username: '' }}
+    <DashForm
+      resolver={zodResolver(schema)}
+      defaultValues={{ email: '', age: 18 }}
+      onSubmit={(data) => console.log(data)}
     >
-      {/* Form fields will be validated against the schema */}
-    </DashFormProvider>
+      {/* fields */}
+    </DashForm>
   );
 }
 ```
 
-#### With Yup
+## Reactions — declarative side effects
 
-```bash
-npm install yup @hookform/resolvers
+Reactions are the declarative way to express derived values, cross-field
+effects, and data fetching triggered by field changes. A reaction watches one
+or more fields and runs a callback when they change.
+
+```tsx
+import { DashForm } from '@dashforge/forms';
+import { Autocomplete } from '@dashforge/tw';
+
+const reactions = [
+  {
+    id: 'load-states',
+    watch: ['country'],
+    run: async (ctx) => {
+      const country = ctx.getValue<string>('country');
+      if (!country) {
+        ctx.setRuntime('state', { options: [] });
+        return;
+      }
+      ctx.setRuntime('state', { status: 'loading' });
+      const states = await fetchStates(country);
+      ctx.setRuntime('state', { options: states });
+    },
+  },
+];
+
+<DashForm
+  defaultValues={{ country: null, state: null }}
+  reactions={reactions}
+>
+  <Autocomplete name="country" options={countries} />
+  <Autocomplete name="state" optionsFromFieldData />
+</DashForm>;
 ```
 
-```typescript
-import { DashFormProvider } from '@dashforge/forms';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+`ReactionRunContext` provides:
 
-const schema = yup.object({
-  email: yup.string().email().required(),
-  age: yup.number().min(18).required(),
-}).required();
+- `getValue<T>(name)` — read a field value.
+- `getRuntime<T>(name)` — read the runtime state (loading, error, data) for a field.
+- `setRuntime<T>(name, state)` — write into a field's runtime state (populate options, mark loading, etc.).
+- `beginAsync(key)` / `isLatest(key, id)` — stale-response guards for async work; discard results from superseded runs.
 
-function MyForm() {
-  return (
-    <DashFormProvider
-      resolver={yupResolver(schema)}
-      defaultValues={{ email: '', age: 0 }}
-    >
-      {/* Form content */}
-    </DashFormProvider>
-  );
-}
+Reactions **do not receive a `setValue`**. This is intentional: reactions
+express derived state (runtime data, loading indicators, dependent options),
+not user-driven value changes. Values are owned by the user input flow; a
+reaction that needed to change another field's *value* would be re-entering
+the input pipeline and would introduce feedback loops. Rely on `defaultValues`
+for initial state and on runtime state + `optionsFromFieldData` for dependent
+data. If you truly need imperative writes (a genuine edge case), use the
+escape hatch below.
+
+## Access control (RBAC)
+
+Every field component accepts an optional `access` prop enforced against the
+`@dashforge/rbac` policy in scope:
+
+```tsx
+<TextField
+  name="salary"
+  access={{ action: 'read', resource: 'salary', onUnauthorized: 'hide' }}
+/>
 ```
 
-#### Validation Behavior
+RBAC is declarative and evaluated per render. See `@dashforge/rbac` for
+policy authoring; the field integration lives in `useAccessState` inside
+`@dashforge/ui-core`.
 
-- When a `resolver` is provided, it becomes the **primary validation source**
-- Field-level validation rules (via `register()` options) may still be defined, but the resolver takes precedence per React Hook Form's validation flow
-- Validation errors from the resolver are accessible via `bridge.getError(fieldName)`
-- All existing Dashforge features (error gating, touch tracking, reactions) work seamlessly with resolvers
+## Conditional visibility
 
-### Dynamic Field Arrays
+Fields also accept `visibleWhen` for reactive engine-driven visibility:
 
-Dashforge provides `useDashFieldArray` for managing dynamic lists of form fields (e.g., multiple addresses, phone numbers, or dynamic configurations).
+```tsx
+<TextField
+  name="company"
+  visibleWhen={(engine) => engine.getNode('accountType').value === 'business'}
+/>
+```
 
-**V1 Notice:** This is a thin adapter over React Hook Form's `useFieldArray` with Dashforge-style API. It provides **developer experience improvements** (pre-computed field names, stable IDs, type-safe interface) but does **not claim performance benefits** over raw RHF. Performance profiling is planned for a future phase.
+`visibleWhen` subscribes to the Engine node state and re-evaluates on
+changes — no `useEffect` needed.
 
-```typescript
-import { useDashFieldArray } from '@dashforge/forms';
+## Field arrays
 
-interface Address {
-  street: string;
-  city: string;
-  zipCode: string;
-}
+`useDashFieldArray` manages dynamic lists of fields (an unknown number of
+line items on an invoice, a growing list of team members, phone numbers,
+addresses, and so on). It hands back a `fields` list with stable ids for
+React keys plus operations to mutate the list.
 
-function AddressForm() {
-  const { fields, append, remove, move } = useDashFieldArray<Address>('addresses');
+```tsx
+import { DashForm, useDashFieldArray } from '@dashforge/forms';
+import { TextField, Button } from '@dashforge/tw';
 
+interface Skill { name: string; }
+interface Values { skills: Skill[]; }
+
+function SkillsForm() {
+  const { fields, append, remove } = useDashFieldArray<Skill>('skills');
   return (
     <>
       {fields.map((field) => (
         <div key={field.id}>
-          <TextField name={`${field.name}.street`} label="Street" />
-          <TextField name={`${field.name}.city`} label="City" />
-          <TextField name={`${field.name}.zipCode`} label="Zip Code" />
+          <TextField name={`${field.name}.name`} />
           <Button onClick={() => remove(field.index)}>Remove</Button>
         </div>
       ))}
-      <Button onClick={() => append({ street: '', city: '', zipCode: '' })}>
-        Add Address
+      <Button onClick={() => append({ name: '' })}>Add skill</Button>
+    </>
+  );
+}
+
+<DashForm<Values> defaultValues={{ skills: [] }} onSubmit={(data) => save(data)}>
+  <SkillsForm />
+</DashForm>;
+```
+
+### Multi-step wizards, tabs, and conditional rendering
+
+Array identity (the ordered ids exposed as `field.id`) is owned by the
+Dashforge Engine, not by the hook instance. Every consumer of
+`useDashFieldArray('skills')` in the same form reads the same engine
+array node — so multiple instances mounted at different times, or in
+different components (wizard steps, tab panels, conditionally rendered
+regions), share the same ids for the same items.
+
+Concretely: a wizard where Step 1 mounts a `useDashFieldArray('skills')`
+and Step 2 mounts another `useDashFieldArray('skills')` — Step 2 sees
+the exact ids Step 1 was working with, and mount / unmount cycles
+between the two steps never remount surviving items or lose their
+local input state.
+
+```tsx
+function Wizard() {
+  const [step, setStep] = useState(1);
+  return (
+    <>
+      {step === 1 && <StepOne />}
+      {step === 2 && <StepTwo />}
+      <Button onClick={() => setStep((s) => (s === 1 ? 2 : 1))}>
+        {step === 1 ? 'Next' : 'Back'}
       </Button>
+    </>
+  );
+}
+
+function StepOne() {
+  // First mount populates the engine array node from defaultValues.
+  const { fields, append, remove } = useDashFieldArray<Skill>('skills');
+  /* render skills; add / remove buttons */
+}
+
+function StepTwo() {
+  // Later mount reads the SAME engine array node — identical ids.
+  const { fields } = useDashFieldArray<Skill>('skills');
+  /* render skills for review */
+}
+```
+
+`useDashFieldArray` is not a wrapper around RHF's `useFieldArray`; the
+two hooks address the same problem with a different architecture. RHF's
+`useFieldArray` maintains one internal `fields` snapshot per hook
+instance, so two hooks pointed at the same name do not observe each
+other and lose their local state on remount — the fault-line documented
+at [`/fault-lines/usefieldarray-multi-step-wizards`](https://dashforge-ui.com/fault-lines/usefieldarray-multi-step-wizards).
+Dashforge moves array identity to the engine (schema layer) to make
+this work by construction.
+
+### Operations
+
+| Method | Effect |
+|---|---|
+| `append(item)` | Add `item` to the end. Generates a fresh stable id. |
+| `insert(index, item)` | Insert at `index` (clamped to `[0, fields.length]`). |
+| `remove(index)` | Remove item at `index`. Out-of-range indexes are a no-op. Surviving items keep their ids (React key stability). |
+| `move(from, to)` | Reorder. Moved item keeps its id. No-op on same-index or out-of-range. |
+| `replace(items)` | Replace the whole array. Regenerates all ids — every rendered item remounts. |
+
+### Consumer boundary
+
+Prefer the hook's own operations over calling `rhf.setValue` on an
+array root through `useDashFormContext().rhf`. Direct `rhf.setValue`
+on an array root bypasses the engine — reactions won't fire on the
+change and ids won't reconcile until the next hook operation on that
+array. Use the escape hatch for scalar fields; use `useDashFieldArray`
+methods for arrays.
+
+`field.id` is opaque and session-local — it is stable for the lifetime
+of the form but must not be serialised or sent to another session.
+
+---
+
+## The escape hatch — `useDashFormContext`
+
+For patterns that genuinely require imperative control (server-side validation
+errors, external state sync, custom submit orchestration), use
+`useDashFormContext()`. It returns the raw `useForm()` result of
+react-hook-form plus the Dashforge Engine + adapter.
+
+**When to use it:** you have a specific imperative need that cannot be
+expressed declaratively. Not as a default — as an opt-in.
+
+### Server-side 422 error mapping
+
+```tsx
+import { DashFormProvider, useDashFormContext } from '@dashforge/forms';
+import { TextField, Button } from '@dashforge/tw';
+
+export function SignupForm() {
+  return (
+    <DashFormProvider defaultValues={{ email: '', name: '' }}>
+      <Fields />
+    </DashFormProvider>
+  );
+}
+
+function Fields() {
+  const { rhf } = useDashFormContext();
+
+  const submit = rhf.handleSubmit(async (data) => {
+    const res = await fetch('/api/signup', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (res.status === 422) {
+      const { errors } = await res.json();
+      // Map server field errors onto RHF state.
+      for (const [field, message] of Object.entries(errors)) {
+        rhf.setError(field, { type: 'server', message: String(message) });
+      }
+      return;
+    }
+    // Handle success...
+  });
+
+  return (
+    <form onSubmit={submit}>
+      <TextField name="email" />
+      <TextField name="name" />
+      <Button type="submit">Sign up</Button>
+    </form>
+  );
+}
+```
+
+Two things to note in this pattern:
+
+1. `<DashFormProvider>` is used directly (not `<DashForm>`) because we need
+   to own the `<form>` element and the submit orchestration.
+2. `rhf.setError` is called from a component inside the provider tree, via
+   the escape hatch. It writes into RHF's error state, which the bridge
+   reads through `getError` — so the field UI updates automatically without
+   any extra plumbing.
+
+### Prefilling from server data
+
+Load the data first, mount the form once. Declarative, no imperative writes.
+
+```tsx
+function EditUserForm({ userId }: { userId: string }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch(`/api/users/${userId}`).then(r => r.json()).then(setUser);
+  }, [userId]);
+
+  if (!user) return <Loading />;
+
+  return (
+    <DashForm
+      defaultValues={user}
+      onSubmit={(data) => saveUser(userId, data)}
+    >
+      <TextField name="name" />
+      <TextField name="email" />
+    </DashForm>
+  );
+}
+```
+
+Do NOT call `bridge.setValue` in a `useEffect` to prefill after mount —
+that's the imperative pattern. Load first, mount once.
+
+### Undo / reset / external integration
+
+For any imperative operation RHF supports, reach for it via
+`useDashFormContext().rhf`:
+
+```tsx
+function Fields() {
+  const { rhf } = useDashFormContext();
+
+  return (
+    <>
+      <TextField name="notes" />
+      <Button onClick={() => rhf.reset()}>Reset form</Button>
+      <Button onClick={() => rhf.setValue('notes', '')}>Clear notes</Button>
     </>
   );
 }
 ```
 
-**Key Features:**
-- **Pre-computed field names:** `field.name` provides the full path (e.g., `"addresses.0"`) without manual template strings
-- **Stable IDs:** `field.id` is stable across operations for React keys
-- **Type-safe operations:** `append`, `remove`, `move`, `insert`, `replace` are fully typed
-- **Dashforge-owned types:** API designed for future engine-native optimization without breaking changes
+These are legitimate uses of the escape hatch: consumer decides to run an
+imperative operation deliberately, wired through the underlying RHF instance.
 
-**API:**
-- `fields`: Array of field items with `{ id, index, name }` metadata
-- `append(item)`: Add item to end
-- `remove(index)`: Remove item at index
-- `move(from, to)`: Reorder items
-- `insert(index, item)`: Insert at specific position
-- `replace(items)`: Replace entire array
+---
 
-**Important:** This hook must be called inside a `DashFormProvider` context.
+## Anti-patterns (do not do this)
 
-## Features
-
-- **Type-safe bridge** between react-hook-form and Dashforge components
-- **Automatic registration** and validation
-- **Schema-based validation** via resolver pass-through (Zod, Yup, Joi, etc.)
-- **Dynamic field arrays** with pre-computed paths and stable IDs
-- **Error state management** with Form Closure v1 rules
-- **Touch tracking** for MUI and native components
-- **Zero unsafe casts** in public API
-
-## Core Exports
-
-- `DashFormProvider` - Context provider for form bridge
-- `useDashForm` - Hook to create form bridge
-- `DashFormBridge` - Bridge interface
-- `FieldRegistration` - Registration contract
-
-## TypeScript Support
-
-Full TypeScript type definitions with strict mode compatibility.
-
-### Schema-typed engine (`Engine<TSchema>`)
-
-Every string-path API on the reactive `Engine` (`getNode`, `registerNode`,
-`updateNode`, `unregisterNode`, `evaluateForNode`) is generic over the
-data shape you register with it. Passing a path that doesn't exist on the
-schema is a compile-time error instead of a silent runtime `undefined`.
-
-```ts
-import { createEngine } from '@dashforge/ui-core';
-
-type KYCSchema = {
-  firstName: string;
-  age: number;
-  address: { city: string; country: string };
-};
-
-const engine = createEngine<KYCSchema>();
-
-engine.getNode('firstName');       // Node<string> | undefined
-engine.getNode('address.city');    // Node<string> | undefined  (nested)
-engine.getNode('age');             // Node<number> | undefined
-engine.getNode('foobar');          // ← TS error: not a Path<KYCSchema>
-engine.updateNode('age', { value: 'wrong' }); // ← TS error: value must be number
-```
-
-Inside a `DashFormProvider`, the schema is inferred automatically from
-`defaultValues` — you don't need to pass a generic anywhere:
+Because `bridge.setValue` exists as a symmetric R/W primitive to `bridge.getValue`,
+it is possible — but incorrect — to call it from consumer code. Doing so
+bypasses the declarative input flow and does **not** trigger reactions
+(reactions fire on the natural input pipeline, not on programmatic writes).
 
 ```tsx
-<DashFormProvider defaultValues={{ firstName: '', age: 0 }}>
-  {/* engine.getNode('firstName') is Node<string> | undefined here */}
-</DashFormProvider>
+// ❌ DO NOT do this.
+function BadPattern() {
+  const bridge = useContext(DashFormContext);
+  return (
+    <Button onClick={() => bridge?.setValue('country', 'IT')}>
+      Set country
+    </Button>
+  );
+}
 ```
 
-**Backward compatibility.** `createEngine()` without a generic argument
-resolves to `Engine<Record<string, unknown>>`. In that case `Path<T>`
-degrades to `string` and `PathValue<T, P>` to `unknown`, so every existing
-untyped consumer keeps compiling exactly as it did before this change —
-you only opt in to the stricter surface by passing a schema.
+For that pattern, use the escape hatch (`rhf.setValue`) — that at least
+signals imperative intent explicitly.
 
-Nested paths (`"user.address.city"`) are supported via TypeScript template
-literal types. Arrays are treated as leaves for now — array element paths
-(`items.0.name`) will be added in a future release.
+Even better: rethink whether the imperative write is necessary. In most cases
+it can be expressed via `defaultValues` (initial state), `reactions` (derived
+state), or user input (via a real field bound to the value).
 
-## Documentation
+---
 
-- [Package CHANGELOG](./CHANGELOG.md) — release history for this package.
-- [Top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md) — cross-package release context.
-- [MIGRATION.md](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md) — breaking-change upgrade guides.
+## API reference
+
+### Components
+
+| Symbol | Purpose |
+|---|---|
+| `<DashForm>` | Convenience: `<DashFormProvider>` + `<form>`. Use when you don't need custom submit orchestration. |
+| `<DashFormProvider>` | The context provider. Use when you own the `<form>` element (e.g. to inject server errors, custom submit flow). |
+
+### Hooks
+
+| Hook | Returns | Purpose |
+|---|---|---|
+| `useDashFormContext()` | `{ engine, rhf, adapter, debug }` | Escape hatch. Access raw RHF, Engine, adapter. Throws if outside a provider. |
+| `useDashRegister(name, options?)` | RHF registration + Engine metadata | Register a field with both RHF and the adapter. Called internally by field components. |
+| `useDashFieldMeta(name)` | `{ error, isTouched, isDirty, allowAutoError }` | Granular per-field subscription to error / touched / dirty / submitCount. Silent no-op outside a provider. |
+| `useDashFieldNode(name)` | Engine node handle + reactive value | Access an Engine node from inside a provider. Throws if outside. |
+| `useFieldRuntime<T>(name)` | `FieldRuntimeState<T>` | Read runtime state (loading / options / error) for a field. Silent no-op outside a provider. |
+| `useDashFieldArray(name)` | `{ fields, append, remove, move, insert, replace }` | Manage dynamic lists of fields with engine-owned stable ids that survive mount/unmount cycles (wizard steps, tabs). Throws if outside a provider. |
+
+### Context
+
+| Symbol | Purpose |
+|---|---|
+| `DashFormContext` | React context carrying the `DashFormBridge`. Re-exported from `@dashforge/ui-core`; field components read from it directly. |
+
+### Types
+
+- `DashFormBridge` — the bridge contract (from `@dashforge/ui-core`).
+- `DashFormProps`, `DashFormProviderProps`, `DashFormContextValue`, `DashFormConfig` — component + context types.
+- `ReactionDefinition`, `ReactionRunContext`, `ReactionWhenContext` — reaction authoring types.
+- `FieldRuntimeState`, `SelectFieldRuntimeData`, `FieldFetchStatus` — runtime state types.
+- `DashFieldMeta`, `UseDashRegisterResult`, `UseDashFieldArrayReturn`, `DashFieldArrayItem` — hook return types.
+
+### Internal / advanced
+
+Exported for advanced use (custom providers, test harnesses) but **not part
+of the stable public surface** — may change between minor releases:
+
+- `FormEngineAdapter` — the RHF ↔ Engine adapter class.
+- `createRuntimeStore`, `DEFAULT_FIELD_RUNTIME`, `RuntimeStore` — runtime store factory.
+- `createReactionRegistry`, `ReactionRegistry` — reaction registry primitive.
+- `IFormEngineAdapter`, `FormEngineAdapterOptions` — adapter contract types.
+
+Most consumers should not reach for these directly; use the hooks and
+`<DashFormProvider>` instead.
+
+---
+
+## Design notes
+
+- **Declarative by default, imperative by opt-in.** The bridge is a symmetric
+  R/W primitive surface. Side effects (reactions) fire on user input flow.
+  Imperative operations live behind `useDashFormContext` deliberately, so a
+  reader can see when a consumer is stepping outside the declarative model.
+- **Reactions write runtime, not values.** The unidirectional flow is
+  user-input → engine → reaction → runtime. Reactions never write back into
+  field values, avoiding feedback loops. Dependent-data patterns use
+  `optionsFromFieldData` + `setRuntime`.
+- **Bridge identity is stable.** The bridge object identity doesn't change
+  across renders — consumers subscribe to per-field state via
+  `useDashFieldMeta` (which uses `useSyncExternalStore` under the hood).
+- **RHF is a full dependency, not hidden.** The escape hatch returns the
+  raw `useForm()` result. Consumers who need RHF get all of RHF; consumers
+  who don't never see it.
 
 ## License
 

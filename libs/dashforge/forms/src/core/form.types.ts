@@ -59,6 +59,41 @@ export interface IFormEngineAdapter<
    * @returns Array of registered field names
    */
   getRegisteredFields(): string[];
+
+  /**
+   * Fire the value-sync listener chain for a given field name WITHOUT
+   * updating any engine node. Used by hooks that mutate engine state
+   * directly (e.g. `useDashFieldArray` structural changes on an array
+   * node) and need reactions watching that name to re-evaluate.
+   *
+   * Distinct from `syncValueToEngine`:
+   * - `syncValueToEngine` updates a scalar engine node AND notifies.
+   * - `notifyValueChange` only notifies (no engine node write).
+   *
+   * Does not check `registeredFields` — the caller opts into what to
+   * broadcast. Callers should pass the same field name reactions are
+   * expected to watch (e.g. the array root, `"users"` — not
+   * `"users.0"`).
+   *
+   * @param name - Field name to notify listeners about.
+   * @internal
+   */
+  notifyValueChange(name: string): void;
+
+  /**
+   * Subscribe to value-sync notifications. The callback is invoked
+   * (synchronously) with a field name whenever `syncValueToEngine`
+   * or `notifyValueChange` fires. Returns an unsubscribe function.
+   *
+   * Consumed by `DashFormProvider` to drive reaction re-evaluation,
+   * and by `useDashFieldArray` to trigger React re-renders on shared
+   * engine array-node mutations.
+   *
+   * @param callback - Called with the field name that changed.
+   * @returns Unsubscribe function.
+   * @internal
+   */
+  addOnValueSyncListener(callback: (fieldName: string) => void): () => void;
 }
 
 /**

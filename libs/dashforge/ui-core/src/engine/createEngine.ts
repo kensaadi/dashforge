@@ -6,7 +6,7 @@
  */
 
 import type { Engine, EngineConfig, EngineState } from '../types/engine.types';
-import type { Node, NodeUpdate } from '../types/node.types';
+import type { ArrayNode, Node, NodeUpdate } from '../types/node.types';
 import type { Rule } from '../types/rule.types';
 import { createStore, type Store } from '../store';
 import { DependencyTracker } from '../core/DependencyTracker';
@@ -72,9 +72,22 @@ export function createEngine<
     debug,
     initialState: {
       nodes: {},
+      arrayNodes: {},
       rules: {},
     },
   });
+
+  // Monotonic counter used to generate stable item ids for array nodes.
+  // Format: `_arr_<n>`. The leading underscore reserves the namespace
+  // from user-authored path segments (RHF field paths can't start with
+  // an underscore in idiomatic usage), so id collisions with scalar
+  // node paths are structurally impossible. Ids are opaque to
+  // consumers; never parse them.
+  let nextArrayItemId = 0;
+  const generateArrayItemId = (): string => {
+    nextArrayItemId += 1;
+    return `_arr_${nextArrayItemId}`;
+  };
 
   // Create core infrastructure
   const dependencyTracker = new DependencyTracker({ debug });
@@ -379,12 +392,17 @@ export function createEngine<
         console.log('[Engine] Resetting engine');
       }
 
-      // Clear all nodes and rules
+      // Clear all nodes, array nodes, and rules
       store.state.nodes = {};
+      store.state.arrayNodes = {};
       store.state.rules = {};
 
       // Clear dependency tracker
       dependencyTracker.clear();
+
+      // NOTE: `nextArrayItemId` is intentionally NOT reset — item ids
+      // remain monotonic across resets to prevent accidental collisions
+      // if references to old ids linger in consumer state.
     },
 
     /**
@@ -392,6 +410,173 @@ export function createEngine<
      */
     subscribe(callback: () => void): () => void {
       return store.subscribe(callback);
+    },
+
+    // ========================================================================
+    // ARRAY NODE API
+    // ========================================================================
+
+    registerArrayNode(id: string, initialCount = 0): string[] {
+      if (store.state.arrayNodes[id]) {
+        throw new Error(`Array node with id "${id}" already exists`);
+      }
+
+      const ids: string[] = [];
+      for (let i = 0; i < initialCount; i += 1) {
+        ids.push(generateArrayItemId());
+      }
+
+      const arrayNode: ArrayNode = { id, ids };
+      store.state.arrayNodes[id] = arrayNode;
+
+      if (debug) {
+        console.log(
+          `[Engine] Array node registered: ${id} (${initialCount} initial items)`
+        );
+      }
+
+      // Return a copy so callers can't mutate the proxy-backed ids array
+      // through the returned reference.
+      return [...ids];
+    },
+
+    unregisterArrayNode(id: string): void {
+      if (!store.state.arrayNodes[id]) {
+        if (debug) {
+          console.warn(
+            `[Engine] Cannot unregister non-existent array node: ${id}`
+          );
+        }
+        return;
+      }
+
+      delete store.state.arrayNodes[id];
+
+      if (debug) {
+        console.log(`[Engine] Array node unregistered: ${id}`);
+      }
+    },
+
+    getArrayNode(id: string): ArrayNode | undefined {
+      return store.state.arrayNodes[id];
+    },
+
+    getAllArrayNodes(): ArrayNode[] {
+      return Object.values(store.state.arrayNodes);
+    },
+
+    appendArrayItem(id: string): string {
+      const arrayNode = store.state.arrayNodes[id];
+      if (!arrayNode) {
+        throw new Error(`Array node with id "${id}" does not exist`);
+      }
+
+      const itemId = generateArrayItemId();
+      arrayNode.ids.push(itemId);
+
+      if (debug) {
+        console.log(`[Engine] Array item appended: ${id}[${arrayNode.ids.length - 1}] = ${itemId}`);
+      }
+
+      return itemId;
+    },
+
+    insertArrayItem(id: string, atIndex: number): string {
+      const arrayNode = store.state.arrayNodes[id];
+      if (!arrayNode) {
+        throw new Error(`Array node with id "${id}" does not exist`);
+      }
+
+      const clampedIndex = Math.max(0, Math.min(atIndex, arrayNode.ids.length));
+      const itemId = generateArrayItemId();
+      arrayNode.ids.splice(clampedIndex, 0, itemId);
+
+      if (debug) {
+        console.log(
+          `[Engine] Array item inserted: ${id}[${clampedIndex}] = ${itemId}`
+        );
+      }
+
+      return itemId;
+    },
+
+    removeArrayItem(id: string, atIndex: number): void {
+      const arrayNode = store.state.arrayNodes[id];
+      if (!arrayNode) {
+        throw new Error(`Array node with id "${id}" does not exist`);
+      }
+
+      if (atIndex < 0 || atIndex >= arrayNode.ids.length) {
+        if (debug) {
+          console.warn(
+            `[Engine] removeArrayItem out-of-range: ${id}[${atIndex}] (length=${arrayNode.ids.length})`
+          );
+        }
+        return;
+      }
+
+      const removedId = arrayNode.ids[atIndex];
+      arrayNode.ids.splice(atIndex, 1);
+
+      if (debug) {
+        console.log(
+          `[Engine] Array item removed: ${id}[${atIndex}] (was ${removedId})`
+        );
+      }
+    },
+
+    moveArrayItem(id: string, fromIndex: number, toIndex: number): void {
+      const arrayNode = store.state.arrayNodes[id];
+      if (!arrayNode) {
+        throw new Error(`Array node with id "${id}" does not exist`);
+      }
+
+      const len = arrayNode.ids.length;
+      if (
+        fromIndex < 0 ||
+        fromIndex >= len ||
+        toIndex < 0 ||
+        toIndex >= len ||
+        fromIndex === toIndex
+      ) {
+        return;
+      }
+
+      // `fromIndex` is bounds-checked above (`fromIndex < len`) so splice
+      // is guaranteed to return a 1-element array — the assertion is safe.
+      const movedId = arrayNode.ids.splice(fromIndex, 1)[0] as string;
+      arrayNode.ids.splice(toIndex, 0, movedId);
+
+      if (debug) {
+        console.log(
+          `[Engine] Array item moved: ${id}[${fromIndex}] → [${toIndex}] (${movedId})`
+        );
+      }
+    },
+
+    replaceArrayItems(id: string, count: number): string[] {
+      const arrayNode = store.state.arrayNodes[id];
+      if (!arrayNode) {
+        throw new Error(`Array node with id "${id}" does not exist`);
+      }
+
+      const safeCount = Math.max(0, Math.floor(count));
+      const newIds: string[] = [];
+      for (let i = 0; i < safeCount; i += 1) {
+        newIds.push(generateArrayItemId());
+      }
+
+      // Replace the ids array in-place so Valtio subscribers see a single
+      // atomic update rather than a burst of push/splice events.
+      arrayNode.ids.splice(0, arrayNode.ids.length, ...newIds);
+
+      if (debug) {
+        console.log(
+          `[Engine] Array items replaced: ${id} (new length=${safeCount})`
+        );
+      }
+
+      return [...newIds];
     },
   };
 

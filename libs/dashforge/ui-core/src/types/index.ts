@@ -5,8 +5,8 @@
  */
 
 // Node types
-export type { Node, NodeMetadata, NodeUpdate } from './node.types';
-export { isNode } from './node.types';
+export type { ArrayNode, Node, NodeMetadata, NodeUpdate } from './node.types';
+export { isArrayNode, isNode } from './node.types';
 
 // Rule types
 export type { Rule, RuleEffect, UpdateFunction } from './rule.types';
