@@ -18,6 +18,58 @@ bump. Functionally identical to the previous beta tarball.
 
 ## [Unreleased]
 
+### Added
+
+- **`useDashFormState(options?)`** — new hook that subscribes the
+  calling component to React Hook Form's form-level state
+  (`isDirty`, `isValid`, `isSubmitting`, `isSubmitted`,
+  `isValidating`, `submitCount`, `errors`, `dirtyFields`,
+  `touchedFields`, `defaultValues`, `disabled`). Thin wrapper over
+  RHF's `useFormState({ control })` that pulls `control` from the
+  ambient `DashFormContext`; each caller gets its own proxy
+  subscription so form-level flags actually re-render the consumer
+  on change. Fixes README-BUG § BUG 4 — the previous escape hatch
+  (`useDashFormContext().rhf.formState.isDirty`) returned the
+  current value but never re-rendered downstream because RHF's
+  proxy tracking is scoped to `<DashFormProvider>` (the useForm
+  caller). Companion to `useDashFieldMeta` — same idea, at the form
+  aggregate level instead of per-field.
+
+  ```tsx
+  const { isDirty, isSubmitting } = useDashFormState();
+  <Button disabled={!isDirty} loading={isSubmitting}>Save</Button>
+  ```
+
+  Options mirror `useFormState` minus `control` (`{ name }` to scope
+  to specific field(s), `{ exact: true }`, `{ disabled }`).
+
+### Fixed
+
+- **`bridge.setValue` now marks fields dirty + touched**
+  (`DashFormProvider.tsx:452`). Previously called `rhf.setValue(name,
+  value)` without options — default RHF behaviour is `shouldDirty:
+  false`, so any programmatic write via the bridge silently left
+  `formState.dirtyFields` empty and `isDirty` at `false`.
+  `shouldTouch: true` also passes so `touchedFields` reflects the
+  write. `shouldValidate` is deliberately NOT passed: validation
+  timing is governed by the form's `mode` prop, and forcing it here
+  would validate on-change in a form configured `onBlur`.
+
+  Mostly matters for **programmatic** write paths — user input via
+  tw controls already fired `registration.onChange`, and RHF's
+  native path marked dirty through that. The bug bit consumers who
+  called `useDashFormContext().rhf.setValue(...)` through the
+  escape hatch, or `bridge.setValue(...)` directly, or the V3
+  `useDashFieldArray` operations (which write to the array root via
+  `rhf.setValue` — see below).
+
+- **`useDashFieldArray` operations now mark the array root dirty
+  and touched** (same `shouldDirty` / `shouldTouch` pattern as
+  above, applied inside the hook's `setRhfArray` helper). Before,
+  `append` / `remove` / `move` / `insert` / `replace` updated the
+  values but left `formState.isDirty` at `false` — Save buttons
+  gated on `isDirty` never enabled after a list mutation.
+
 ### Changed
 
 - **`useDashFieldArray` rewritten to own its identity through the

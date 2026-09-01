@@ -106,6 +106,20 @@ export { useDashFieldMeta } from './hooks/useDashFieldMeta';
 export type { DashFieldMeta } from './hooks/useDashFieldMeta';
 
 /**
+ * Hook for form-level state subscription.
+ * Companion to `useDashFieldMeta`: same idea, at the form aggregate
+ * level (`isDirty` / `isValid` / `isSubmitting` / `submitCount` / etc.)
+ * instead of per-field. Subscribes the CALLING component to RHF's
+ * `formState` via `useFormState({ control })`, so form-level flags
+ * actually re-render your component on change (a direct read of
+ * `rhf.formState.isDirty` from downstream would return the current
+ * value but never re-render — that's RHF's proxy scoped to
+ * `<DashFormProvider>`).
+ */
+export { useDashFormState } from './hooks/useDashFormState';
+export type { UseDashFormStateProps } from './hooks/useDashFormState';
+
+/**
  * Hook to manage dynamic field arrays.
  * V1: Thin adapter over RHF useFieldArray with Dashforge API.
  * Provides pre-computed field names and stable IDs.

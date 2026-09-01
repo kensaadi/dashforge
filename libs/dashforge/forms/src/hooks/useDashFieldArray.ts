@@ -230,7 +230,17 @@ export function useDashFieldArray<TItem>(
 
   const setRhfArray = useCallback(
     (next: TItem[]) => {
-      rhf.setValue(name as FieldPath<FieldValues>, next as never);
+      // Pass `shouldDirty: true` and `shouldTouch: true` so array
+      // mutations propagate to `formState.isDirty` / `dirtyFields` /
+      // `touchedFields` for consumers gating Save on isDirty via
+      // `useDashFormState`. Default RHF behaviour is `shouldDirty:
+      // false` which silently swallowed array mutations (same
+      // BUG 4 class as `bridge.setValue`, replicated here since the
+      // hook bypasses `bridge.setValue`).
+      rhf.setValue(name as FieldPath<FieldValues>, next as never, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
     },
     [name, rhf]
   );

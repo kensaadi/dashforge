@@ -123,8 +123,9 @@ cards holding a form. It is a patch, and it is commented as one.
 **Severity:** low impact, high time-wasted. No error, no warning — the
 field is simply empty and the prop was accepted by the types.
 
-**Status:** **fixed** 2026-09-01 as a type-surface split (Tier S). See
-*Fixed* section at bottom.
+**Status:** **REOPENED** 2026-09-01, after verifying the fix from the
+consuming kit. The split lands, but it does not cover the case the bug
+was filed for — see *Verification* below.
 
 ### Symptom
 
@@ -153,6 +154,51 @@ This **matches the typings** — `autocomplete.types.d.ts` documents
 mode)"*. So it is coherent, not a regression. The defect is that the
 contract is visible only to somebody who opens the `.d.ts`, while the
 prop is accepted without complaint at the call site.
+
+### Verification of the type-surface split — REOPENS THIS
+
+The split discriminates on the presence of **`rules`**:
+`AutocompleteFormMixin` (which types `defaultValue?: never`) is
+selected when `rules` is passed, `AutocompleteStandaloneMixin` (where
+`defaultValue` is legal) when it is not.
+
+`rules` is optional and most consumers never pass it. So being inside
+a `<DashForm>` — the actual condition for form mode at runtime — does
+not select the form-mode type.
+
+Probed from `inventory-kit` against the built package:
+
+```tsx
+<DashForm defaultValues={{}}>
+  <Autocomplete name="t1" multiple options={TAGS} defaultValue={['a']} />
+  <Autocomplete name="t2" multiple options={TAGS} rules={{}} defaultValue={['a']} />
+</DashForm>
+```
+
+```
+src/Probe.tsx(10,8): error TS2322: ... rules: {}; defaultValue: string[] ...
+```
+
+One error, on `t2`. `t1` compiles clean — and `t1` is the snippet this
+entry was opened with, and the one anybody writes. At runtime it still
+silently renders no chips, since the fix was explicitly type-only.
+
+**Why the discriminant cannot work as chosen.** Form mode is decided
+at runtime by `useContext(DashFormContext)`, and TypeScript cannot see
+a React context. `rules` was picked as a proxy for it and the proxy is
+absent in the common case. Options, none free:
+
+1. **Require `rules` in form mode.** Honest discriminant, but it makes
+   every bridge-bound Autocomplete carry a prop it may not need.
+2. **Runtime dev warning** when `defaultValue` is passed with a bridge
+   present. Catches every case, at the cost of not being compile-time.
+   This is what BUG 2 originally proposed.
+3. **Make it work** — seed the bridge on first mount when
+   `getValue(name)` is `undefined`. Still not recommended: two sources
+   of truth for the initial value.
+
+(2) is the one that actually closes the reported symptom, and it
+composes with the split rather than replacing it.
 
 ### Related, worth checking with the fix
 
@@ -232,8 +278,7 @@ the single-select variant effectively does.
 they change. A `disabled={!isDirty}` Save button can never be pressed,
 and a `loading={isSubmitting}` button never shows its spinner.
 
-**Status:** open. Reproduced 2026-09-01 in `inventory-kit`, against
-`tw@1.5.2` + `forms@1.0.0` linked from the monorepo.
+**Status:** **fixed** 2026-09-01. See *Fixed* section at bottom.
 
 ### CORRECTION — this entry previously named the wrong cause
 
@@ -314,13 +359,176 @@ exactly like the bug it was meant to work around.
 
 ---
 
+## BUG 5 — `<Autocomplete multiple>` (tw): the control overflows its own width by ~6px
+
+**Severity:** cosmetic, but it puts a horizontal scrollbar inside a
+dialog, which reads as unfinished.
+
+**Status:** **fixed** 2026-09-01. See *Fixed* section at bottom.
+
+### Symptom
+
+In a `<Dialog>`, the body grows a horizontal scrollbar under the form.
+Nothing looks wrong until you notice the bar.
+
+### Cause
+
+Measured in `inventory-kit`, *Users & roles* → Edit, on a field 398px
+wide with two chips:
+
+| Element | width | right edge |
+|---|---|---|
+| root (`relative flex items-center`) | 398 | 839 |
+| chips container (`flex flex-wrap`) | 240 | 682 |
+| controls group (`flex flex-nowrap flex-1 min-w-[6rem]`) | 156 | 838 |
+| chevron button (`shrink-0 px-2`) | 30 | **844** |
+
+The chevron sits 6px past its own parent. The controls group is
+`flex-nowrap` with `min-w-[6rem]`; when the chips take enough width,
+the input inside will not shrink below that floor, and the `shrink-0`
+buttons are pushed out rather than wrapped — which is the BUG 3 fix
+working as designed, one pixel too far.
+
+The dialog body is `overflow-y-auto`, and `overflow-x` computes to
+`auto` with it, so the 6px becomes a scrollbar.
+
+### Reproduction (verified)
+
+`inventory-kit`, *Users & roles* → **Edit** on somebody holding two
+roles. `body.scrollWidth` 403 vs `clientWidth` 398.
+
+### Proposed fix
+
+Let the input shrink: `min-w-0` on the controls group, or move the
+`min-w-[6rem]` floor onto the input and allow the group to shrink past
+it. Either keeps the buttons on the line without pushing them out.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
 
 ## Fixed
 
+### BUG 4 — `formState.isDirty` / `isValid` / `isSubmitting` never re-render a consumer
+
+**Fixed** 2026-09-01. See the *open* entry above for the full
+symptom / cause / reproduction. The fix has two prongs — one
+primary, one supplementary:
+
+**Primary (subscribe in the consumer, not in the provider).** A new
+`useDashFormState()` hook is exported from `@dashforge/forms`
+(`libs/dashforge/forms/src/hooks/useDashFormState.ts`). Under the
+hood it's a thin wrapper over RHF's `useFormState({ control })` that
+pulls `control` from the ambient `DashFormContext`. Whichever
+component calls it registers ITS OWN proxy subscription, so
+destructuring `isDirty` / `isValid` / `isSubmitting` / `isSubmitted` /
+`isValidating` / `submitCount` / `errors` / `dirtyFields` /
+`touchedFields` re-renders the caller on change — no need to add the
+flags to the provider's read set, and no cross-tree render cascade
+on every keystroke.
+
+The consumer pattern the workaround was written for now becomes:
+
+```tsx
+import { useDashFormState } from '@dashforge/forms';
+
+function SaveButton() {
+  const { isDirty, isSubmitting } = useDashFormState();
+  return (
+    <Button type="submit" disabled={!isDirty} loading={isSubmitting}>
+      Save
+    </Button>
+  );
+}
+```
+
+The hook also accepts `useFormState`'s options minus `control` — pass
+`{ name: 'email' }` to scope the subscription, `{ exact: true }` to
+tighten the match, etc.
+
+**Supplementary (mark dirty on programmatic writes).**
+`DashFormProvider.tsx:452` now calls `rhf.setValue(name, value,
+{ shouldDirty: true, shouldTouch: true })`. `shouldValidate` is
+deliberately left alone — validation timing is governed by the
+form's `mode` prop, and forcing it here would validate on-change in a
+form configured `onBlur`. This is belt-and-braces for the
+user-input path (tw controls also fire `registration.onChange`, and
+RHF's native path already marks dirty through that) but genuinely
+matters for the **programmatic** write paths: any code that calls
+`useDashFormContext().rhf.setValue` through the escape hatch, or
+`bridge.setValue` directly, or the V3 `useDashFieldArray` operations
+(`append` / `remove` / `move` / `insert` / `replace`) that write to
+the array root via `rhf.setValue`. All those now flip
+`dirtyFields[name]` and `touchedFields[name]` as one would expect,
+so a `useDashFormState`-gated Save button responds to programmatic
+writes too. Applied at:
+
+- `libs/dashforge/forms/src/core/DashFormProvider.tsx:452` — bridge
+  `setValue`.
+- `libs/dashforge/forms/src/hooks/useDashFieldArray.ts` — the
+  V3 hook's `setRhfArray` helper.
+
+**Tests.** New file
+`libs/dashforge/forms/src/hooks/__tests__/useDashFormState.test.tsx`
+covers:
+
+- `bridge.setValue` populates `formState.dirtyFields[name]` and
+  `formState.touchedFields[name]`.
+- `bridge.setValue` flips `formState.isDirty` from `false` to `true`.
+- `useDashFieldArray.append` marks the array root dirty.
+- `useDashFormState()` re-renders the calling component when
+  `isDirty` changes.
+- `useDashFormState({ name })` scopes the subscription to a single
+  field.
+- `useDashFormState()` throws outside `<DashFormProvider>`.
+
+188/188 tests pass (was 181; +7). Zero regression on the existing
+suite. Downstream tw typecheck + tests unchanged.
+
+**Downstream workaround that can now be removed** (do this when the
+next `@dashforge/forms` release ships to consumers):
+
+- `inventory-kit/.../admin/settings/SettingsSection.tsx` — the
+  `useWatch({ control: rhf.control }) + JSON.stringify(values) !==
+  JSON.stringify(mountedWith)` block, the `mountedWith` prop, and
+  the `useWatch` import. Replace with
+  `const { isDirty, isSubmitting } = useDashFormState()`.
+
+### BUG 5 — `<Autocomplete multiple>` (tw): the control overflows its own width by ~6px
+
+**Fixed** 2026-09-01 in the same commit as BUG 4. Introduced by the
+BUG 3 fix — the controls group had `min-w-[6rem]` on both itself and
+the input inside, and the input's floor combined with the
+`shrink-0` clear and chevron buttons produced an intrinsic
+min-content-size of ~156px. When chips consumed enough of the outer
+wrapper's width, the group could not shrink far enough for the
+chevron to fit and it was pushed 6px past the group's right edge —
+which turned into a horizontal scrollbar inside a `<Dialog>`.
+
+The fix:
+
+- Controls group: `min-w-[6rem]` → `min-w-0`. The group can now
+  shrink to any size the outer wrap-context leaves for it.
+- Input: `min-w-[6rem]` → `min-w-0`. The input shrinks under
+  pressure so the two `shrink-0` buttons always fit inside the
+  group.
+
+`libs/dashforge/tw/src/components/Autocomplete/Autocomplete.tsx` —
+the multi-mode controls-row branch. Single mode remains untouched.
+
+The clear × and chevron stay `shrink-0` and reachable in all
+widths; the input becomes narrow at extreme sizes but remains
+usable. The BUG 3 invariant (chevron on same row as input,
+never orphaned) is preserved — `flex-nowrap` still enforces it.
+
+Tests: `2020/2020` pass in tw (Autocomplete keeps its
+30+-tests suite green).
+
 ### BUG 3 — `<Autocomplete multiple>` (tw): the chevron wraps onto its own line in a narrow field
+
+**Fixed** 2026-09-01, with one small regression — see BUG 5.
 
 **Fixed** 2026-09-01. See the *open* entry above for the full
 symptom / cause / reproduction. The fix, in short:
@@ -364,7 +572,9 @@ retried green).
 
 ### BUG 2 — `<Autocomplete>` (tw): `defaultValue` is a silent no-op in form mode
 
-**Fixed** 2026-09-01 as a type-surface split (Tier S — no runtime
+**REOPENED** — see the entry above. The split only fires when `rules`
+is passed, which the reported case does not do. Previously recorded as
+fixed 2026-09-01 as a type-surface split (Tier S — no runtime
 change). See the *open* entry above for the full symptom / cause. The
 key reframe: `defaultValue` (and `value` / `onValueChange`) is
 **exclusively a standalone-mode API**. Form-mode initial values come

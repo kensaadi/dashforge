@@ -42,6 +42,21 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- **`<Autocomplete multiple>` — the control no longer overflows its
+  own width by ~6px** (a regression introduced by the BUG 3 chevron
+  wrap fix earlier in this Unreleased block). The controls group
+  and the input inside it both went from `min-w-[6rem]` to
+  `min-w-0`, so the input can shrink under pressure and the
+  `shrink-0` clear + chevron buttons always fit inside the group.
+  The previous floor combined with the shrink-0 buttons produced an
+  intrinsic min-content-size of ~156px and pushed the chevron 6px
+  past the group's right edge when chips had consumed most of the
+  outer wrapper — which turned into a horizontal scrollbar inside
+  a `<Dialog>` (whose body is `overflow-y-auto` and so computes
+  `overflow-x: auto`). The BUG 3 invariant is preserved: the
+  chevron stays on the same row as the input, never orphaned.
+  Fixes README-BUG § BUG 5.
+
 - **`<Autocomplete multiple>` — the chevron no longer wraps onto its
   own line on narrow fields.** Multi mode's outer `flex-wrap`
   context (needed so chip rows can grow vertically) used to let the

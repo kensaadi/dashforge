@@ -450,9 +450,21 @@ export function DashFormProvider<
         return submitCountRef.current;
       },
       setValue: (name: string, value: unknown) => {
+        // BUG 4 fix: pass `shouldDirty: true` and `shouldTouch: true` so
+        // any consumer that reads `formState.isDirty` /
+        // `formState.dirtyFields` / `formState.touchedFields` (directly
+        // or via `useDashFormState`) actually sees the change. Default
+        // RHF `setValue` behaviour is `shouldDirty: false`, which was
+        // silently swallowing every bridge write and breaking
+        // Save-button gates like `disabled={!isDirty}`. `shouldValidate`
+        // is deliberately NOT passed: validation timing is governed by
+        // the form's `mode` prop, and forcing it here would validate
+        // on-change in a form configured `onBlur`.
+        // See `libs/dashforge/README-BUG.md` § BUG 4.
         rhf.setValue(
           name as FieldPath<TFieldValues>,
-          value as PathValue<TFieldValues, FieldPath<TFieldValues>>
+          value as PathValue<TFieldValues, FieldPath<TFieldValues>>,
+          { shouldDirty: true, shouldTouch: true }
         );
       },
       getValue: (name: string) => {

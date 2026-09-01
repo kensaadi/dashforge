@@ -309,6 +309,91 @@ methods for arrays.
 `field.id` is opaque and session-local — it is stable for the lifetime
 of the form but must not be serialised or sent to another session.
 
+## Form-level state subscription
+
+`useDashFormState()` subscribes THIS component to React Hook Form's
+form-level state — `isDirty`, `isValid`, `isSubmitting`, `isSubmitted`,
+`isValidating`, `submitCount`, `errors`, `dirtyFields`, `touchedFields`.
+Use it wherever the UI reacts to the form as a whole: gating a Save
+button on dirtiness, disabling controls during submission, showing a
+"you have unsaved changes" banner, rendering a validation-error
+summary.
+
+```tsx
+import { DashForm, useDashFormState } from '@dashforge/forms';
+import { Button, TextField } from '@dashforge/tw';
+
+function Fields() {
+  const { isDirty, isSubmitting } = useDashFormState();
+  return (
+    <>
+      <TextField name="email" />
+      <TextField name="name" />
+      <Button type="submit" disabled={!isDirty} loading={isSubmitting}>
+        Save
+      </Button>
+    </>
+  );
+}
+
+<DashForm defaultValues={{ email: '', name: '' }} onSubmit={save}>
+  <Fields />
+</DashForm>;
+```
+
+### Why a dedicated hook rather than `rhf.formState.isDirty`
+
+React Hook Form's `formState` is a Proxy — it tracks WHICH properties
+you access and re-renders only the component **that called `useForm`**
+when a tracked property changes. Inside Dashforge that caller is
+`<DashFormProvider>`, not your component. Reading
+`useDashFormContext().rhf.formState.isDirty` from a nested component
+returns the current value but does not re-render your component on
+change.
+
+`useDashFormState()` is a thin wrapper over RHF's
+`useFormState({ control })` that pulls `control` from the ambient
+context, so the subscription is scoped to the caller — same
+per-component tracking, no proxy trap.
+
+### Scoping the subscription
+
+Pass `useFormState`'s options (minus `control`) through to `useDashFormState`:
+
+```tsx
+// Re-render only when the `email` field's state changes:
+const { errors, isValidating } = useDashFormState({ name: 'email' });
+
+// Watch a small set of fields:
+const state = useDashFormState({ name: ['email', 'password'] });
+
+// Exact match on names, or opt-out of change subscription while disabled:
+const state = useDashFormState({ name: 'draft', exact: true, disabled: false });
+```
+
+### Companion to `useDashFieldMeta`
+
+The two hooks split responsibility along one axis:
+
+- **`useDashFieldMeta(name)`** — per-field state
+  (`value` / `error` / `touched` / `dirty` / `submitCount` /
+  `allowAutoError`). Field components use this internally; consumer
+  code rarely needs it.
+- **`useDashFormState(options?)`** — form-level aggregates
+  (`isDirty` / `isValid` / `isSubmitting` / etc.). Consumer code
+  uses this to gate submit buttons, unsaved-changes guards,
+  loading indicators.
+
+### Programmatic writes flip dirty + touched
+
+Writes made through `bridge.setValue` (or through the array
+operations of `useDashFieldArray`) automatically flip
+`formState.dirtyFields[name]` and `formState.touchedFields[name]` —
+they pass `{ shouldDirty: true, shouldTouch: true }` under the hood.
+So `useDashFormState().isDirty` correctly reflects programmatic
+writes, not only user input via UI controls. `shouldValidate` is not
+forced; validation timing stays governed by the form's `mode` prop.
+
 ---
 
 ## The escape hatch — `useDashFormContext`
@@ -474,6 +559,7 @@ state), or user input (via a real field bound to the value).
 | `useDashFieldNode(name)` | Engine node handle + reactive value | Access an Engine node from inside a provider. Throws if outside. |
 | `useFieldRuntime<T>(name)` | `FieldRuntimeState<T>` | Read runtime state (loading / options / error) for a field. Silent no-op outside a provider. |
 | `useDashFieldArray(name)` | `{ fields, append, remove, move, insert, replace }` | Manage dynamic lists of fields with engine-owned stable ids that survive mount/unmount cycles (wizard steps, tabs). Throws if outside a provider. |
+| `useDashFormState(options?)` | `UseFormStateReturn` (RHF) — `{ isDirty, isValid, isSubmitting, isSubmitted, isValidating, submitCount, errors, dirtyFields, touchedFields, defaultValues, disabled }` | Subscribe THIS component to RHF's form-level state. Companion to `useDashFieldMeta` at form aggregate level. Accepts `useFormState` options minus `control`. Throws if outside a provider. |
 
 ### Context
 
@@ -487,7 +573,7 @@ state), or user input (via a real field bound to the value).
 - `DashFormProps`, `DashFormProviderProps`, `DashFormContextValue`, `DashFormConfig` — component + context types.
 - `ReactionDefinition`, `ReactionRunContext`, `ReactionWhenContext` — reaction authoring types.
 - `FieldRuntimeState`, `SelectFieldRuntimeData`, `FieldFetchStatus` — runtime state types.
-- `DashFieldMeta`, `UseDashRegisterResult`, `UseDashFieldArrayReturn`, `DashFieldArrayItem` — hook return types.
+- `DashFieldMeta`, `UseDashRegisterResult`, `UseDashFieldArrayReturn`, `DashFieldArrayItem`, `UseDashFormStateProps` — hook return / option types.
 
 ### Internal / advanced
 

@@ -965,7 +965,16 @@ export function Autocomplete<TOption = AutocompleteOption>(
         {isMulti ? (
           <div
             className={cn(
-              'flex items-center flex-nowrap flex-1 min-w-[6rem]',
+              // `min-w-0` on the controls group (and on the input
+              // below) so the input can shrink when chips have taken
+              // most of the outer wrapper's width. Without it, the
+              // group's intrinsic min-content-size (input floor +
+              // shrink-0 buttons) pushed the chevron past the right
+              // edge by ~6px, which turned into a horizontal scrollbar
+              // inside a `<Dialog>` (whose body is `overflow-y-auto`
+              // and so computes `overflow-x: auto`). See BUG 5 in
+              // README-BUG.md — the regression from the BUG 3 fix.
+              'flex items-center flex-nowrap flex-1 min-w-0',
               // The gap keeps the clear × visually separated from the
               // chevron when both are present.
               hasAnySelection && !effectiveDisabled && !effectiveReadOnly && 'gap-0.5'
@@ -1001,11 +1010,15 @@ export function Autocomplete<TOption = AutocompleteOption>(
               autoComplete="off"
               // `flex-1` inside the non-wrap controls row: the input
               // expands to consume whatever the controls-row has left
-              // after the two buttons. `basis-24` keeps a minimum
-              // clickable target even when the chevron/clear crowd it.
+              // after the two buttons. `basis-24` is the *preferred*
+              // starting size; `min-w-0` lets the input shrink below
+              // that when chips have consumed most of the outer
+              // wrapper — same BUG 5 rationale as the group's
+              // `min-w-0`. Buttons stay `shrink-0` and always
+              // reachable; the input becomes narrow but still usable.
               className={cn(
                 v.input(),
-                'min-w-[6rem] flex-1 basis-24',
+                'min-w-0 flex-1 basis-24',
                 themeSlotProps?.input?.className, slotProps?.input?.className
               )}
             />
