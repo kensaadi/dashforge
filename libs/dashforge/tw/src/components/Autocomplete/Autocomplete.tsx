@@ -10,6 +10,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react';
+import * as RadixPopover from '@radix-ui/react-popover';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
@@ -875,6 +876,27 @@ export function Autocomplete<TOption = AutocompleteOption>(
         </label>
       )}
 
+      {/*
+        Portal the listbox out of the DOM subtree so ancestor
+        `overflow: hidden` / `overflow: auto` cannot clip it (fixes
+        the "cannot use Autocomplete inside a modal / SectionCard"
+        fault-line — see libs/dashforge/README-BUG.md § BUG 1).
+
+        We drive Radix's Popover ourselves via `open` / `onOpenChange`
+        so the existing keyboard model, blur handling and focus
+        management on the input stay in charge. The Anchor is the
+        input wrapper; the Portal/Content renders the listbox
+        anywhere in the DOM and anchors it to the anchor with
+        Radix's flip/shift collision handling.
+      */}
+      <RadixPopover.Root
+        open={isOpen}
+        onOpenChange={(next) => {
+          if (!next) setIsOpen(false);
+        }}
+        modal={false}
+      >
+      <RadixPopover.Anchor asChild>
       <div
         className={cn(
           v.inputWrapper(),
@@ -926,78 +948,182 @@ export function Autocomplete<TOption = AutocompleteOption>(
           </div>
         )}
 
-        <input
-          ref={inputRef}
-          id={`${baseId}-input`}
-          name={name}
-          type="text"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded={isOpen}
-          aria-controls={isOpen ? listboxId : undefined}
-          aria-activedescendant={activeOptionId}
-          aria-labelledby={label ? labelId : undefined}
-          aria-describedby={resolvedHelperText ? helperId : undefined}
-          aria-invalid={resolvedError ? true : undefined}
-          aria-required={required ? true : undefined}
-          placeholder={
-            // In multi mode hide the placeholder once the user has at
-            // least one chip — the chips already convey "something is
-            // selected" and the placeholder would clutter the UI.
-            isMulti && selectedKeys.size > 0 ? undefined : placeholder
-          }
-          value={displayInputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={openPopover}
-          onBlur={handleBlur}
-          disabled={effectiveDisabled}
-          readOnly={effectiveReadOnly}
-          autoComplete="off"
-          // Multi mode: give the input some min-width so it stays
-          // clickable even with many chips, and let it shrink/grow with
-          // the available row space.
-          className={cn(
-            v.input(),
-            isMulti && 'min-w-[6rem] flex-1 basis-24',
-            themeSlotProps?.input?.className, slotProps?.input?.className
-          )}
-        />
+        {/*
+          In multi mode the outer inputWrapper is `flex-wrap` (so chip
+          rows can grow vertically without capping height). That
+          wrapping context used to let the chevron drop onto its own
+          orphan row on narrow fields (README-BUG § BUG 3) — the
+          input, clear button and chevron were all direct flex-wrap
+          children and any width shortfall bumped the last one to a
+          new line.
 
-        {hasAnySelection && !effectiveDisabled && !effectiveReadOnly && (
-          <button
-            type="button"
-            onMouseDown={preventBlur}
-            onClick={handleClearClick}
-            aria-label="Clear selection"
-            tabIndex={-1}
-            className={cn(v.clearButton(), themeSlotProps?.clearButton?.className, slotProps?.clearButton?.className)}
+          The fix (multi mode only): wrap the three interactive
+          controls in a non-wrap flex row of their own, so the outer
+          wrap only affects the chips vs. the controls row as a whole.
+          Single mode is untouched (no wrapping context, no problem).
+        */}
+        {isMulti ? (
+          <div
+            className={cn(
+              'flex items-center flex-nowrap flex-1 min-w-[6rem]',
+              // The gap keeps the clear × visually separated from the
+              // chevron when both are present.
+              hasAnySelection && !effectiveDisabled && !effectiveReadOnly && 'gap-0.5'
+            )}
           >
-            <CloseIcon />
-          </button>
+            <input
+              ref={inputRef}
+              id={`${baseId}-input`}
+              name={name}
+              type="text"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={isOpen}
+              aria-controls={isOpen ? listboxId : undefined}
+              aria-activedescendant={activeOptionId}
+              aria-labelledby={label ? labelId : undefined}
+              aria-describedby={resolvedHelperText ? helperId : undefined}
+              aria-invalid={resolvedError ? true : undefined}
+              aria-required={required ? true : undefined}
+              placeholder={
+                // In multi mode hide the placeholder once the user has
+                // at least one chip — chips already convey "something
+                // is selected".
+                selectedKeys.size > 0 ? undefined : placeholder
+              }
+              value={displayInputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              onFocus={openPopover}
+              onBlur={handleBlur}
+              disabled={effectiveDisabled}
+              readOnly={effectiveReadOnly}
+              autoComplete="off"
+              // `flex-1` inside the non-wrap controls row: the input
+              // expands to consume whatever the controls-row has left
+              // after the two buttons. `basis-24` keeps a minimum
+              // clickable target even when the chevron/clear crowd it.
+              className={cn(
+                v.input(),
+                'min-w-[6rem] flex-1 basis-24',
+                themeSlotProps?.input?.className, slotProps?.input?.className
+              )}
+            />
+
+            {hasAnySelection && !effectiveDisabled && !effectiveReadOnly && (
+              <button
+                type="button"
+                onMouseDown={preventBlur}
+                onClick={handleClearClick}
+                aria-label="Clear selection"
+                tabIndex={-1}
+                className={cn(v.clearButton(), themeSlotProps?.clearButton?.className, slotProps?.clearButton?.className)}
+              >
+                <CloseIcon />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onMouseDown={preventBlur}
+              onClick={handleTriggerClick}
+              aria-label="Open"
+              aria-haspopup="listbox"
+              aria-expanded={isOpen}
+              tabIndex={-1}
+              disabled={effectiveDisabled}
+              className={cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className)}
+            >
+              <ChevronDownIcon />
+            </button>
+          </div>
+        ) : (
+          <>
+            <input
+              ref={inputRef}
+              id={`${baseId}-input`}
+              name={name}
+              type="text"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={isOpen}
+              aria-controls={isOpen ? listboxId : undefined}
+              aria-activedescendant={activeOptionId}
+              aria-labelledby={label ? labelId : undefined}
+              aria-describedby={resolvedHelperText ? helperId : undefined}
+              aria-invalid={resolvedError ? true : undefined}
+              aria-required={required ? true : undefined}
+              placeholder={placeholder}
+              value={displayInputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              onFocus={openPopover}
+              onBlur={handleBlur}
+              disabled={effectiveDisabled}
+              readOnly={effectiveReadOnly}
+              autoComplete="off"
+              className={cn(
+                v.input(),
+                themeSlotProps?.input?.className, slotProps?.input?.className
+              )}
+            />
+
+            {hasAnySelection && !effectiveDisabled && !effectiveReadOnly && (
+              <button
+                type="button"
+                onMouseDown={preventBlur}
+                onClick={handleClearClick}
+                aria-label="Clear selection"
+                tabIndex={-1}
+                className={cn(v.clearButton(), themeSlotProps?.clearButton?.className, slotProps?.clearButton?.className)}
+              >
+                <CloseIcon />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onMouseDown={preventBlur}
+              onClick={handleTriggerClick}
+              aria-label="Open"
+              aria-haspopup="listbox"
+              aria-expanded={isOpen}
+              tabIndex={-1}
+              disabled={effectiveDisabled}
+              className={cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className)}
+            >
+              {/*
+               * Chevron flips up when popover is open (CSS-only, driven
+               * by the `aria-expanded` attribute selector on the parent
+               * `<button>`). See autocomplete.variants.ts → `trigger`
+               * slot for the `aria-expanded:rotate-180` rule.
+               */}
+              <ChevronDownIcon />
+            </button>
+          </>
         )}
 
-        <button
-          type="button"
-          onMouseDown={preventBlur}
-          onClick={handleTriggerClick}
-          aria-label="Open"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-          tabIndex={-1}
-          disabled={effectiveDisabled}
-          className={cn(v.trigger(), themeSlotProps?.trigger?.className, slotProps?.trigger?.className)}
-        >
-          {/*
-           * Chevron flips up when popover is open (CSS-only, driven by
-           * the `aria-expanded` attribute selector on the parent
-           * `<button>`). See autocomplete.variants.ts → `trigger` slot
-           * for the `aria-expanded:rotate-180` rule.
-           */}
-          <ChevronDownIcon />
-        </button>
+      </div>
+      </RadixPopover.Anchor>
 
-        {isOpen && (
+      {isOpen && (
+      <RadixPopover.Portal>
+        <RadixPopover.Content
+          asChild
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          collisionPadding={8}
+          // Anchor width → listbox width (Radix exposes this CSS var).
+          style={{ width: 'var(--radix-popover-trigger-width)' }}
+          // Focus stays on the combobox input; Radix must not steal it.
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          // The input's own onKeyDown handles Escape (closes + refocuses
+          // input). Radix's default Escape also closes via onOpenChange,
+          // which we already handle — no conflict, both flow into
+          // setIsOpen(false).
+        >
           <ul
             ref={listboxRef}
             id={listboxId}
@@ -1005,7 +1131,6 @@ export function Autocomplete<TOption = AutocompleteOption>(
             aria-labelledby={label ? labelId : undefined}
             className={cn(
               v.popover(),
-              'absolute left-0 right-0 top-full',
               v.listBox(),
               themeSlotProps?.popover?.className, slotProps?.popover?.className,
               themeSlotProps?.listBox?.className, slotProps?.listBox?.className
@@ -1061,8 +1186,10 @@ export function Autocomplete<TOption = AutocompleteOption>(
               })
             )}
           </ul>
-        )}
-      </div>
+        </RadixPopover.Content>
+      </RadixPopover.Portal>
+      )}
+      </RadixPopover.Root>
 
       {resolvedHelperText && (
         <p

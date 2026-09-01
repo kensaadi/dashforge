@@ -85,21 +85,14 @@ export interface AutocompleteSlotProps {
 export type AutocompleteValue = string | string[] | null;
 
 /**
- * Props for `<Autocomplete>`.
+ * Common `<Autocomplete>` props shared by both mode variants (bridge /
+ * standalone). Not a public export — consumers use `AutocompleteProps`,
+ * which merges these with a mode-specific mixin (`AutocompleteFormMixin`
+ * or `AutocompleteStandaloneMixin`).
  *
- * Bridge-integrated single-select combobox with full ARIA combobox
- * a11y, keyboard navigation, and Form Closure v1 error gating.
- *
- * Mirrors the MUI-side `@dashforge/ui/Autocomplete` at the bridge
- * level — same `name` / `rules` / `visibleWhen` / `access` semantics,
- * same StrictMode-safe unregister-on-unmount.
- *
- * @typeParam TOption  Shape of an option. Defaults to
- *                     `AutocompleteOption` (`{ value, label, disabled? }`).
- *                     Pass `<TOption>` + `getOptionValue` / `getOptionLabel`
- *                     for arbitrary domain types.
+ * @internal
  */
-export interface AutocompleteProps<TOption = AutocompleteOption> {
+interface AutocompleteBaseProps<TOption = AutocompleteOption> {
   /**
    * Density tier — drives wrapper padding + input font-size.
    * @default 'md'
@@ -119,11 +112,12 @@ export interface AutocompleteProps<TOption = AutocompleteOption> {
    */
   fullWidth?: AutocompleteVariants['fullWidth'];
 
-  /** Bridge field name (required when used inside `DashFormProvider`). */
+  /**
+   * Field name — used for the HTML `<input name>` attribute and, when a
+   * `DashFormProvider` is present in the tree, as the bridge registration
+   * key. Required in both modes.
+   */
   name: string;
-
-  /** RHF validation rules — opaque, forwarded to the bridge. */
-  rules?: unknown;
 
   /** Selectable options — an array of `TOption` (defaults to `AutocompleteOption`). */
   options: TOption[];
@@ -169,12 +163,6 @@ export interface AutocompleteProps<TOption = AutocompleteOption> {
   sx?: string;
   /** Per-slot className overrides. */
   slotProps?: AutocompleteSlotProps;
-  /** Controlled value (form mode reads from the bridge if omitted). */
-  value?: AutocompleteValue;
-  /** Default value for uncontrolled mode (no-op in form mode). */
-  defaultValue?: AutocompleteValue;
-  /** Fires when the user picks an option (after bridge update in form mode). */
-  onValueChange?: (value: AutocompleteValue) => void;
   /** Fallback text when no option matches the typed filter. */
   emptyMessage?: string;
 
@@ -265,3 +253,101 @@ export interface AutocompleteProps<TOption = AutocompleteOption> {
    */
   getOptionKey?: (option: TOption) => string;
 }
+
+/**
+ * Mode mixin for bridge-integrated (form) use — the component is
+ * mounted under a `<DashFormProvider>` and reads / writes values
+ * through the bridge.
+ *
+ * The controlled / uncontrolled value props (`value`, `defaultValue`,
+ * `onValueChange`) are **forbidden by construction** in this mode.
+ * Initial values live on `<DashForm defaultValues={...}>`, current
+ * value comes from the bridge, and consumer notifications go through
+ * `<DashForm onSubmit={...}>` / reactions. Passing any of the
+ * controlled props in this mode was previously a silent runtime no-op
+ * (README-BUG § BUG 2) — the type surface now catches it at
+ * compile time.
+ *
+ * The presence of `rules` marks a component as form-mode-only.
+ *
+ * @internal
+ */
+interface AutocompleteFormMixin {
+  /** RHF validation rules — opaque, forwarded to the bridge. */
+  rules?: unknown;
+
+  /**
+   * Not available in form mode. Values in form mode come from
+   * `<DashForm defaultValues={...}>` via the bridge.
+   */
+  value?: never;
+  /**
+   * Not available in form mode. Set initial values on
+   * `<DashForm defaultValues={...}>` instead.
+   */
+  defaultValue?: never;
+  /**
+   * Not available in form mode. Use `<DashForm onSubmit={...}>` or
+   * a reaction watching this field name.
+   */
+  onValueChange?: never;
+}
+
+/**
+ * Mode mixin for standalone (controlled / uncontrolled) use — the
+ * component is mounted outside a `<DashFormProvider>`, or the consumer
+ * deliberately wants to bypass the bridge and manage state locally.
+ *
+ * The `rules` prop is **forbidden by construction** in this mode
+ * (no bridge → nowhere to forward rules to).
+ *
+ * @internal
+ */
+interface AutocompleteStandaloneMixin {
+  /**
+   * Not available in standalone mode. There is no bridge to forward
+   * rules to — validate at the consumer level.
+   */
+  rules?: never;
+
+  /** Controlled value. */
+  value?: AutocompleteValue;
+  /** Default value (uncontrolled). */
+  defaultValue?: AutocompleteValue;
+  /** Fires when the user picks an option. */
+  onValueChange?: (value: AutocompleteValue) => void;
+}
+
+/**
+ * Props for `<Autocomplete>`.
+ *
+ * Bridge-integrated single-select combobox with full ARIA combobox
+ * a11y, keyboard navigation, and Form Closure v1 error gating.
+ *
+ * Mirrors the MUI-side `@dashforge/ui/Autocomplete` at the bridge
+ * level — same `name` / `rules` / `visibleWhen` / `access` semantics,
+ * same StrictMode-safe unregister-on-unmount.
+ *
+ * ## Two modes, mutually exclusive at the type level
+ *
+ * `AutocompleteProps` is a **discriminated union** of two modes:
+ *
+ * - **Form mode** (`AutocompleteFormMixin`) — component runs inside
+ *   `<DashFormProvider>`. Passing `rules` marks this variant. The
+ *   controlled/uncontrolled value props (`value`, `defaultValue`,
+ *   `onValueChange`) are typed as `never` and rejected at compile
+ *   time. Initial values come from `<DashForm defaultValues={...}>`,
+ *   current value from the bridge.
+ * - **Standalone mode** (`AutocompleteStandaloneMixin`) — component
+ *   is uncontrolled or consumer-controlled via `value` /
+ *   `defaultValue` / `onValueChange`. The `rules` prop is typed as
+ *   `never` in this branch (no bridge to forward to).
+ *
+ * @typeParam TOption  Shape of an option. Defaults to
+ *                     `AutocompleteOption` (`{ value, label, disabled? }`).
+ *                     Pass `<TOption>` + `getOptionValue` / `getOptionLabel`
+ *                     for arbitrary domain types.
+ */
+export type AutocompleteProps<TOption = AutocompleteOption> =
+  AutocompleteBaseProps<TOption> &
+    (AutocompleteFormMixin | AutocompleteStandaloneMixin);

@@ -12,6 +12,63 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [Unreleased]
+
+### Changed
+
+- **`<Autocomplete>` — `AutocompleteProps` split into a discriminated
+  union of two mode variants** (form / standalone) to close the
+  type-surface bug where controlled/uncontrolled value props
+  (`value`, `defaultValue`, `onValueChange`) were accepted alongside
+  `rules` and silently ignored at runtime in form mode. The runtime
+  behaviour is unchanged (form-mode initial values still come from
+  `<DashForm defaultValues={...}>` via the bridge); the fix is
+  purely at the TypeScript layer:
+
+  - `AutocompleteFormMixin` marks form mode via optional `rules`;
+    the controlled/uncontrolled props are typed `never`.
+  - `AutocompleteStandaloneMixin` marks standalone mode via optional
+    `value` / `defaultValue` / `onValueChange`; `rules` is typed
+    `never`.
+  - Consumer surface `AutocompleteProps<TOption>` still exports as a
+    single name — the discrimination is transparent at import sites.
+
+  Consumer misuse audit (dash, docs-lab, kits) surfaced zero existing
+  callers with the mixed-mode pattern, so no downstream code
+  changes are required. Type-regression pinned by
+  `autocomplete.props.type-test.ts` (compile-only, three
+  `@ts-expect-error` markers). See `libs/dashforge/README-BUG.md`
+  § BUG 2 for the full context.
+
+### Fixed
+
+- **`<Autocomplete multiple>` — the chevron no longer wraps onto its
+  own line on narrow fields.** Multi mode's outer `flex-wrap`
+  context (needed so chip rows can grow vertically) used to let the
+  chevron drop onto an orphan row whenever the row width fell below
+  ~400px with two or more chips, producing a 90px-tall control with
+  an empty band. The fix keeps the `flex-wrap` on the outer wrapper
+  (so chips still wrap freely) but nests the input, clear `×` and
+  chevron in a `flex-nowrap` inner row of their own — that inner
+  row is structurally indivisible, so the chevron can never orphan.
+  Single-mode DOM is unchanged. See `libs/dashforge/README-BUG.md`
+  § BUG 3 for the full context and the DOM verification.
+- **`<Autocomplete>` — the listbox is now portaled** to `document.body`
+  via `RadixPopover.Portal`, so ancestor `overflow: hidden` /
+  `overflow: auto` containers can no longer clip it. Fixes the
+  fault-line that made "multi-select in a modal form" unusable
+  (`<Dialog><DashForm><Autocomplete multiple/></DashForm></Dialog>`
+  clipped the dropdown at the dialog body's scroll boundary, and the
+  same happened inside any `overflow-hidden` card such as the
+  `inventory-kit` `SectionCard`). See `libs/dashforge/README-BUG.md`
+  § BUG 1 for the full context. Width is still tied to the anchor
+  (via Radix's `--radix-popover-trigger-width` CSS var), keyboard
+  model / `aria-controls` / `aria-activedescendant` / `preventBlur`
+  on options are unchanged, and Radix's focus management is
+  intentionally disabled so focus stays on the input as before.
+  Downstream `overflowVisible`-prop workarounds can be removed
+  when this ships.
+
 ## [1.5.2] — 2026-08-30
 
 ### Fixed
