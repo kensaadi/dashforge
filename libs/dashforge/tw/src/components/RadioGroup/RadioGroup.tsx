@@ -1,6 +1,10 @@
 import { useContext, useEffect, useId, useRef } from 'react';
 import * as RadixRadioGroup from '@radix-ui/react-radio-group';
-import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import {
+  DashFormContext,
+  useEngineVisibility,
+  useWarnIfControlledInFormMode,
+} from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
@@ -117,6 +121,16 @@ export function RadioGroup(props: RadioGroupProps) {
     explicitValue,
     onValueChange,
   );
+
+  // Mirror of the above: warn if under a <DashFormProvider> AND the
+  // consumer passed controlled-mode props (silently ignored in form
+  // mode). See BUG 2 in libs/dashforge/README-BUG.md. Zero cost in
+  // production.
+  useWarnIfControlledInFormMode('RadioGroup', name, {
+    value: explicitValue,
+    defaultValue,
+    onValueChange,
+  });
 
   // ───── Early returns ─────
   if (!isVisible) return null;

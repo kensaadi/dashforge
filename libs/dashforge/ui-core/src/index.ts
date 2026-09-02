@@ -137,6 +137,9 @@ export {
 
   // Visibility hooks
   useEngineVisibility,
+
+  // Dev-mode warnings for bridge-integrated field components
+  useWarnIfControlledInFormMode,
 } from './react';
 
 export type { EngineProviderProps, EngineFieldResult } from './react';

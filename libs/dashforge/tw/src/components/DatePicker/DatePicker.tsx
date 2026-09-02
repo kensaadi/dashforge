@@ -1,5 +1,9 @@
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
-import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import {
+  DashFormContext,
+  useEngineVisibility,
+  useWarnIfControlledInFormMode,
+} from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import { parseISODate } from '@dashforge/calendar-core';
@@ -137,6 +141,16 @@ export function DatePicker(_props: DatePickerProps) {
       });
     };
   }, []);
+
+  // Dev-mode warning: if under <DashFormProvider> AND the consumer
+  // passed controlled-mode props (silently ignored in form mode),
+  // fire once per (component, name, prop). Zero cost in prod. See
+  // BUG 2 in libs/dashforge/README-BUG.md.
+  useWarnIfControlledInFormMode('DatePicker', name, {
+    value: explicitValue,
+    defaultValue,
+    onChange,
+  });
 
   // ───── Derived ─────
   const effectiveDisabled = Boolean(disabled) || accessState.disabled;

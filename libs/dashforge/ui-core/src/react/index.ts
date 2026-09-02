@@ -27,3 +27,6 @@ export type { EngineFieldResult } from './useEngineField';
 
 // Visibility hooks
 export { useEngineVisibility } from './useEngineVisibility';
+
+// Dev-mode warnings for bridge-integrated field components
+export { useWarnIfControlledInFormMode } from './useWarnIfControlledInFormMode';

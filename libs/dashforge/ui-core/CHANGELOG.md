@@ -13,6 +13,29 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ### Added
 
+- **`useWarnIfControlledInFormMode(componentName, name, controlledProps)`** —
+  new React hook (`src/react/useWarnIfControlledInFormMode.ts`, exported
+  from the package top-level). Fires a `console.warn` in dev mode when
+  a bridge-integrated field component is mounted under a
+  `<DashFormProvider>` AND the consumer has passed any of the
+  controlled / uncontrolled value props (`value` / `defaultValue` /
+  `onValueChange` / `onChange` — whichever the component exposes).
+  Reads the same `DashFormContext` the component reads (single source
+  of truth) and dedups on `(componentName, name, propKey)` so a
+  component that re-renders many times only warns once per prop, ever.
+  Guarded by `process.env.NODE_ENV !== 'production'` so bundlers dead-
+  code the effect body in shipped consumer builds — zero runtime cost
+  in production.
+
+  This is the runtime rete for README-BUG § BUG 2 — closes the case
+  the type-side discriminant (splitting props on `rules` presence)
+  cannot see, because TypeScript has no visibility into React context.
+  Applied to Autocomplete / Select / RadioGroup / DatePicker in the
+  first pass (see `@dashforge/tw`'s CHANGELOG); the remaining 10
+  bridge components follow in a consistency pass.
+
+
+
 - **`ArrayNode` interface** (`src/types/node.types.ts`) — models an
   ordered collection whose identity (stable ids) is owned by the
   engine. Item values live outside the engine; the array node only

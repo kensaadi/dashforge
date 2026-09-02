@@ -123,9 +123,9 @@ cards holding a form. It is a patch, and it is commented as one.
 **Severity:** low impact, high time-wasted. No error, no warning — the
 field is simply empty and the prop was accepted by the types.
 
-**Status:** **REOPENED** 2026-09-01, after verifying the fix from the
-consuming kit. The split lands, but it does not cover the case the bug
-was filed for — see *Verification* below.
+**Status:** **fixed** 2026-09-02, this time with the runtime rete
+that closes the case the type-side split cannot see. See the *Fixed*
+section at bottom for the full write-up.
 
 ### Symptom
 
@@ -403,6 +403,81 @@ Let the input shrink: `min-w-0` on the controls group, or move the
 `min-w-[6rem]` floor onto the input and allow the group to shrink past
 it. Either keeps the buttons on the line without pushing them out.
 
+### Verified fixed from the consuming kit
+
+`inventory-kit`, *Users & roles* → Edit, two chips, 398px field, on the
+`eb02888` build:
+
+```
+clientWidth 398   scrollWidth 398   overflowing elements: none
+```
+
+The children still measure the same — chips 240, controls group 156,
+root 398 — and nothing exceeds its parent now. No scrollbar in the
+dialog.
+
+---
+
+## Gaps
+
+Not defects — the code does what it says. Missing capability, or an
+inconsistency between components, that a consumer hits and has to work
+around. Kept here because the workarounds live downstream and somebody
+should be able to find out why.
+
+### GAP 1 — `<NumberField>` has no inline adornment; `<TextField>` does
+
+**Found** 2026-09-01 in `inventory-kit`, *Settings → Operations*.
+
+`TextField` ships inline adornments through `slotProps`:
+
+```tsx
+slotProps={{ prefix: { children: '$' }, suffix: { children: 'USD' } }}
+```
+
+Its own doc comment uses currency as the example. `NumberField` has no
+equivalent: its `slotProps` are `{ className }` only — `root`, `label`,
+`requiredMark`, `inputWrapper`, `input`, `stepper`, `stepperButton`,
+`helperText`, `errorText` — with nowhere to put children.
+
+It is the wrong way round. A bare string rarely needs a unit; a bare
+number almost always does. `100` is not `EUR 100` and is not `100%`,
+and the component that cannot say which is the numeric one.
+
+Verified side by side:
+
+```
+TextField    [ EUR  100                    .00 ]   ← unit inside the field
+NumberField  Approval threshold (EUR)
+             [                     100      ▲▼ ]   ← unit stranded in the label
+```
+
+**Workaround downstream.** The unit is written into the label:
+`inventory-kit/.../admin/settings/SettingsPage.tsx` has
+`label="Over-receipt tolerance (%)"` and
+``label={`Approval threshold (${baseCurrency})`}``. It reads acceptably
+and it is not right: a label names the field, a suffix qualifies the
+value, and a parenthetical is a label doing a suffix's job. It also
+loses the unit the moment the label is truncated or read by a screen
+reader as a whole phrase.
+
+**Suggested shape** — the same one `TextField` already has, so there is
+nothing new to learn:
+
+```ts
+export interface NumberFieldSlotProps {
+  // …existing className-only slots
+  prefix?: { children?: ReactNode; className?: string };
+  suffix?: { children?: ReactNode; className?: string };
+}
+```
+
+Rendered inside the `inputWrapper`, before the input and before the
+stepper respectively, so the stepper stays flush right.
+
+Worth checking the same gap on the other numeric-ish fields —
+`Slider`, `OTPField` — while the shape is fresh.
+
 ---
 
 ## Unconfirmed
@@ -572,17 +647,98 @@ retried green).
 
 ### BUG 2 — `<Autocomplete>` (tw): `defaultValue` is a silent no-op in form mode
 
-**REOPENED** — see the entry above. The split only fires when `rules`
-is passed, which the reported case does not do. Previously recorded as
-fixed 2026-09-01 as a type-surface split (Tier S — no runtime
-change). See the *open* entry above for the full symptom / cause. The
-key reframe: `defaultValue` (and `value` / `onValueChange`) is
-**exclusively a standalone-mode API**. Form-mode initial values come
-from `<DashForm defaultValues={...}>` via the bridge; there is no
-per-field defaultValue path in form mode. The runtime already
-enforced this correctly (the form-mode branch never consults
-`defaultValue`) — the bug lived entirely on the type surface, which
-accepted the misuse combination without a warning.
+**Fixed** 2026-09-02, this time completely. The earlier attempt
+(2026-09-01, type-surface split) landed as documented below and
+remains in place, but a second rete has now been added: a
+runtime dev-mode warning that catches every misuse case regardless
+of whether `rules` is present. The two reites together close the
+bug — the type side catches `rules + defaultValue` at compile time,
+the runtime side catches everything else (which was the majority of
+the reported cases) the first time a component with the misuse
+combination renders under a `<DashFormProvider>`.
+
+**The runtime rete** — new hook in `@dashforge/ui-core`:
+
+```ts
+export function useWarnIfControlledInFormMode(
+  componentName: string,
+  name: string,
+  controlledProps: Record<string, unknown>,
+): void
+```
+
+At the callsite (Autocomplete / Select / RadioGroup / DatePicker in
+this pass — the four highest-usage field components; the other 10
+follow in a consistency pass):
+
+```tsx
+useWarnIfControlledInFormMode('Autocomplete', name, {
+  value: explicitValue,
+  defaultValue,
+  onValueChange,
+});
+```
+
+The hook reads the same `DashFormContext` the component itself
+reads (single source of truth) and warns once per
+`(componentName, name, propKey)` triple with a message naming the
+component, the field, the offending prop and the correct API
+(`<DashForm defaultValues={{ [name]: … }} />`). Guarded by
+`process.env.NODE_ENV !== 'production'` so bundlers dead-code the
+effect body in shipped consumer builds — zero cost in production.
+
+`libs/dashforge/ui-core/src/react/useWarnIfControlledInFormMode.ts`
+— hook implementation, `@internal` `_clearWarnedForTests` helper
+for suite reset, module-level `Set` for dedup. Exported from the
+package top-level index.
+
+Applied to (this pass):
+
+- `libs/dashforge/tw/src/components/Autocomplete/Autocomplete.tsx`
+- `libs/dashforge/tw/src/components/Select/Select.tsx`
+- `libs/dashforge/tw/src/components/RadioGroup/RadioGroup.tsx`
+- `libs/dashforge/tw/src/components/DatePicker/DatePicker.tsx`
+
+Deferred to a separate consistency pass (10 more components with
+the same shape): `NumberField`, `OTPField`, `Switch`, `Checkbox`,
+`Textarea`, `TextField`, `TimePicker`, `DateRangePicker`,
+`DateTimePicker`, `Slider`.
+
+Tests: 10 new integration tests in
+`libs/dashforge/forms/src/hooks/__tests__/useWarnIfControlledInFormMode.test.tsx`
+cover: fires on `defaultValue` / `value` / `onValueChange`
+individually; fires N times for N prop combos; silent in standalone
+mode; silent for undefined props; dedup across mounts; distinct
+warnings per field / per component; message content contains the
+right API name. `@dashforge/forms` 188 → 198 tests, all green.
+`@dashforge/tw` 2020/2020 tests remain green.
+
+The earlier type-surface split (2026-09-01) is left in place for
+what it does catch:
+
+- `<Autocomplete name rules defaultValue />` — TS error (belt).
+- `<Autocomplete name rules value />` — TS error.
+- `<Autocomplete name rules onValueChange />` — TS error.
+
+The two reties are complementary, not redundant — TypeScript
+catches misuse before the compile finishes for the cases that fit
+the discriminant; the runtime warning covers everything else on
+first render.
+
+---
+
+**The earlier attempt (2026-09-01, kept for the split it added).**
+
+Previously recorded as fixed as a type-surface split (Tier S — no
+runtime change). See the *open* entry above for the full symptom
+/ cause. The key reframe: `defaultValue` (and `value` /
+`onValueChange`) is **exclusively a standalone-mode API**.
+Form-mode initial values come from `<DashForm defaultValues={...}>`
+via the bridge; there is no per-field defaultValue path in form
+mode. The runtime already enforced this correctly (the form-mode
+branch never consults `defaultValue`) — the bug lived entirely on
+the type surface, which accepted the misuse combination without a
+warning.
 
 The fix, in short:
 

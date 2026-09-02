@@ -12,7 +12,11 @@ import {
   type ReactNode,
 } from 'react';
 import * as RadixPopover from '@radix-ui/react-popover';
-import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import {
+  DashFormContext,
+  useEngineVisibility,
+  useWarnIfControlledInFormMode,
+} from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
@@ -179,6 +183,18 @@ function SelectInner<V extends SelectValue = string>(
   const isFormMode = Boolean(bridge?.register);
 
   useStandaloneFieldWarning('Select', name, isFormMode, userValue, onChange);
+
+  // Mirror of useStandaloneFieldWarning: warn when running under a
+  // <DashFormProvider> AND the consumer passed controlled-mode props
+  // that are silently ignored in form mode. See BUG 2 in
+  // libs/dashforge/README-BUG.md — closes the case the type-side
+  // discriminant cannot see (React context is invisible at compile
+  // time). Zero cost in production.
+  useWarnIfControlledInFormMode('Select', name, {
+    value: userValue,
+    defaultValue,
+    onChange,
+  });
 
   // StrictMode-safe unregister
   const unregisterRef = useRef({ bridge, name });

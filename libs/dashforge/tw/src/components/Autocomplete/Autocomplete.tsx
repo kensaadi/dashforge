@@ -11,7 +11,11 @@ import {
   type ReactNode,
 } from 'react';
 import * as RadixPopover from '@radix-ui/react-popover';
-import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
+import {
+  DashFormContext,
+  useEngineVisibility,
+  useWarnIfControlledInFormMode,
+} from '@dashforge/ui-core';
 import type { DashFormBridge, FieldRegistration } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import { useComponentDefaults } from '@dashforge/tw-theme';
@@ -189,6 +193,20 @@ export function Autocomplete<TOption = AutocompleteOption>(
     loadDebounceMs = 250,
     loadingMessage = 'Loading…',
   } = merged;
+
+  // Dev-mode warning: if this Autocomplete is running under a
+  // <DashFormProvider> AND the consumer has passed any of the
+  // controlled / uncontrolled value props, warn once per
+  // (component, name, prop) that those props are silently ignored
+  // in form mode. See BUG 2 in libs/dashforge/README-BUG.md — the
+  // type-side split can only catch the `rules + defaultValue` combo
+  // at compile time; this runtime rete covers the common case where
+  // consumers pass no `rules`. Zero cost in production.
+  useWarnIfControlledInFormMode('Autocomplete', name, {
+    value: explicitValue,
+    defaultValue,
+    onValueChange,
+  });
 
   const isMulti = Boolean(multiple);
 

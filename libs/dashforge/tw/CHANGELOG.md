@@ -14,6 +14,27 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Dev-mode warning when controlled / uncontrolled props are passed
+  to a bridge-integrated field inside a `<DashFormProvider>`** — the
+  runtime rete for README-BUG § BUG 2. Applied to `<Autocomplete>`,
+  `<Select>`, `<RadioGroup>` and `<DatePicker>` (the four
+  highest-usage field components; 10 more follow in a consistency
+  pass). Each component calls the new `useWarnIfControlledInFormMode`
+  hook from `@dashforge/ui-core` with its name and the destructured
+  controlled props; the hook warns once per
+  `(componentName, name, propKey)` triple with a message naming the
+  offending prop and the correct API (`<DashForm defaultValues={{
+  [name]: … }} />`). Zero cost in production — the effect body is
+  guarded by `process.env.NODE_ENV !== 'production'`.
+
+  Works alongside the existing type-surface split on `Autocomplete`
+  (which catches `rules + defaultValue` at compile time). The two
+  reties are complementary: types cover the `rules`-carrying case
+  before compile, the runtime warning covers the common case
+  (`rules`-less) on first render.
+
 ### Changed
 
 - **`<Autocomplete>` — `AutocompleteProps` split into a discriminated
