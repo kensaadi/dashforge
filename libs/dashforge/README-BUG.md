@@ -418,65 +418,56 @@ dialog.
 
 ---
 
-## Gaps
+## BUG 6 — `<Dialog>`: the `actions` slot is styled and typed, but never rendered
 
-Not defects — the code does what it says. Missing capability, or an
-inconsistency between components, that a consumer hits and has to work
-around. Kept here because the workarounds live downstream and somebody
-should be able to find out why.
+**Severity:** low, but it is a declared API that silently does
+nothing — the worst kind of small.
 
-### GAP 1 — `<NumberField>` has no inline adornment; `<TextField>` does
+**Status:** open. Found 2026-09-02 from `inventory-kit`.
 
-**Found** 2026-09-01 in `inventory-kit`, *Settings → Operations*.
+### Symptom
 
-`TextField` ships inline adornments through `slotProps`:
+`slotProps.actions.className` is accepted by the types and has no
+effect. Nothing in the rendered dialog corresponds to it.
+
+### Cause
+
+The slot exists in two of the three places it needs to:
+
+```
+dialog.variants.ts:13   *  - `actions`  — footer action bar
+dialog.variants.ts:52   actions: 'flex justify-end gap-2 pt-2',
+dialog.types.ts:35      actions?: { className?: string };
+```
+
+`Dialog.tsx` renders `{children}` and nothing else. There is no
+`actions` prop and no footer region, so the class is dead and the
+`slotProps` entry is a promise the component does not keep.
+
+### Why it matters more than it looks
+
+The variant encodes a DECISION — `justify-end`, primary action at the
+bottom-right corner — and every consumer then has to rediscover it.
+All six dialogs in `inventory-kit` had hand-rolled action rows, all
+left-aligned, because the convention the library had already written
+down was not reachable from the component.
+
+### Proposed fix
+
+Either render it:
 
 ```tsx
-slotProps={{ prefix: { children: '$' }, suffix: { children: 'USD' } }}
+{actions && <div className={cn(v.actions(), slotProps?.actions?.className)}>{actions}</div>}
 ```
 
-Its own doc comment uses currency as the example. `NumberField` has no
-equivalent: its `slotProps` are `{ className }` only — `root`, `label`,
-`requiredMark`, `inputWrapper`, `input`, `stepper`, `stepperButton`,
-`helperText`, `errorText` — with nowhere to put children.
+with an `actions?: ReactNode` prop — which also gives the footer a
+place to live when the body scrolls, so the buttons stay put.
 
-It is the wrong way round. A bare string rarely needs a unit; a bare
-number almost always does. `100` is not `EUR 100` and is not `100%`,
-and the component that cannot say which is the numeric one.
+Or, if a footer is deliberately the consumer's job, delete the variant
+and the slotProps entry so the types stop advertising it.
 
-Verified side by side:
-
-```
-TextField    [ EUR  100                    .00 ]   ← unit inside the field
-NumberField  Approval threshold (EUR)
-             [                     100      ▲▼ ]   ← unit stranded in the label
-```
-
-**Workaround downstream.** The unit is written into the label:
-`inventory-kit/.../admin/settings/SettingsPage.tsx` has
-`label="Over-receipt tolerance (%)"` and
-``label={`Approval threshold (${baseCurrency})`}``. It reads acceptably
-and it is not right: a label names the field, a suffix qualifies the
-value, and a parenthetical is a label doing a suffix's job. It also
-loses the unit the moment the label is truncated or read by a screen
-reader as a whole phrase.
-
-**Suggested shape** — the same one `TextField` already has, so there is
-nothing new to learn:
-
-```ts
-export interface NumberFieldSlotProps {
-  // …existing className-only slots
-  prefix?: { children?: ReactNode; className?: string };
-  suffix?: { children?: ReactNode; className?: string };
-}
-```
-
-Rendered inside the `inputWrapper`, before the input and before the
-stepper respectively, so the stepper stays flush right.
-
-Worth checking the same gap on the other numeric-ish fields —
-`Slider`, `OTPField` — while the shape is fresh.
+The first is better: the alignment is a design-system decision, not a
+per-screen one.
 
 ---
 
