@@ -151,6 +151,36 @@ const defaultGetOptionDisabled = (option: unknown): boolean =>
  * shapes, and async runtime options (`optionsFromFieldData`) are
  * deferred to F5-A-bis.
  */
+/**
+ * Is this event ours?
+ *
+ * "Ours" is the root PLUS the listbox, and the second half is the whole
+ * point. Since the listbox was portaled to `document.body` it is no
+ * longer inside the component's DOM subtree, so `root.contains(target)`
+ * answers FALSE for the options themselves — and two separate pieces of
+ * code used that question to mean "is this mine?":
+ *
+ *   the click-outside handler, which closed the popover and reset the
+ *   input on a mousedown over an option, before the option's own
+ *   `onClick` could run (mouse selection broken, keyboard fine);
+ *
+ *   Radix's `DismissableLayer`, which dismissed on the focus that the
+ *   combobox input itself receives.
+ *
+ * Both are BUG 7 and BUG 8 in `libs/dashforge/README-BUG.md`. The
+ * predicate exists so the rule has ONE definition and a test can pin
+ * it — `rootRef` does not span the whole widget any more, and anything
+ * here that reasons about containment has to say so out loud.
+ */
+export function isWithinCombobox(
+  target: Node | null,
+  root: HTMLElement | null,
+  listbox: HTMLElement | null,
+): boolean {
+  if (!target) return false;
+  return Boolean(root?.contains(target)) || Boolean(listbox?.contains(target));
+}
+
 export function Autocomplete<TOption = AutocompleteOption>(
   props: AutocompleteProps<TOption>
 ) {
@@ -574,15 +604,9 @@ export function Autocomplete<TOption = AutocompleteOption>(
     const handlePointerDown = (event: globalThis.MouseEvent) => {
       const root = rootRef.current;
       if (!root) return;
-      const target = event.target as Node;
-      if (root.contains(target)) return;
-      // THE LISTBOX IS NOT INSIDE THE ROOT ANY MORE. It is portaled to
-      // `document.body`, so `root.contains` says false for the options
-      // themselves — and a mousedown on an option would close the
-      // popover and reset the input BEFORE the option's own `onClick`
-      // could run. Keyboard selection was unaffected, which is why the
-      // field looked like it worked until somebody used a mouse.
-      if (listboxRef.current?.contains(target)) return;
+      // The listbox counts as ours even though it is portaled out of
+      // the root — see `isWithinCombobox`.
+      if (isWithinCombobox(event.target as Node, root, listboxRef.current)) return;
       closePopover();
       // Multi mode: just clear the filter query (chips remain).
       // Single + free-solo: commit the typed text as the value (the
@@ -1179,12 +1203,12 @@ export function Autocomplete<TOption = AutocompleteOption>(
             unaffected.
           */
           onFocusOutside={(event) => {
-            if (rootRef.current?.contains(event.target as Node)) {
+            if (isWithinCombobox(event.target as Node, rootRef.current, listboxRef.current)) {
               event.preventDefault();
             }
           }}
           onInteractOutside={(event) => {
-            if (rootRef.current?.contains(event.target as Node)) {
+            if (isWithinCombobox(event.target as Node, rootRef.current, listboxRef.current)) {
               event.preventDefault();
             }
           }}

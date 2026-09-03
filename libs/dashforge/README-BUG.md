@@ -540,14 +540,22 @@ keystroke `C` now opens a filtered list of four; selecting sets the
 value and closes; the chevron reopens; a click elsewhere in the dialog
 dismisses. The 2020-test tw suite passes unchanged.
 
-**NOT covered by a test, and the gap is honest.** Two regression tests
-were written and deleted: in jsdom the fix cannot be distinguished from
-its absence — removing the guard, and even replacing it with an
-unconditional `preventDefault`, left both tests green. `DismissableLayer`'s
-focus dismissal does not run under jsdom, so a test there asserts
-nothing while looking like coverage. This needs a real browser —
-Playwright or the docs-lab — and until then the reproduction above is
-the check: click the field, type ONE character, expect suggestions.
+### Covered, partly, and the split is worth knowing
+
+Radix's focus dismissal does NOT run under jsdom: a behavioural test of
+this exact path passed with the fix, without it, and with a deliberately
+broken version of it, so it was deleted rather than kept as decoration.
+
+What IS covered is the shared cause. Both bugs came from asking "is this
+inside my root?" to mean "is this mine?", and that question now has one
+name — `isWithinCombobox(target, root, listbox)` — used by this guard,
+by the other one, and by the click-outside handler.
+`Autocomplete.portal.test.tsx` pins it: narrow it back to the root alone
+and three tests fail. So the fault line is guarded even where the
+symptom is not reproducible.
+
+The browser check remains one line: click the field, type ONE character,
+expect suggestions.
 
 ---
 
@@ -612,9 +620,16 @@ In a real browser, on inventory-kit's movement form: type `CF`, click
 the chevron reopens; a click elsewhere in the dialog dismisses and keeps
 the committed value. tw's 2020 tests pass unchanged.
 
-Not covered by a test, for the reason given under BUG 7: jsdom does not
-run this interaction faithfully. The manual check is one line — type,
-then CLICK an option rather than pressing Enter.
+### Covered
+
+`Autocomplete.portal.test.tsx`, five tests. Mutation-checked in both
+directions:
+
+  narrowing `isWithinCombobox` back to the root alone  →  3 fail,
+  including the user-visible one ("commits the option on the full mouse
+  sequence");
+
+  widening the guard to "never dismiss"  →  the click-away test fails.
 
 ---
 
