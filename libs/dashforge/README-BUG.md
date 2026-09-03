@@ -471,6 +471,86 @@ per-screen one.
 
 ---
 
+## BUG 7 — `<Autocomplete>`: the listbox is dismissed by the focus that opened it
+
+**Component:** `<Autocomplete>` (tw).
+
+**Severity:** high. The field looks broken to anybody who types.
+
+**Status:** FIXED, 2026-09-03. Regression from the BUG 1 portal fix.
+
+### Symptom
+
+Click the field and type one character: the suggestion list flashes and
+vanishes. Type a second character and it appears. The first keystroke
+after focusing NEVER shows suggestions, which reads as intermittent
+rather than systematic — the reporter's words were "if you search for
+the article it does not select it at all".
+
+Measured on the movement form, watching `aria-expanded`:
+
+```
+t=13466   expanded: true    value: ""     ← opens on focus
+t=13479   expanded: false   value: "C"    ← dismissed 13ms later
+```
+
+### Cause
+
+`closePopover` is NOT involved — traced, never called. The dismissal
+comes from Radix itself:
+
+```
+onDismiss                        @radix-ui/react-popover
+  handleAndDispatchCustomEvent
+    HTMLDocument.handleFocus     DismissableLayer, focusin listener
+```
+
+`Popover.Content` is wrapped in a `DismissableLayer`, which dismisses on
+a `focusin` landing outside the layer. In a combobox the focused element
+is the `<input>` — and the input is the ANCHOR, so it is outside
+`Popover.Content` by construction. The layer therefore reads the field's
+own focus as "focus outside" and closes.
+
+Before BUG 1 the listbox was an inline `<ul>` inside the component root,
+so no DismissableLayer existed and the question never arose. Portaling
+the listbox was right; it just needs the layer told what "outside"
+means for a combobox.
+
+### Fix
+
+`Autocomplete.tsx`, on `RadixPopover.Content` — guard both outside
+handlers against the component root, which holds the input, the chevron
+and the clear button:
+
+```tsx
+onFocusOutside={(event) => {
+  if (rootRef.current?.contains(event.target as Node)) event.preventDefault();
+}}
+onInteractOutside={(event) => {
+  if (rootRef.current?.contains(event.target as Node)) event.preventDefault();
+}}
+```
+
+Anything genuinely outside still dismisses, so click-away is unchanged.
+
+### Verified
+
+In a real browser, against `inventory-kit`'s movement form: one
+keystroke `C` now opens a filtered list of four; selecting sets the
+value and closes; the chevron reopens; a click elsewhere in the dialog
+dismisses. The 2020-test tw suite passes unchanged.
+
+**NOT covered by a test, and the gap is honest.** Two regression tests
+were written and deleted: in jsdom the fix cannot be distinguished from
+its absence — removing the guard, and even replacing it with an
+unconditional `preventDefault`, left both tests green. `DismissableLayer`'s
+focus dismissal does not run under jsdom, so a test there asserts
+nothing while looking like coverage. This needs a real browser —
+Playwright or the docs-lab — and until then the reproduction above is
+the check: click the field, type ONE character, expect suggestions.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*

@@ -1150,6 +1150,36 @@ export function Autocomplete<TOption = AutocompleteOption>(
           // Focus stays on the combobox input; Radix must not steal it.
           onOpenAutoFocus={(e) => e.preventDefault()}
           onCloseAutoFocus={(e) => e.preventDefault()}
+          /*
+            THE COMBOBOX INPUT IS NOT "OUTSIDE".
+
+            In a combobox the focused element is the `<input>`, and the
+            input is the ANCHOR — it lives outside `Popover.Content`.
+            Radix's `DismissableLayer` does not know that: it sees a
+            `focusin` on an element outside the layer and dismisses.
+
+            The symptom is that the listbox opens on focus and closes
+            about 10ms later, so the FIRST keystroke after clicking the
+            field never shows suggestions and the field looks broken.
+            Later keystrokes work, because they raise no new focus
+            event — which makes it look intermittent rather than
+            systematic.
+
+            Both handlers guard on the component root, which contains
+            the input, the chevron and the clear button. Anything
+            genuinely outside still dismisses, so click-away is
+            unaffected.
+          */
+          onFocusOutside={(event) => {
+            if (rootRef.current?.contains(event.target as Node)) {
+              event.preventDefault();
+            }
+          }}
+          onInteractOutside={(event) => {
+            if (rootRef.current?.contains(event.target as Node)) {
+              event.preventDefault();
+            }
+          }}
           // The input's own onKeyDown handles Escape (closes + refocuses
           // input). Radix's default Escape also closes via onOpenChange,
           // which we already handle — no conflict, both flow into
