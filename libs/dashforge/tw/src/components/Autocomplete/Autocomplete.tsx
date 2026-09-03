@@ -574,7 +574,15 @@ export function Autocomplete<TOption = AutocompleteOption>(
     const handlePointerDown = (event: globalThis.MouseEvent) => {
       const root = rootRef.current;
       if (!root) return;
-      if (root.contains(event.target as Node)) return;
+      const target = event.target as Node;
+      if (root.contains(target)) return;
+      // THE LISTBOX IS NOT INSIDE THE ROOT ANY MORE. It is portaled to
+      // `document.body`, so `root.contains` says false for the options
+      // themselves — and a mousedown on an option would close the
+      // popover and reset the input BEFORE the option's own `onClick`
+      // could run. Keyboard selection was unaffected, which is why the
+      // field looked like it worked until somebody used a mouse.
+      if (listboxRef.current?.contains(target)) return;
       closePopover();
       // Multi mode: just clear the filter query (chips remain).
       // Single + free-solo: commit the typed text as the value (the

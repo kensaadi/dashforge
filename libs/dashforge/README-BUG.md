@@ -551,6 +551,73 @@ the check: click the field, type ONE character, expect suggestions.
 
 ---
 
+## BUG 8 — `<Autocomplete>`: an option cannot be picked with the MOUSE
+
+**Component:** `<Autocomplete>` (tw).
+
+**Severity:** high. Keyboard selection works, mouse selection does not —
+which is worse than a total failure, because the field looks fine until
+somebody reaches for the mouse.
+
+**Status:** FIXED, 2026-09-03. Second regression from the BUG 1 portal
+fix; sibling of BUG 7.
+
+### Symptom
+
+Type, get a filtered list, click an option. The list closes, the input
+is left EMPTY, and the typed text is wiped too. Arrow keys + Enter
+select correctly.
+
+### Cause
+
+The component's own click-outside effect:
+
+```ts
+document.addEventListener('mousedown', (event) => {
+  const root = rootRef.current;
+  if (root.contains(event.target)) return;   // inside → ignore
+  closePopover();
+  …resets the input…
+});
+```
+
+Since BUG 1 the listbox is portaled to `document.body`, so it is NOT
+inside `rootRef` — an option IS "outside" by that test. The mousedown on
+an option therefore closes the popover and resets the input BEFORE the
+option's own `onClick` can fire. The keyboard path raises no mousedown,
+which is exactly why it kept working.
+
+### Fix
+
+`Autocomplete.tsx`, in the same handler — bail for the listbox as well
+as the root:
+
+```ts
+if (root.contains(target)) return;
+if (listboxRef.current?.contains(target)) return;
+```
+
+### The pattern behind BUG 7 and BUG 8
+
+Both are the same mistake in two places: portaling the listbox moved it
+out of the component's DOM subtree, and two pieces of code still asked
+"is this inside my root?" to mean "is this mine?". Anything else that
+reasons about containment in this component deserves the same look —
+`rootRef` no longer spans the whole widget.
+
+### Verified
+
+In a real browser, on inventory-kit's movement form: type `CF`, click
+`CF-ARB-1KG` with the mouse, the value commits and the popover closes;
+the chevron reopens; a click elsewhere in the dialog dismisses and keeps
+the committed value. tw's 2020 tests pass unchanged.
+
+Not covered by a test, for the reason given under BUG 7: jsdom does not
+run this interaction faithfully. The manual check is one line — type,
+then CLICK an option rather than pressing Enter.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
