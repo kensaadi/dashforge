@@ -68,6 +68,34 @@ export interface DialogProps {
   /** Dialog description (announced via `aria-describedby`). */
   description?: ReactNode;
   /**
+   * Footer action bar — usually one or more `<Button>`s. Rendered
+   * below the body in a right-aligned flex row (`flex justify-end
+   * gap-2 pt-2` — see `dialog.variants.ts` `actions` slot). Omit
+   * to render no action row.
+   *
+   * The alignment is a design-system decision (primary action at
+   * the bottom-right corner) and is intentionally encoded here so
+   * every consumer does not re-decide it in the body.
+   *
+   * @example
+   * ```tsx
+   * <Dialog
+   *   open={open}
+   *   onOpenChange={setOpen}
+   *   title="Delete article"
+   *   actions={
+   *     <>
+   *       <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+   *       <Button variant="solid" color="danger" onClick={confirm}>Delete</Button>
+   *     </>
+   *   }
+   * >
+   *   Are you sure? This cannot be undone.
+   * </Dialog>
+   * ```
+   */
+  actions?: ReactNode;
+  /**
    * Show the `×` close button in the top-right corner.
    * @default true
    */

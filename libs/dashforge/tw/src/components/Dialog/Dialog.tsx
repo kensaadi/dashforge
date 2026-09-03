@@ -27,6 +27,7 @@ export function Dialog(props: DialogProps) {
     children,
     title,
     description,
+    actions,
     showCloseButton = true,
     disableBackdropClose = false,
     disableEscapeClose = false,
@@ -105,6 +106,17 @@ export function Dialog(props: DialogProps) {
           >
             {children}
           </div>
+          {actions != null && (
+            <div
+              className={cn(
+                v.actions(),
+                themeSlotProps?.actions?.className,
+                slotProps?.actions?.className,
+              )}
+            >
+              {actions}
+            </div>
+          )}
           {showCloseButton && (
             <RadixDialog.Close
               aria-label="Close"

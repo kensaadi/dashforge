@@ -423,7 +423,7 @@ dialog.
 **Severity:** low, but it is a declared API that silently does
 nothing — the worst kind of small.
 
-**Status:** open. Found 2026-09-02 from `inventory-kit`.
+**Status:** **fixed** 2026-09-03. See *Fixed* section at bottom.
 
 ### Symptom
 
@@ -640,13 +640,16 @@ directions:
 
 ## BUG 9 — `tooltip` leaks onto the DOM element as an invalid attribute
 
-**Component:** all nine field components (tw) — `TextField`,
-`NumberField`, `Textarea`, `Autocomplete`, `Select`, `DatePicker`,
-`RadioGroup`, `Checkbox`, `Switch`.
+**Component:** originally reported as "all nine field components
+(tw)". Verified blast radius is **three**: `TextField`,
+`NumberField`, `Textarea`. The other six (`Autocomplete`, `Select`,
+`DatePicker`, `RadioGroup`, `Checkbox`, `Switch`) do not spread
+`{...rest}` onto any DOM element and therefore cannot leak
+structurally — see the *Fixed* section for the verification.
 
 **Severity:** low. It works; it just emits HTML that is not valid.
 
-**Status:** open. Found 2026-09-03 from a Playwright failure message.
+**Status:** **fixed** 2026-09-03. See *Fixed* section at bottom.
 
 ### Symptom
 
@@ -693,6 +696,177 @@ the bus.
 *(nothing yet — move suspicions here rather than into the list above)*
 
 ## Fixed
+
+### BUG 9 — `tooltip` leaks onto the DOM element as an invalid attribute
+
+**Fixed** 2026-09-03 for the three components that actually leaked;
+report's blast-radius claim ("all nine field components") revised
+to three after verification. See the *open* entry above for the
+original symptom and cause.
+
+**Verification method.** For each of the nine originally-listed
+components, I walked the source and checked two things: whether
+`tooltip` is destructured out of the `merged` / `props` object, and
+whether the component spreads `{...rest}` onto a DOM element.
+Result:
+
+| Component | Destructures `tooltip`? | Spreads `{...rest}` onto DOM? | Actually leaked? |
+|---|---|---|---|
+| TextField | ❌ no | ✅ `<input {...rest}>` at `TextField.tsx:210` | **YES** |
+| NumberField | ❌ no | ✅ `<input {...rest}>` at `NumberField.tsx:269` | **YES** |
+| Textarea | ❌ no | ✅ `<textarea {...rest}>` at `Textarea.tsx:168` | **YES** |
+| Autocomplete | ❌ no | ❌ no `{...rest}` anywhere on any DOM element | NO |
+| Select | ❌ no | ❌ | NO |
+| DatePicker | ❌ no | ❌ | NO |
+| RadioGroup | ❌ no | ❌ | NO |
+| Checkbox | ❌ no | ❌ | NO |
+| Switch | ❌ no | ❌ | NO |
+
+For the six non-leakers, the `<input>` / `<button>` / `<div>` is
+composed from explicit props only — there is no spread channel for
+`tooltip` (or any other undestructured prop) to reach the DOM.
+
+**Autocomplete empirically verified.** To be sure the source read
+matched runtime behaviour, I temporarily edited
+`dashforge-docs-lab/.../AutocompleteSingleDemo.tsx` to pass
+`tooltip="__PROBE_TOOLTIP__"`, rebuilt the tw dist into the
+docs-lab pnpm store, and scanned every rendered element on the
+Autocomplete demo page for an attribute with the probe value:
+
+```
+totalElementsScanned: 2248
+elementsCarryingProbe: 0
+verdict: '✓ NO LEAK — Autocomplete does not spread tooltip onto any DOM attribute'
+```
+
+The probe demo change was then reverted. The other five
+non-leakers were not empirically probed but their static-analysis
+profile is identical to Autocomplete's (no `{...rest}` spread on
+any DOM element in the source), so the same guarantee applies.
+
+**How the report reached "nine".** The original entry was written
+from the Playwright failure message that printed "four such inputs
+on one dialog in `inventory-kit`" (`ArticleEditForm`). Walking that
+dialog:
+
+- 1 `TextField` — the SKU / unit line (leaks) ← this one was in the four
+- 1 `Autocomplete` — the category picker (does NOT leak)
+- 2 `RadioGroup` — costing method + traceability (do NOT leak)
+
+The Playwright output printed the failing element's full HTML,
+which included the leaking `TextField`'s `tooltip=` attribute. The
+report generalised from that one leak to "all fields with a tooltip
+prop", which turned out not to hold for the six that don't spread
+`{...rest}`.
+
+**The fix.** Three destructure-block edits, one per leaker,
+consuming `tooltip` so it lands in the named-keys set rather than
+in `...rest`:
+
+```diff
+   onChange: userOnChange,
+   onBlur: userOnBlur,
+   value: userValue,
+   defaultValue,
++  // Consume `tooltip` here so it does not leak into `...rest` and
++  // end up as an unknown HTML attribute on the rendered <input>.
++  // See README-BUG § BUG 9.
++  tooltip: _tooltip,
+   ...rest
+ } = merged;
+```
+
+Applied at:
+
+- `libs/dashforge/tw/src/components/TextField/TextField.tsx`
+- `libs/dashforge/tw/src/components/NumberField/NumberField.tsx`
+- `libs/dashforge/tw/src/components/Textarea/Textarea.tsx`
+
+The renamed local (`_tooltip`) makes the "consumed but unused
+inside the destructure block" intent explicit — the actual read
+happens through `resolveFieldTooltip(props.tooltip, …)` earlier in
+each component (unchanged).
+
+**The guard.** A new test file
+`libs/dashforge/tw/src/components/_shared/tooltipDomLeak.test.tsx`
+mounts each of the three fixed components with a probed tooltip
+prop (both the string and object forms for TextField) and asserts
+that no element in the rendered subtree carries a `tooltip`
+attribute. If a future edit removes `tooltip` from a destructure
+block, this test fails loudly with a message pointing at README-BUG
+§ BUG 9. Four assertions total, all green.
+
+**Note for the agent maintaining this register.** If you find a
+"tooltip leak" report against a component NOT in the three-leaker
+list above, first verify by static rule: is `{...rest}` spread onto
+a DOM element in that component's source? If no, the report is
+almost certainly an over-claim (as this one's original scope was).
+If yes, add it to the list.
+
+---
+
+### BUG 6 — `<Dialog>`: the `actions` slot is styled and typed, but never rendered
+
+**Fixed** 2026-09-03. See the *open* entry above for the full
+symptom and cause — the summary of that entry stands: three of the
+four places the slot needed to exist were already there (variant,
+type, JSDoc mention), only the render was missing, so the slot was
+a promise the component did not keep.
+
+**The fix, in short:**
+
+- Added `actions?: ReactNode` to `DialogProps` in `dialog.types.ts`
+  (the `slotProps.actions` entry was already there — this is the
+  content prop it lacked a partner for).
+- Added the conditional render block in `Dialog.tsx`, positioned
+  between the body and the close button so the buttons live in
+  their own row at the bottom of the content, right-aligned per
+  the design-system convention encoded in `dialog.variants.ts:52`
+  (`flex justify-end gap-2 pt-2`):
+
+  ```tsx
+  {actions != null && (
+    <div className={cn(
+      v.actions(),
+      themeSlotProps?.actions?.className,
+      slotProps?.actions?.className,
+    )}>
+      {actions}
+    </div>
+  )}
+  ```
+
+- Added JSDoc on the new prop with a canonical usage example
+  (two-button footer: ghost Cancel + solid primary).
+
+**Consumer surface.** `<Dialog>` now takes an optional `actions`
+prop of type `ReactNode`. When present, a right-aligned flex row
+of the design-system's action-bar variant renders below the body
+and above the close button. When omitted, no extra element is
+added — existing dialogs continue to render exactly as before
+(inventory-kit's six hand-rolled action rows still work; the fix
+is additive).
+
+**Tests.** New file
+`libs/dashforge/tw/src/components/Dialog/Dialog.actions.test.tsx`
+covers:
+
+- No actions row is rendered when the `actions` prop is omitted.
+- Two buttons passed as `actions` share the same immediate
+  parent (the footer row) and that parent carries the design
+  system's `justify-end` alignment class.
+- `slotProps.actions.className` is applied to the footer row.
+
+Three assertions, all green.
+
+**Downstream that can be simplified when this ships.**
+`inventory-kit`'s six dialog forms (`ArticleForm`, `ArticleEditForm`,
+`RoleForm`, `UserForm`, `SitesPanel`, `TransfersListPage`) currently
+hand-roll a `<Stack direction="row" justify-end>` action row inside
+`{children}`. They can migrate to the `actions` prop one at a time
+— non-blocking, no forced rewrite.
+
+---
 
 ### BUG 4 — `formState.isDirty` / `isValid` / `isSubmitting` never re-render a consumer
 

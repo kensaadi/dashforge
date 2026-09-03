@@ -16,6 +16,17 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **`<Dialog>` gained an `actions` prop** (`ReactNode`) that renders
+  a right-aligned footer row below the body and above the close
+  button. The variant + `slotProps.actions` entry already existed
+  in the package but had never been rendered — declared API that
+  did nothing (README-BUG § BUG 6). The alignment (`flex justify-end
+  gap-2 pt-2`) is the design-system decision encoded in
+  `dialog.variants.ts:52` and had been surfaced consistently in
+  hand-rolled action rows across consumer forms; the prop lets
+  consumers drop that boilerplate. Additive — existing dialogs
+  without `actions` render identically to before.
+
 - **Dev-mode warning when controlled / uncontrolled props are passed
   to a bridge-integrated field inside a `<DashFormProvider>`** — the
   runtime rete for README-BUG § BUG 2. Applied to `<Autocomplete>`,
@@ -62,6 +73,24 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   § BUG 2 for the full context.
 
 ### Fixed
+
+- **`<TextField>`, `<NumberField>` and `<Textarea>` no longer leak
+  the `tooltip` prop onto the rendered `<input>` / `<textarea>` as
+  an unknown HTML attribute.** These three components spread
+  `{...rest}` onto their DOM element after destructuring `merged`,
+  and `tooltip` was not in the destructured keys, so its value
+  landed on the DOM as `tooltip="…"` (the object form of the prop
+  stringified to `"[object Object]"`). React 19 forwards lowercase
+  unknown attrs silently, so nothing signalled it in dev — it took
+  a Playwright strict-mode failure to notice. Fix: three one-line
+  destructure edits consuming `tooltip` before the `...rest` catch.
+  Regression guard in
+  `libs/dashforge/tw/src/components/_shared/tooltipDomLeak.test.tsx`.
+  See README-BUG § BUG 9 — the report's original "all nine field
+  components" scope was corrected to these three after verification
+  (the other six do not spread `{...rest}` onto any DOM element and
+  therefore cannot leak structurally; Autocomplete was empirically
+  probed as an anchor).
 
 - **`<Autocomplete multiple>` — the control no longer overflows its
   own width by ~6px** (a regression introduced by the BUG 3 chevron

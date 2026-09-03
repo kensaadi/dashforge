@@ -52,6 +52,11 @@ export function Textarea(props: TextareaProps) {
     onBlur: userOnBlur,
     value: userValue,
     defaultValue,
+    // Consume `tooltip` here so it does not leak into `...rest` and
+    // end up as an unknown HTML attribute on the rendered <textarea>
+    // (React 19 forwards lowercase unknown attrs silently). See
+    // README-BUG § BUG 9.
+    tooltip: _tooltip,
     ...rest
   } = merged;
 
