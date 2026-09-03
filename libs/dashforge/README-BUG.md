@@ -540,22 +540,27 @@ keystroke `C` now opens a filtered list of four; selecting sets the
 value and closes; the chevron reopens; a click elsewhere in the dialog
 dismisses. The 2020-test tw suite passes unchanged.
 
-### Covered, partly, and the split is worth knowing
+### Covered
 
-Radix's focus dismissal does NOT run under jsdom: a behavioural test of
-this exact path passed with the fix, without it, and with a deliberately
-broken version of it, so it was deleted rather than kept as decoration.
+TWO LAYERS, because one was not enough.
 
-What IS covered is the shared cause. Both bugs came from asking "is this
-inside my root?" to mean "is this mine?", and that question now has one
-name — `isWithinCombobox(target, root, listbox)` — used by this guard,
-by the other one, and by the click-outside handler.
-`Autocomplete.portal.test.tsx` pins it: narrow it back to the root alone
-and three tests fail. So the fault line is guarded even where the
-symptom is not reproducible.
+`Autocomplete.portal.test.tsx` (jsdom) pins the shared cause: both bugs
+came from asking "is this inside my root?" to mean "is this mine?", and
+that question now has one name — `isWithinCombobox(target, root,
+listbox)`. Narrow it back to the root alone and three tests fail.
 
-The browser check remains one line: click the field, type ONE character,
-expect suggestions.
+`inventory-kit/client/tailwind/e2e/autocomplete.spec.ts` (Playwright,
+real Chromium) pins the SYMPTOM, which jsdom cannot reach — Radix's
+focus dismissal does not run there. Remove the two outside-guards and
+`the focus that opens the list does not also close it` fails, along with
+mouse and keyboard selection.
+
+One trap worth recording, because it cost a full cycle: the first
+version of that e2e asserted with a plain `expect`, which polls and
+passes on its FIRST sample — and that sample lands inside the ~13ms
+window before the dismissal. It reported green against a build with the
+bug deliberately restored. The assertion now waits 400ms first, and the
+wait is the substance of the check rather than a workaround for it.
 
 ---
 
@@ -630,6 +635,56 @@ directions:
   sequence");
 
   widening the guard to "never dismiss"  →  the click-away test fails.
+
+---
+
+## BUG 9 — `tooltip` leaks onto the DOM element as an invalid attribute
+
+**Component:** all nine field components (tw) — `TextField`,
+`NumberField`, `Textarea`, `Autocomplete`, `Select`, `DatePicker`,
+`RadioGroup`, `Checkbox`, `Switch`.
+
+**Severity:** low. It works; it just emits HTML that is not valid.
+
+**Status:** open. Found 2026-09-03 from a Playwright failure message.
+
+### Symptom
+
+A field given `tooltip="…"` renders the ⓘ correctly AND carries the
+whole string as a raw attribute on the input:
+
+```html
+<input name="qty" required type="text" placeholder="0" inputmode="decimal"
+       tooltip="The unit the ledger counts this article in. It is fixed after the first movement." … />
+```
+
+Four such inputs on one dialog in `inventory-kit`. React 19 passes
+unknown lowercase attributes through without warning, so nothing in the
+console says anything — it was noticed only because a Playwright
+strict-mode error printed the element's full HTML.
+
+### Cause
+
+The prop is read from `props` and never removed from the spread:
+
+```ts
+const tooltipConfig = resolveFieldTooltip(props.tooltip, …);   // consumed
+const { rules, visibleWhen, layout, size, label, helperText, …, ...rest } = merged;
+                                                          // `tooltip` not here
+<input {...rest} … />                                     // so it goes out
+```
+
+Same shape in all nine — `resolveFieldTooltip` is called in each, and
+none lists `tooltip` among the destructured keys.
+
+### Fix
+
+Add `tooltip,` to each component's destructuring so it lands in the
+consumed set rather than in `...rest`. Nine one-line edits.
+
+Worth a guard afterwards: a test asserting the rendered input carries no
+`tooltip` attribute would catch the next prop that forgets to get off
+the bus.
 
 ---
 
