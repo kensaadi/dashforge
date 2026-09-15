@@ -9,6 +9,145 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.4.0] — 2026-09-15
+
+Bug fixes + API parity round-up across the field family, driven by the
+inventory-kit port onto the MUI flavour. Seven register entries closed
+(BUG 14 through BUG 20 in `libs/dashforge/README-BUG.md`), one of which
+(BUG 19 multi-select) lands as a type-level widening with the runtime
+storage adapter deferred to a follow-up.
+
+### Fixed
+
+- **`visibleWhen` no longer white-screens `<RadioGroup>` / `<Autocomplete>`**
+  (BUG 16). Both components called hooks (`useAccessState`,
+  `useEngineVisibility`, then per-option `useAccessState` inside a `.map`)
+  AFTER an early `return null` on the visibility predicate. When the
+  predicate flipped, React saw a different hook count and threw
+  *"Rendered more/fewer hooks than expected"*, unmounting the whole tree.
+  Fixed by moving every hook above every early return, and by introducing
+  a new plural hook `useAccessStates(accesses[])` in `@dashforge/ui/hooks`
+  that resolves an array of access requirements in ONE call — decoupling
+  React's hook count from `options.length` (previously the code did
+  `options.map(useAccessState)` with an `eslint-disable-next-line`, which
+  broke the rules of hooks any time options loaded asynchronously). See
+  `README-BUG.md` § BUG 16.
+
+- **An explicit `helperText` no longer hides the field's validation
+  message** (BUG 17). The resolver in
+  `TextField/textField.validation.ts` (shared by `TextField`,
+  `TimePicker`, `DatePicker`, `DateRangePicker`, `DateTimePicker`) had
+  the precedence inverted: `explicitHelperText ??
+  (allowAutoError ? autoErr?.message : undefined)` short-circuited on
+  the explicit prop, so any non-nullish `helperText` (a constant hint
+  like `"Unique, uppercase"`) permanently hid the required-field
+  error message. Same shape found inline in `Textarea`, `NumberField`,
+  and `RadioGroup`. All four now compute `autoMessage ?? explicitHelperText`
+  — the validation message wins while it is showing, and the explicit
+  prop is the fallback for the no-error state. The `error` boolean
+  precedence is unchanged. `rest.error === false` still suppresses the
+  auto channel entirely for Textarea/NumberField. See `README-BUG.md`
+  § BUG 17.
+
+- **`<AppShell>` main content no longer overflows the viewport by the
+  nav width** (BUG 18). The shell is a flex row and `LeftNav` is a
+  permanent Drawer (in-flow) on desktop, so `flexGrow: 1` alone fills
+  the remainder of the row. Earlier revisions layered `marginLeft:
+  ${navWidth}px` + `width: calc(100% - ${navWidth}px)` on `main` on
+  top of the flex, counting the nav width a second and third time and
+  overflowing by exactly the nav width on desktop. Fix: removed both
+  properties from the `main` sx, kept `flexGrow: 1`, added `minWidth:
+  0` so wide children (tables, charts) cannot push the flex item past
+  the row. The `mainSx` escape hatch is preserved; the redundant
+  `data-dash-main-margin-left` marker was removed. See `README-BUG.md`
+  § BUG 18.
+
+### Added
+
+- **`<Autocomplete>` gained a `layout` prop** (`'floating' | 'stacked' |
+  'inline'`, defaults to `'floating'`) and reopened MUI's native
+  `renderInput` escape from the passthrough (BUG 14). When `layout` is
+  stacked/inline, the internal `MuiTextField` renders without label /
+  helperText and the whole thing wraps in `FieldLayoutShell`, aligning
+  Autocomplete with `<TextField layout="stacked">` /
+  `<Select layout="stacked">` peers. Autocomplete was the only field
+  in `ui` that could not be stacked. Applied to BOTH branches
+  (bridge-integrated and standalone). See `README-BUG.md` § BUG 14.
+
+- **`<Textarea>` and `<NumberField>` gained the same `layout` prop**
+  (BUG 15). Achieves API parity with `<TextField>`; the three fields
+  now share the same layout API. NumberField uses a `wrapWithLayout`
+  helper around each of its four render return sites (controlled /
+  uncontrolled / bridge-fallback controlled+uncontrolled /
+  bridge-integrated) so the shell wrapping is applied consistently.
+  See `README-BUG.md` § BUG 15.
+
+- **`<Autocomplete required>` and `<RadioGroup required>` now compile**
+  (BUG 20). Autocomplete forwards `required` to the internal
+  `MuiTextField` in `renderInput` (both branches). RadioGroup passes
+  it to `<FormControl required>` in all three branches (standalone,
+  bridge-fallback, bridge-integrated), so MUI's `<FormLabel>` gets
+  the asterisk (`Mui-required` class) and the semantics propagate to
+  the group. The inventory-kit workaround `requiredLabel.tsx` drew a
+  literal `*` in label text but set no a11y marker; the fix restores
+  proper announcement to assistive technology (HTML5 `required` or
+  `aria-required`, depending on the widget). Presentational only,
+  as with MUI: form-submit enforcement still requires
+  `rules={{ required: … }}`. See `README-BUG.md` § BUG 20.
+
+- **`<Autocomplete multiple>` and `<Select multiple>` compile**
+  (BUG 19, partial). Widened the internal `MuiAutocompleteProps
+  <T, Multiple, …>` generic pin from `false` to `boolean`; widened
+  the public `value` / `onChange` signatures to `TValue | TValue[] |
+  null`; added `multiple?: boolean` to both props types.
+  `Select.multiple` forwards through `slotProps.select` so MUI's
+  native multi-select rendering activates. **Type-level scope
+  only** in this release: full bridge-integrated multi-select
+  storage (value adapter that maps `TValue[]` ↔
+  `NormalizedOption<TValue>[]`, chip rendering rules, `CheckboxGroup`
+  for the small-set case) is tracked as a follow-up feature. The
+  workaround `inventory-kit/…/MultiSelectField.tsx` remains valid in
+  the interim. See `README-BUG.md` § BUG 19.
+
+### Internal
+
+- New plural hook `useAccessStates(accesses[])` alongside
+  `useAccessState`, added to `libs/dashforge/ui/src/hooks/useAccessState.ts`.
+  Resolves an array of RBAC requirements in one hook call. Used by
+  RadioGroup's per-option access resolution; safe to adopt anywhere
+  else `arr.map(useAccessState)` was written.
+
+### Tests
+
+- New regression guards, all in `libs/dashforge/ui/src`:
+  `RadioGroup/RadioGroup.visibleWhen.test.tsx` (2, BUG 16 flip
+  invariant); `TextField/textField.validation.test.ts` (6, BUG 17
+  resolver-level precedence); `Autocomplete/Autocomplete.multiple.test.tsx`
+  (2, BUG 19 type-level surface); `_shared/requiredProp.test.tsx`
+  (4, BUG 20 asterisk + a11y); `_shared/layoutStacked.test.tsx`
+  (9, BUG 14 + 15 stacked-layout smoke). Also 5 new
+  `useAccessStates` unit tests, and updated the AppShell B1 test +
+  new B3 test that pin the BUG 18 sx contract.
+- Updated the three existing tests (Select / TextField /
+  NumberField / RadioGroup) that encoded the OLD (broken) BUG 17
+  precedence.
+- Suite total: 598 passed, 1 skipped, 0 failed. `nx typecheck` +
+  `nx build` also green.
+
+### Downstream cleanup enabled by this release
+
+After adopting `@dashforge/ui@1.4.0`, the following inventory-kit
+workarounds become redundant and can be deleted:
+
+- `client/shared/forms/useFieldHint.ts` (BUG 17)
+- `mainSx={{ marginLeft: 0, width: '100%', minWidth: 0 }}` on
+  `<AppShell>` (BUG 18)
+- `client/mui/src/components/fields/StackedField.tsx` (BUG 14)
+- `client/mui/src/components/fields/requiredLabel.tsx` (BUG 20)
+- `client/mui/src/components/fields/MultiSelectField.tsx` — still
+  needed today; only removable when the BUG 19 follow-up ships full
+  bridge multi-storage.
+
 ## [1.3.1] — 2026-08-15
 
 Patch: fixes the label ordering of the `tooltip` help icon relative to

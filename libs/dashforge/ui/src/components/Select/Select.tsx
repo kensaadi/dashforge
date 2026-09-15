@@ -124,6 +124,13 @@ export interface SelectProps<T extends string | number = string | number>
     | 'InputLabelProps'
     | 'FormHelperTextProps'
     | 'inputProps'
+    // BUG 19: our `value` / `onChange` are widened to `T | T[] | null`, and
+    // MUI's TextField pins these to string-shaped signatures; omit here so
+    // our declarations win in the interface merge without a covariance
+    // conflict. See README-BUG.md § BUG 19.
+    | 'value'
+    | 'onChange'
+    | 'multiple'
   > {
   name: string;
   rules?: unknown;
@@ -211,6 +218,32 @@ export interface SelectProps<T extends string | number = string | number>
 
   /** Optional label-help tooltip (ⓘ in the label row). String or config `{ content, icon?, position?, side? }`. */
   tooltip?: FieldTooltipProp;
+
+  /**
+   * Enable multi-select. Widens the storage value to `T[]` and delegates to
+   * MUI Select's native multi-select rendering (a comma-joined list of
+   * labels in the input, or an array of chips depending on slotProps).
+   *
+   * When `multiple` is true, `value` / `onChange` operate on arrays.
+   *
+   * Scope: type-level widening lands with BUG 19. Bridge-integrated
+   * multi-select storage is tracked as a follow-up feature; consumers who
+   * need it today can use MUI's Select multi behavior via
+   * `slotProps.select.multiple` on `<TextField select>` directly.
+   * See README-BUG.md § BUG 19.
+   *
+   * @default false
+   */
+  multiple?: boolean;
+
+  /**
+   * Controlled storage value. Scalar in the default mode; array when
+   * `multiple` is true. Explicit overrides bridge value.
+   */
+  value?: T | T[] | null;
+
+  /** Simplified callback: receives `T | null` in single mode, `T[]` in multi mode. */
+  onChange?: (value: T | T[] | null) => void;
 }
 
 /**
@@ -265,8 +298,26 @@ export function Select<T extends string | number = string | number>(
     fullWidth,
     minWidth = 200,
     sx,
+    multiple,
+    value: explicitValue,
+    onChange: explicitOnChange,
     ...rest
   } = props;
+
+  // BUG 19: TextField still expects scalar value/onChange. In the follow-up
+  // that adds full multi storage these narrow into the array pipeline; today
+  // they narrow to scalar (multi consumers who pass arrays here get null on
+  // the current version, which matches the pre-widening behavior).
+  const scalarValue: string | number | null | undefined = Array.isArray(
+    explicitValue,
+  )
+    ? null
+    : (explicitValue as string | number | null | undefined);
+  const scalarOnChange = explicitOnChange as
+    | ((
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+      ) => void)
+    | undefined;
 
   // Access bridge for unresolved value detection (Step 05)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
@@ -417,10 +468,23 @@ export function Select<T extends string | number = string | number>(
   }, [unresolvedDetection, bridge, name]);
 
   // Compose Select from TextField with select mode enabled
-  // TextField handles all form integration, error binding, gating, and RBAC
+  // TextField handles all form integration, error binding, gating, and RBAC.
+  //
+  // BUG 19: only forward `value` / `onChange` when explicitly passed. Passing
+  // `value={undefined}` explicitly makes MUI treat the input as controlled
+  // with an undefined value, which bypasses the uncontrolled-mode
+  // sanitization path (`defaultValue` cleanup); leaving them off preserves
+  // the pre-widening uncontrolled behavior.
+  const passthroughValue =
+    explicitValue !== undefined ? { value: scalarValue as unknown } : {};
+  const passthroughOnChange = scalarOnChange
+    ? { onChange: scalarOnChange }
+    : {};
   return (
     <TextField
       {...rest}
+      {...passthroughValue}
+      {...passthroughOnChange}
       name={name}
       rules={rules}
       label={label}
@@ -442,6 +506,10 @@ export function Select<T extends string | number = string | number>(
         ...rest.slotProps,
         select: {
           native: false,
+          // BUG 19: forward `multiple` into MUI Select's native multi mode.
+          // Type-level widening lands here; full bridge-integrated multi
+          // storage is tracked as a follow-up. See README-BUG.md § BUG 19.
+          ...(multiple !== undefined ? { multiple } : {}),
           ...(rest.slotProps?.select as Record<string, unknown> | undefined),
         },
       }}

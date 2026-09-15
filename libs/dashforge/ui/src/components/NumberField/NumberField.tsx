@@ -1,14 +1,16 @@
 import TextField from '@mui/material/TextField';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useId, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useDashTheme } from '@dashforge/theme-core';
 import type { FieldRegistration, Engine } from '@dashforge/ui-core';
 import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
 import { renderLabelWithTooltip, normalizeFieldTooltip } from '../_internal/fieldTooltip';
 import type { FieldTooltipProp } from '../_internal/fieldTooltip';
+import { FieldLayoutShell, type FieldLayout } from '../_internal/FieldLayoutShell';
 
 export interface NumberFieldProps
   extends Omit<MuiTextFieldProps, 'name' | 'type' | 'value' | 'onChange'> {
@@ -17,6 +19,17 @@ export interface NumberFieldProps
   visibleWhen?: ((engine: Engine) => boolean) | undefined;
   value?: number | string | null;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+
+  /**
+   * Field layout mode. See README-BUG.md § BUG 15.
+   *
+   * - `'floating'` (default): standard MUI floating label inside the input.
+   * - `'stacked'`: external label rendered above the control.
+   * - `'inline'`: external label rendered to the left of the control.
+   *
+   * @default 'floating'
+   */
+  layout?: FieldLayout;
 
   /**
    * Optional label-help tooltip (ⓘ in the label row). String or config
@@ -108,6 +121,7 @@ export function NumberField(
     access,
     tooltip,
     disabled,
+    layout = 'floating',
     ...muiProps
   } = props;
 
@@ -115,6 +129,8 @@ export function NumberField(
 
   // Get engine for visibility evaluation
   const engine = bridge?.engine;
+  const dashTheme = useDashTheme();
+  const fieldId = useId();
 
   // Granular per-field subscription (replaces legacy global void-version trick).
   useDashFieldMeta(name);
@@ -208,6 +224,35 @@ export function NumberField(
   // asterisk is glued to the label (before the tooltip icon) via the 3rd arg.
   const labelNode = renderLabelWithTooltip(muiProps.label, tooltip, ownAsterisk);
 
+  // BUG 15: when layout is stacked/inline, the label + helperText move to an
+  // external FieldLayoutShell so the row aligns with sibling stacked fields.
+  // The inner MuiTextField gets `label={undefined}` and `helperText={undefined}`
+  // to hand control over to the shell.
+  const useShell = layout !== 'floating';
+  const wrapWithLayout = (
+    control: React.ReactElement,
+    helperText: React.ReactNode,
+    error: boolean | undefined,
+  ) =>
+    useShell ? (
+      <FieldLayoutShell
+        layout={layout as 'stacked' | 'inline'}
+        label={muiProps.label}
+        tooltip={tooltip}
+        required={muiProps.required}
+        helperText={helperText}
+        error={error}
+        disabled={effectiveDisabled}
+        htmlFor={fieldId}
+        fullWidth={muiProps.fullWidth}
+        theme={dashTheme}
+      >
+        {control}
+      </FieldLayoutShell>
+    ) : (
+      control
+    );
+
   // Plain mode: render without bridge integration
   if (!bridge) {
     // If explicit value is provided, use controlled mode
@@ -219,35 +264,41 @@ export function NumberField(
           ? String(explicitValue)
           : explicitValue;
 
-      return (
+      return wrapWithLayout(
         <TextField
+          id={fieldId}
           name={name}
           type="number"
           value={inputValue}
           onChange={explicitOnChange}
-          helperText={explicitHelperText}
+          helperText={useShell ? undefined : explicitHelperText}
           error={explicitError}
           disabled={effectiveDisabled}
           {...muiProps}
-          label={labelNode}
+          label={useShell ? undefined : labelNode}
           slotProps={mergedSlotProps}
-        />
+        />,
+        explicitHelperText,
+        explicitError,
       );
     }
 
     // No explicit value: use uncontrolled mode (let MUI manage internal state)
-    return (
+    return wrapWithLayout(
       <TextField
+        id={fieldId}
         name={name}
         type="number"
         onChange={explicitOnChange}
-        helperText={explicitHelperText}
+        helperText={useShell ? undefined : explicitHelperText}
         error={explicitError}
         disabled={effectiveDisabled}
         {...muiProps}
-        label={labelNode}
+        label={useShell ? undefined : labelNode}
         slotProps={mergedSlotProps}
-      />
+      />,
+      explicitHelperText,
+      explicitError,
     );
   }
 
@@ -265,34 +316,41 @@ export function NumberField(
           ? String(explicitValue)
           : explicitValue;
 
-      return (
+      return wrapWithLayout(
         <TextField
+          id={fieldId}
           name={name}
           type="number"
           value={inputValue}
           onChange={explicitOnChange}
-          helperText={explicitHelperText}
+          helperText={useShell ? undefined : explicitHelperText}
           error={explicitError}
           disabled={effectiveDisabled}
           {...muiProps}
+          label={useShell ? undefined : labelNode}
           slotProps={mergedSlotProps}
-        />
+        />,
+        explicitHelperText,
+        explicitError,
       );
     }
 
     // No explicit value: use uncontrolled mode
-    return (
+    return wrapWithLayout(
       <TextField
+        id={fieldId}
         name={name}
         type="number"
         onChange={explicitOnChange}
-        helperText={explicitHelperText}
+        helperText={useShell ? undefined : explicitHelperText}
         error={explicitError}
         disabled={effectiveDisabled}
         {...muiProps}
-        label={labelNode}
+        label={useShell ? undefined : labelNode}
         slotProps={mergedSlotProps}
-      />
+      />,
+      explicitHelperText,
+      explicitError,
     );
   }
 
@@ -337,18 +395,17 @@ export function NumberField(
       ? explicitError
       : Boolean(autoErr) && allowAutoError;
 
-  // Resolve final helper text (explicit prop overrides bridge error message)
-  // When explicitHelperText is provided, use it
-  // When explicitError is explicitly false, suppress bridge error message
-  // Otherwise show bridge error message if allowAutoError
-  const resolvedHelperText =
-    explicitHelperText !== undefined
-      ? explicitHelperText
-      : explicitError === false
+  // BUG 17: the validation message wins over the explicit hint while it is
+  // showing; the explicit hint is the fallback. `explicitError === false`
+  // still suppresses the auto channel entirely (an author who pins error
+  // false wants the field to look clean). See README-BUG.md § BUG 17.
+  const autoMessage =
+    explicitError === false
       ? undefined
       : allowAutoError
       ? autoErr?.message
       : undefined;
+  const resolvedHelperText = autoMessage ?? explicitHelperText;
 
   // Handle change: update bridge FIRST (source of truth), then notify registration, then user onChange
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -421,18 +478,22 @@ export function NumberField(
     }
   };
 
-  return (
+  return wrapWithLayout(
     <TextField
+      id={fieldId}
       name={name}
       type="number"
       value={resolvedInputValue}
       onChange={handleChange}
       onBlur={handleBlur}
-      helperText={resolvedHelperText}
+      helperText={useShell ? undefined : resolvedHelperText}
       error={resolvedError}
       disabled={effectiveDisabled}
       {...muiProps}
+      label={useShell ? undefined : labelNode}
       slotProps={mergedSlotProps}
-    />
+    />,
+    resolvedHelperText,
+    resolvedError,
   );
 }

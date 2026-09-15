@@ -544,10 +544,15 @@ state), or user input (via a real field bound to the value).
 
 ### Components
 
-| Symbol | Purpose |
-|---|---|
-| `<DashForm>` | Convenience: `<DashFormProvider>` + `<form>`. Use when you don't need custom submit orchestration. |
-| `<DashFormProvider>` | The context provider. Use when you own the `<form>` element (e.g. to inject server errors, custom submit flow). |
+| Symbol | Purpose | Renderer |
+|---|---|---|
+| `<DashForm>` | Convenience: `<DashFormProvider>` + `<form>`. Use when you don't need custom submit orchestration. | **DOM only** — renders an HTML `<form>` host element. |
+| `<DashFormProvider>` | The context provider. Use when you own the `<form>` element (e.g. to inject server errors, custom submit flow), or on non-DOM renderers (React Native, Ink, custom reconcilers) that don't know the `<form>` host element. | Renderer-agnostic — provider only, no host element. |
+
+**React Native / non-DOM renderers:** use `<DashFormProvider>` directly and
+render your own container (`<View>`, `<Form>` from a library, etc.). Wire
+submit with `useDashFormContext().rhf.handleSubmit(onSubmit)`. See BUG 10 in
+`libs/dashforge/README-BUG.md` for context.
 
 ### Hooks
 

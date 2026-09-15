@@ -24,7 +24,7 @@ module.exports = withNx(
     outputPath: './dist',
     tsConfig: './tsconfig.lib.json',
     compiler: 'babel',
-    external: ['react', 'react-dom', 'react/jsx-runtime', '@dashforge/ui-core'],
+    external: ['react', 'react-dom', 'react/jsx-runtime', 'valtio', '@dashforge/ui-core'],
     format: ['esm'],
     sourcemap: true,
     assets: [

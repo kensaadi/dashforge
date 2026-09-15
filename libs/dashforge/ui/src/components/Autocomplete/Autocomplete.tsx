@@ -1,6 +1,9 @@
 import MuiAutocomplete from '@mui/material/Autocomplete';
 import type { AutocompleteProps as MuiAutocompleteProps } from '@mui/material/Autocomplete';
 import MuiTextField from '@mui/material/TextField';
+import { useId } from 'react';
+import { useDashTheme } from '@dashforge/theme-core';
+import { FieldLayoutShell, type FieldLayout } from '../_internal/FieldLayoutShell';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import type {
@@ -96,16 +99,25 @@ interface NormalizedOption<TValue extends string | number> {
 
 // Type-safe props: extends MUI Autocomplete props but with simplified API
 // MUI generic signature: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>
-// Our case: T = AutocompleteOption, Multiple = false, DisableClearable = false, FreeSolo = true
+// Our case: T = AutocompleteOption, Multiple = boolean (BUG 19 widened to unlock
+// `<Autocomplete multiple>`), DisableClearable = false, FreeSolo = true.
 type BaseMuiAutocompleteProps = MuiAutocompleteProps<
   AutocompleteOption,
-  false,
+  boolean,
   false,
   true
 >;
 
-// For passthrough props, use Partial to be more permissive with type checking
-// This avoids complex render prop type issues while still providing autocomplete for common props
+// For passthrough props, use Partial to be more permissive with type checking.
+// This avoids complex render prop type issues while still providing autocomplete
+// for common props.
+//
+// `renderInput` used to be in this Omit list, which closed MUI's native escape
+// for label control on top of a component that also declined to accept a
+// `layout` prop. That combination made Autocomplete the only field in `ui`
+// that could not be stacked. BUG 14 restored the option: this component now
+// accepts `layout`, and consumers who need a fully custom input can still
+// override `renderInput` through the passthrough. See README-BUG.md § BUG 14.
 type PassthroughProps = Partial<
   Omit<
     BaseMuiAutocompleteProps,
@@ -113,7 +125,6 @@ type PassthroughProps = Partial<
     | 'freeSolo'
     | 'value'
     | 'onChange'
-    | 'renderInput'
     | 'onBlur'
     | 'onInputChange'
     | 'name'
@@ -135,10 +146,17 @@ export interface AutocompleteProps<
   tooltip?: FieldTooltipProp;
   helperText?: React.ReactNode;
   error?: boolean;
-  // Controlled storage value (TValue|null), explicit overrides bridge value
-  value?: TValue | null;
-  // Simplified callback: receives TValue | null
-  onChange?: (value: TValue | null) => void;
+  /**
+   * Controlled storage value. Scalar (`TValue | null`) in the default
+   * (single-select) mode; array (`TValue[]`) when `multiple` is true.
+   * Explicit overrides bridge value. See README-BUG.md § BUG 19.
+   */
+  value?: TValue | TValue[] | null;
+  /**
+   * Simplified callback. Receives `TValue | null` in single mode; `TValue[]`
+   * in multi mode (`multiple`).
+   */
+  onChange?: (value: TValue | TValue[] | null) => void;
   // Allow user to provide onBlur (will be called after our blur handling)
   onBlur?: (event: React.FocusEvent<HTMLDivElement>) => void;
 
@@ -187,6 +205,26 @@ export interface AutocompleteProps<
    * Requires DashFormContext. Runtime data shape: { options: TOption[] }
    */
   optionsFromFieldData?: boolean;
+
+  /**
+   * Field layout mode. See README-BUG.md § BUG 14.
+   *
+   * - `'floating'` (default): standard MUI floating label inside the input.
+   * - `'stacked'`: external label rendered above the control (aligns with the
+   *   `<TextField layout="stacked">` / `<Select layout="stacked">` row).
+   * - `'inline'`: external label rendered to the left of the control.
+   *
+   * @default 'floating'
+   */
+  layout?: FieldLayout;
+
+  /**
+   * Marks the field as required in the UI (renders MUI's asterisk on the
+   * label and sets `aria-required` on the internal input). This is
+   * presentational only; enforcement at submit time still requires
+   * `rules={{ required: … }}` or a resolver rule. See README-BUG.md § BUG 20.
+   */
+  required?: boolean;
 }
 
 /**
@@ -239,12 +277,16 @@ export function Autocomplete<
     getOptionDisabled,
     access,
     optionsFromFieldData,
+    layout = 'floating',
+    required,
     ...rest
   } = props;
 
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
   const engine = bridge?.engine;
+  const dashTheme = useDashTheme();
+  const fieldId = useId();
 
   // Phase 2: Runtime integration (unconditional hook call)
   // Hook must be called unconditionally (React rules)
@@ -384,15 +426,13 @@ export function Autocomplete<
     [sourceOptions, actualGetValue, actualGetLabel, actualGetDisabled]
   );
 
-  // Early return for visibleWhen
-  if (!isVisible) {
-    return null;
-  }
-
-  // Early return for RBAC visibility
-  if (!accessState.visible) {
-    return null;
-  }
+  // NOTE: `!isVisible` and `!accessState.visible` are NOT early returns here.
+  // Both branches below (bridge-integrated and standalone) declare additional
+  // hooks (useState/useEffect/useMemo) further down. Returning null here would
+  // skip those hooks on the render right after the predicate flips, breaking
+  // the rules of hooks with "Rendered fewer/more hooks than expected". Instead
+  // each branch's final `return (…)` is gated on visibility. See README-BUG.md
+  // § BUG 16.
 
   // Compute effective disabled state (OR logic: any source can disable)
   const effectiveDisabled = Boolean(rest.disabled) || accessState.disabled;
@@ -443,10 +483,18 @@ export function Autocomplete<
         ? autoErr?.message
         : undefined;
 
-    // Resolve final value (explicit prop overrides bridge value)
+    // Resolve final value (explicit prop overrides bridge value).
+    // The public type of `explicitValue` is widened to `TValue | TValue[] | null`
+    // for BUG 19; the bridge branch's scalar pipeline only handles the scalar
+    // shape today. If a consumer passes an array here the runtime treats it
+    // as null (safe default) until full multi-storage lands. See
+    // README-BUG.md § BUG 19.
+    const explicitScalar: TValue | null | undefined = Array.isArray(explicitValue)
+      ? null
+      : (explicitValue as TValue | null | undefined);
     const resolvedValue: TValue | null =
-      explicitValue !== undefined
-        ? explicitValue
+      explicitScalar !== undefined
+        ? explicitScalar
         : (autoValue as TValue | null);
 
     // Phase 2: Loading state
@@ -693,8 +741,18 @@ export function Autocomplete<
       }
     };
 
-    return (
-      <MuiAutocomplete<NormalizedOption<TValue>, false, false, true>
+    // BUG 16: visibility gate lives here, AFTER every hook in the bridge branch.
+    if (!isVisible || !accessState.visible) return null;
+
+    // BUG 14: when `layout` is stacked/inline, the label / helperText move
+    // to the external FieldLayoutShell so the row aligns with sibling
+    // `<TextField layout="stacked">` / `<Select layout="stacked">` fields.
+    // The internal `MuiTextField` inside `renderInput` then renders without
+    // its own label / helperText.
+    const useShell = layout !== 'floating';
+
+    const autocomplete = (
+      <MuiAutocomplete<NormalizedOption<TValue>, boolean, false, true>
         {...(rest as any)}
         freeSolo
         disabled={effectiveDisabled || isLoading}
@@ -746,10 +804,17 @@ export function Autocomplete<
         renderInput={(params) => (
           <MuiTextField
             {...params}
+            // Only override `id` in shell mode so the external `FieldLayoutShell`
+            // label can `htmlFor` this input. In floating mode we keep MUI's
+            // internally-generated `params.id`, which the popup uses for
+            // `aria-controls` / combobox linking. Overriding it there would
+            // desync the combobox from its listbox. (BUG 14.)
+            {...(useShell ? { id: fieldId } : {})}
             name={name}
-            label={renderLabelWithTooltip(label, tooltip)}
+            required={required}
+            label={useShell ? undefined : renderLabelWithTooltip(label, tooltip)}
             error={resolvedError}
-            helperText={resolvedHelperText}
+            helperText={useShell ? undefined : resolvedHelperText}
             // NOTE: We deliberately do NOT route `registration.ref` here.
             // The Autocomplete is fully controlled via
             // `inputValue` + `bridge.setValue/getValue`; passing the RHF ref
@@ -775,13 +840,37 @@ export function Autocomplete<
         )}
       />
     );
+
+    if (!useShell) {
+      return autocomplete;
+    }
+
+    return (
+      <FieldLayoutShell
+        layout={layout as 'stacked' | 'inline'}
+        label={label}
+        tooltip={tooltip}
+        required={required}
+        helperText={resolvedHelperText}
+        error={resolvedError}
+        disabled={effectiveDisabled || isLoading}
+        htmlFor={fieldId}
+        fullWidth={rest.fullWidth}
+        theme={dashTheme}
+      >
+        {autocomplete}
+      </FieldLayoutShell>
+    );
   }
 
   // Standalone fallback (plain mode)
   // In plain mode, we don't control inputValue - let MUI manage it for freeSolo
 
-  // For plain mode, use explicit value if provided, else null
-  const plainValue: TValue | null = explicitValue ?? null;
+  // For plain mode, use explicit value if provided, else null.
+  // See scalar-narrowing note in the bridge branch above (BUG 19).
+  const plainValue: TValue | null = Array.isArray(explicitValue)
+    ? null
+    : (explicitValue ?? null);
 
   // Find matching normalized option for the plain value
   const plainMatchingOption =
@@ -876,8 +965,14 @@ export function Autocomplete<
     }
   };
 
-  return (
-    <MuiAutocomplete<NormalizedOption<TValue>, false, false, true>
+  // BUG 16: visibility gate lives here, AFTER every hook in the standalone branch.
+  if (!isVisible || !accessState.visible) return null;
+
+  // BUG 14: same shell-vs-floating decision as the bridge branch above.
+  const plainUseShell = layout !== 'floating';
+
+  const plainAutocomplete = (
+    <MuiAutocomplete<NormalizedOption<TValue>, boolean, false, true>
       {...(rest as any)}
       freeSolo
       disabled={effectiveDisabled}
@@ -930,10 +1025,13 @@ export function Autocomplete<
         // `slotProps` instead of the deprecated `InputProps` shape.
         <MuiTextField
           {...params}
+          // Same shell-only id override reasoning as the bridge branch above.
+          {...(plainUseShell ? { id: fieldId } : {})}
           name={name}
-          label={renderLabelWithTooltip(label, tooltip)}
+          required={required}
+          label={plainUseShell ? undefined : renderLabelWithTooltip(label, tooltip)}
           error={explicitError}
-          helperText={explicitHelperText}
+          helperText={plainUseShell ? undefined : explicitHelperText}
           slotProps={{
             input: {
               ...params.slotProps.input,
@@ -945,5 +1043,26 @@ export function Autocomplete<
         />
       )}
     />
+  );
+
+  if (!plainUseShell) {
+    return plainAutocomplete;
+  }
+
+  return (
+    <FieldLayoutShell
+      layout={layout as 'stacked' | 'inline'}
+      label={label}
+      tooltip={tooltip}
+      required={required}
+      helperText={explicitHelperText}
+      error={explicitError}
+      disabled={effectiveDisabled}
+      htmlFor={fieldId}
+      fullWidth={rest.fullWidth}
+      theme={dashTheme}
+    >
+      {plainAutocomplete}
+    </FieldLayoutShell>
   );
 }

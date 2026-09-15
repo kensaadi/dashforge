@@ -166,7 +166,12 @@ describe('TextField', () => {
       expect(screen.getByText('Email is required')).toBeInTheDocument();
     });
 
-    it('explicit error prop overrides bridge error', () => {
+    it('explicit `error` prop still forces the visual error state', () => {
+      // `error` precedence is unchanged by BUG 17. An author who sets it
+      // explicitly still overrides the auto-gate. What changed is the
+      // `helperText` companion: the bridge's message is what surfaces now
+      // when a validation error is showing, so the helperText shown here is
+      // the auto message, not the explicit `helperText="Custom error"`.
       renderWithBridge(
         <TextField
           name="email"
@@ -184,12 +189,12 @@ describe('TextField', () => {
         }
       );
 
-      // Should show custom error, not bridge error
-      expect(screen.getByText('Custom error')).toBeInTheDocument();
-      expect(screen.queryByText('Bridge error')).not.toBeInTheDocument();
+      // The auto message wins on `helperText`; the explicit hint is fallback.
+      expect(screen.getByText('Bridge error')).toBeInTheDocument();
+      expect(screen.queryByText('Custom error')).not.toBeInTheDocument();
     });
 
-    it('explicit helperText prop overrides bridge helperText', () => {
+    it('BUG 17: bridge validation message wins over explicit helperText while an error is showing', () => {
       renderWithBridge(
         <TextField name="email" label="Email" helperText="Custom hint" />,
         {
@@ -202,9 +207,23 @@ describe('TextField', () => {
         }
       );
 
-      // Should show custom helperText
+      expect(screen.getByText('Bridge error')).toBeInTheDocument();
+      expect(screen.queryByText('Custom hint')).not.toBeInTheDocument();
+    });
+
+    it('BUG 17: explicit helperText remains visible when no error is showing', () => {
+      renderWithBridge(
+        <TextField name="email" label="Email" helperText="Custom hint" />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { email: '' },
+            touched: { email: true },
+            submitCount: 0,
+          },
+        }
+      );
+
       expect(screen.getByText('Custom hint')).toBeInTheDocument();
-      expect(screen.queryByText('Bridge error')).not.toBeInTheDocument();
     });
   });
 

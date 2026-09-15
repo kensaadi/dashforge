@@ -102,7 +102,7 @@ describe('AppShell', () => {
       mockMatches = false;
     });
 
-    it('B1: navOpen=true uses expanded width for main offset', () => {
+    it('B1: navOpen=true reports the expanded width as the offset attribute', () => {
       renderWithTheme(
         <AppShell
           items={mockItems}
@@ -117,15 +117,18 @@ describe('AppShell', () => {
       );
 
       const main = screen.getByRole('main');
+      // The offset attribute is telemetry: it records the nav width so tests
+      // and consumer devtools can see the intended offset. The actual layout
+      // is driven by `flexGrow: 1` on `main` beside an in-flow permanent
+      // Drawer (see BUG 18 fix); we no longer emit `margin-left` or `width`
+      // markers because the CSS that used them was the source of the triple
+      // offset.
       expect(main).toHaveAttribute('data-dash-main-offset', '280');
-      // Check that it has a width or margin-left marker
-      expect(
-        main.hasAttribute('data-dash-main-width') ||
-          main.hasAttribute('data-dash-main-margin-left')
-      ).toBe(true);
+      expect(main.hasAttribute('data-dash-main-margin-left')).toBe(false);
+      expect(main.hasAttribute('data-dash-main-width')).toBe(false);
     });
 
-    it('B2: navOpen=false uses collapsed width for main offset', () => {
+    it('B2: navOpen=false reports the collapsed width as the offset attribute', () => {
       renderWithTheme(
         <AppShell
           items={mockItems}
@@ -141,6 +144,32 @@ describe('AppShell', () => {
 
       const main = screen.getByRole('main');
       expect(main).toHaveAttribute('data-dash-main-offset', '64');
+    });
+
+    it('B3: BUG 18 regression — main sx no longer sets marginLeft or width', () => {
+      // The bug produced `marginLeft: 280px; width: calc(100% - 280px)` on
+      // `main` on desktop while LeftNav was already in-flow, so the nav
+      // width was counted three times and content overflowed the viewport
+      // by exactly the nav width. Post-fix, both properties are gone from
+      // the sx; only `flexGrow: 1` and `minWidth: 0` remain. Consumers can
+      // still push overrides via `mainSx`.
+      renderWithTheme(
+        <AppShell
+          items={mockItems}
+          renderLink={mockRenderLink}
+          isActive={mockIsActive}
+          navOpen={true}
+          navWidthExpanded={280}
+        >
+          <div>Content</div>
+        </AppShell>
+      );
+      const main = screen.getByRole('main') as HTMLElement;
+      const style = main.style;
+      // MUI's Box compiles sx to CSSOM inline styles; if `marginLeft` or
+      // `width` were still declared on the sx object they would appear here.
+      expect(style.marginLeft).toBe('');
+      expect(style.width).toBe('');
     });
   });
 

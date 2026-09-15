@@ -202,7 +202,11 @@ describe('Select', () => {
   });
 
   describe('Intent D: Prop precedence and forwarding', () => {
-    it('explicit helperText prop overrides bridge-derived helper text', () => {
+    it('BUG 17: bridge validation message wins over explicit helperText while an error is showing', () => {
+      // BUG 17 flipped precedence: the validation message shows through even
+      // when a constant hint is passed via `helperText`. Previously the
+      // explicit prop silently hid the error, permanently. The hint is now
+      // the fallback for the no-error state, not an override of the error.
       renderWithBridge(
         <Select
           name="country"
@@ -220,11 +224,28 @@ describe('Select', () => {
         }
       );
 
-      // Explicit helperText should override error message from bridge
+      expect(screen.getByText('Bridge error message')).toBeInTheDocument();
+      expect(screen.queryByText('Manual help text')).not.toBeInTheDocument();
+    });
+
+    it('BUG 17: explicit helperText remains visible when no error is showing', () => {
+      renderWithBridge(
+        <Select
+          name="country"
+          label="Country"
+          options={testOptions}
+          helperText="Manual help text"
+        />,
+        {
+          mockBridgeOptions: {
+            defaultValues: { country: '' },
+            touched: { country: true },
+            submitCount: 1,
+          },
+        }
+      );
+
       expect(screen.getByText('Manual help text')).toBeInTheDocument();
-      expect(
-        screen.queryByText('Bridge error message')
-      ).not.toBeInTheDocument();
     });
 
     it('explicit error prop overrides bridge error state', () => {

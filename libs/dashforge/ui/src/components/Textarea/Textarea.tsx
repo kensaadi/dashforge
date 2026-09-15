@@ -1,9 +1,10 @@
 import MuiTextField from '@mui/material/TextField';
 import type { TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useId, useRef } from 'react';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
+import { useDashTheme } from '@dashforge/theme-core';
 import type {
   DashFormBridge,
   FieldRegistration,
@@ -13,11 +14,24 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import { useAccessState } from '../../hooks/useAccessState';
 import { renderLabelWithTooltip, normalizeFieldTooltip } from '../_internal/fieldTooltip';
 import type { FieldTooltipProp } from '../_internal/fieldTooltip';
+import { FieldLayoutShell, type FieldLayout } from '../_internal/FieldLayoutShell';
 
 export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
   name: string;
   rules?: unknown;
   visibleWhen?: (engine: Engine) => boolean;
+
+  /**
+   * Field layout mode. See README-BUG.md § BUG 15 for why `<Textarea>`
+   * needed this prop to reach parity with `<TextField>`.
+   *
+   * - `'floating'` (default): standard MUI floating label inside the input.
+   * - `'stacked'`: external label rendered above the control.
+   * - `'inline'`: external label rendered to the left of the control.
+   *
+   * @default 'floating'
+   */
+  layout?: FieldLayout;
 
   /**
    * RBAC access requirement for this field.
@@ -73,11 +87,23 @@ export interface TextareaProps extends Omit<MuiTextFieldProps, 'name'> {
  * It only depends on the bridge contract from @dashforge/ui-core.
  */
 export function Textarea(props: TextareaProps) {
-  const { name, rules, visibleWhen, minRows = 3, access, label, tooltip, ...rest } = props;
+  const {
+    name,
+    rules,
+    visibleWhen,
+    minRows = 3,
+    access,
+    label,
+    tooltip,
+    layout = 'floating',
+    ...rest
+  } = props;
 
   // Always call hooks at top level (unconditionally)
   const bridge = useContext(DashFormContext) as DashFormBridge | null;
   const engine = bridge?.engine;
+  const dashTheme = useDashTheme();
+  const fieldId = useId();
 
   // Granular per-field subscription (replaces legacy global void-version trick).
   useDashFieldMeta(name);
@@ -190,18 +216,18 @@ export function Textarea(props: TextareaProps) {
         ? rest.error
         : Boolean(autoErr) && allowAutoError;
 
-    // Resolve final helper text (explicit prop overrides bridge error message)
-    // When explicitHelperText is provided, use it
-    // When explicitError is explicitly false, suppress bridge error message
-    // Otherwise show bridge error message if allowAutoError
-    const resolvedHelperText =
-      rest.helperText !== undefined
-        ? rest.helperText
-        : rest.error === false
+    // BUG 17: the validation message wins over the explicit hint while it is
+    // showing; the explicit prop is the fallback for the "no error" state.
+    // `rest.error === false` still suppresses the auto message: an author who
+    // pins error false wants to hide the auto channel entirely. See
+    // README-BUG.md § BUG 17.
+    const autoMessage =
+      rest.error === false
         ? undefined
         : allowAutoError
         ? autoErr?.message
         : undefined;
+    const resolvedHelperText = autoMessage ?? rest.helperText;
 
     // Handle value precedence: explicit prop overrides bridge value
     const resolvedValue = rest.value !== undefined ? rest.value : currentValue;
@@ -277,17 +303,26 @@ export function Textarea(props: TextareaProps) {
       },
     } as MuiTextFieldProps['slotProps'];
 
-    return (
+    // BUG 15: when layout is stacked/inline the label/helperText move to the
+    // external FieldLayoutShell so the row aligns with sibling stacked fields.
+    const useShell = layout !== 'floating';
+
+    const control = (
       <MuiTextField
+        id={fieldId}
         name={name}
         multiline={true}
         minRows={minRows}
         value={resolvedValue}
         error={resolvedError}
-        helperText={resolvedHelperText}
+        helperText={useShell ? undefined : resolvedHelperText}
         disabled={effectiveDisabled}
         {...rest}
-        label={renderLabelWithTooltip(label, tooltip, ownAsterisk)}
+        label={
+          useShell
+            ? undefined
+            : renderLabelWithTooltip(label, tooltip, ownAsterisk)
+        }
         // IMPORTANT: Put handlers AFTER {...rest} spread
         // to ensure they override any handlers from rest
         onChange={handleChange as MuiTextFieldProps['onChange']}
@@ -295,18 +330,60 @@ export function Textarea(props: TextareaProps) {
         slotProps={slotPropsWithRef}
       />
     );
+
+    if (!useShell) return control;
+
+    return (
+      <FieldLayoutShell
+        layout={layout as 'stacked' | 'inline'}
+        label={label}
+        tooltip={tooltip}
+        required={rest.required}
+        helperText={resolvedHelperText}
+        error={resolvedError}
+        disabled={effectiveDisabled}
+        htmlFor={fieldId}
+        fullWidth={rest.fullWidth}
+        theme={dashTheme}
+      >
+        {control}
+      </FieldLayoutShell>
+    );
   }
 
   // Standalone fallback (plain mode)
-  return (
+  const plainUseShell = layout !== 'floating';
+
+  const plainControl = (
     <MuiTextField
+      id={fieldId}
       name={name}
       multiline={true}
       minRows={minRows}
       disabled={effectiveDisabled}
       {...rest}
-      label={renderLabelWithTooltip(label, tooltip)}
+      label={plainUseShell ? undefined : renderLabelWithTooltip(label, tooltip)}
+      helperText={plainUseShell ? undefined : rest.helperText}
       slotProps={mergedSlotProps}
     />
+  );
+
+  if (!plainUseShell) return plainControl;
+
+  return (
+    <FieldLayoutShell
+      layout={layout as 'stacked' | 'inline'}
+      label={label}
+      tooltip={tooltip}
+      required={rest.required}
+      helperText={rest.helperText}
+      error={rest.error}
+      disabled={effectiveDisabled}
+      htmlFor={fieldId}
+      fullWidth={rest.fullWidth}
+      theme={dashTheme}
+    >
+      {plainControl}
+    </FieldLayoutShell>
   );
 }

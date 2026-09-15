@@ -31,16 +31,20 @@ function DashFormInner<TFieldValues extends FieldValues = FieldValues>({
 }
 
 /**
- * Complete form component that combines DashFormProvider with HTML form element.
+ * Complete form component that combines DashFormProvider with an HTML
+ * `<form>` element.
  *
- * This is the recommended way to use DashForms - it provides both the context
- * and the form element in one component.
+ * This is the recommended entry point on the web. It provides both the
+ * context and the `<form>` element in one component.
  *
- * **Phase 0 Implementation:**
- * - Sets up DashFormProvider with Engine and RHF
- * - Renders HTML form with proper submit handling
- * - onSubmit is wired with rhf.handleSubmit (NOT a stub - works like normal RHF)
- * - No value synchronization yet (Phase 1+)
+ * **DOM-only.** `<DashForm>` renders a `<form>` host element and is
+ * unusable on non-DOM renderers (React Native, Ink, custom
+ * reconcilers) — those throw at render time with
+ * `View config getter callback for component 'form' must be a function`
+ * or similar. Use {@link DashFormProvider} directly there and render
+ * your own container; wire submit with
+ * `useDashFormContext().rhf.handleSubmit(onSubmit)`. See BUG 10 in
+ * `libs/dashforge/README-BUG.md`.
  *
  * **Key Features:**
  * - Auto-creates Engine if not provided

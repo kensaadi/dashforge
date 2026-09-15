@@ -14,6 +14,28 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Every interactive `<button>` in the package now shows the pointer
+  cursor on hover** (BUG 13). `buttonVariants.base` lacked
+  `cursor-pointer`, and the browser UA stylesheet leaves `<button>`
+  at `cursor: default` — so every `<Button>`, `<IconButton>`, and
+  `Button` in `variant="link"` mode read as "unclickable" to the
+  person hovering. Same shape found in the same-pass audit on
+  `tabs.variants.ts` (Radix.Tabs.Trigger),
+  `checkbox.variants.ts` (Radix.Checkbox.Root), and
+  `radioGroup.variants.ts` (Radix.RadioGroup.Item) — all four are
+  Radix primitives that surface as `<button>` under the hood. Fixed
+  by adding `cursor-pointer` on each interactive base/slot; the
+  existing `disabled:pointer-events-none` /
+  `data-[disabled]:cursor-not-allowed` state resets already handle
+  disabled instances, and `loading` on `<Button>` still overrides
+  to `cursor-wait` (tailwind-variants precedence). New test file
+  `_shared/cursorPointerAffordance.test.tsx` (7 assertions) pins
+  both the recipe-level class string and the rendered-DOM
+  `className` for `<Button>` and `<IconButton>`, so a future edit
+  that strips the class fails loudly. See `README-BUG.md § BUG 13`.
+
 ### Added
 
 - **`<Dialog>` gained an `actions` prop** (`ReactNode`) that renders

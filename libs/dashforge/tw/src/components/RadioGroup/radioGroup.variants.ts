@@ -34,6 +34,11 @@ export const radioGroupVariants = tv({
       'rounded-full border bg-neutral-50',
       'border-neutral-300',
       'transition-colors',
+      // Radix.RadioGroup.Item renders a `<button>`, whose UA cursor
+      // is `default`. optionLabel already reads `cursor-pointer`, but
+      // the control itself needs the same affordance when the pointer
+      // sits directly on the circle. See README-BUG § BUG 13.
+      'cursor-pointer',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary-500',
       'data-[state=checked]:border-primary-500',
       'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',

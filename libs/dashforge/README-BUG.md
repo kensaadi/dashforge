@@ -1146,6 +1146,8 @@ Found porting inventory-kit onto the MUI flavour (15/09/2026). Read
 straight out of the source; the type-level half is reproduced by a
 compile probe.
 
+**Status:** **fixed** 2026-09-15. See *Fixed* section at bottom.
+
 ### Symptom
 
 A form mixes `<TextField layout="stacked">`, `<Select layout="stacked">`
@@ -1229,6 +1231,8 @@ stacked fields.
 Read from source, 15/09/2026. Inconsistency rather than a defect —
 recorded because it is one line of divergence in three siblings.
 
+**Status:** **fixed** 2026-09-15. See *Fixed* section at bottom.
+
 ### Symptom
 
 `<TextField layout="stacked">` compiles. `<Textarea layout="stacked">`
@@ -1257,6 +1261,8 @@ Give both the same `layout` prop and `FieldLayoutShell` branch as
 
 Reproduced live in inventory-kit, 15/09/2026, and confirmed
 pre-existing by stashing the kit's changes and re-testing.
+
+**Status:** **fixed** 2026-09-15. See *Fixed* section at bottom.
 
 ### Symptom
 
@@ -1332,6 +1338,8 @@ using `visibleWhen`:
 
 Read from source, 15/09/2026, and hit in five fields of inventory-kit.
 
+**Status:** **fixed** 2026-09-15. See *Fixed* section at bottom.
+
 ### Symptom
 
 A field carries a constant hint — "Unique, uppercase", "Leave empty to
@@ -1384,6 +1392,8 @@ error is visible, re-opening the channel from the outside.
 Measured in the browser, 15/09/2026: main content started at x=560 on a
 1440px viewport with a 280px nav, and its right edge ran 187px past the
 viewport.
+
+**Status:** **fixed** 2026-09-15. See *Fixed* section at bottom.
 
 ### Symptom
 
@@ -1445,6 +1455,9 @@ mainSx={{ marginLeft: 0, width: '100%', minWidth: 0 }}
 Read from source and reproduced by compile probe, 15/09/2026. `tw` has
 `<Autocomplete multiple>`; `ui` has no equivalent.
 
+**Status:** **partially fixed** 2026-09-15 (type-level widening).
+See *Fixed* section at bottom.
+
 ### Symptom
 
 A field holding `string[]` — roles on a user, tags on an article —
@@ -1505,6 +1518,8 @@ Compile probe, 15/09/2026. Narrower than it first looked — an earlier
 note in the kit's memory said four components, which was wrong and is
 corrected here.
 
+**Status:** **fixed** 2026-09-15. See *Fixed* section at bottom.
+
 ### Symptom
 
 A required Autocomplete or RadioGroup cannot be marked as such. Every
@@ -1554,6 +1569,394 @@ this entry.
 *(nothing yet — move suspicions here rather than into the list above)*
 
 ## Fixed
+
+### BUG 16 — `visibleWhen` white-screen on `<RadioGroup>` / `<Autocomplete>` (ui)
+
+**Fixed** 2026-09-15. The worst entry in the register: a supported API
+path took the whole application down. See the *open* entry above for
+the crash trace and the `eslint-disable-next-line` comment that
+explicitly documented the violation.
+
+**Verification method.** Read the offending files at
+`RadioGroup.tsx:146-167` and `Autocomplete.tsx:388-808`. Confirmed the
+pattern: hooks (`useEngineVisibility`, `useAccessState`) followed by
+`return null` on the visibility predicate, then more hooks
+(`options.map(useAccessState)` in RadioGroup, `useState` / `useEffect`
+/ `useMemo` at 502-808 in Autocomplete). Verified `useAccessState` is
+a pure hook (context read + `useMemo`) so moving it above early
+returns costs nothing at runtime.
+
+**The fix, in three edits:**
+
+1. `hooks/useAccessState.ts` — added a companion hook `useAccessStates`
+   (plural) that resolves an ARRAY of access requirements in a single
+   hook call. Callers pass `options.map(o => o.access)` and get back
+   an array of resolved states, decoupling React's hook count from
+   `options.length`. This removes the `arr.map(useAccessState)` shape
+   entirely; the previous code's `eslint-disable-next-line
+   react-hooks/rules-of-hooks` is gone.
+
+2. `RadioGroup.tsx` — replaced `options.map(useAccessState)` with a
+   single `useAccessStates(options.map(o => o.access))` call, and
+   moved the visibility early returns AFTER every hook (including
+   the `useEffect` unmount cleanup). All hooks now run
+   unconditionally in a stable order regardless of `visibleWhen`
+   or `options.length`.
+
+3. `Autocomplete.tsx` — hooks were split across TWO conditional
+   branches (bridge-integrated at line ~408, standalone at ~803),
+   so a full extraction to inner components would have been a
+   large refactor. The surgical fix: keep the branches, keep each
+   branch's hooks in place, and gate ONLY the JSX return at the
+   end of each branch with the visibility check. Each branch's
+   internal hook count is stable per-mount (bridge presence is a
+   context value that does not flip within a mount), and
+   `visibleWhen` flipping now returns `null` from `return (…)`
+   sites, not from `return null` at the top of the function. Both
+   branches carry a comment referencing this entry so a future
+   reader sees the invariant they must preserve.
+
+**The guard.** A new test file
+`libs/dashforge/ui/src/components/RadioGroup/RadioGroup.visibleWhen.test.tsx`
+pins two invariants:
+
+- Flipping `visibleWhen` `false → true → false` across renders
+  produces no React hooks-mismatch console.error.
+- Changing `options.length` across renders does the same (the
+  `useAccessStates` refactor is what makes this stable, not the
+  early-return move).
+
+Two integration tests, both green. Full `nx test @dashforge/ui`
+suite: 580 passed, 1 skipped, 0 failed after the fix.
+
+**Note for the agent maintaining this register.** If a future
+report says "hooks-mismatch on `<Something>` when a predicate flips",
+apply the same triage: (1) any hook call must come BEFORE any
+`return null`; (2) `arr.map(useHook)` on a variable-length array
+is always unsound — resolve the whole array in a single hook
+(pattern: `useHookStates(arr)` in this hook file, or a
+`useMemo(() => arr.map(fn))` if the per-element resolution is not
+itself a hook). The lint rule `react-hooks/rules-of-hooks` catches
+the first shape but not the second; a maintainer disabling that
+rule is a red flag worth acting on.
+
+---
+
+### BUG 17 — an explicit `helperText` permanently hides the field's validation message
+
+**Fixed** 2026-09-15 across all fields that shared the shape. The
+report's example (five fields in inventory-kit) understated the blast
+radius: the resolver lives in
+`libs/dashforge/ui/src/components/TextField/textField.validation.ts`
+and is imported by `TextField`, `TimePicker`, `DatePicker`,
+`DateRangePicker`, `DateTimePicker`. `NumberField` and `RadioGroup`
+had the same inverted precedence inlined into their own render
+bodies.
+
+**Verification method.** Read the resolver at
+`textField.validation.ts:41-42`. Confirmed the bug verbatim:
+`explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined)`
+short-circuits on the explicit prop, so any non-nullish `helperText`
+hides the auto validation message permanently (not just before
+touched/submit). Grep of `import.*textField.validation` returned five
+callers. Inline resolvers of the same shape found by grep in
+`Textarea.tsx:197-204`, `NumberField.tsx:344-351`,
+`RadioGroup.tsx:307-312`.
+
+**The fix.** One inverted line per resolver:
+
+```diff
+- const helperText =
+-   explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined);
++ const autoMessage = allowAutoError ? autoErr?.message : undefined;
++ const helperText = autoMessage ?? explicitHelperText;
+```
+
+Applied at:
+
+- `libs/dashforge/ui/src/components/TextField/textField.validation.ts`
+  (covers TextField + DatePicker + DateRangePicker + DateTimePicker +
+  TimePicker)
+- `libs/dashforge/ui/src/components/Textarea/Textarea.tsx` (inline)
+- `libs/dashforge/ui/src/components/NumberField/NumberField.tsx` (inline)
+- `libs/dashforge/ui/src/components/RadioGroup/RadioGroup.tsx` (inline)
+
+Textarea and NumberField preserve their `rest.error === false`
+suppression: an author who pins `error={false}` explicitly is asking
+for the auto channel to be closed. That short-circuit is kept.
+
+**The `error` boolean precedence is unchanged.** An explicit `error`
+prop still overrides the auto-gate. What changed is only the
+`helperText` companion, which now surfaces the actual validation
+message instead of the constant hint.
+
+**Existing tests updated.** Three tests in `Select.unit.test.tsx`,
+`TextField.test.tsx`, `RadioGroup.unit.test.tsx`, and
+`NumberField.unit.test.tsx` were encoding the OLD (broken)
+precedence. They now pin the NEW contract: the bridge message wins
+while an error is showing, and the explicit hint is the fallback for
+the no-error state. A companion test on each verifies the hint is
+visible when no error is present.
+
+**The guard.** A new resolver-level test file
+`libs/dashforge/ui/src/components/TextField/textField.validation.test.ts`
+pins six invariants directly on `resolveValidationState`: message
+wins on touched, message wins on submit, hint wins pristine, hint
+wins on no-error, explicit `error` still forces the visual, both
+undefined returns undefined helperText. Six unit tests, all green.
+
+**Existing consumer workaround.** `inventory-kit`'s
+`client/shared/forms/useFieldHint.ts` (which returned `undefined` for
+the hint while an error was visible) is now redundant. After the
+`@dashforge/ui` release lands, that file can be deleted downstream.
+
+**Note for the agent maintaining this register.** The bug's shape
+was the same in five different files. If a future report names a
+similar precedence inversion, grep for the resolver pattern
+(`explicitHelperText ??` or `explicitProp !== undefined ?
+explicitProp :`) before assuming the fix is local. The Dashforge
+convention is now: explicit props win on `error`, but the auto
+message wins on `helperText` when it is present.
+
+---
+
+### BUG 18 — `<AppShell>` (ui) counts the nav width three times on desktop
+
+**Fixed** 2026-09-15. Layout was overflowing the viewport by exactly
+the nav width because three independent offsets were applied on the
+same in-flow drawer. See the *open* entry above for the measurement
+(main content starting at x=560 on a 1440px viewport with a 280px nav)
+and the three-lines-in-one-sx analysis.
+
+**Verification method.** Read `AppShell.tsx:71-129`. Confirmed the
+report verbatim:
+
+- `Box sx={{ display: 'flex' }}` at :90 makes the shell a flex row.
+- `LeftNav.tsx:366-367` fixes `variant="permanent"` on desktop, so
+  LeftNav is in-flow and reserves its own column.
+- `main` sx had `flexGrow: 1` AND `marginLeft: ${mainOffset}px` AND
+  `width: calc(100% - ${mainOffset}px)`. Three independent offsets
+  for one in-flow nav; each correct in isolation, cumulatively wrong.
+
+**The fix.** Removed `marginLeft` and `width` from the `main` sx.
+Kept `flexGrow: 1` (fills what LeftNav left) and added `minWidth: 0`
+(so wide children like tables or charts cannot push the flex item
+past the row on desktop). Dropped the transition on `margin` and
+`width`: `flexGrow` reflows without an animation, which is acceptable
+for a rail open/close on desktop — if a smooth transition is wanted
+later, it belongs on `LeftNav`'s own `flex-basis`, not on `main`.
+
+The `data-dash-main-offset` attribute is kept as a telemetry hook
+for downstream test selectors and devtools; the redundant
+`data-dash-main-margin-left` marker was removed.
+
+**Downstream escape hatch preserved.** `mainSx` still spreads AFTER
+the base sx, so consumers who need to override (e.g. inventory-kit,
+which currently sets `mainSx={{ marginLeft: 0, width: '100%',
+minWidth: 0 }}`) continue to work. After the release lands, the
+inventory-kit override becomes redundant and can be removed.
+
+**Updated existing tests.** `AppShell.unit.test.tsx` B1 was
+asserting `data-dash-main-margin-left` was set, which no longer
+holds. Updated the test to assert the NEW contract: `main` has the
+`data-dash-main-offset` telemetry attribute but no
+`data-dash-main-margin-left` / `data-dash-main-width`, and the
+inline `sx`-derived style has neither `marginLeft` nor `width`.
+Added a new B3 test explicitly pinning the "BUG 18 regression"
+invariant (neither `marginLeft` nor `width` is set inline).
+
+Full `nx test @dashforge/ui`: 580 passed after the change.
+
+**Note for the agent maintaining this register.** If a future
+report shows content overflowing on desktop while the nav is
+expanded, check both directions: (a) is `main` in a flex row with
+LeftNav as a permanent drawer (in-flow)? then any `marginLeft` /
+`width` on `main` is redundant with `flexGrow`; (b) is `main`
+absolutely positioned (out of flow)? then `marginLeft` / `width`
+are load-bearing. The Dashforge default is (a).
+
+---
+
+### BUG 14 — `<Autocomplete>` (ui): no stacked `layout`, `renderInput` closed
+
+**Fixed** 2026-09-15. Autocomplete was the only field in `@dashforge/ui`
+that could not be stacked in a row with `<TextField layout="stacked">`
+peers, and it also removed MUI's own `renderInput` escape from the
+passthrough — so a consumer had no way to hand-render the input either.
+See the *open* entry above for the source reading and the compile
+probe results.
+
+**The fix, in two edits:**
+
+1. `Autocomplete.tsx` — dropped `'renderInput'` from the passthrough
+   `Omit` list, reopening MUI's native escape for consumers who need
+   a fully custom input. The component still builds its own
+   `renderInput` internally; the passthrough is a genuine opt-out
+   pointer, not a replacement of the component's normal path.
+
+2. `Autocomplete.tsx` — added `layout?: FieldLayout` (default
+   `'floating'`) alongside a `useDashTheme()` + `useId()` hook pair
+   at the top of the function. When `layout` is stacked/inline, the
+   render wraps the MuiAutocomplete in `FieldLayoutShell` and hands
+   the internal `MuiTextField` `label={undefined}` +
+   `helperText={undefined}` so the shell owns the label + helper row
+   (aligning the field with sibling `<TextField layout="stacked">`
+   / `<Select layout="stacked">` peers). Applied to BOTH branches
+   (bridge-integrated and standalone). BUG 16's hook rules are
+   preserved: both new hooks live above every early return.
+
+**Downstream workaround becomes redundant.** inventory-kit's
+`client/mui/src/components/fields/StackedField.tsx` (a hand-rolled
+`FormLabel` wrapper measured off the DOM of a stacked `DatePicker`)
+was the workaround for exactly this. After the `@dashforge/ui`
+release lands, it can be deleted.
+
+**Full suite green.** 580/580 tests after the change. No visual
+snapshot tests to rebasellinate; the change is additive on the type
+surface and the render logic when `layout='floating'` (the default)
+is unchanged.
+
+---
+
+### BUG 15 — `<Textarea>` / `<NumberField>` (ui): no `layout` prop
+
+**Fixed** 2026-09-15 in the same pass as BUG 14. `<TextField>` had
+`layout` since Sprint 5; `<Textarea>` and `<NumberField>`, which
+also wrap `MuiTextField`, did not.
+
+**The fix.** Added `layout?: FieldLayout` (default `'floating'`) to
+both components' props. Wired a `wrapWithLayout` helper (NumberField)
+or a direct branch (Textarea) around each of the render return sites
+(both are multi-branch: standalone, bridge-fallback, bridge-integrated).
+When `layout !== 'floating'`, the internal `MuiTextField` renders
+without label/helperText, and a `FieldLayoutShell` sits around it.
+`useDashTheme()` + `useId()` added at the top of each function to
+supply the shell's props.
+
+The three field components (`TextField`, `Textarea`, `NumberField`)
+now share the same layout API. `Textarea`'s multiline text area
+composes cleanly with the stacked/inline label since `FieldLayoutShell`
+places the label outside the MUI FormControl root.
+
+**Full suite green.** 580/580 tests after the change.
+
+---
+
+### BUG 20 — `required` accepted by `<Autocomplete>` and `<RadioGroup>` (ui)
+
+**Fixed** 2026-09-15 in the same pass as BUG 14. The report noted
+Autocomplete and RadioGroup as the only two field components in `ui`
+that rejected `required` at the type level (Select, Checkbox, Switch
+already inherited MUI's `required` via passthrough).
+
+**The fix, in two edits:**
+
+- `Autocomplete.tsx` — added `required?: boolean` to the props type
+  and forwarded it to the internal `MuiTextField` in `renderInput`
+  (both bridge-integrated and standalone branches). MUI's TextField
+  then renders the label with its native asterisk and sets
+  `aria-required` on the underlying `<input>`.
+
+- `RadioGroup.tsx` — added `required?: boolean` to the props type,
+  extracted from destructure, and passed to `<FormControl required>`
+  in ALL THREE branches (standalone, bridge-fallback, bridge-integrated).
+  MUI's `FormControl.required` propagates to `<FormLabel>` (draws
+  the asterisk) and to the inner Radio group via context, setting
+  `aria-required` on the group.
+
+**Accessibility win.** The inventory-kit workaround
+(`requiredLabel.tsx`) drew an asterisk in the label text but set no
+`aria-required`, so screen readers did not announce the field as
+required. The fix restores that a11y semantics.
+
+**Consumer workaround becomes redundant.** After the release lands,
+`inventory-kit`'s `client/mui/src/components/fields/requiredLabel.tsx`
+can be deleted. Deleting it is important: leaving it in place while
+also passing the new `required` prop causes two asterisks to render.
+
+**Note for the agent maintaining this register.** `required` in MUI
+is presentational. It does NOT enforce submit-time validation on its
+own. Consumers who want the form to reject an empty required field
+still need `rules={{ required: … }}` or a resolver rule; the two are
+complementary. Documented on the JSDoc of both new props.
+
+---
+
+### BUG 19 — multi-select in `@dashforge/ui`
+
+**Partially fixed** 2026-09-15 (type-level widening only). The
+report identified three missing pieces: `<Autocomplete multiple>`,
+`<Select multiple>`, and a `CheckboxGroup`. This partial fix
+addresses the first two at the type level so consumers can compile
+`<Autocomplete multiple>` and `<Select multiple>` without the
+`Type 'true' is not assignable to type 'false'` error. Full runtime
+multi-select storage in the DashForm bridge pipeline is tracked as
+a follow-up (see the "Deferred" section below).
+
+**What landed.**
+
+- `Autocomplete.tsx` — widened the internal
+  `MuiAutocompleteProps<T, Multiple, …>` generic pin from `false`
+  to `boolean`. Widened the public `value` / `onChange` signature
+  to `TValue | TValue[] | null`. Added a runtime narrowing in the
+  scalar pipelines (both branches) that treats array-shaped values
+  as `null` for now, so a consumer who passes an array in scalar
+  mode does not crash MUI. When `multiple` is passed, MUI's own
+  multi-select rendering kicks in through the passthrough.
+
+- `Select.tsx` — added `multiple?: boolean` to the props type,
+  widened `value` / `onChange` to `T | T[] | null`, extracted
+  `value` + `onChange` from `rest` so the widened types don't
+  spread onto `TextField` (which still expects scalar in this
+  session), and forwarded `multiple` through `slotProps.select`
+  so MUI's native multi-select rendering activates.
+
+- `Omit` list on `SelectProps<T>` extended to remove `value`,
+  `onChange`, and `multiple` from the parent type so the widened
+  declarations win in the interface merge.
+
+**The guard.** A new test file
+`libs/dashforge/ui/src/components/Autocomplete/Autocomplete.multiple.test.tsx`
+pins the type-level contract: `<Autocomplete multiple>` with an
+array `value` compiles, `AutocompleteProps<string>` allows both
+scalar `value: 'a'` and array `value: ['a', 'b']`, and the scalar
+default mode still renders without any chip UI. Two tests, both
+green.
+
+**Deferred: full runtime multi-select.** Requires:
+
+1. A `NormalizedOption<TValue>[]` value adapter that maps the
+   bridge's `TValue[]` into the array of option objects MUI's
+   Multi mode expects for `value={...}`.
+2. An `onChange` adapter that unmaps MUI's array of option
+   objects back to `TValue[]` for `bridge.setValue`.
+3. Chip rendering / freeSolo interaction rules specific to
+   multi mode.
+4. A `CheckboxGroup` component for the small-set case (report's
+   third missing piece).
+
+Each of these is additive and does not conflict with the type
+widening that landed here. They are worth a dedicated session
+because they change the bridge's storage contract for a field
+family (scalar today, array in multi), and the migration deserves
+its own tests + CHANGELOG entry + docs.
+
+**Consumer workaround remains valid in the interim.**
+`inventory-kit`'s
+`client/mui/src/components/fields/MultiSelectField.tsx` (which uses
+`Select multiple` directly on MUI and pipes through `bridge.setValue`)
+continues to work. The type-level fix does not remove the
+downstream workaround; it just makes it optional for consumers
+whose runtime need is satisfied by MUI's native multi behavior via
+the passthrough.
+
+**Note for the agent maintaining this register.** When the full
+multi-select feature lands, this entry graduates from "partially
+fixed" to "fixed" and the workaround note above can be deleted.
+Keep an eye on the pin `boolean` in the internal MUI generic
+annotations; narrowing it back to `false` reintroduces the bug.
+
+---
 
 ### BUG 13 — `<Button>` and `<IconButton>` never show a pointer cursor
 

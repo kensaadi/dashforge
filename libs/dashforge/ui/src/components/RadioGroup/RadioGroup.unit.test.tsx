@@ -292,7 +292,10 @@ describe('RadioGroup', () => {
       }
     });
 
-    it('explicit helperText prop overrides bridge helperText', () => {
+    it('BUG 17: bridge validation message wins over explicit helperText while an error is showing', () => {
+      // Post-fix contract: the validation message takes precedence; the
+      // explicit hint is the fallback for the no-error state. See
+      // README-BUG.md § BUG 17.
       renderWithBridge(
         <RadioGroup
           name="fruit"
@@ -309,9 +312,8 @@ describe('RadioGroup', () => {
         }
       );
 
-      // Should show custom helperText
-      expect(screen.getByText('Custom hint')).toBeInTheDocument();
-      expect(screen.queryByText('Bridge error')).not.toBeInTheDocument();
+      expect(screen.getByText('Bridge error')).toBeInTheDocument();
+      expect(screen.queryByText('Custom hint')).not.toBeInTheDocument();
     });
   });
 

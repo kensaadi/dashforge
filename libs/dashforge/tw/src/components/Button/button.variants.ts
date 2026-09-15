@@ -30,6 +30,12 @@ export const buttonVariants = tv({
     'inline-flex items-center justify-center gap-2',
     'font-medium',
     'rounded-md',
+    // Pointer affordance — the browser UA cursor for `<button>` is
+    // `default`, not `pointer`. Applies to every non-disabled state
+    // (disabled + loading override below); `variant='link'` inherits
+    // this cursor too, matching what browsers show for anchors. See
+    // README-BUG § BUG 13.
+    'cursor-pointer',
     'select-none whitespace-nowrap',
     'transition-colors',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',

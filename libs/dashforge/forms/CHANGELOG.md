@@ -45,6 +45,34 @@ bump. Functionally identical to the previous beta tarball.
 
 ### Fixed
 
+- **Externalised `valtio` from the published bundle** (BUG 11). The
+  rollup config's `external: [...]` list was overriding
+  nx-rollup's auto-external default and did not name `valtio`, so
+  the built `dist/index.esm.js` inlined the entire library — 19
+  references to valtio internals and 4 occurrences of `import.meta`
+  (a syntax error for every CommonJS consumer). `'valtio'` is now
+  in the external list and `"valtio": "2.3.0"` is declared as a
+  direct `dependency` (matching `@dashforge/ui-core`'s exact pinned
+  version so pnpm dedupes both to one physical install and one
+  proxy identity). Post-fix audit of `dist/index.esm.js`:
+  `proxyStateMap` → 0, `import.meta` → 0,
+  `import { proxy, subscribe, snapshot } from 'valtio'` present as
+  a top-level ESM import. See `README-BUG.md § BUG 11`.
+
+### Docs
+
+- **`<DashForm>` documented as DOM-only; `<DashFormProvider>` as
+  the renderer-agnostic entry point** (BUG 10). `<DashForm>` renders
+  a `<form>` host element, which is the correct behaviour on the
+  web but throws immediately on React Native / Ink / any non-DOM
+  reconciler that does not know the `form` component. Signposting
+  added on both components' JSDoc plus the README components
+  summary table now carries a `Renderer` column with an inline
+  callout for non-DOM renderers. `<DashFormProvider>` was already
+  renderer-agnostic in implementation; the fix is purely
+  documentation so the RN failure signature no longer requires a
+  ticket to explain. See `README-BUG.md § BUG 10`.
+
 - **`bridge.setValue` now marks fields dirty + touched**
   (`DashFormProvider.tsx:452`). Previously called `rhf.setValue(name,
   value)` without options — default RHF behaviour is `shouldDirty:

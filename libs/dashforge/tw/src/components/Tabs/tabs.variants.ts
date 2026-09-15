@@ -7,6 +7,11 @@ export const tabsVariants = tv({
     trigger: [
       'inline-flex items-center justify-center whitespace-nowrap',
       'text-sm font-medium transition-colors',
+      // Radix Tabs.Trigger renders a `<button>`, whose UA cursor is
+      // `default`. `disabled:pointer-events-none` neutralises it on
+      // the disabled state (no pointer events → no cursor swap). See
+      // README-BUG § BUG 13.
+      'cursor-pointer',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
       'disabled:opacity-50 disabled:pointer-events-none',
       'motion-reduce:transition-none',

@@ -24,6 +24,11 @@ export const checkboxVariants = tv({
       'rounded border bg-neutral-50',
       'border-neutral-300',
       'transition-colors',
+      // Radix.Checkbox.Root renders a `<button>`, whose UA cursor is
+      // `default`. The label already reads `cursor-pointer`, but the
+      // control itself needs the same affordance when the pointer
+      // sits directly on the box. See README-BUG § BUG 13.
+      'cursor-pointer',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary-500',
       // Radix data-state hooks
       'data-[state=checked]:bg-primary-500 data-[state=checked]:border-primary-500',

@@ -62,16 +62,19 @@ if (process.env.NODE_ENV !== 'production') {
 /**
  * Provider component that sets up form infrastructure.
  *
+ * **Renderer-agnostic.** `DashFormProvider` is the entry point on
+ * non-DOM renderers (React Native, Ink, custom reconcilers) — it
+ * renders no host element of its own, only its children. Use
+ * `<DashForm>` on the web when you want a `<form>` wrapper for free;
+ * use `<DashFormProvider>` here plus your own container (`<View>`,
+ * `<Form>` from a library, ...) elsewhere. Wire submit with
+ * `useDashFormContext().rhf.handleSubmit(onSubmit)`.
+ *
  * **Responsibilities:**
  * - Creates or uses provided Engine instance
  * - Initializes React Hook Form with useForm
  * - Creates FormEngineAdapter to bridge RHF and Engine
  * - Provides context value to children
- *
- * **Phase 0 Implementation:**
- * - All infrastructure is set up correctly
- * - Adapter methods are stubs (no actual sync)
- * - Proper memoization to prevent unnecessary re-renders
  *
  * @template TFieldValues - Form field values type
  *

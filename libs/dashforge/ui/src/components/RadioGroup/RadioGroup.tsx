@@ -10,7 +10,7 @@ import type { AccessRequirement } from '@dashforge/rbac';
 import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useDashFieldMeta } from '@dashforge/forms';
 import type { FieldRegistration, Engine } from '@dashforge/ui-core';
-import { useAccessState } from '../../hooks/useAccessState';
+import { useAccessState, useAccessStates } from '../../hooks/useAccessState';
 import { renderLabelWithTooltip } from '../_internal/fieldTooltip';
 import type { FieldTooltipProp } from '../_internal/fieldTooltip';
 
@@ -38,6 +38,14 @@ export interface RadioGroupProps extends Omit<MuiRadioGroupProps, 'name'> {
   rules?: unknown;
   helperText?: string;
   error?: boolean;
+  /**
+   * Marks the group as required in the UI. Passes through to the wrapping
+   * `<FormControl required>`, which renders the asterisk on `<FormLabel>` and
+   * sets `aria-required` on the group. Presentational only: enforcement at
+   * submit time still requires `rules={{ required: … }}`. See README-BUG.md
+   * § BUG 20.
+   */
+  required?: boolean;
   visibleWhen?: ((engine: Engine) => boolean) | undefined;
   /**
    * RBAC access control requirement for the entire radio group.
@@ -103,6 +111,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
     rules,
     helperText: explicitHelperText,
     error: explicitError,
+    required,
     visibleWhen,
     value: explicitValue,
     onChange: explicitOnChange,
@@ -120,6 +129,17 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
 
   // RBAC access state for group (hook always called unconditionally)
   const groupAccessState = useAccessState(access);
+
+  // Resolve option-level access states in ONE hook. `options.map(useAccessState)`
+  // would tie React's hook count to `options.length` (unsound if options load
+  // async) and cannot be moved above the visibility early returns. See
+  // README-BUG.md § BUG 16.
+  const optionAccessStates = useAccessStates(
+    options.map((option) => option.access)
+  );
+
+  // Evaluate visibility predicate
+  const isVisible = useEngineVisibility(engine, visibleWhen);
 
   // Release engine/RHF state on REAL unmount when registered through the
   // bridge. See TextField.tsx for the rationale (bridge identity changes
@@ -142,13 +162,11 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
     };
   }, []);
 
-  // Evaluate visibility predicate
-  const isVisible = useEngineVisibility(engine, visibleWhen);
+  // Early returns come AFTER every hook call above. Moving a return earlier
+  // would break the rules of hooks when `visibleWhen` or group access flips.
   if (!isVisible) {
     return null;
   }
-
-  // Early return for group-level RBAC visibility
   if (!groupAccessState.visible) {
     return null;
   }
@@ -158,13 +176,6 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
   // This will be combined with option-level disabled state
   const groupEffectiveDisabled =
     groupAccessState.disabled || groupAccessState.readonly;
-
-  // IMPORTANT: Resolve option-level access states at top level (hooks must be unconditional)
-  // We call useAccessState for each option outside of any conditionals or loops
-  const optionAccessStates = options.map((option) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useAccessState(option.access)
-  );
 
   // Helper: Process options with option-level RBAC
   // Returns processed options with visibility and disabled state resolved
@@ -213,7 +224,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
     );
 
     return (
-      <FormControl error={explicitError}>
+      <FormControl error={explicitError} required={required}>
         {label && (
           <FormLabel>{renderLabelWithTooltip(label, tooltip)}</FormLabel>
         )}
@@ -250,7 +261,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
     );
 
     return (
-      <FormControl error={explicitError}>
+      <FormControl error={explicitError} required={required}>
         {label && (
           <FormLabel>{renderLabelWithTooltip(label, tooltip)}</FormLabel>
         )}
@@ -301,13 +312,11 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
       ? explicitError
       : Boolean(autoErr) && allowAutoError;
 
-  // Resolve final helper text (explicit prop overrides bridge error message)
-  const resolvedHelperText =
-    explicitHelperText !== undefined
-      ? explicitHelperText
-      : allowAutoError
-      ? autoErr?.message
-      : undefined;
+  // BUG 17: the validation message wins over the explicit hint while it is
+  // showing; the explicit prop is the fallback for the "no error" state. See
+  // README-BUG.md § BUG 17 (same shape lives in textField.validation.ts).
+  const autoMessage = allowAutoError ? autoErr?.message : undefined;
+  const resolvedHelperText = autoMessage ?? explicitHelperText;
 
   // Handle change: update bridge first, then call registration.onChange, then user onChange
   const handleChange = (
@@ -364,7 +373,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactElement | null {
   const processedOptions = processOptions(resolvedValue);
 
   return (
-    <FormControl error={resolvedError}>
+    <FormControl error={resolvedError} required={required}>
       {label && <FormLabel>{label}</FormLabel>}
       <MuiRadioGroup
         name={name}

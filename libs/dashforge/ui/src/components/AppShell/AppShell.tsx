@@ -112,19 +112,29 @@ export function AppShell({
         toolbarMinHeight={toolbarMinHeight}
       />
 
-      {/* Main content area */}
+      {/* Main content area.
+       *
+       * LeftNav is a `permanent` Drawer on desktop (an in-flow flex item
+       * that reserves its own column) and `temporary` on mobile (out of
+       * flow, does not reserve space). In both cases `flexGrow: 1` alone
+       * fills the remainder of the row. Earlier revisions added
+       * `marginLeft` + `width: calc(100% - nav)` on top of the flex, which
+       * counted the nav width a second and third time and overflowed the
+       * viewport by exactly the nav width on desktop. See README-BUG.md
+       * § BUG 18.
+       *
+       * `minWidth: 0` is required so a wide child (a data table, a chart)
+       * cannot push this flex item past the row.
+       *
+       * `data-dash-main-offset` is kept as a hook for downstream test
+       * selectors and telemetry that referenced it before the fix.
+       */}
       <Box
         component="main"
         data-dash-main-offset={mainOffset}
-        data-dash-main-margin-left={mainOffset}
         sx={{
           flexGrow: 1,
-          marginLeft: isDesktop ? `${mainOffset}px` : 0,
-          width: isDesktop ? `calc(100% - ${mainOffset}px)` : '100%',
-          transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
+          minWidth: 0,
           ...mainSx,
         }}
       >
