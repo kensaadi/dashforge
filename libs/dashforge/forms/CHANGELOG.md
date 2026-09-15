@@ -16,7 +16,10 @@ bump. Functionally identical to the previous beta tarball.
 - See the [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md#100---2026-05-23) for the coordinated release context.
 - See [`MIGRATION.md`](https://github.com/kensaadi/dashforge/blob/main/MIGRATION.md) for the upgrade guide from any `0.x-beta` to `1.0.0` (no code changes required).
 
-## [Unreleased]
+## [1.1.0] — 2026-09-15
+
+Minor release: one new hook, one build-config fix that unblocks CJS
+consumers, one doc rewrite for non-DOM renderers.
 
 ### Added
 

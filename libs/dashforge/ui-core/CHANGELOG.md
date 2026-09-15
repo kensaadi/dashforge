@@ -9,7 +9,26 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
-## [Unreleased]
+## [1.1.0] — 2026-09-15
+
+Minor release: two additive public surfaces land together.
+
+- **New hook** `useWarnIfControlledInFormMode` (BUG 2 runtime rete) —
+  fires a dev-mode `console.warn` when a bridge-integrated field
+  component is passed controlled / uncontrolled value props inside
+  a `<DashFormProvider>`. Dedup'd per `(componentName, name, propKey)`,
+  gated by `process.env.NODE_ENV !== 'production'` so it dead-codes in
+  shipped builds. Consumed by `@dashforge/tw@1.6.0`'s Autocomplete /
+  Select / RadioGroup / DatePicker as of this release. See
+  `libs/dashforge/README-BUG.md § BUG 2`.
+- **New interface** `ArrayNode` (V3 array API foundation) — models an
+  ordered collection whose identity (stable ids) is owned by the
+  engine; item values live outside the engine. Prerequisite for
+  `useDashFieldArray`'s engine-owned identity rewrite in
+  `@dashforge/forms@1.1.0`.
+
+Both changes are additive; no existing API changed.
+
 
 ### Added
 

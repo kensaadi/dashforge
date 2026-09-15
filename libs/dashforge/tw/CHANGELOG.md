@@ -12,7 +12,18 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
-## [Unreleased]
+## [1.6.0] — 2026-09-15
+
+Minor release: three bug fixes (BUG 6 Dialog `actions` slot,
+BUG 9 tooltip DOM leak, BUG 13 pointer cursor across every
+interactive `<button>`), one runtime-rete for the DashForm mode
+misuse (BUG 2 wiring on Autocomplete / Select / RadioGroup /
+DatePicker via the new `useWarnIfControlledInFormMode` hook from
+`@dashforge/ui-core@1.1.0`), and one type-only refactor of
+`AutocompleteProps` into a discriminated union so form-mode and
+standalone-mode props stop compiling together.
+
+Requires `@dashforge/ui-core@^1.1.0` at runtime for the new hook.
 
 ### Fixed
 
