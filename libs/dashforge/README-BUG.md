@@ -691,11 +691,1239 @@ the bus.
 
 ---
 
+## BUG 10 — `<DashForm>` renders a `<form>`, so it cannot be used outside a browser
+
+**Severity:** high for any non-DOM renderer. The component is unusable
+on React Native, and the failure names a host component rather than the
+package, so nothing points at `@dashforge/forms`.
+
+**Status:** **fixed** 2026-09-07 via Option 1 (doc-only). See *Fixed*
+section at bottom.
+
+### Symptom
+
+Rendering `<DashForm>` on React Native throws immediately:
+
+```
+Render Error
+View config getter callback for component `form` must be a function
+(received `undefined`). Make sure to start component names with a
+capital letter.
+```
+
+The component stack shows `<DashFormInner />` then `<DashFormProvider />`,
+both from `@dashforge/forms/dist/index.esm.js`. React Native reads
+`<form>` as a native host component, finds nothing registered under that
+name, and fails.
+
+### Cause
+
+`libs/dashforge/forms/src/components/DashForm.tsx:27`
+
+```tsx
+return (
+  <form {...formProps} onSubmit={handleSubmit}>
+    {children}
+  </form>
+);
+```
+
+It is the **only** DOM element in the whole package. Everything else,
+including `DashFormProvider`, the engine adapter and every hook, is
+renderer-agnostic. Grepping the package for `<form|<div|<span|<input`
+returns this one line plus three occurrences inside JSDoc examples.
+
+### Reproduction (verified)
+
+`dashforge-rn`, the React Native renderer, iOS simulator. A
+`TextField` inside `<DashForm>` throws on first render. Replacing
+`DashForm` with `DashFormProvider` renders correctly and the field
+registers, reads its value from the engine and reports validation
+exactly as expected.
+
+### Why this was not caught earlier
+
+The portability check that cleared this package looked for
+`document.`, `window.`, `HTMLElement`, `navigator`, `localStorage` and
+`addEventListener`. It did **not** look for JSX host elements, so a bare
+`<form>` passed a review that was otherwise thorough. Worth repeating on
+the other shared packages before the next renderer trusts them.
+
+### Proposed fix
+
+The `<form>` element buys one thing: the browser's native submit, which
+`handleSubmit` is already wired to. Two options, least invasive first.
+
+1. **Document `DashFormProvider` as the renderer-agnostic entry point**
+   and `DashForm` as the DOM convenience wrapper. Costs nothing, and is
+   what the RN renderer does today.
+2. **Give `DashForm` a `component` prop** defaulting to `'form'`, so a
+   non-DOM renderer can pass its own container. Keeps one public name
+   across renderers at the cost of a prop nobody on the web will use.
+
+Option 1 is enough. Option 2 only becomes worth it if a third
+non-DOM renderer appears.
+
+---
+
+## BUG 11 — `@dashforge/forms` bundles valtio instead of externalising it
+
+**Severity:** high. It ships `import.meta` in a published bundle, which
+is a parse error for every CommonJS consumer, and it puts a second copy
+of valtio in any app that already uses one.
+
+**Status:** **fixed** 2026-09-07 (not shipped yet — awaits version
+bump). See *Fixed* section at bottom.
+
+### Symptom
+
+Any CJS consumer of `@dashforge/forms@1.0.0` fails to parse it:
+
+```
+/…/@dashforge/forms/dist/index.esm.js:3093
+  if ((import.meta.env ? import.meta.env.MODE : void 0) !== "production" && …
+              ^^^^
+SyntaxError: Cannot use 'import.meta' outside a module
+```
+
+Line 3093 is not our code. It is valtio's development check, inlined
+into the bundle.
+
+### Cause
+
+`libs/dashforge/forms/package.json` declares exactly one dependency:
+
+```json
+"dependencies": { "react-hook-form": "^7.71.1" }
+```
+
+valtio appears nowhere, in `dependencies` or `peerDependencies`, yet the
+published `dist/index.esm.js` contains 19 references to valtio internals
+(`proxyStateMap`, `propProxyStates`) and 4 occurrences of `import.meta`.
+The rollup build is inlining it rather than treating it as external.
+
+Two consequences, and the second is the quieter one:
+
+- **`import.meta` in a published bundle.** Valid in ESM, a parse error
+  under CommonJS. Jest, ts-node, and any bundler configured for CJS all
+  fail on it.
+- **Two copies of valtio.** An app that uses valtio directly, as
+  `@dashforge/rn` does for its theme store, gets its own instance plus
+  the one inside `forms`. Valtio keys its proxies in module-level
+  `WeakMap`s, so two instances do not share proxy identity: a proxy
+  created by one is an ordinary object to the other.
+
+### Reproduction (verified)
+
+`dashforge-rn`, Jest with the React Native preset. Importing
+`@dashforge/forms` in any test throws the parse error above. Worked
+around locally with a Babel plugin rewriting `import.meta`, which is a
+patch on the consumer side for a defect on the publisher side.
+
+### Proposed fix
+
+Add valtio to the rollup `external` list and declare it as a dependency
+(or a peer, matching how `@dashforge/ui-core` treats it). The bundle
+then imports valtio instead of containing it, `import.meta` never
+reaches the published file, and consumers deduplicate to one instance.
+
+Worth checking `@dashforge/ui-core` and `@dashforge/rbac` for the same
+pattern in the same pass, since they share the build setup.
+
+---
+
+## BUG 12 — the workspace root installs `react` and `react-dom` as `dependencies`, so every downstream consumer risks a duplicate React
+
+**Severity:** high for any consumer linked into an app with its own
+copy of React (which is every real consumer). No warning; hooks return
+`null` inside components rendered through Dashforge's providers, and
+the failure names `useContext` / `useMemo` in the trace rather than
+anything Dashforge-owned.
+
+**Status:** **fixed** 2026-09-07. See *Fixed* section at bottom.
+
+**Reproduced** 2026-09-07 from `~/projects/web/urbango`, an external
+pnpm project consuming Dashforge via `link:`. See BUG 11 for the same
+shape one level lower (valtio inlined into `@dashforge/forms`). This
+is the same class of defect, at the workspace-root layer.
+
+### Symptom
+
+Any pnpm project that consumes a Dashforge subpackage via `link:` and
+has its own copy of React sees, on first render:
+
+```
+Uncaught TypeError: Cannot read properties of null (reading 'useContext')
+    at exports.useContext (react-dom_client.js:12422)
+    at Meta (react-router)
+Warning: Invalid hook call. Hooks can only be called inside of the body
+of a function component. […] You might have more than one copy of React
+in the same app.
+```
+
+Under SSR/prerender the same shape surfaces as
+`Cannot read properties of null (reading 'useMemo')` from
+`react-dom-server.node.development.js`, thrown by whichever
+consumer of `useSnapshot` in `@dashforge/theme-core` runs first
+(`DashforgeThemeProvider` in the reproduced case).
+
+Both errors are the classic "two React instances share the app tree":
+the dispatcher is set on one copy, the hook is looked up on the other.
+
+### Cause
+
+`dashforge/package.json` (workspace root, verified 2026-09-07):
+
+```json
+"dependencies": {
+  "react": "^19.2.5",
+  "react-dom": "^19.2.5",
+  "react-router-dom": "6.30.3"
+}
+```
+
+`pnpm-workspace.yaml` covers `packages/*`, `api`, and
+`libs/dashforge/*`. Because React is declared as a `dependency` on the
+root — not `devDependencies` and not confined to the workspace that
+actually needs it — `pnpm install` materialises
+`dashforge/node_modules/react` (currently `19.2.5`) alongside every
+subpackage's symlink.
+
+The subpackages themselves are already correct — verified across all
+eleven `libs/dashforge/*/package.json`:
+
+| Package | `react` in `dependencies`? | `react` in `peerDependencies` |
+|---|---|---|
+| `@dashforge/ui` | ❌ | `^18.0.0 \|\| ^19.0.0` |
+| `@dashforge/tw` | ❌ | `^18.0.0 \|\| ^19.0.0` |
+| `@dashforge/theme-mui` | ❌ | (none — inherits from consumer's MUI) |
+| `@dashforge/theme-core` | ❌ | (none — depends only on tokens + valtio) |
+| `@dashforge/forms` | ❌ | `^18.0.0 \|\| ^19.0.0` |
+| `@dashforge/rbac` | ❌ | `^18.0.0 \|\| ^19.0.0` |
+| `@dashforge/tw-theme` | ❌ | `^18.0.0 \|\| ^19.0.0` |
+| `@dashforge/ui-core` | ❌ | `^18.0.0 \|\| ^19.0.0` |
+| `@dashforge/calendar-core` | ❌ | `^18.0.0 \|\| ^19.0.0` |
+| `@dashforge/tokens` | ❌ | — |
+| `@dashforge/tw-tokens` | ❌ | — |
+
+So the intent at the library layer is right. The root defeats it in
+practice: when a consumer's file at
+`dashforge/libs/dashforge/ui/src/…/DashforgeThemeProvider.tsx` writes
+`import 'react'`, node module resolution walks up and hits
+`dashforge/node_modules/react` before it ever reaches the consumer's
+`node_modules`. Whatever version sits there wins — and it's the one the
+root declared, not the one the consumer ships.
+
+### Reproduction (verified)
+
+`~/projects/web/urbango`, an external Vite 6 + React Router v7 project
+consuming Dashforge via `link:`:
+
+```json
+"dependencies": {
+  "@dashforge/ui": "link:../dashforge/libs/dashforge/ui",
+  "@dashforge/theme-mui": "link:../dashforge/libs/dashforge/theme-mui",
+  "react": "^19.1.1",
+  "react-dom": "^19.1.1"
+}
+```
+
+Installed with plain `pnpm install`, on `dashforge`'s current commit
+(no changes to dashforge). Result:
+
+```
+urbango/node_modules/react/package.json    →  "version": "19.2.8"
+dashforge/node_modules/react/package.json  →  "version": "19.2.5"
+```
+
+Two versions, two on-disk installations, two module identities. Vite
+starts, first render throws the `useContext` null in `<Meta>` shown
+above. Restarting into SSR prerender throws the `useMemo` null in
+`react-dom-server`. Both traces name a Dashforge component
+(`DashforgeThemeProvider`) or a component wrapped by it as the
+render site; nothing in the trace points at
+`@dashforge/*` as the cause.
+
+### Why the existing library-side `peerDependencies` don't save this
+
+The subpackage declaring `react` as a peer only tells the **consumer of
+that subpackage** to bring its own React. It does not stop the
+workspace root from installing one. Since `link:` bypasses pnpm's own
+hoisting logic (the consumer's pnpm never sees Dashforge's install),
+whichever `node_modules/react` the resolver reaches first wins — and
+for a file inside `dashforge/libs/…` that's always the root's copy.
+
+`resolve.dedupe` in Vite (or the equivalent bundler-side workaround)
+can paper over this per-consumer, but only after every consumer has
+been taught which alias to write. The root-side fix costs zero
+consumer configuration.
+
+### The pattern behind this and BUG 11
+
+BUG 11 is the same shape, one layer lower: a subpackage's
+`rollup.config` inlined valtio because `dashforge/package.json` didn't
+declare it. Here the workspace root's package.json declares React
+where it shouldn't. In both cases the effect is the same — a
+Dashforge-shipped copy of a library the consumer already ships,
+diverging silently at the resolver.
+
+Worth checking, in the same pass, whether the root's
+`react-router-dom` and any other runtime library in
+`dashforge/package.json`'s `dependencies` are subject to the same
+duplication if a consumer already has them.
+
+### Proposed fix
+
+Remove `react`, `react-dom`, and `react-router-dom` from
+`dashforge/package.json`'s `dependencies`. Two moves, ordered by how
+big the change is:
+
+1. **If the root needs React for tooling** (build scripts, top-level
+   tests, storybook, docs-lab — whichever workspace actually renders
+   at the root) — move the three declarations to `devDependencies` on
+   the root, or ideally into the specific workspace that renders
+   (`docs-lab`, `api`, whichever). Development-time only, never
+   published, no `dashforge/node_modules/react` at consumer link
+   time.
+2. **If nothing at the root actually renders** — delete the three
+   entries outright. The subpackages already declare their peers.
+
+After the change, verify:
+
+```
+ls dashforge/node_modules/react       → should not exist
+pnpm ls -r --depth 0 react            → present only in the workspaces
+                                        that legitimately need it
+```
+
+A consumer with its own React can then `link:` any Dashforge
+subpackage without a duplicate-instance risk.
+
+### Current workaround downstream — remove when this is fixed
+
+`~/projects/web/urbango/vite.config.ts` carries a `react-singleton`
+plugin (`enforce: 'pre'`, `resolveId` re-routing every
+`react` / `react-dom` / `react-dom/{client,server}` /
+`react/jsx-{,dev-}runtime` to a `this.resolve(source, HOST_ANCHOR)`
+call anchored at `app/root.tsx`), plus `ssr.noExternal` covering
+`@dashforge/*` and the deps that carry the drift transitively:
+`valtio` (BUG 11), `motion` / `framer-motion`, `@radix-ui/*`,
+`react-hook-form`, `tailwind-variants`, `tailwind-merge`, `clsx`.
+Removing the root `react` install lets urbango drop the plugin AND
+the `ssr.noExternal` list — the alias for `@dashforge/*` alone would
+then suffice.
+
+The urbango workaround is what today's session was closed on
+(2026-09-07). It works but must be repeated in every future Dashforge
+consumer until the root is cleaned up.
+
+---
+
+## BUG 13 — `<Button>` and `<IconButton>` never show a pointer cursor
+
+**Severity:** low severity, high friction. Nothing breaks; every button in
+every consumer app just fails to signal that it is clickable, which reads
+as "the page is dead" to the person using it.
+
+**Status:** **fixed** 2026-09-08 (not shipped yet — awaits version
+bump). See *Fixed* section at bottom.
+
+**Reproduced** 2026-09-08 in `~/projects/web/urbango`, on
+`@dashforge/tw` 1.5.2.
+
+### Symptom
+
+Hovering any `<Button>` shows the default arrow cursor instead of the
+pointer hand. Measured on four buttons in the urbango landing (two
+`variant="solid"`, one `variant="outline"`, one `variant="ghost"` inside
+`IconButton`):
+
+```
+getComputedStyle(btn).cursor  →  "default"   (expected "pointer")
+```
+
+The buttons are fully functional: focus ring, hover background, click
+handlers all work. Only the cursor affordance is missing.
+
+### Cause
+
+`libs/dashforge/tw/src/components/Button/button.variants.ts`
+
+```ts
+export const buttonVariants = tv({
+  base: [
+    'inline-flex items-center justify-center gap-2',
+    'font-medium',
+    'rounded-md',
+    'select-none whitespace-nowrap',
+    'transition-colors',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    'disabled:opacity-50 disabled:pointer-events-none',
+  ],
+  // …
+```
+
+There is no `cursor-pointer` in the base array. The reason this is a real
+defect rather than a browser default worth relying on: **`<button>` has
+`cursor: default` in every modern browser**, not `cursor: pointer`. UA
+stylesheets have never set pointer on form controls; the pointer hand on
+buttons across the web comes from application CSS or from a framework's
+own base layer. Tailwind Preflight does not add it either, and Tailwind
+v4 explicitly removed the `cursor-pointer` that some earlier resets
+carried.
+
+`IconButton` inherits the same base (`buttonVariants` is reused 1:1),
+so it has the same gap.
+
+### Reproduction (verified)
+
+`~/projects/web/urbango`, landing `/it-IT`:
+
+```tsx
+<Button variant="solid" size="md">Attiva la tua centrale</Button>
+<Button variant="outline" size="md">Leggi di più</Button>
+```
+
+Probed in a real browser:
+
+```
+[
+  { label: "Attiva la tua centrale", cursor: "default" },
+  { label: "Leggi di più",           cursor: "default" }
+]
+```
+
+After adding `cursor: pointer` on the consumer side, the same probe
+returns `"pointer"` for all of them.
+
+### Proposed fix
+
+Add `cursor-pointer` to the base array in `buttonVariants`:
+
+```diff
+   base: [
+     'inline-flex items-center justify-center gap-2',
+     'font-medium',
+     'rounded-md',
++    'cursor-pointer',
+     'select-none whitespace-nowrap',
+     'transition-colors',
+     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+     'disabled:opacity-50 disabled:pointer-events-none',
+   ],
+```
+
+`disabled:pointer-events-none` already neutralises the cursor on
+disabled buttons (no pointer events, no cursor change), so no extra
+`disabled:cursor-*` rule is needed.
+
+**Worth auditing in the same pass**, since they are all interactive
+elements that likely share the omission: `Link` (when rendered as
+`<button>` via `asChild`), `MenuItem`, `Tab`, `Chip` if dismissible,
+`Switch`, `Checkbox`, `RadioGroup` items, and the `Autocomplete` /
+`Select` option rows. Anything a person clicks should say so.
+
+### Current workaround downstream — remove when this is fixed
+
+`~/projects/web/urbango/app/styles/app.css` carries a global rule:
+
+```css
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+```
+
+It is applied app-wide rather than per-instance `sx="cursor-pointer"`,
+because the omission affects every button in the design system. Remove
+the rule once `buttonVariants` carries the class itself.
+
+---
+
+## BUG 14 — `<Autocomplete>` (ui): no stacked label, and `renderInput` is removed from the passthrough
+
+Found porting inventory-kit onto the MUI flavour (15/09/2026). Read
+straight out of the source; the type-level half is reproduced by a
+compile probe.
+
+### Symptom
+
+A form mixes `<TextField layout="stacked">`, `<Select layout="stacked">`
+and `<DatePicker layout="stacked">` with an `<Autocomplete>`. The first
+three put the label above the control; the Autocomplete keeps MUI's
+floating label. The row does not align, and there is no prop to make it.
+
+### Cause
+
+`Autocomplete.tsx` declares no `layout`. That alone would be a gap and
+not a defect — except the component also closes MUI's own way of doing
+it. In MUI the Autocomplete's label lives inside `renderInput`, which is
+the only place a consumer can control it, and the passthrough removes it:
+
+```ts
+// Autocomplete.tsx:106-123
+type PassthroughProps = Partial<
+  Omit<
+    BaseMuiAutocompleteProps,
+    | 'options'
+    | 'freeSolo'
+    | 'value'
+    | 'onChange'
+    | 'renderInput'   // ← line 116 — the native escape, removed
+    | 'onBlur'
+    | 'onInputChange'
+    | 'name'
+    | 'getOptionLabel'
+    | 'getOptionDisabled'
+  >
+>;
+```
+
+So the component supports neither the library's own convention nor the
+underlying library's. It is the only field in `ui` in that position:
+`Textarea` and `NumberField` also lack `layout`, but they are
+`Omit<MuiTextFieldProps, …>` with the passthrough open, so a consumer is
+inconvenienced, not blocked (see BUG 15).
+
+### Reproduction (verified)
+
+Compile probe against `@dashforge/ui` from `inventory-kit/client/mui`:
+
+| written | result |
+|---|---|
+| `<Autocomplete name="f" options={o} layout="stacked" />` | `TS2322 … not assignable to AutocompleteProps` |
+| `<Autocomplete name="f" options={o} renderInput={() => <div/>} />` | `TS2322 … not assignable to AutocompleteProps` |
+| `<TextField name="a" layout="stacked" />` | compiles |
+| `<Select name="e" options={o} layout="stacked" />` | compiles |
+| `<DatePicker name="d" layout="stacked" />` | compiles |
+
+Checked and **not** part of this bug — these are correct as they stand:
+
+- `RadioGroup` already renders `<FormLabel>` above the options
+  (`RadioGroup.tsx:218`), so it is stacked by construction.
+- `Checkbox` and `Switch` wrap in `FormControlLabel`; a boolean control's
+  label belongs beside it, not above.
+
+### Proposed fix
+
+Cheapest first: **drop `'renderInput'` from the `Omit`**. It reopens
+MUI's native API and implements nothing. The component builds its own
+`renderInput` today, so accept an optional override and fall back to it.
+
+Better, for consistency with the rest of the field set: accept
+`layout?: FieldLayout` and route it through `FieldLayoutShell` the way
+`Select.tsx:430` does.
+
+### Current workaround downstream — remove when this is fixed
+
+`inventory-kit/client/mui/src/components/fields/StackedField.tsx` — a
+`FormLabel` + `useId` wrapper whose spacing and type scale were measured
+off the DOM a stacked `DatePicker` produces, so the two labels match. It
+is used exactly once, on the only Autocomplete that shares a row with
+stacked fields.
+
+---
+
+## BUG 15 — `<Textarea>` and `<NumberField>` (ui): no `layout`, though they are the same `MuiTextField` as `<TextField>`, which has it
+
+Read from source, 15/09/2026. Inconsistency rather than a defect —
+recorded because it is one line of divergence in three siblings.
+
+### Symptom
+
+`<TextField layout="stacked">` compiles. `<Textarea layout="stacked">`
+and `<NumberField layout="stacked">` do not, although all three wrap
+`MuiTextField`.
+
+### Cause
+
+`TextField.tsx:53` declares `layout = 'floating'` and branches on it
+(`:187`). `Textarea.tsx:17` (`Omit<MuiTextFieldProps, 'name'>`) and
+`NumberField.tsx:14` (`Omit<MuiTextFieldProps, 'name'|'type'|'value'|'onChange'>`)
+declare nothing: the word `layout` does not appear in either file.
+
+Unlike BUG 14 the consumer is not blocked — the MUI passthrough is open,
+so `multiline`, `minRows` and `slotProps` all reach the underlying
+field. Verified by compile probe.
+
+### Proposed fix
+
+Give both the same `layout` prop and `FieldLayoutShell` branch as
+`TextField`. The three share a base; they should share the API.
+
+---
+
+## BUG 16 — `visibleWhen` calls hooks after an early `return null`, so toggling it white-screens the app (ui: `RadioGroup`, `Autocomplete`)
+
+Reproduced live in inventory-kit, 15/09/2026, and confirmed
+pre-existing by stashing the kit's changes and re-testing.
+
+### Symptom
+
+A field with `visibleWhen` is mounted. The predicate flips. React throws
+and unmounts the tree — the whole page goes blank:
+
+- `RadioGroup` → *"Rendered more hooks than during the previous render"*
+- `Autocomplete` → *"Rendered fewer hooks than expected"*
+
+### Cause
+
+Both components evaluate visibility, return early, and then call hooks.
+
+`RadioGroup.tsx:146-167`:
+
+```tsx
+const isVisible = useEngineVisibility(engine, visibleWhen);
+if (!isVisible) { return null; }              // 148
+if (!groupAccessState.visible) { return null; }   // 153
+…
+// IMPORTANT: Resolve option-level access states at top level
+// (hooks must be unconditional)
+const optionAccessStates = options.map((option) =>
+  // eslint-disable-next-line react-hooks/rules-of-hooks   ← 165
+  useAccessState(option.access)                            // ← 166
+);
+```
+
+The comment states the rule the code breaks, and the lint rule that
+would have caught it is suppressed on the line above. When the predicate
+is false the component returns at 148 and never reaches 166, so the hook
+count differs between renders.
+
+`Autocomplete.tsx` is the same shape, with more of it: `return null` at
+388 and 394, then `useState` at 502, `useEffect` at 506, `useMemo` at
+520, `useEffect` at 547 and 562 — and a second block of hooks at 803-808
+in a different branch.
+
+### Why this is the worst entry in this file
+
+It does not degrade — it takes the application down. And `visibleWhen`
+is the library's own conditional-field API, so the failure is on the
+supported path.
+
+### Proposed fix
+
+Move every hook above the early returns and gate only the returned JSX:
+
+```tsx
+const optionAccessStates = options.map(…)   // hooks first, unconditionally
+if (!isVisible) return null;                // then the early exits
+```
+
+`options.map(useAccessState)` is itself unsound — the hook count tracks
+`options.length`, so a field whose options load asynchronously breaks the
+same way with `visibleWhen` never used. Resolve option access in one
+hook that takes the array, rather than one hook per option.
+
+### Current workaround downstream — remove when this is fixed
+
+inventory-kit mounts and unmounts these two from the parent instead of
+using `visibleWhen`:
+
+- `client/mui/src/features/movements/MovementForm.tsx` — `direction`
+  (RadioGroup). `unitCost` still uses `visibleWhen`, which is fine
+  because it is a `TextField`.
+- `client/mui/src/features/counts/CountForms.tsx` — the Zone/Bin
+  Autocompletes, rendered on `scopeKind`.
+
+---
+
+## BUG 17 — an explicit `helperText` permanently hides the field's validation message
+
+Read from source, 15/09/2026, and hit in five fields of inventory-kit.
+
+### Symptom
+
+A field carries a constant hint — "Unique, uppercase", "Leave empty to
+inherit from the category". The field is required, the user submits it
+empty, validation fails, the field turns red — and no message ever
+appears. The hint sits there instead. Removing the hint makes the error
+appear.
+
+### Cause
+
+`components/TextField/textField.validation.ts:41-42`:
+
+```ts
+const helperText =
+  explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined);
+```
+
+`??` gives the explicit prop precedence over the validation message, and
+an explicit hint is never nullish. So passing `helperText` at all closes
+the channel the error would come through — permanently, not just while
+the field is pristine.
+
+The auto-binding itself is right: with no `helperText` passed, the error
+arrives on its own with the touched/submitted gating at `:35`. It is the
+precedence that is inverted.
+
+### Proposed fix
+
+The error is the more urgent of the two, so it should win while it is
+showing:
+
+```ts
+const autoMessage = allowAutoError ? autoErr?.message : undefined;
+const helperText = autoMessage ?? explicitHelperText;
+```
+
+One line below the field, error when there is one, hint otherwise —
+which is what the field is documented to do.
+
+### Current workaround downstream — remove when this is fixed
+
+`inventory-kit/client/shared/forms/useFieldHint.ts` — reads
+`useDashFieldMeta(name)` and returns `undefined` for the hint while an
+error is visible, re-opening the channel from the outside.
+
+---
+
+## BUG 18 — `<AppShell>` (ui) counts the nav width three times on desktop
+
+Measured in the browser, 15/09/2026: main content started at x=560 on a
+1440px viewport with a 280px nav, and its right edge ran 187px past the
+viewport.
+
+### Symptom
+
+With the nav expanded, the page content is pushed far right and overflows
+horizontally. Collapsing the rail reduces the error but does not remove it.
+
+### Cause
+
+Three independent offsets for the same nav, each correct alone.
+
+`AppShell.tsx:82-86` — the shell is a flex row:
+
+```tsx
+<Box sx={{ display: 'flex', minHeight: '100vh' }}>
+```
+
+`LeftNav.tsx:366-367` — on desktop the nav is a **permanent** Drawer,
+which is in-flow and therefore already occupies its own column in that row:
+
+```ts
+const effectiveMobileVariant =
+  isMobile && mobileVariant === 'temporary' ? 'temporary' : 'permanent';
+```
+
+`AppShell.tsx:121-123` — and then `main` is offset twice more:
+
+```ts
+flexGrow: 1,                            // already fills what the nav left
+marginLeft: `${mainOffset}px`,          // pushes it again
+width: `calc(100% - ${mainOffset}px)`,  // and narrows it a third time
+```
+
+`flexGrow: 1` beside an in-flow Drawer is the whole answer on its own.
+The `marginLeft` and `width` belong to the other layout — a `fixed` or
+`absolute` nav taken out of flow — and the two were merged.
+
+### Proposed fix
+
+Drop `marginLeft` and `width` from the `main` sx and keep `flexGrow: 1`,
+since `LeftNav` is always `permanent` on desktop. Add `minWidth: 0` so a
+wide child (a table, a chart) cannot push the flex item past the row.
+
+If a non-flow nav variant is planned, branch on it explicitly rather than
+applying both models at once.
+
+### Current workaround downstream — remove when this is fixed
+
+`inventory-kit/client/mui/src/components/layout/AppShell.tsx` passes the
+library's own escape hatch:
+
+```tsx
+mainSx={{ marginLeft: 0, width: '100%', minWidth: 0 }}
+```
+
+---
+
+## BUG 19 — there is no multi-select anywhere in `@dashforge/ui`
+
+Read from source and reproduced by compile probe, 15/09/2026. `tw` has
+`<Autocomplete multiple>`; `ui` has no equivalent.
+
+### Symptom
+
+A field holding `string[]` — roles on a user, tags on an article —
+cannot be bound. `<Autocomplete multiple>` does not compile,
+`<Select multiple>` does not compile, and there is no `CheckboxGroup`.
+
+### Cause
+
+`Autocomplete.tsx:99-104` pins MUI's `Multiple` generic to `false`:
+
+```ts
+type BaseMuiAutocompleteProps = MuiAutocompleteProps<
+  AutocompleteOption,
+  false,   // ← Multiple
+  false,
+  true
+>;
+```
+
+`multiple` is not in the `Omit` list, so it survives into
+`PassthroughProps` — but typed `false`, which is why the probe reports
+`Type 'true' is not assignable to type 'false'` rather than an unknown
+prop. The runtime never handles it either: the word `multiple` does not
+appear once in the file's 949 lines, and the storage contract is scalar
+throughout:
+
+```ts
+value?: TValue | null;                        // :139
+onChange?: (value: TValue | null) => void;    // :141
+// TValue extends string | number
+```
+
+`Select.tsx` is the same: `SelectProps<T extends string | number>`
+(`:117`), no `multiple` anywhere in the file.
+
+### Proposed fix
+
+Widen `Autocomplete` to MUI's `Multiple` generic and make the bridge
+value `TValue[] | TValue | null` accordingly, or ship a `CheckboxGroup`
+for the small-set case. Porting `tw`'s Autocomplete API across is
+probably the shortest route and keeps the two libraries at parity.
+
+### Current workaround downstream — remove when this is fixed
+
+`inventory-kit/client/mui/src/components/fields/MultiSelectField.tsx` —
+a `Select multiple` built on MUI directly, bound through
+`DashFormContext` with `bridge.setValue(name, next)` followed by
+`registration.onChange(…)`. Note for whoever fixes this: `register` must
+be called once per render, not inside the change handler — re-registering
+mid-handler discards the value being written, which made the field behave
+as a single-select.
+
+---
+
+## BUG 20 — `required` is rejected by `<Autocomplete>` and `<RadioGroup>` (ui)
+
+Compile probe, 15/09/2026. Narrower than it first looked — an earlier
+note in the kit's memory said four components, which was wrong and is
+corrected here.
+
+### Symptom
+
+A required Autocomplete or RadioGroup cannot be marked as such. Every
+other field in the same form can.
+
+### Cause
+
+Neither declares `required`, and neither inherits it: `AutocompleteProps`
+builds on a filtered `PassthroughProps`, and `RadioGroupProps` is
+`Omit<MuiRadioGroupProps, 'name'>` — MUI puts `required` on `FormControl`,
+not on `RadioGroup`. The only occurrence of the word in
+`RadioGroup.tsx` is a docstring example at `:93` (`rules={{ required: true }}`),
+which is validation, not presentation.
+
+By contrast `Select`, `Checkbox` and `Switch` **do** accept it, by
+passthrough to MUI, even though they never declare it.
+
+### Reproduction (verified)
+
+| written | result |
+|---|---|
+| `<TextField required />`, `<Textarea required />`, `<NumberField required />`, `<DatePicker required />` | compiles |
+| `<Select required />`, `<Checkbox required />`, `<Switch required />` | compiles (MUI passthrough) |
+| `<Autocomplete required />` | `TS2322` |
+| `<RadioGroup required />` | `TS2322` |
+
+### Proposed fix
+
+`RadioGroup` already renders `<FormControl>` at `:216` — pass `required`
+to it and the `<FormLabel>` at `:218` gets MUI's asterisk for free.
+`Autocomplete` should forward it to the `MuiTextField` it builds in its
+internal `renderInput`.
+
+### Current workaround downstream — remove when this is fixed
+
+`inventory-kit/client/mui/src/components/fields/requiredLabel.tsx` —
+builds the marker into the label node. Used only on those two components.
+Worth noting that it is **not** equivalent: a marker drawn in the label
+carries no `aria-required`, so the two fields are silent to assistive
+technology in a way the rest of the form is not. That is the real cost of
+this entry.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
 
 ## Fixed
+
+### BUG 13 — `<Button>` and `<IconButton>` never show a pointer cursor
+
+**Fixed** 2026-09-08. See the *open* entry above for the full symptom,
+cause and reproduction — the summary is: `buttonVariants.base` did not
+carry `cursor-pointer`, and neither does the browser UA stylesheet on
+`<button>`, so every button in every consumer app hovered as an arrow.
+
+**Verification method (source + audit).**
+
+1. Read `libs/dashforge/tw/src/components/Button/button.variants.ts`.
+   The `base` array (lines 29-37 before the fix) confirmed the report
+   verbatim: `inline-flex … font-medium … rounded-md … select-none …
+   transition-colors … focus-visible:… disabled:opacity-50
+   disabled:pointer-events-none` — no `cursor-pointer` anywhere. The
+   `loading` variant sets `cursor-wait` and the disabled state removes
+   pointer events, so the default enabled state falls through to the
+   `<button>` UA cursor (`default`, per every modern browser).
+2. Confirmed `IconButton` shares the same recipe by inspection
+   (`libs/dashforge/tw/src/components/IconButton/IconButton.tsx`
+   composes `buttonVariants(...)` and layers a size override) — one
+   fix in `button.variants.ts` covers both.
+3. Ran the report's audit list — `Link`, `MenuItem`, `Tab`, `Chip`,
+   `Switch`, `Checkbox`, `RadioGroup`, `Autocomplete`, `Select` —
+   directly against each variants file. Results:
+
+| Component | Interactive slot | Had `cursor-pointer`? | Verdict |
+|---|---|---|---|
+| Button (base) | root `<button>` | ❌ | **fix needed** |
+| IconButton | shares Button base | ❌ | fixed by Button fix |
+| Button `variant="link"` | shares Button base | ❌ | fixed by Button fix |
+| Link (standalone `<a>`) | `linkVariants.base` line 37 | ✅ | OK |
+| Menu item | `menu.variants.ts:43` | ✅ | OK |
+| **Tabs trigger** | `tabs.variants.ts:7-13` | ❌ | **fix needed** (Radix.Tabs.Trigger is a `<button>`) |
+| Chip interactive | `chip.variants.ts:65` | ✅ | OK |
+| Switch root | `switch.variants.ts:18` | ✅ | OK |
+| **Checkbox control** | `checkbox.variants.ts:21-32` (Radix.Checkbox.Root, a `<button>`) | ❌ | **fix needed** (label already had it; the box itself did not) |
+| **RadioGroup control** | `radioGroup.variants.ts:31-40` (Radix.RadioGroup.Item, a `<button>`) | ❌ | **fix needed** (optionLabel already had it; the circle itself did not) |
+| Autocomplete option | `autocomplete.variants.ts:66` | ✅ | OK |
+| Select option | `select.variants.ts:38, :63` | ✅ | OK |
+| DatePicker trigger | `datePicker.variants.ts:17` | ✅ | OK |
+| TimePicker trigger | `timePicker.variants.ts:17` | ✅ | OK |
+
+So the report's primary claim (Button / IconButton) is exactly right,
+and three siblings share the same shape: `Tabs.trigger`,
+`Checkbox.control`, `RadioGroup.control`. All four are Radix primitives
+that render as `<button>` under the hood.
+
+**The fix.** Added `cursor-pointer` on the base/interactive slot of
+each of the four affected variants files, with an inline comment
+pointing at this register entry:
+
+- `libs/dashforge/tw/src/components/Button/button.variants.ts` — `base`
+- `libs/dashforge/tw/src/components/Tabs/tabs.variants.ts` — `trigger` slot
+- `libs/dashforge/tw/src/components/Checkbox/checkbox.variants.ts` — `control` slot
+- `libs/dashforge/tw/src/components/RadioGroup/radioGroup.variants.ts` — `control` slot
+
+`disabled:pointer-events-none` (Button, Tabs) and
+`data-[disabled]:cursor-not-allowed` (Checkbox, RadioGroup) already
+neutralise the pointer on disabled instances, so no extra disabled-state
+override was needed. The `loading` variant on Button still overrides to
+`cursor-wait` (tailwind-variants merges precedence: variant wins over
+base when they collide on the same property).
+
+**The guard.** A new test file
+`libs/dashforge/tw/src/components/_shared/cursorPointerAffordance.test.tsx`
+asserts on two levels for each affected recipe:
+
+- **Recipe-level** — `buttonVariants()`, `tabsVariants().trigger()`,
+  `checkboxVariants().control()`, `radioGroupVariants().control()`
+  emit a class string containing `cursor-pointer`. Also asserts
+  `buttonVariants({ variant: 'link' })` still emits the class (the
+  `link` variant does not override it).
+- **Rendered-DOM** — `<Button>` and `<IconButton>` render a
+  `<button>` whose `className` contains `cursor-pointer`. Catches
+  the regression where a future edit strips the class between the
+  variant recipe and the JSX site.
+
+Seven assertions total, all green. Not tested here: computed style via
+`getComputedStyle` — jsdom does not execute the Tailwind pipeline, so
+the computed `cursor` would return the browser default regardless. The
+class-string presence is the stable, framework-agnostic proxy for the
+CSS that a real browser will resolve.
+
+**Not fixed here — consumer workaround remains valid.** The report
+notes that `~/projects/web/urbango/app/styles/app.css` carries a global
+`button:not(:disabled) { cursor: pointer }` rule. That rule stays
+harmless after this fix (it just matches the same intent one layer
+lower), and the consumer can remove it once `@dashforge/tw@1.5.3` (or
+whichever version ships this) is in place.
+
+**Note for the agent maintaining this register.** If a similar
+"missing pointer cursor" report shows up for another interactive
+control, apply the same three-step audit before writing the fix: (1)
+identify the actual host element the recipe compiles to (Radix
+primitives can surface as `<button>` even when the JSX reads like a
+`<div>`); (2) check the *interactive* slot (root vs label vs
+container — sometimes only the label carries the class and the click
+target is the box itself); (3) confirm the disabled state already has
+`pointer-events-none` or `cursor-not-allowed` — otherwise the added
+`cursor-pointer` needs a `disabled:` reset next to it.
+
+---
+
+### BUG 12 — the workspace root installs `react` and `react-dom` as `dependencies`
+
+**Fixed** 2026-09-07 in the workspace root. See the *open* entry above
+for the full symptom, reproduction and cause — the summary is: the
+workspace root's `package.json` was declaring `react`, `react-dom` and
+`react-router-dom` as runtime `dependencies`, which materialised
+`dashforge/node_modules/react` and — via the `pnpm.overrides` pin —
+also constrained the consumer's install graph when Dashforge was
+consumed via `link:`.
+
+**Verification method (dependency audit).** Read `dashforge/package.json`
+top-level: three suspects present in `dependencies`. Checked all
+eleven `libs/dashforge/*/package.json` and confirmed the subpackage
+layer is already correct (react as `peer`, never as `dep` — table
+lives in the open entry above). Then confirmed the root has no runtime
+need for React itself:
+
+| Signal | Result |
+|---|---|
+| `dashforge/package.json` `scripts` | `{}` (empty — no root-level run target) |
+| `.tsx` files under `dashforge/` root (depth ≤ 2) | none |
+| `react-router-dom` imports across `libs/`, `api/` | zero (only a JSDoc mention in `breadcrumbs.types.ts:62`) |
+| `react` imports at the root itself | zero |
+| `@testing-library/react`, `@vitejs/plugin-react`, `vite-react-ssg` in root `devDependencies` | already present (all react-consuming dev tooling is already devDep) |
+
+So the root has no runtime use for React; the three entries in
+`dependencies` were pure over-declaration, and `react-router-dom` was
+unused entirely.
+
+**The fix — full removal from the root, subpackage-scoped React.**
+
+An earlier attempt just moved `react` / `react-dom` from
+`dependencies` to `devDependencies` at the root. That change is
+necessary but **not sufficient**: pnpm materialises a direct
+devDependency at the root just the same, so
+`dashforge/node_modules/react` was still present, and the
+external-agent reproduction (a linked `~/projects/web/urbango`
+walking the filesystem from a Dashforge source file) still hit it
+before its own `node_modules/react`. Verified empirically by that
+agent — deleting `dashforge/node_modules/{react,react-dom,react-router-dom}`
+manually broke the failure; nothing short of that did.
+
+So the fix is the register's stronger option 1: the root workspace
+declares no React anywhere, and the subpackages that need React for
+their own tests / build declare it themselves.
+
+Changes made:
+
+1. **`react-router-dom`** — removed from root `dependencies`
+   outright. No source imports it (only a JSDoc reference to it as
+   a canonical example of a router-aware Link component in
+   `breadcrumbs.types.ts:62`). Not added anywhere else.
+2. **`react` + `react-dom`** — removed from BOTH `dependencies`
+   AND `devDependencies` at the root. `pnpm install` then no longer
+   materialises `dashforge/node_modules/react`.
+3. **Subpackage devDependencies** — added `"react": "^19.2.5"` and
+   `"react-dom": "^19.2.5"` to the `devDependencies` of every
+   subpackage that imports React from its own `src/`: `tw`, `forms`,
+   `ui-core`, `rbac`, `theme-mui`, `tw-theme`, `calendar-core`.
+   `ui` already declared them (bumped from `^19.0.0` to `^19.2.5`
+   to align with the workspace override). Packages that emit no
+   React code (`tokens`, `tw-tokens`, `theme-core`) were left
+   untouched.
+
+The `pnpm.overrides` block pinning `react: ^19.2.5` was kept — its
+purpose is intra-workspace consistency (all sub-packages resolve
+the same React during development). With no root React declaration
+it no longer constrains external consumers.
+
+**Post-fix filesystem state** (verified after `pnpm install`):
+
+```
+dashforge/node_modules/react              →  absent ✓
+dashforge/node_modules/react-dom          →  absent ✓
+dashforge/node_modules/react-router-dom   →  absent ✓
+libs/dashforge/tw/node_modules/react      →  present (subpackage-scoped) ✓
+libs/dashforge/forms/node_modules/react   →  present ✓
+libs/dashforge/ui-core/node_modules/react →  present ✓
+libs/dashforge/rbac/node_modules/react    →  present ✓
+libs/dashforge/theme-mui/node_modules/react   →  present ✓
+libs/dashforge/tw-theme/node_modules/react    →  present ✓
+libs/dashforge/calendar-core/node_modules/react → present ✓
+libs/dashforge/ui/node_modules/react      →  present ✓
+```
+
+pnpm's own summary at install time reported the removals:
+`devDependencies removed: react, react-dom` (root) and
+`dependencies removed: react-router-dom 6.30.3`.
+
+**Consumer-facing effect.** When a bundler on the consumer side
+walks the filesystem for `react` from a file inside
+`dashforge/libs/dashforge/*/dist/…`, it no longer finds a stray
+Dashforge-owned copy at the root and continues walking up to the
+consumer's own `node_modules/react`. Single instance across the
+tree; hooks share the dispatcher. Consumers that already ship
+`resolve.dedupe: ['react', 'react-dom']` (every stock React
+starter template) benefit further, but the fix no longer requires
+that config.
+
+**Tests / build after the change.** `nx test @dashforge/forms`
+(198/198 green), `nx test @dashforge/tw` (1993 passed + 1 pre-existing
+skip), `nx build @dashforge/forms` + `nx build @dashforge/tw` both
+succeed with no new source-map warnings introduced by this change.
+Subpackages resolve `react` via their own scoped symlinks now
+(`libs/dashforge/<pkg>/node_modules/react`).
+
+**Note for the agent maintaining this register.** If a similar
+"root ships a runtime dep that clashes with consumer" report shows
+up for another library (a state manager, a router, MUI, Emotion,
+whichever), apply the same shape:
+
+1. Read the root `package.json`'s `dependencies` AND
+   `devDependencies` sections; anything the root itself does not
+   render/execute belongs neither in `dependencies` (would leak
+   into the consumer install graph) nor at the root at all (would
+   materialise `dashforge/node_modules/<lib>` and shadow the
+   consumer's own copy).
+2. Move each such dep into the specific subpackages that import it
+   from `src/`. Peer version already declared? Leave it — the peer
+   drives the consumer install; the devDep just backs local tests.
+3. Verify: `ls dashforge/node_modules/<lib>` should return
+   nothing. Every subpackage that imports it should have its own
+   scoped symlink at `libs/dashforge/<pkg>/node_modules/<lib>`.
+
+---
+
+### BUG 11 — `@dashforge/forms` bundles valtio instead of externalising it
+
+**Fixed** 2026-09-07 (built, not yet published — awaits version bump).
+See the *open* entry above for the full symptom and cause: the rollup
+config's `external: [...]` list overrode nx-rollup's auto-external
+default and did not name valtio, so rollup inlined the entire library
+along with its `import.meta` dev-mode probe.
+
+**Verification method (build-config audit).**
+
+1. Read `libs/dashforge/forms/rollup.config.cjs` — external list was
+   `['react', 'react-dom', 'react/jsx-runtime', '@dashforge/ui-core']`.
+   Valtio missing.
+2. Read `libs/dashforge/ui-core/rollup.config.cjs` — external list is
+   `['react', 'react-dom', 'react/jsx-runtime', 'valtio']`. Valtio
+   present. `ui-core/package.json` declares `valtio: 2.3.0` in
+   `dependencies`. This is the correct pattern to replicate.
+3. `grep -c 'proxyStateMap' libs/dashforge/forms/dist/index.esm.js`
+   → 19 references (valtio internals inlined). `grep -c 'import.meta'`
+   → 4 references (line 3093 was the report's exemplar).
+4. Cross-checked `rbac/rollup.config.cjs` (no valtio use in source, no
+   change needed) and `tw-theme/rollup.config.cjs` (external list
+   deliberately empty → nx-rollup default auto-externals declared
+   deps → valtio in tw-theme's deps → already external in
+   `tw-theme/dist/index.esm.js`, confirmed by
+   `grep 'from .valtio.' libs/dashforge/tw-theme/dist/index.esm.js`
+   returning `import { proxy, subscribe, useSnapshot } from 'valtio'`
+   as line 1).
+
+**Root cause of the divergence.** Sibling packages using nx-rollup
+without an explicit `external: [...]` (like `tw-theme`) get
+auto-externalisation of every declared dep for free. As soon as a
+package writes `external: [...]` (like `forms` did), that override
+REPLACES the auto-external default and the package must enumerate
+every external dep by hand. Missing one silently inlines it.
+
+**The fix.**
+
+- `libs/dashforge/forms/rollup.config.cjs` — added `'valtio'` to the
+  external list.
+- `libs/dashforge/forms/package.json` — added `"valtio": "2.3.0"` to
+  `dependencies` (matching `@dashforge/ui-core`'s exact pinned
+  version, so pnpm dedupes the two to a single physical install and
+  proxy identity is shared).
+
+**Post-fix bundle audit** (`libs/dashforge/forms/dist/index.esm.js`
+after rebuild):
+
+```
+proxyStateMap references : 0   (was 19)
+import.meta references   : 0   (was  4)
+valtio import statement  : "import { proxy, subscribe, snapshot } from 'valtio'"
+first ESM imports at top of bundle:
+  import { jsx } from 'react/jsx-runtime';
+  import { createContext, useMemo, useRef, useCallback, useEffect, useContext,
+           useSyncExternalStore, useState } from 'react';
+  import { useForm, useFormState } from 'react-hook-form';
+  import { createEngine, DashFormContext, useEngineNode } from '@dashforge/ui-core';
+  import { proxy, subscribe, snapshot } from 'valtio';
+```
+
+Lockfile refreshed with `pnpm install --no-frozen-lockfile`:
+`libs/dashforge/forms → dependencies.valtio → specifier: 2.3.0`.
+
+**Tests.** All 198 forms tests green after the change (14 test files,
+1.26s). No regression.
+
+**Note for the agent maintaining this register.** If a future
+`@dashforge/forms` build report claims a similar "inlined dep"
+pattern, check the two conditions together: (a) does the source
+directly `import 'X'` (grep `libs/dashforge/forms/src`)? (b) is `'X'`
+in the rollup config's `external: [...]` list? If (a) is true and (b)
+is false, that dep is being bundled. The fix is the same shape as
+this one: add to the external list AND declare in dependencies with
+an exact pinned version matching whichever sibling ships the same
+library.
+
+---
+
+### BUG 10 — `<DashForm>` renders a `<form>`, so it cannot be used outside a browser
+
+**Fixed** 2026-09-07 via Option 1 (doc-only). See the *open* entry
+above for the full symptom, reproduction and cause. The `<form>`
+element itself was NOT removed — it is the correct behaviour on the
+web (native submit + implicit form-association for inputs). What was
+missing was signposting so a non-DOM renderer picks the correct entry
+point.
+
+**Verification method.** Confirmed the register's key claim by grep:
+`libs/dashforge/forms/src` contains exactly one JSX host element
+across all TS/TSX files (`<form>` at
+`libs/dashforge/forms/src/components/DashForm.tsx:27`). Every other
+symbol the package exports — `DashFormProvider`, the engine adapter,
+every hook — is renderer-agnostic. So a renderer-agnostic entry point
+already exists (`<DashFormProvider>`), it just was not documented as
+such.
+
+**The fix, in three doc edits:**
+
+1. **`DashForm` JSDoc** (`libs/dashforge/forms/src/components/DashForm.tsx`)
+   — added a "**DOM-only.**" paragraph naming the RN failure signature
+   verbatim and pointing at `DashFormProvider` as the non-DOM entry
+   point. Kept the existing "recommended entry point on the web"
+   framing so web consumers are not steered away from it.
+
+2. **`DashFormProvider` JSDoc**
+   (`libs/dashforge/forms/src/core/DashFormProvider.tsx`) — added a
+   reciprocal "**Renderer-agnostic.**" paragraph naming the RN /
+   Ink / custom-reconciler cases and showing how to wire submit
+   without a `<form>` element:
+   `useDashFormContext().rhf.handleSubmit(onSubmit)`.
+
+3. **`libs/dashforge/forms/README.md`** — the components summary
+   table gained a `Renderer` column and an inline "React Native /
+   non-DOM renderers" callout right beneath it, pointing at BUG 10
+   in this register for context.
+
+**Deferred (Option 2).** Adding a `component?: React.ElementType`
+prop to `DashForm` with default `'form'`, so a non-DOM renderer
+could pass its own container to the DOM name. The register itself
+recommends deferring this until a third non-DOM renderer appears —
+today only React Native is in play, and `DashFormProvider` already
+serves it cleanly. Additive, non-breaking, easy to layer on later
+if the constraint arrives.
+
+**Note for the agent maintaining this register.** If the next
+portability audit finds another JSX host element inside
+`libs/dashforge/forms/src` (other than the intentional `<form>` in
+`DashForm.tsx`), that IS a new bug — the package's contract is that
+`DashFormProvider` and every hook are renderer-agnostic. The
+one-`<form>` invariant is worth pinning with a grep in CI:
+
+```bash
+# From libs/dashforge/forms:
+count=$(grep -rE "<(form|div|span|input|button|textarea|select|a) " src \
+        --include="*.tsx" --include="*.ts" | grep -v "\.test\." | grep -v "^\s*\*" | wc -l)
+[ "$count" -eq 1 ] || { echo "portability regression: expected 1 JSX host element, found $count"; exit 1; }
+```
+
+---
 
 ### BUG 9 — `tooltip` leaks onto the DOM element as an invalid attribute
 
