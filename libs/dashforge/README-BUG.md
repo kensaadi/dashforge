@@ -1564,11 +1564,746 @@ this entry.
 
 ---
 
+## BUG 21 — `<Checkbox>` and `<Switch>` (tw): no `required`, so a mandatory consent box cannot be marked
+
+Read straight out of the source, 19/09/2026, while building a sign-up
+form in `~/projects/web/urbango-project/ugo-web`.
+
+**Severity:** medium. Not a crash and not a silent failure: the code
+simply cannot express a required checkbox, and every consumer solves it
+the same wrong way.
+
+**Status:** **fixed v2, verified in the DOM** 2026-09-19 (awaits next
+@dashforge/tw version bump). The 2026-09-19 v1 attempt landed the
+asterisk but not `aria-required` on the DOM in real browsers (jsdom did
+not surface the gap). v2 ships the a11y signal via ref + `useEffect`
+and was measured in a browser — see the verification section below.
+
+### Symptom
+
+A form has a mandatory consent box — accept the privacy policy, accept
+the terms. Every other field in the same form carries the asterisk that
+says «this one is required». The checkbox cannot, because `required` is
+not part of its props. The one field that legally must be ticked is the
+only one that does not look like it.
+
+### Cause
+
+`tw/src/components/Checkbox/checkbox.types.ts` — `CheckboxProps`
+declares, in full:
+
+```
+size name label tooltip rules visibleWhen checked defaultChecked
+disabled helperText error access sx slotProps onCheckedChange
+```
+
+No `required`. And `CheckboxSlotProps` at `:27` is
+`root control indicator label helperText errorText` — no
+`requiredMark` either, so there is not even a styling hook to hang a
+marker on.
+
+Compare `tw/src/components/TextField/textField.types.ts:116`:
+
+```ts
+/** Render the asterisk + set the native `required` attribute. */
+required?: boolean;
+```
+
+### The split is clean, which is what makes it look deliberate and is not
+
+Twelve components in `tw` declare **both** `required?: boolean` and a
+`requiredMark` slot:
+
+`Autocomplete`, `DatePicker`, `DateRangePicker`, `DateTimePicker`,
+`NumberField`, `OTPField`, `RadioGroup`, `Select`, `Slider`,
+`TextField`, `Textarea`, `TimePicker`.
+
+Two do not: **`Checkbox`** and **`Switch`**. They are exactly the two
+boolean fields — the shape for which «required» is most often a legal
+obligation rather than a preference.
+
+⚠️ **This is `tw`, not `ui`, and it is not BUG 20.** That entry was
+about `@dashforge/ui`, where MUI passthrough means `<Checkbox required/>`
+compiles; it was fixed on 15/09/2026. The `tw` package is a separate
+implementation over Radix and does not inherit anything from MUI. A
+reader who remembers BUG 20 will assume this case is covered. It is not.
+
+### Proposed fix
+
+Add `required?: boolean` to `CheckboxProps` and `SwitchProps`, and a
+`requiredMark` slot to both `SlotProps`, mirroring `TextField`:
+render the asterisk in the label row and set the native `required`
+attribute on the input, so `aria-required` comes with it.
+
+The label of a checkbox sits next to the control rather than above it,
+so the marker belongs at the end of the label text and not before it.
+That is a layout decision the library should make once, which is the
+argument for fixing it here instead of in every consumer.
+
+### ✅ Verified in the DOM 19/09/2026 · v2 closes it
+
+Measured in a real browser, on `/it-IT/agenzie-eventi` in `ugo-web`,
+with `@dashforge/tw` linked from source and rebuilt:
+
+```js
+document.querySelector('button[role=checkbox]').getAttribute('aria-required')
+// "true"
+
+document.querySelector('button[role=checkbox]')
+  .parentElement.querySelector('label').textContent.slice(-8)
+// "rivacy.*"   ← the marker is there too
+```
+
+Both halves land: the ref + `useEffect` setter puts `aria-required` on
+the element the browser actually shows, and the asterisk renders from
+the same `required` variable. The entry is closed.
+
+⚠️ **The first attempt to verify this reported a false negative**, and
+it is worth recording why, because it will happen again to anyone
+testing a linked Dashforge from a Vite app. Vite serves its optimized
+deps with `Cache-Control: max-age=31536000, immutable`, and the `?v=`
+browser hash does **not** change when a `link:`-ed package's `dist` is
+rebuilt. The browser therefore keeps serving the pre-fix bundle from
+its HTTP cache while the dev server, `curl` and the file on disk all
+show the fixed one — so source, served bytes and running code disagree,
+and only the running code is right. The measurement that finally
+settled it read the function off the React fiber:
+
+```js
+const b = document.querySelector('button[role=checkbox]')
+let f = b[Object.keys(b).find(k => k.startsWith('__reactFiber$'))]
+while (f && f.type?.name !== 'Checkbox2') f = f.return
+f.type.toString().includes('requiredMark')   // false → stale bundle
+```
+
+The cure is to refetch every `/.vite/deps/` URL with
+`fetch(url, { cache: 'reload' })` and then reload; a plain reload, and
+even `cmd+shift+r` in an embedded browser pane, is not enough.
+
+### Workaround downstream — rimosso
+
+`ugo-web/app/components/forms/privacy-consent.tsx` non disegna più
+l'asterisco a mano: i quattro moduli passano `required` e
+`slotProps.requiredMark`. Visivamente è corretto; l'accessibilità
+aspetta il completamento del fix.
+
+⚠️ **They are not identical to a screen reader.** A marker drawn in the
+label carries no `aria-required` and sets no native `required`
+attribute: the one field that must be ticked is the only one that
+announces nothing. That is the real cost of this entry, and it is the
+same cost BUG 20 recorded for `ui` before it was fixed.
+
+---
+
+## BUG 22 — `<Stepper>` + `<DashForm>`: a step's values are DELETED when it unmounts, so a multi-step form cannot read its own earlier answers
+
+Reproduced 19/09/2026 in `~/projects/web/urbango-project/ugo-web`, on
+the agency sign-up: a three-step form that collects a password on step
+one and submits on step two.
+
+**Severity:** high. It is silent, it only shows up at submit time, and
+the natural reading of the API says it should work.
+
+**Status:** **fixed v2, verified in the browser** 2026-09-19 (awaits
+next @dashforge/forms + @dashforge/ui-core + @dashforge/tw +
+@dashforge/ui version bumps).
+The 2026-09-19 v1 attempt exposed `shouldUnregister` on the config but
+did NOT gate the explicit `bridge.unregister()` calls in the 26 field
+components on unmount, so the values disappeared regardless. v2 threads
+the flag through the bridge contract and gates all 26 cleanups.
+See *Fixed* section at bottom.
+
+### Symptom
+
+A form split across `<Step>`s cannot read, from a later step, what an
+earlier step collected. `rhf.getValues()` does not return an empty
+string for those fields: **the keys are gone entirely.**
+
+Measured at the second step, after typing a password on the first:
+
+```
+Object.keys(rhf.getValues())
+["email","fullName","phone","legalName","tradingName",
+ "country","city","vat","agencyEmail","agencyPhone"]
+```
+
+`password` and `password2` were in `defaultValues`, were rendered as
+bridge-managed `<TextField>`s with `rules`, were typed into with real
+keystrokes, and passed their own step's validation. They are simply
+not there any more.
+
+### Cause
+
+`<Stepper>` renders only the active step, so the previous step's
+children unmount. React Hook Form then drops those fields from its
+value store.
+
+The revealing detail is **which fields survive**: `email`, `fullName`
+and `phone` are in `defaultValues` and are never rendered as fields at
+all. They are still there. Only the fields that were mounted and then
+unmounted disappear — which is the opposite of what a consumer expects,
+because those are the ones somebody actually filled in.
+
+`DashFormProvider` builds the form with:
+
+```ts
+const rhf = useForm<TFieldValues>({ defaultValues, mode, resolver });
+```
+
+`libs/dashforge/forms/src/core/DashFormProvider.tsx:143`
+
+No `shouldUnregister`, and **the option is not in `DashFormConfig`**, so
+a consumer cannot set it either. `useDashRegister` unregisters from the
+adapter on unmount (`useDashRegister.ts:137`) but leaves RHF alone, so
+whatever RHF does here is its default and there is no way to change it
+from outside.
+
+### Why this matters more than it looks
+
+A stepper exists to split a long form. Splitting a long form means
+reading, at the end, what was answered at the beginning. As it stands
+the two components cannot be combined for that, and nothing says so:
+no warning, no type error, no runtime failure. The request goes out
+with empty fields and the server rejects it, which is where the
+developer starts looking — three layers away from the cause.
+
+### Proposed fix
+
+Add `shouldUnregister` to `DashFormConfig` and pass it through to
+`useForm`, defaulting to `false`. A default of `false` is also the
+right one for this pairing: a stepper's whole purpose is that earlier
+answers survive.
+
+
+### ⚠️ Riaperto 19/09/2026 · il fix non ha effetto, e la causa era un'altra
+
+`shouldUnregister` è stato aggiunto a `DashFormConfig`, inoltrato da
+`DashForm` e passato a `useForm` con default `false`. Verificato nel
+sorgente e nel chunk servito al browser. **I valori spariscono
+ugualmente.**
+
+Misurato in `ugo-web`, al secondo passo, dopo aver digitato una
+password sul primo:
+
+```
+Object.keys(rhf.getValues())
+["email","fullName","phone","legalName","tradingName",
+ "country","city","vat","agencyEmail","agencyPhone"]
+```
+
+Identico a prima del fix.
+
+**Perché.** La cancellazione non è il comportamento automatico di RHF
+allo smontaggio, che `shouldUnregister` governa. È una cancellazione
+**esplicita**, in ogni componente di campo:
+
+`tw/src/components/TextField/TextField.tsx:92`
+
+```tsx
+// StrictMode-safe unregister-on-unmount
+useEffect(() => {
+  isMountedRef.current = true;
+  return () => {
+    isMountedRef.current = false;
+    const { bridge: cap, name: capName } = unregisterRef.current;
+    queueMicrotask(() => {
+      if (!isMountedRef.current) cap?.unregister?.(capName);
+    });
+  };
+}, []);
+```
+
+e `bridge.unregister` in `forms/src/core/DashFormProvider.tsx:434` fa
+
+```ts
+rhf.unregister(fieldName);
+adapter.unregisterField(fieldName);
+```
+
+`rhf.unregister()` **rimuove il valore** a prescindere da
+`shouldUnregister`, che riguarda solo la pulizia automatica.
+
+**Quattordici componenti hanno lo stesso schema:** `Autocomplete`,
+`Checkbox`, `DatePicker`, `DateRangePicker`, `DateTimePicker`,
+`NumberField`, `OTPField`, `RadioGroup`, `Select`, `Slider`, `Switch`,
+`TextField`, `Textarea`, `TimePicker`.
+
+### Fix proposto, corretto
+
+⚠️ **Manca un pezzo prima di poter correggere i campi: oggi un campo
+non ha modo di sapere come è configurato il form.** Il bridge espone
+`register`, `unregister`, `getValue`, `setValue`, `trigger`… e
+**nessun `shouldUnregister`**. Va aggiunto, altrimenti la cleanup non
+ha niente da interrogare.
+
+**Tre passi, in quest'ordine.**
+
+**1 · Il bridge porta la politica.** In `ui-core/src/bridge/DashFormBridge.ts`
+aggiungere al contratto:
+
+```ts
+/** Se il form dimentica i campi smontati. Rispecchia `useForm({ shouldUnregister })`. */
+shouldUnregister: boolean;
+```
+
+e valorizzarlo in `forms/src/core/DashFormProvider.tsx`, dove il
+bridge viene costruito, con lo stesso valore già passato a `useForm`.
+
+**2 · I campi lo leggono.** In tutti e quattordici, la cleanup diventa:
+
+```tsx
+return () => {
+  isMountedRef.current = false;
+  const { bridge: cap, name: capName } = unregisterRef.current;
+  // ⚠️ Solo se il form è configurato per dimenticare. Con
+  // `shouldUnregister: false` il campo si smonta e il valore resta,
+  // che è ciò che rende utilizzabile uno Stepper.
+  if (!cap?.shouldUnregister) return;
+  queueMicrotask(() => {
+    if (!isMountedRef.current) cap?.unregister?.(capName);
+  });
+};
+```
+
+⚠️ **Non cancellare la cleanup e basta.** Il commento la chiama
+«StrictMode-safe»: il `queueMicrotask` con il controllo su
+`isMountedRef` esiste per non deregistrare durante il doppio montaggio
+di React in StrictMode. Quel problema resta reale. Cambia **se**
+deregistrare, non come.
+
+**3 · Un test che lo tiene fermo.** Monta un campo dentro un
+`DashForm`, scrivici un valore, smonta il campo, e verifica che
+`rhf.getValues()` contenga ancora la sua chiave. Con
+`shouldUnregister: true` deve invece sparire. Senza questo test la
+regressione torna al primo refactoring, perché **un valore mancante non
+fa fallire niente**: si scopre tre strati più in là, quando il server
+rifiuta una richiesta con i campi vuoti.
+
+### ✅ Verified in the browser 19/09/2026 · v2 closes it
+
+Measured on the real sign-up in `ugo-web`, at submit time on step two,
+after typing a password on step one:
+
+```
+Object.keys(rhf.getValues())
+["email","fullName","phone","password","password2","legalName",
+ "tradingName","country","city","vat","agencyEmail","agencyPhone","otp"]
+```
+
+`password` and `password2` survive the step boundary. The whole round
+then ran with the downstream workaround **removed**: lead created,
+code verified, `POST /register` → 200, `account` row written with a
+60-character bcrypt hash. The entry is closed.
+
+⚠️ **Clearing `node_modules/.vite` is not enough**, and the first
+attempt to verify this reported a false negative for exactly that
+reason. Vite serves optimized deps as `immutable` for a year and the
+`?v=` hash does not move when a `link:`-ed package is rebuilt, so the
+browser keeps running the pre-fix bundle. See the same note under
+BUG 21 for the measurement that catches it and the refetch that cures
+it.
+
+### Downstream workaround — removed 19/09/2026
+
+`ugo-web/app/registration/components/access-step.tsx` used to hand its
+values up through an `onVerified` callback while its fields were still
+mounted, with the parent keeping them in a `useRef`. Both are gone:
+`register.tsx` reads `password` / `password2` straight off
+`rhf.getValues()`.
+
+⚠️ It worked, and it did not scale: every field that had to cross a
+step boundary needed its own callback and its own slot in the ref. A
+form of three steps and twenty fields would have been carrying most of
+itself by hand, which is the job `DashForm` exists to do.
+
+---
+
+## BUG 23 — `<Select multiple>` (tw): the chip's remove button is nested INSIDE the trigger `<button>`, which is invalid HTML and breaks hydration
+
+Reproduced 19/09/2026 in `~/projects/web/urbango-project/ugo-web`, on
+the event-agency sign-up form, which uses a multi-select of Italian
+regions / Swiss cantons.
+
+**Severity:** medium-high. It is invalid HTML, React reports it as a
+hydration error on every render of the page, and the nesting is the
+kind the HTML parser rewrites — so the DOM the browser builds is not
+the DOM the component described.
+
+**Status:** open.
+
+### Symptom
+
+With at least one option chosen, the browser console carries, on every
+load of a page holding a multi `<Select>`:
+
+```
+In HTML, <button> cannot be a descendant of <button>.
+This will cause a hydration error.
+```
+
+and, on the next line:
+
+```
+<button> cannot contain a nested <button>.
+```
+
+React's own stack names the two elements: the outer
+`<button role="combobox" name="areas" aria-required={true}>` and, inside
+its chips list, `<button aria-label="Remove Lombardia">`.
+
+### Cause
+
+`tw/src/components/Select/Select.tsx:501` builds the chip's remove
+control as a `<button>`:
+
+```tsx
+{!effectiveDisabled && (
+  <button
+    type="button"
+    aria-label={`Remove ${labelToText(opt.label) || String(opt.value)}`}
+    className={chipRemoveClasses}
+    onClick={(e) => handleRemoveChip(opt, e)}
+  >
+    <ChipRemoveIcon />
+  </button>
+)}
+```
+
+and that markup is assigned to `triggerContent`, which
+`Select.tsx:540-563` renders as the children of the trigger:
+
+```tsx
+<button
+  id={controlId}
+  type="button"
+  role="combobox"
+  ...
+>
+  {triggerContent}
+  <ChevronDownIcon ... />
+</button>
+```
+
+`<button>` has *phrasing content* as its content model, with no
+interactive descendants allowed. The HTML parser does not nest the two:
+it closes the outer button and hoists the inner one out, so the tree the
+browser builds differs from the tree React rendered — which is exactly
+what the hydration error is reporting.
+
+### Why this matters more than a console warning
+
+1. The parser's rewrite moves the remove buttons **out of the trigger**,
+   which changes where clicks land and what the trigger's hit area is.
+2. A nested interactive element is unreachable in the intended order for
+   keyboard and screen-reader users: the outer button swallows the
+   focusable child in some ATs and not others.
+3. React 19 treats it as a hydration mismatch, and a page that reports
+   hydration errors for a *library* component teaches consumers to
+   ignore the ones that are their own fault.
+
+### Proposed fix
+
+Take the trigger off `<button>` and give the chips somewhere legal to
+live. In order of cost:
+
+1. **Render the trigger as a `<div role="combobox" tabIndex={0}>`** and
+   keep every ARIA attribute already on it (`aria-haspopup`,
+   `aria-expanded`, `aria-controls`, `aria-required`, `aria-invalid`,
+   `aria-describedby`, `aria-disabled`). `handleTriggerKeyDown` already
+   drives the listbox from the keyboard, so the only thing lost is the
+   implicit Space/Enter activation, which that handler can add. This is
+   the pattern the ARIA authoring practices use for an editable combobox
+   and the one that makes the nesting legal.
+2. **Or move the chips list out of the trigger**, rendering it as a
+   sibling above or below, and leave only the summary text and the
+   chevron inside the button. This changes the visual design, so it is
+   the library's call, not a consumer's.
+
+⚠️ Whatever the choice, `aria-required` and `aria-invalid` must stay on
+the element that carries `role="combobox"`, or this re-opens BUG 21's
+cost on a different component.
+
+### How to verify it is fixed
+
+On a page with a multi `<Select>` and at least one option chosen:
+
+```js
+!!document.querySelector('button[role=combobox] button')
+// must be false; today it is true
+
+document.querySelector('[role=combobox]').getAttribute('aria-required')
+// must still be "true" on a required field
+```
+
+and the console must carry no `cannot be a descendant of <button>`
+entry on load.
+
+### No downstream workaround
+
+`ugo-web` ships the form as it is: there is nothing a consumer can do
+about markup a library renders from its own props.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
 
 ## Fixed
+
+### BUG 22 — `<Stepper>` + `<DashForm>` values lost on step unmount
+
+**Fixed v2** 2026-09-19 in the source tree, awaiting the next
+`@dashforge/forms` + `@dashforge/ui-core` + `@dashforge/tw` +
+`@dashforge/ui` version bumps.
+
+**Why v2 was needed.** The v1 attempt exposed `shouldUnregister` on
+`DashFormConfig` and passed it to `useForm`, on the assumption that
+RHF's own default was what dropped the values. It wasn't. The
+register's follow-up (§ Riaperto) pinpointed the real culprit:
+`bridge.unregister(name)` in `DashFormProvider.tsx:434` explicitly
+calls `rhf.unregister(fieldName)`, which drops the field's value
+regardless of RHF's `shouldUnregister`. And that `bridge.unregister`
+is invoked from the unmount cleanup of ALL 26 bridge-integrated
+field components (14 tw + 12 ui) via the `queueMicrotask`
+StrictMode-safe pattern. The v1 fix moved the config knob but left
+the 26 cleanups unchanged, so a Stepper still lost data.
+
+**Verification method (v2).** Read `DashFormProvider.tsx:431-435` to
+confirm the explicit `rhf.unregister(fieldName)` chain. Read
+`ui-core/src/bridge/DashFormBridge.ts:93` to confirm the bridge
+contract had no `shouldUnregister` field. Grepped the workspace for
+the `queueMicrotask(() => { if (!isMountedRef.current) …unregister?.(…);
+})` pattern; found 26 files (14 tw, 12 ui), 2 formatting variants of
+the same shape.
+
+**The v2 fix, in three co-ordinated edits:**
+
+1. `ui-core/src/bridge/DashFormBridge.ts` — added
+   `shouldUnregister: boolean` to the `DashFormBridge` interface with
+   JSDoc explaining the Stepper-friendly default (`false`).
+
+2. `forms/src/core/DashFormProvider.tsx` — populated `shouldUnregister`
+   on the `bridgeValue` object with the same value passed to `useForm`,
+   added to the `useMemo` deps array so a runtime toggle still gives
+   consumers a fresh bridge identity.
+
+3. **All 26 field components** (`libs/dashforge/tw/src/components/<N>/<N>.tsx`
+   ×14 and `libs/dashforge/ui/src/components/<N>/<N>.tsx` ×12) — the
+   unmount cleanup gained a `if (!cap?.shouldUnregister) return;` gate
+   right before the `queueMicrotask` schedule. The StrictMode-safe
+   pattern (queueMicrotask + `isMountedRef` check) is preserved
+   verbatim — the fix changes *whether* to run cleanup, not *how* to
+   run it safely.
+
+Patched via a Python script that anchored on the exact 2-line pattern
+`const { bridge: cap, name: capName } = unregisterRef.current;` +
+`queueMicrotask(() => {` (tw variant) and the multi-line equivalent
+with `capturedBridge` alias (ui variant). 26 files patched, 0 skipped.
+
+**The guard.** `libs/dashforge/forms/src/core/DashFormProvider.shouldUnregister.test.tsx`
+mounts a Stepper-shaped harness with a `<TestInput>` that mirrors
+what the real field components do: registers via `useDashRegister`,
+AND chains `bridge.unregister(name)` on unmount gated by
+`bridge.shouldUnregister`. Three tests: default (omitted) preserves
+values, explicit `false` preserves, explicit `true` scrubs. All three
+green.
+
+**Full suite after v2**: forms 201/201, tw 2007/2008 (1 pre-existing
+skip), ui 598/599 (1 pre-existing skip). Typecheck across all four
+packages green.
+
+**Note for the agent maintaining this register.** The 26-component
+gate is fragile in the sense that a new bridge-integrated field
+component added later would inherit the OLD pattern unless the
+maintainer knows to add the `if (!cap?.shouldUnregister) return;`
+line. A durable fix would extract the cleanup into a shared hook
+(`useBridgeUnmountCleanup`) that reads `bridge.shouldUnregister`
+once. That refactor is worth doing when a 15th `tw` or 13th `ui`
+field component is next added; until then, the inline gate is the
+27-line pragma that matches the pre-existing convention of these
+files.
+
+---
+
+### BUG 22 — v1 (superseded by v2 above)
+
+**Fixed** 2026-09-19 in the source tree (`@dashforge/forms`), awaiting
+the next version bump. See the *open* entry above for the full
+reproduction (agency sign-up in urbango, password fields from step 1
+missing from `rhf.getValues()` on step 2 submit).
+
+**Verification method.** Read `forms/src/core/DashFormProvider.tsx:143`
+to confirm the `useForm` call passed `{ defaultValues, mode, resolver }`
+and nothing else. Grep of `DashFormConfig` in `form.types.ts` returned
+zero occurrences of `shouldUnregister` — the option was not exposed
+anywhere on the public config. Traced `useDashRegister.ts:137` to
+confirm the unmount cleanup calls `adapter.unregisterField(name)`
+which removes the Engine node and adapter-local set, but never touches
+RHF directly — the field-value loss is entirely on RHF's side.
+
+**The fix.**
+
+1. `form.types.ts`: added `shouldUnregister?: boolean` to
+   `DashFormConfig`, with JSDoc explaining the pairing-with-Stepper
+   rationale and pointing at this register entry.
+2. `DashFormProvider.tsx`: destructured `shouldUnregister = false`
+   from props and passed it through to `useForm`. The Dashforge
+   default is explicit `false` even though RHF v7's own default is
+   also `false` — the goal is to make the guarantee **visible in the
+   codebase** and to give consumers an escape hatch.
+3. `DashForm.tsx` (the convenience wrapper): forwarded the option to
+   the inner `<DashFormProvider>` so it works with either entry point.
+
+**The guard.** New test file
+`libs/dashforge/forms/src/core/DashFormProvider.shouldUnregister.test.tsx`
+mounts a Stepper-shaped harness (one `<TestInput>` mounted at a time,
+swapped by a `useState`), types into step 1, advances to step 2, and
+inspects `rhf.getValues()` through a `ValueProbe` context hook. Three
+scenarios pinned: default (omitted) preserves values, explicit
+`shouldUnregister={false}` preserves values, explicit
+`shouldUnregister={true}` scrubs them. All three green. Full
+`nx test @dashforge/forms`: 201 passed, 0 failed.
+
+**Downstream cleanup enabled.** After the release lands,
+`~/projects/web/urbango-project/ugo-web/app/registration/components/access-step.tsx`
+can drop the `onVerified` callback + `useRef` workaround: the fields
+that cross step boundaries will simply survive in `rhf.getValues()`.
+
+**Note for the agent maintaining this register.** RHF v7's own
+default for `shouldUnregister` is `false`, so in principle the report's
+symptom "password disappears from `getValues()`" should not occur with
+our fix alone. But it did in the report (reproduced against RHF
+7.71.1). This means there is a secondary interaction — likely from
+`useDashRegister.ts` re-registering across renders in a way that
+signals RHF to drop the value on unmount, or a Stepper implementation
+that mounts each step with a new key. If a future report says values
+STILL disappear after this fix on a fresh Stepper repro, look there
+next: the config-side escape hatch is now in place; the runtime
+interaction between the adapter's unregister path and RHF's mount/
+unmount book-keeping is where any residual investigation should go.
+
+---
+
+### BUG 21 — `<Checkbox required>` and `<Switch required>` (tw)
+
+**Fixed v2** 2026-09-19 in the source tree (`@dashforge/tw`), awaiting
+the next version bump.
+
+**Why v2 was needed.** The v1 attempt added the JSX prop
+`aria-required={required ? true : undefined}` on `RadixCheckbox.Root`
+and `RadixSwitch.Root`. My jsdom test passed. But the register's
+follow-up (§ Verificato 19/09/2026) empirically probed the browser
+DOM and found `aria-required` was `null` on the rendered button, even
+though the served source clearly contained the JSX line. Reading
+Radix v1.3.3 source in `node_modules` showed why the attribute might
+not survive: `Checkbox.Root` destructures `required` out of props,
+puts it in context, and re-emits `aria-required` from `CheckboxTrigger`
+via a separate `Primitive.button` — an internal ping-pong that
+apparently strips the consumer's JSX `aria-required` in the real
+browser build (jsdom uses a code path that keeps it). Rather than
+chase Radix internals, the v2 fix bypasses them.
+
+**The v2 fix.** Both `Checkbox.tsx` and `Switch.tsx` now:
+
+1. Keep a local `buttonRef: React.MutableRefObject<HTMLButtonElement | null>`.
+2. Provide a `setControlRef` callback that assigns `buttonRef.current`
+   AND forwards to `registration.ref` (mirroring both flavors:
+   `RefCallback` OR `MutableRefObject`).
+3. Pass `ref={setControlRef}` to `RadixCheckbox.Root` / `RadixSwitch.Root`
+   in place of the previous `ref={registration?.ref}`.
+4. Run a `useEffect(() => { … }, [required])` that, using
+   `buttonRef.current`, calls `node.setAttribute('aria-required', 'true')`
+   when `required` is true and `node.removeAttribute('aria-required')`
+   otherwise.
+
+The `required` JSX prop is still passed to Radix Root (so
+`Radix.CheckboxBubbleInput` picks it up and sets HTML5 `required` on
+the hidden `<input>` used for native form validation), but the a11y
+attribute for screen readers now lands on the rendered button via a
+ref-based DOM write that is Radix-version-agnostic and cannot be
+stripped by any internal prop-filtering.
+
+**The guard remains.** `libs/dashforge/tw/src/components/_shared/checkboxSwitchRequired.test.tsx`
+still passes (7 tests). The assertion "the Radix Root button carries
+`aria-required=true`" now works via BOTH the (unreliable) JSX path
+AND the (reliable) ref-based setter, so the test does not distinguish
+which one won — but a real browser probe against this build now
+should return `"true"`. If a future report shows it still doesn't,
+the ref path is the definitive place to debug (a broken ref forward
+chain would prevent `buttonRef.current` from ever being set).
+
+**Note for the agent maintaining this register.** If a similar
+"attribute doesn't land on Radix component" report appears for
+another Radix primitive (`RadioGroup`, `Select`, etc), the same
+pattern applies: ref + `useEffect` + `setAttribute`/`removeAttribute`.
+The JSX prop path is fine for Radix primitives that forward props
+unchanged (visual attrs, className, style), but a11y attrs like
+`aria-required`, `aria-invalid`, `aria-describedby` are cases where
+Radix may inject its own values from context and the safe hand-off
+is post-mount DOM write.
+
+---
+
+### BUG 21 — v1 (superseded by v2 above)
+
+**Fixed** 2026-09-19 in the source tree (`@dashforge/tw`), awaiting
+the next version bump. See the *open* entry above for the full
+justification (12 of 14 field components already accepted `required`;
+`Checkbox` and `Switch` were the outliers, and they are exactly the
+two boolean fields where "required" is most often a legal obligation
+for consent).
+
+**Verification method.** Read `Checkbox/checkbox.types.ts` and
+`Switch/switch.types.ts`: zero occurrences of `required?: boolean` as
+a prop, zero `requiredMark` slot. Cross-checked all 14 field
+components in `libs/dashforge/tw/src/components/*/`: the other 12
+declare both. Divergence confirmed as chirurgical.
+
+**The fix, in four edits per component (Checkbox + Switch = 8):**
+
+1. `<name>.types.ts`: added `required?: boolean` to the component
+   props interface and `requiredMark?: { className?: string }` to the
+   slot props interface.
+2. `<name>.variants.ts`: added a `requiredMark` slot with the same
+   `text-danger-500 ml-0.5` tokens `textField.variants.ts` uses, so
+   the asterisk matches sibling fields visually.
+3. `<Name>.tsx`: extracted `required` from the destructure block,
+   rendered a `<span aria-hidden="true">*</span>` inside the `<label>`
+   after the label text (per the register's own layout call: the
+   marker belongs at the END of the label for boolean fields, not
+   before it), and passed `required` + `aria-required` to the Radix
+   Root button. The `aria-required` is the load-bearing a11y signal
+   because Radix.Checkbox.Root and Radix.Switch.Root render
+   `<button role="checkbox">` / `<button role="switch">`, for which
+   HTML5 `required` has no semantic effect — screen readers only pick
+   up `aria-required`.
+
+**The guard.** New test file
+`libs/dashforge/tw/src/components/_shared/checkboxSwitchRequired.test.tsx`
+pins seven invariants: (1) `<Checkbox required>` renders the
+asterisk, (2) `<Checkbox required>` sets `aria-required="true"` on
+the Radix.Checkbox.Root button, (3) `<Checkbox>` without `required`
+does not render either, (4-6) same three for `<Switch>`, (7)
+`slotProps.requiredMark.className` propagates to the asterisk span.
+All seven green. Full `nx test @dashforge/tw`: 2007 passed, 1
+pre-existing skip, 0 failed.
+
+**Downstream cleanup enabled.** After the release lands,
+`~/projects/web/urbango-project/ugo-web/app/components/forms/privacy-consent.tsx`
+becomes redundant — the asterisk-in-label workaround it applied is now
+the library's own behaviour, and it did not carry `aria-required`
+which is the whole a11y point of doing it in the library.
+
+**Explicit non-scope, and a caution.** This is `tw`, NOT `ui`. `ui`'s
+Checkbox and Switch already accepted `required` via MUI's passthrough
+before BUG 20 was closed; BUG 20 targeted `ui`'s Autocomplete and
+RadioGroup, not the boolean fields. A reader who remembers BUG 20 and
+sees the shape of this entry should NOT assume the same fix pattern
+transfers straight across: MUI's `FormControl.required` + native
+`<input>` machinery is a different plumbing than Radix + `<button>`.
+
+---
 
 ### BUG 16 — `visibleWhen` white-screen on `<RadioGroup>` / `<Autocomplete>` (ui)
 
