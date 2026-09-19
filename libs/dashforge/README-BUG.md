@@ -2045,6 +2045,91 @@ about markup a library renders from its own props.
 
 ---
 
+## BUG 24 — `<Button>` (tw): no way to put one on an inverted surface, so any dark header or footer has to hand-roll it
+
+Hit 19/09/2026 in `~/projects/web/urbango-project/ugo-web`, putting a
+quiet «Dashboard» action into the marketing header.
+
+**Severity:** medium. Nothing crashes and nothing is silent — the text
+is simply unreadable, which at least shows. It matters because it makes
+the library unusable on exactly the surfaces a marketing site has most
+of: dark heroes, ink footers, inverted panels.
+
+**Status:** open.
+
+### Symptom
+
+A header whose colours flip between a dark hero and a light scrolled
+state cannot use `<Button>` at all. Every variant resolves to a fixed
+foreground from the neutral or semantic scales, so on the dark half the
+button is dark text on a dark ground.
+
+### Cause
+
+`tw/src/components/Button/button.variants.ts` — the `variant × color`
+compound entries pin the text colour outright:
+
+```
+{ variant: 'ghost', color: 'primary',   class: 'text-primary-700 hover:bg-primary-50 …' }
+{ variant: 'ghost', color: 'secondary', class: 'text-secondary-700 hover:bg-secondary-50 …' }
+```
+
+`outline` and `link` do the same. There is no axis that says «take the
+colour from the surface you are on», and no `color` value meaning
+«inverse». `sx` can override the text colour, but the hover and the
+focus ring stay on the light scale, so the result is a button that is
+readable at rest and wrong the moment a pointer touches it.
+
+### Why this is the library's problem and not the page's
+
+A design system that cannot be used on half of a marketing site teaches
+its consumers to hand-roll buttons, and hand-rolled buttons are how a
+system stops being one. The three places that already hand-roll in this
+consumer are the nav, the mobile menu and the alliance pitch — all
+three for this reason.
+
+### Proposed fix
+
+Two shapes, in order of cost:
+
+1. **A `color="inverse"` value**, with compound entries that use the
+   inverse tokens for text, hover and ring. Fits the existing axes,
+   costs one set of rows, and is discoverable from the type.
+2. **Or a `surface` axis** (`default` / `inverted`) orthogonal to
+   `color`, for the case where an inverted *and* semantic button is
+   needed (a danger action on a dark panel). More expressive, more rows.
+
+⚠️ What must NOT be the answer is «use `sx`»: the override reaches the
+text colour and leaves the hover and the focus ring behind, which is
+the state where the problem is invisible until somebody moves a mouse.
+
+### How to verify it is fixed
+
+On a container with a dark background:
+
+```tsx
+<div style={{ background: '#201338' }}>
+  <Button variant="ghost" color="inverse">Dashboard</Button>
+</div>
+```
+
+The label must be readable at rest, on hover, and on keyboard focus.
+
+### Current workaround downstream
+
+`ugo-web/app/components/header/session-actions.tsx`,
+`components/header/nav.tsx`, `components/header/mobile-menu.tsx` — the
+header carries its own tint variables (`--nav-text`, `--nav-muted`,
+`--nav-raised`, `--nav-cta-*`) set by `use-header-tint`, and the
+actions are plain `<Link>`s styled from them.
+
+⚠️ It works and it is not equivalent: those links get no focus ring
+from the library, no `loading` state, and no `disabled` treatment. They
+are buttons in appearance only, and every one of them is a place where
+the system's behaviour has to be remembered by hand.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
