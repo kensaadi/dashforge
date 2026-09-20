@@ -2311,6 +2311,96 @@ the consumer has a theme; without one it would have been four forms.
 
 ---
 
+## BUG 27 — `<AppShell>` (tw): the root is `min-h-screen`, so the window scrolls and `main`'s own `overflow-y-auto` never engages
+
+Found 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, asking
+the dashboard header to stay put.
+
+**Severity:** low-medium. Nothing breaks; the shell simply does not do
+the thing its own documentation draws, and two of its classes
+contradict each other.
+
+**Status:** open.
+
+### Symptom
+
+The header and the left nav scroll away with the page. A `<TopBar
+sticky>` inside the header slot does not help: measured after scrolling
+54px, the header sat at `top: -54`.
+
+### Cause
+
+`tw/src/components/AppShell/appShell.variants.ts`
+
+```
+root: 'flex flex-col min-h-screen bg-neutral-100',
+body: 'flex flex-1 min-h-0',
+main: 'flex-1 min-w-0 overflow-y-auto',
+```
+
+`main` declares itself the scroller. `root` is `min-h-screen`, so when
+the content is taller than the viewport the ROOT grows, the window
+scrolls, and `main` never overflows — its `overflow-y-auto` is dead
+code in every page that is long enough to matter, which is every page
+where it would have mattered.
+
+The two classes describe two different layouts. The component's own
+header comment draws the first one:
+
+```
+ *   ├────────┴─────────────────────────────────┤
+ *   │              footer                      │
+```
+
+with a fixed header and nav, which is the layout `main: overflow-y-auto`
+was written for.
+
+### Proposed fix
+
+Either make the root fill the viewport:
+
+```
+root: 'flex flex-col h-dvh overflow-hidden bg-neutral-100',
+```
+
+or, better, put it on an axis, because both layouts are legitimate and
+a marketing-style shell wants the page to scroll:
+
+```
+layout: {
+  viewport: 'h-dvh overflow-hidden',   // header and nav fixed
+  page:     'min-h-screen',            // the window scrolls
+}
+```
+
+⚠️ `h-dvh` and not `h-screen`: on a phone the address bar comes and
+goes, and `100vh` is the height the screen has only while that bar is
+hidden. `h-screen` produces a shell taller than the window — the page
+scrolls again, on exactly the devices where it is most annoying.
+
+⚠️ And the nav needs `overflow-y-auto` of its own in the fixed layout:
+fixed must not mean clipped, or on a short screen the last items become
+unreachable.
+
+### How to verify it is fixed
+
+With a page taller than the viewport:
+
+```js
+document.querySelector('main').scrollTop = 600
+window.scrollY                                        // must stay 0
+document.querySelector('header').getBoundingClientRect().top  // must stay 0
+```
+
+### Current workaround downstream
+
+`ugo-web/app/theme/dashforge.ts` — `AppShell.slotProps` sets
+`root: 'h-dvh overflow-hidden'` and `nav: 'overflow-y-auto'`. One place
+because the consumer has a theme; without one it would have been every
+shell in the product.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
