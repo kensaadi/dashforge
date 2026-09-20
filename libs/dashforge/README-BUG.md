@@ -2130,6 +2130,110 @@ the system's behaviour has to be remembered by hand.
 
 ---
 
+## BUG 25 — `<Divider orientation="vertical">` (tw) comes out `w-full`, so it breaks the row it was meant to divide
+
+Hit 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, separating
+the groups of a toolbar.
+
+**Severity:** medium. It is loud rather than silent — the layout is
+visibly wrong — but the cause is invisible from the call site, and the
+obvious `sx` fix does not work.
+
+**Status:** open.
+
+### Symptom
+
+A row of buttons with vertical dividers between the groups does not
+come out as a row. Every divider takes the full width of the container,
+so each group is pushed onto a line of its own and the bar becomes five
+rows tall.
+
+Measured on the served page, the vertical divider's box:
+
+```
+class  "border-l self-stretch border-solid w-full h-5 mx-1 border-neutral-200"
+width  621px      ← the whole container
+```
+
+### Cause
+
+`tw/src/components/Divider/divider.variants.ts`, in
+`dividerLineVariants`. Two axes disagree and the wrong one wins.
+
+The orientation axis is right:
+
+```
+orientation: {
+  horizontal: 'h-0 border-t',
+  vertical:   'w-0 border-l self-stretch',
+}
+```
+
+The segment axis is not orientation-aware:
+
+```
+segment: {
+  full:  'w-full',      ← unconditional
+  grow:  'flex-1',
+}
+```
+
+A line-only divider renders with `segment: 'full'` whatever its
+orientation, so a vertical one gets `w-0` from one axis and `w-full`
+from the other. `tailwind-merge` keeps the later of two conflicting
+width utilities, `w-full` wins, and the divider is a full-width bar
+with a left border.
+
+`full` means «span the divider's own main axis». For a horizontal line
+that is the width; for a vertical one it is the **height**.
+
+### Why `sx` does not save the call site
+
+`sx="h-5 mx-1"` reads as the right fix and changes nothing about the
+width: nothing in it conflicts with `w-full`, so the merge keeps it.
+The consumer has to write `w-px` — a width, to beat a width — which
+nobody guesses from a prop called `orientation`.
+
+### Proposed fix
+
+Make `segment` a compound of orientation, which is what it always
+meant:
+
+```
+compoundVariants: [
+  { orientation: 'horizontal', segment: 'full', class: 'w-full' },
+  { orientation: 'vertical',   segment: 'full', class: 'h-full' },
+]
+```
+
+and drop `full` from the plain `segment` axis, leaving `grow: 'flex-1'`
+(which is already orientation-agnostic and correct).
+
+⚠️ `orientation: vertical` should probably also stop emitting `w-0`:
+with a `border-l` the element is 1px wide by its border, and `w-0` plus
+a border is a shape that only reads as intentional to whoever wrote it.
+
+### How to verify it is fixed
+
+```tsx
+<div className="flex flex-row items-center gap-1">
+  <button>A</button>
+  <Divider orientation="vertical" sx="h-5" />
+  <button>B</button>
+</div>
+```
+
+A and B must stay on the same line, with a 1px rule between them. Today
+B is on the second line.
+
+### Current workaround downstream
+
+`ugo-web/app/components/editor/post-editor.tsx` — `sx="w-px h-5 mx-1"`,
+where the `w-px` exists only to beat `w-full` and will look like
+superstition to whoever reads it next. Remove it when this is fixed.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
