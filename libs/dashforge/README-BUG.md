@@ -2401,6 +2401,95 @@ shell in the product.
 
 ---
 
+## BUG 28 — `<Dialog>` and `<Drawer>` (tw) ring their close button on `:focus`, so every dialog opened with the mouse shows a focus ring
+
+Found 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, opening a
+read-only detail card from a click.
+
+**Severity:** low, and cosmetic — but it is on the two components where
+it is guaranteed to be seen, because both move focus there themselves.
+
+**Status:** open.
+
+### Symptom
+
+Click anything that opens a `<Dialog>`. The `×` in the corner comes up
+wearing a 2px ring, before the pointer has gone anywhere near it. It
+reads as a framed button, not as focus: the first thing the eye lands
+on in a panel is a box around the one control nobody came for.
+
+Measured on the element the dialog had just focused, with the mouse:
+
+```
+document.activeElement                  // <button aria-label="Close">
+el.matches(':focus-visible')            // false
+getComputedStyle(el).boxShadow          // rgb(24,24,27) 0 0 0 2px  ← painted anyway
+```
+
+`:focus-visible` says no and the ring is there, which is the whole bug
+in two lines.
+
+### Cause
+
+`tw/src/components/Dialog/dialog.variants.ts:48`
+
+```
+'focus:outline-none focus:ring-2 focus:ring-primary-500',
+```
+
+`tw/src/components/Drawer/drawer.variants.ts:80`
+
+```
+'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1',
+```
+
+Plain `:focus`, so it matches however focus arrived — and it always
+arrives: Radix moves focus into the panel on open, and the close button
+is the first focusable thing in it. A mouse click therefore paints a
+ring every single time.
+
+⚠️ **The library already knows better everywhere else.** 28 files use
+`focus-visible:ring`; these two lines are the only `focus:ring` in
+`tw/src`. It is not a policy, it is two lines that were missed — and
+they landed on the two components that focus something on open, which
+is why they are the ones you see.
+
+### Proposed fix
+
+```
+'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500'
+```
+
+in both files. Keyboard users keep the ring — Tab into the close button
+and `:focus-visible` matches — and a mouse-opened panel comes up clean.
+
+⚠️ Do NOT fix it by suppressing the focus move instead (`onOpenAutoFocus`
+preventing default): focus has to enter the panel or Escape and Tab stop
+belonging to it. The problem is what the ring is drawn on, not that the
+button has focus.
+
+### How to verify it is fixed
+
+Open a dialog **by clicking**:
+
+```js
+const el = document.activeElement          // the Close button
+el.matches(':focus-visible')               // false
+getComputedStyle(el).boxShadow             // must now be 'none'
+```
+
+Then press Tab twice to come back to it: `:focus-visible` true, ring
+painted.
+
+### Current workaround downstream
+
+None. `ugo-web` leaves it as it is: the ring is wrong but harmless, and
+overriding it from the consumer's theme would mean re-specifying a focus
+treatment for the one component whose default is out of step with the
+other 28.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
