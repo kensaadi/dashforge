@@ -2234,6 +2234,83 @@ superstition to whoever reads it next. Remove it when this is fixed.
 
 ---
 
+## BUG 26 — a few components hard-code bare `rounded`, which in Tailwind v4 reads no token, so they cannot be themed
+
+Found 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, giving
+the dashboard a theme.
+
+**Severity:** low, and worth an entry anyway: it is small, it is silent,
+and it defeats the one thing a token system is for.
+
+**Status:** open.
+
+### Symptom
+
+A consumer whose brand is square sets the radius scale to zero:
+
+```css
+@theme { --radius-xs: 0; --radius-sm: 0; --radius-md: 0; /* … */ }
+```
+
+Everything squares — Button, Card, Select, TextField — except a handful
+of components, which keep a 4px corner nobody asked for and nothing can
+reach.
+
+Measured on the served page: `button[role=checkbox]` →
+`border-radius: 4px`, with every radius token at `0px`.
+
+### Cause
+
+`tw/src/components/Checkbox/checkbox.variants.ts:24`
+
+```
+'rounded border bg-neutral-50',
+```
+
+⚠️ In Tailwind v4 `rounded` (no suffix) is **0.25rem hard-coded**, not
+`var(--radius-sm)`. Only the suffixed utilities read the scale. So this
+class is immune to the theme by construction.
+
+The same bare `rounded` appears in `Slider` and `Skeleton`. `Avatar`,
+`Box`, `Card`, `Image` and `Video` also match a grep for it, but there
+it is the name of a **prop** (`rounded="lg"`), which is fine and not
+this bug — the grep is noisier than the defect.
+
+### Why it is worth fixing rather than working around
+
+A design system's promise is that the brand lives in the tokens. One
+component that ignores them is not a small visual difference: it is the
+proof that the promise does not hold, and the consumer learns to stop
+trusting the scale and to override per component — which is the state
+this consumer was in before it had a theme at all.
+
+### Proposed fix
+
+Replace bare `rounded` with `rounded-sm` (the same 0.25rem default) in
+`Checkbox`, `Slider` and `Skeleton`. Behaviour is identical out of the
+box, and the class starts reading `--radius-sm`.
+
+⚠️ Worth a lint rule rather than a one-off fix: bare `rounded`,
+`shadow`, `blur` and `ring` are all v4 utilities that skip the token
+scale, and any of them landing later reintroduces this quietly.
+
+### How to verify it is fixed
+
+With `--radius-sm: 0px` in the consumer's `@theme`:
+
+```js
+getComputedStyle(document.querySelector('button[role=checkbox]')).borderRadius
+// must be "0px"; today it is "4px"
+```
+
+### Current workaround downstream
+
+`ugo-web/app/components/forms/field-styles.ts` — `checkboxSlots.control`
+carries an explicit `rounded-none`. It is one line in one place because
+the consumer has a theme; without one it would have been four forms.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
