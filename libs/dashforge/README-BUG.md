@@ -2490,6 +2490,53 @@ other 28.
 
 ---
 
+## BUG 29 — RITIRATO. Non era un difetto: `useDashFieldMeta` esiste e fa esattamente questo
+
+Aperto e ritirato il 21/09/2026, lo stesso giorno.
+
+**Status:** invalid.
+
+### Cosa avevo scritto
+
+Che da un componente figlio non c'è modo di seguire il VALORE di un
+campo, perché `useDashFormState` copre solo lo stato del modulo.
+
+### Perché è sbagliato
+
+`useDashFieldMeta(name)` restituisce `{ value, error, touched, dirty,
+submitCount, allowAutoError }` e si iscrive per davvero:
+`useSyncExternalStore` sopra `bridge.subscribeField`, quindi il
+consumatore si ridisegna solo quando cambia il SUO campo.
+
+Non l'ho trovato perché ho cercato «watch» negli export e mi sono
+fermato a `useDashFormState`. Il nome giusto c'era, e il commento in
+`DashFormProvider.tsx` lo dice a chiare lettere: *«consumers must use
+subscribeField/useDashFieldMeta to observe per-field state changes»*.
+
+### Cosa resta vero, e vale la pena sapere
+
+`rhf.watch(['a','b'])` letto durante il render da un figlio **non
+iscrive quel figlio**, ed è un no-op silenzioso. Verificato nella
+sorgente di react-hook-form 7.74.0:
+
+- `watch` con un array chiama `_getWatch(names, dv, true)`, che
+  registra i nomi in `control._names.watch` e RESTITUISCE i valori: la
+  sottoscrizione non la crea (`dist/index.esm.mjs:2132`);
+- la forma a callback, `watch(fn)`, invece sottoscrive davvero e
+  torna una `Subscription`;
+- il re-render vive in `useForm` (`:3010`), cioè nel provider, e il
+  contesto di Dashforge è **identity-stable di proposito** — il
+  bridge non cambia a ogni tasto premuto — quindi il figlio non si
+  ridisegna.
+
+⚠️ Questo però non è un difetto di Dashforge: è il motivo per cui
+`useDashFieldMeta` esiste. Semmai varrebbe un avviso in sviluppo
+quando `rhf.watch(names)` viene chiamato fuori dal provider, perché il
+modo in cui fallisce — a volte sì e a volte no, a seconda di quale
+altro stato locale provoca un render — costa più di un errore.
+
+---
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
