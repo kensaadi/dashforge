@@ -112,6 +112,7 @@ export function Checkbox(props: CheckboxProps) {
     access,
     size,
     disabled,
+    required,
     checked,
     defaultChecked,
     onCheckedChange,
@@ -130,6 +131,35 @@ export function Checkbox(props: CheckboxProps) {
 
   const controlId = useId();
 
+  // BUG 21 v2: local ref for the Radix Root DOM button. We use this to
+  // set `aria-required` post-mount because setting the attribute via a
+  // JSX prop on `RadixCheckbox.Root` does not reach the browser DOM in
+  // production builds (verified empirically in urbango on Radix v1.3.3;
+  // jsdom does not surface the same gap).
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const setControlRef = (node: HTMLButtonElement | null) => {
+    buttonRef.current = node;
+    const regRef = registration?.ref as
+      | React.RefCallback<HTMLButtonElement>
+      | React.MutableRefObject<HTMLButtonElement | null>
+      | null
+      | undefined;
+    if (typeof regRef === 'function') {
+      regRef(node);
+    } else if (regRef && typeof regRef === 'object') {
+      regRef.current = node;
+    }
+  };
+  useEffect(() => {
+    const node = buttonRef.current;
+    if (!node) return;
+    if (required) {
+      node.setAttribute('aria-required', 'true');
+    } else {
+      node.removeAttribute('aria-required');
+    }
+  }, [required]);
+
   // StrictMode-safe unregister-on-unmount — mirrors MUI Checkbox.tsx
   // (the bridge identity changes on every keystroke, so we MUST NOT
   // re-run cleanup on deps changes — empty deps + ref pattern).
@@ -142,6 +172,11 @@ export function Checkbox(props: CheckboxProps) {
     return () => {
       isMountedRef.current = false;
       const { bridge: cap, name: capName } = unregisterRef.current;
+      // BUG 22: only release bridge state on unmount if the form
+      // is configured to forget unmounted fields. Default `false`
+      // keeps values in RHF so <Stepper> / tab-swap patterns can
+      // read earlier answers back on later steps. See README-BUG.md § BUG 22.
+      if (!cap?.shouldUnregister) return;
       queueMicrotask(() => {
         if (!isMountedRef.current) cap?.unregister?.(capName);
       });
@@ -238,9 +273,19 @@ export function Checkbox(props: CheckboxProps) {
         name={name}
         {...radixStateProps}
         disabled={effectiveDisabled}
+        required={required}
         onCheckedChange={handleCheckedChange}
         onBlur={handleBlur}
-        ref={registration?.ref as React.Ref<HTMLButtonElement> | undefined}
+        // BUG 21 v2: compose our own ref with `registration.ref` so we can
+        // ALSO set `aria-required` post-mount via a `useEffect` below. The
+        // JSX-level `aria-required` prop was verified empirically not to
+        // reach the DOM in a real browser (Radix v1.3.3 reads its own
+        // `required` prop into context and re-emits `aria-required` from
+        // the internal trigger, but the attribute is stripped somewhere
+        // in the production path — jsdom does not catch it). Post-mount
+        // ref-based setter is Radix-version-agnostic and lands on the
+        // element the browser actually shows.
+        ref={setControlRef}
         className={cn(v.control(), themeSlotProps?.control?.className, slotProps?.control?.className)}
       >
         {/*
@@ -285,6 +330,18 @@ export function Checkbox(props: CheckboxProps) {
             className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
           >
             {renderLabelWithTooltip(label, tooltipConfig)}
+            {required && (
+              <span
+                aria-hidden="true"
+                className={cn(
+                  v.requiredMark(),
+                  themeSlotProps?.requiredMark?.className,
+                  slotProps?.requiredMark?.className,
+                )}
+              >
+                *
+              </span>
+            )}
           </label>
         )}
         {resolvedHelperText && (

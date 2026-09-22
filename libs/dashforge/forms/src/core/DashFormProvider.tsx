@@ -102,6 +102,7 @@ export function DashFormProvider<
   mode = 'onChange',
   reactions,
   resolver,
+  shouldUnregister = false,
 }: DashFormProviderProps<TFieldValues>) {
   // Create or use provided Engine instance
   // Memoized to prevent re-creation on every render
@@ -144,6 +145,13 @@ export function DashFormProvider<
     defaultValues: defaultValues as DefaultValues<TFieldValues>,
     mode,
     resolver,
+    // BUG 22: previously not exposed on `DashFormConfig` and never passed
+    // here. A `<Stepper>` under `<DashForm>` then produced silent data loss
+    // at submit time because the unmounted step's fields were dropped from
+    // `rhf.getValues()`. Default `false` matches RHF v7's own default but
+    // now the guarantee is explicit AND overridable by the consumer. See
+    // README-BUG.md § BUG 22.
+    shouldUnregister,
   });
 
   // Subscribe to formState fields to ensure reactivity
@@ -350,6 +358,11 @@ export function DashFormProvider<
       // access `engine` via the internal DashFormContextValue instead.
       engine: engine as unknown as Engine,
 
+      // BUG 22: expose the form-level `shouldUnregister` on the bridge so
+      // field components can gate their unmount cleanup. Default is `false`
+      // (Stepper-friendly). See README-BUG.md § BUG 22.
+      shouldUnregister,
+
       // NEW: Expose CONTROLLED runtime APIs (NOT raw store)
       // Read API (safe for UI consumption)
       getFieldRuntime: (name: string) => runtimeStore.getFieldRuntime(name),
@@ -508,7 +521,11 @@ export function DashFormProvider<
     // re-render optimization — the bridge no longer changes on every
     // keystroke, and consumers must use subscribeField/useDashFieldMeta to
     // observe per-field state changes.
-    [engine, runtimeStore, rhf, adapter, debug, subscribeField]
+    //
+    // `shouldUnregister` is a config-time value that does not change over
+    // the life of the form in practice, but it belongs here so a consumer
+    // who toggles it dynamically still gets a fresh bridge.
+    [engine, runtimeStore, rhf, adapter, debug, subscribeField, shouldUnregister]
   );
 
   // Build internal context value for @dashforge/forms hooks

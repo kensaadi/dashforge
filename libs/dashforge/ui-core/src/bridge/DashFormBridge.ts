@@ -96,6 +96,22 @@ export interface DashFormBridge {
    */
   engine: Engine;
 
+  /**
+   * Whether the form drops a field's value when the input registering it
+   * unmounts. Mirrors `useForm({ shouldUnregister })` on the RHF side.
+   *
+   * Field components read this in their unmount cleanup to decide whether
+   * to call `bridge.unregister(name)`. When `false` (the Dashforge default,
+   * matching RHF v7's own default), the field's row survives in
+   * `formState.values` so patterns that swap children out at runtime
+   * (`<Stepper>`, tabs, conditional sections) can read the value back on
+   * later steps. When `true`, cleanup runs and the row is scrubbed, which
+   * suits wizards that must forget an abandoned branch entirely.
+   *
+   * See `libs/dashforge/README-BUG.md § BUG 22` for the full rationale.
+   */
+  shouldUnregister: boolean;
+
   // ────────────────────────────────────────────────────────────────────
   // Required core API (0.2.0-beta contract)
   // ────────────────────────────────────────────────────────────────────

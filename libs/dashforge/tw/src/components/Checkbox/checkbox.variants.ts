@@ -37,6 +37,10 @@ export const checkboxVariants = tv({
     ],
     indicator: 'flex items-center justify-center text-white',
     label: 'select-none cursor-pointer text-neutral-900',
+    // BUG 21: `*` marker after the label, matching the `textField.variants.ts`
+    // `requiredMark` slot so a consent box aligns visually with sibling
+    // required fields in a form.
+    requiredMark: 'text-danger-500 ml-0.5',
     helperText: 'text-sm text-neutral-600 mt-1',
     errorText: 'text-sm text-danger-600 mt-1',
   },

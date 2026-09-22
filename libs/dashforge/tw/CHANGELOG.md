@@ -12,6 +12,53 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.7.0] — 2026-09-22
+
+### Added
+
+- **`<Checkbox required>` and `<Switch required>`** — the last two
+  bridge-integrated field components in the package that did not
+  accept `required` (the other twelve — Autocomplete, DatePicker,
+  DateRangePicker, DateTimePicker, NumberField, OTPField, RadioGroup,
+  Select, Slider, TextField, Textarea, TimePicker — already did).
+  Fixes BUG 21 in `libs/dashforge/README-BUG.md`. Both components now
+  render a `*` marker at the end of the label (styled via a new
+  `requiredMark` slot in the variants recipe, colour tokens matching
+  `textField.variants.ts` `requiredMark`) and set `aria-required="true"`
+  on the underlying Radix Root button via a **ref + `useEffect`
+  post-mount DOM setter** (Radix v1.3.3's own internal
+  context-then-re-emit path for `aria-required` was verified to strip
+  the attribute in production browser builds, though jsdom did not
+  catch that; the ref-based fallback is Radix-version-agnostic). HTML5
+  `required` is still passed through to Radix so
+  `Radix.CheckboxBubbleInput` picks it up for native form validation.
+  The `requiredMark` slot accepts a `className` via `slotProps` for
+  per-instance overrides, and via `theme.components.<Name>.slotProps`
+  for design-system-wide overrides. Presentational only, per the
+  library-wide convention: form-submit enforcement still requires
+  `rules={{ required: … }}` or a resolver rule. Seven regression tests
+  in `src/components/_shared/checkboxSwitchRequired.test.tsx` pin the
+  marker, the aria-required attribute, the no-render-when-omitted
+  invariant, and the slot override plumbing.
+
+### Fixed
+
+- **14 field components now honour `bridge.shouldUnregister`** (BUG 22
+  cross-package fix). Autocomplete, Checkbox, DatePicker,
+  DateRangePicker, DateTimePicker, NumberField, OTPField, RadioGroup,
+  Select, Slider, Switch, TextField, Textarea, TimePicker — the
+  unmount cleanup that previously ran unconditionally
+  (`queueMicrotask` schedule of `bridge.unregister(name)`) now bails
+  out first with `if (!cap?.shouldUnregister) return;`. When
+  `bridge.shouldUnregister` is `false` (the new Dashforge default,
+  set in `DashFormProvider`) the field's row in `formState.values`
+  survives the unmount, which is what `<Stepper>` and tab-swap
+  patterns need. Requires `@dashforge/ui-core@≥1.2.0` (new bridge
+  field) and `@dashforge/forms@≥1.2.0` (bridge population). The
+  StrictMode-safe `queueMicrotask` + `isMountedRef` pattern is
+  preserved verbatim; the change only decides *whether* to run the
+  scheduled cleanup.
+
 ## [1.6.0] — 2026-09-15
 
 Minor release: three bug fixes (BUG 6 Dialog `actions` slot,

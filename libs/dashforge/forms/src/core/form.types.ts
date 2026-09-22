@@ -222,6 +222,25 @@ export interface DashFormConfig<
    * ```
    */
   resolver?: Resolver<TFieldValues>;
+
+  /**
+   * Whether React Hook Form should DROP a field's value when the input
+   * that registered it unmounts. Passed through to `useForm({ shouldUnregister })`.
+   *
+   * **Dashforge default: `false`.** RHF v7's own default is also `false`,
+   * but this option was not previously exposed on `DashFormConfig`, so
+   * consumers who paired `<DashForm>` with any component that swaps out its
+   * children (`<Stepper>`, tabs, conditional sections) had no way to
+   * change the behaviour and, more importantly, had no way to be SURE of
+   * the behaviour. See `libs/dashforge/README-BUG.md § BUG 22`.
+   *
+   * Set to `true` only when you deliberately want unmounted fields to be
+   * scrubbed from `formState.values` (e.g. a wizard that must forget an
+   * abandoned branch entirely).
+   *
+   * @default false
+   */
+  shouldUnregister?: boolean;
 }
 
 /**

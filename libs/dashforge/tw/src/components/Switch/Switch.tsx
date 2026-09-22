@@ -40,6 +40,7 @@ export function Switch(props: SwitchProps) {
     access,
     size,
     disabled,
+    required,
     checked,
     defaultChecked,
     onCheckedChange,
@@ -55,6 +56,35 @@ export function Switch(props: SwitchProps) {
 
   const controlId = useId();
 
+  // BUG 21 v2: local ref + post-mount `aria-required` setter — same
+  // pattern as Checkbox.tsx. Radix.Switch.Root reads `required` prop
+  // into context but the JSX `aria-required` attribute does not reach
+  // the browser DOM in production builds. Setting via ref is
+  // Radix-version-agnostic. See README-BUG.md § BUG 21.
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const setControlRef = (node: HTMLButtonElement | null) => {
+    buttonRef.current = node;
+    const regRef = registration?.ref as
+      | React.RefCallback<HTMLButtonElement>
+      | React.MutableRefObject<HTMLButtonElement | null>
+      | null
+      | undefined;
+    if (typeof regRef === 'function') {
+      regRef(node);
+    } else if (regRef && typeof regRef === 'object') {
+      regRef.current = node;
+    }
+  };
+  useEffect(() => {
+    const node = buttonRef.current;
+    if (!node) return;
+    if (required) {
+      node.setAttribute('aria-required', 'true');
+    } else {
+      node.removeAttribute('aria-required');
+    }
+  }, [required]);
+
   // StrictMode-safe unregister-on-unmount
   const unregisterRef = useRef({ bridge, name });
   unregisterRef.current = { bridge, name };
@@ -65,6 +95,11 @@ export function Switch(props: SwitchProps) {
     return () => {
       isMountedRef.current = false;
       const { bridge: cap, name: capName } = unregisterRef.current;
+      // BUG 22: only release bridge state on unmount if the form
+      // is configured to forget unmounted fields. Default `false`
+      // keeps values in RHF so <Stepper> / tab-swap patterns can
+      // read earlier answers back on later steps. See README-BUG.md § BUG 22.
+      if (!cap?.shouldUnregister) return;
       queueMicrotask(() => {
         if (!isMountedRef.current) cap?.unregister?.(capName);
       });
@@ -142,9 +177,13 @@ export function Switch(props: SwitchProps) {
         name={name}
         {...radixStateProps}
         disabled={effectiveDisabled}
+        required={required}
         onCheckedChange={handleCheckedChange}
         onBlur={handleBlur}
-        ref={registration?.ref as React.Ref<HTMLButtonElement> | undefined}
+        // BUG 21 v2: `aria-required` set via `setControlRef` + `useEffect`
+        // above, not via JSX prop. See Checkbox.tsx for the same pattern
+        // and the reasoning.
+        ref={setControlRef}
         className={cn(v.control(), themeSlotProps?.control?.className, slotProps?.control?.className)}
       >
         <RadixSwitch.Thumb className={cn(v.thumb(), themeSlotProps?.thumb?.className, slotProps?.thumb?.className)} />
@@ -157,6 +196,18 @@ export function Switch(props: SwitchProps) {
             className={cn(v.label(), themeSlotProps?.label?.className, slotProps?.label?.className)}
           >
             {renderLabelWithTooltip(label, tooltipConfig)}
+            {required && (
+              <span
+                aria-hidden="true"
+                className={cn(
+                  v.requiredMark(),
+                  themeSlotProps?.requiredMark?.className,
+                  slotProps?.requiredMark?.className,
+                )}
+              >
+                *
+              </span>
+            )}
           </label>
         )}
         {resolvedHelperText && (

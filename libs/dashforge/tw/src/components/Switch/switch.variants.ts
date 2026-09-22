@@ -34,6 +34,9 @@ export const switchVariants = tv({
       'data-[state=unchecked]:translate-x-0',
     ],
     label: 'select-none cursor-pointer text-neutral-900',
+    // BUG 21: `*` marker after the label, same tokens as
+    // `checkboxVariants.requiredMark` for visual parity.
+    requiredMark: 'text-danger-500 ml-0.5',
     helperText: 'text-sm text-neutral-600 mt-1',
     errorText: 'text-sm text-danger-600 mt-1',
   },

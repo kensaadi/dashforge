@@ -9,6 +9,23 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.5.0] — 2026-09-22
+
+### Fixed
+
+- **12 field components now honour `bridge.shouldUnregister`** (BUG 22
+  cross-package fix). Autocomplete, Checkbox, DatePicker,
+  DateRangePicker, DateTimePicker, NumberField, OTPField, RadioGroup,
+  Switch, TextField, Textarea, TimePicker — the unmount cleanup that
+  previously ran `bridge.unregister(name)` unconditionally now bails
+  out first with `if (!capturedBridge?.shouldUnregister) return;`.
+  When `bridge.shouldUnregister` is `false` (Dashforge default), the
+  field's row in `formState.values` survives the unmount, which is
+  what `<Stepper>` and tab-swap patterns need. Requires
+  `@dashforge/ui-core@≥1.2.0` (new bridge field) and
+  `@dashforge/forms@≥1.2.0` (bridge population). The StrictMode-safe
+  `queueMicrotask` + `isMountedRef` pattern is preserved verbatim.
+
 ## [1.4.0] — 2026-09-15
 
 Bug fixes + API parity round-up across the field family, driven by the

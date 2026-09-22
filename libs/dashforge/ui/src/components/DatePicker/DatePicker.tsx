@@ -129,6 +129,11 @@ export function DatePicker(props: DatePickerProps) {
       isMountedRef.current = false;
       const { bridge: capturedBridge, name: capturedName } =
         unregisterRef.current;
+      // BUG 22: only release bridge state on unmount if the form
+      // is configured to forget unmounted fields. Default `false`
+      // keeps values in RHF so <Stepper> / tab-swap patterns can
+      // read earlier answers back on later steps. See README-BUG.md § BUG 22.
+      if (!capturedBridge?.shouldUnregister) return;
       queueMicrotask(() => {
         if (!isMountedRef.current) {
           capturedBridge?.unregister?.(capturedName);

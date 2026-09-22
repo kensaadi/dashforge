@@ -9,6 +9,22 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [1.2.0] — 2026-09-22
+
+### Added
+
+- **`DashFormBridge.shouldUnregister: boolean`** — new required field
+  on the bridge contract. Field components read it in their unmount
+  cleanup to decide whether to call `bridge.unregister(name)`. When
+  `false` (Dashforge default, matching RHF v7 default), the field's
+  value survives the unmount so `<Stepper>` and tab-swap patterns can
+  read earlier answers back on later steps. When `true`, cleanup runs
+  and the value is scrubbed. Populated by
+  `@dashforge/forms@≥1.2.0`'s `DashFormProvider` from
+  `DashFormConfig.shouldUnregister`. Consumed by 14 tw + 12 ui field
+  components' unmount cleanup. See `libs/dashforge/README-BUG.md § BUG
+  22` for the cross-package design.
+
 ## [1.1.0] — 2026-09-15
 
 Minor release: two additive public surfaces land together.

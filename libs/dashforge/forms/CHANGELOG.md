@@ -5,6 +5,40 @@ All notable changes to @dashforge/forms will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-09-22
+
+### Fixed
+
+- **`<Stepper>` under `<DashForm>` no longer loses step values on
+  unmount** (BUG 22, fixed with a two-part change). The first attempt
+  (v1) only exposed `shouldUnregister` on `DashFormConfig` and passed
+  it to `useForm`, assuming RHF's own default was what dropped values.
+  It wasn't: `bridge.unregister(name)` in `DashFormProvider.tsx:434`
+  explicitly calls `rhf.unregister(fieldName)`, and that chain runs
+  from every bridge-integrated field component's unmount cleanup
+  (14 tw + 12 ui) regardless of any config knob.
+  Requires `@dashforge/ui-core@≥1.2.0` (new `shouldUnregister: boolean`
+  field on `DashFormBridge`) and coordinated releases of `@dashforge/tw`
+  and `@dashforge/ui` where the 26 field components learn to gate their
+  cleanup on `bridge.shouldUnregister`.
+
+### Added
+
+- **`DashFormConfig.shouldUnregister?: boolean`** — new opt-in that
+  passes through to React Hook Form's `useForm({ shouldUnregister })`
+  AND is now surfaced on the `DashFormBridge` contract as
+  `bridge.shouldUnregister` (populated in `DashFormProvider` on the
+  memoised bridge object). Dashforge default is `false`; consumers who
+  want an abandoned branch scrubbed can pass `shouldUnregister={true}`.
+  Also forwarded through `<DashForm>` to `<DashFormProvider>`.
+  See `libs/dashforge/README-BUG.md § BUG 22` for the full three-file
+  design.
+  Regression tests in
+  `src/core/DashFormProvider.shouldUnregister.test.tsx` pin all three
+  scenarios (default, explicit-false, explicit-true) against a
+  Stepper-shaped mount/unmount cycle that mirrors what the 26 field
+  components do on unmount.
+
 ## [1.0.0] — 2026-05-23
 
 **Stable release.** First semver-stable version. The public API is now

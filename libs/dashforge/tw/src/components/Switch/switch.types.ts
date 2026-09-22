@@ -26,6 +26,12 @@ export interface SwitchSlotProps {
   label?: { className?: string };
   helperText?: { className?: string };
   errorText?: { className?: string };
+  /**
+   * The `*` asterisk rendered next to the label when `required` is true.
+   * Themed by `switchVariants().requiredMark()`; override here to change
+   * colour / spacing. See README-BUG.md § BUG 21.
+   */
+  requiredMark?: { className?: string };
 }
 
 /**
@@ -78,6 +84,14 @@ export interface SwitchProps {
    * @default false
    */
   disabled?: boolean;
+
+  /**
+   * Renders a `*` asterisk next to the label and sets `aria-required="true"`
+   * on the underlying Radix control button. Presentational only: submit-time
+   * enforcement still requires `rules={{ required: … }}` or a resolver rule.
+   * See README-BUG.md § BUG 21.
+   */
+  required?: boolean;
 
   /** Helper line below the control. Auto-replaced by bridge error when invalid. */
   helperText?: ReactNode;
