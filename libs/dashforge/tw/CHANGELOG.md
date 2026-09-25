@@ -12,6 +12,37 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [1.7.1] — 2026-09-25
+
+Patch: closes the half of BUG 17 that never reached this package.
+
+### Fixed
+
+- **An explicit `helperText` no longer swallows the field's validation
+  message** (BUG 32). This package carries its own copy of the
+  validation resolver at
+  `src/components/_shared/resolveValidationState.ts`, and it kept the
+  inverted precedence that BUG 17 corrected on the MUI side back on
+  2026-09-15. The effect: any bridge-managed field given a constant
+  hint painted the danger state and set `aria-invalid="true"` while
+  still rendering the hint text, so the user saw a red field with no
+  stated reason. **Fourteen components route through that resolver**
+  (Autocomplete, Checkbox, DatePicker, DateRangePicker, DateTimePicker,
+  NumberField, OTPField, RadioGroup, Select, Slider, Switch, TextField,
+  Textarea, TimePicker), so a single line fixes all of them.
+  `helperText` now reads `autoMessage ?? explicitHelperText`: the
+  validation message wins while it is showing, the hint is the fallback
+  for the no-error state. The `error` boolean is unchanged — an
+  explicit prop still forces the visual.
+
+  The resolver's docstring previously advertised itself as matching the
+  MUI side "byte-for-byte", which is what let the divergence survive
+  ten days. It now carries an explicit warning that the two files are
+  hand-kept copies. New regression suite at
+  `src/components/_shared/resolveValidationState.test.ts` (7 assertions)
+  mirrors the MUI-side one, and each docstring points at the other.
+  See `README-BUG.md` § BUG 32.
+
 ## [1.7.0] — 2026-09-22
 
 ### Added

@@ -2537,11 +2537,537 @@ altro stato locale provoca un render — costa più di un errore.
 
 ---
 
+## BUG 30 — `<Chip>` (tw) hardcodes `rounded-full`, so a token theme that squares every corner cannot square the chip
+
+Found 24/09/2026 in `~/projects/web/urbango-project/ugo-web`, putting a
+status label on a row in an app whose theme sets every radius to `0px`.
+
+**Reproduced and measured.** Rendered the chip inside that app and read
+the computed style off the element:
+
+```
+chip   getComputedStyle(el).borderRadius   // 1.67772e+07px  ← calc(infinity * 1px)
+card   getComputedStyle(el).borderRadius   // 0px
+```
+
+Everything around it is square because the theme says so; the chip is
+round because the theme cannot reach it.
+
+**Severity:** low, and cosmetic. It shows wherever a consumer theme
+departs from the default radii, which is the case this library exists to
+support.
+
+**Status:** **NOT A DEFECT** — verified 24/09/2026. The central claim
+(«`rounded-full` resolves to a literal, so overriding the token scale
+leaves it untouched») is false under `dashforgePreset()`. `rounded-full`
+IS token-driven here. See § Verifica below for the evidence. A narrower
+request survives and is worth keeping — see § Cosa resta in piedi.
+
+### Symptom
+
+An app that squares every corner gets one component that stays a pill.
+The chip is the only rounded thing on the page, which reads as a foreign
+element rather than as a label.
+
+### Cause
+
+`tw/src/components/Chip/chip.variants.ts`, in the base:
+
+```
+base: [
+  'inline-flex items-center gap-1 rounded-full font-medium',
+  ...
+```
+
+`rounded-full` is not token driven. Tailwind v4 ships eight radius
+tokens, `--radius-xs` through `--radius-4xl`, and `rounded-full` is none
+of them: it resolves to a literal, so overriding the token scale leaves
+it untouched. An app can zero all eight and the chip stays round.
+
+### Defect or request
+
+Calling it a defect rather than a feature ask, because the library
+states the opposite intent for its own variants. From
+`typography.variants.ts`:
+
+> Each variant baseline maps to a Tailwind utility chain that resolves
+> through the @dashforge/tw-tokens scale (so the visual stays in sync
+> with the rest of the system when the token theme is patched).
+
+The chip's radius does not resolve through anything a theme can patch.
+
+⚠️ The counter-argument is fair and worth recording: a pill may be a
+deliberate design decision for this component, in which case the answer
+is a documented `shape` variant rather than a fix.
+
+### What it would take
+
+A `shape` variant (`pill` default, `square` opt-in), or a
+`--radius-chip` token that defaults to full. Either keeps the current
+look for everyone who has not asked for anything else.
+
+### ✅ Verifica 24/09/2026 — la premessa è sbagliata: `rounded-full` È token-driven
+
+Il report ragiona su **Tailwind vanilla**, dove `rounded-full` è il
+literal `calc(infinity * 1px)` e i token sono `--radius-xs` …
+`--radius-4xl`. Dashforge non usa quella scala: `dashforgePreset()`
+**sostituisce** l'intero `borderRadius` con le proprie chiavi, e
+`full` è una di quelle.
+
+**1 · Il tipo dei token dichiara `full`.**
+`tw-tokens/src/theme/types.ts:56-64` — `TWRadiusTokens` ha
+`none · sm · md · lg · xl · 2xl · full`. Sette tier, non sei.
+
+**2 · Il default le valorizza tutte.**
+`tw-tokens/src/theme/defaults.ts:173-181` — `sharedRadius.full = '9999px'`.
+
+**3 · Il preset mappa OGNI chiave a una CSS var, `full` compresa.**
+`tw-theme/src/adapter/dashforgePreset.ts:191` fa
+`borderRadius: mapKeysToCssVarRefs(theme.radius, 'radius')`, e
+`mapKeysToCssVarRefs` (`:88-101`) itera su `Object.keys` senza
+esclusioni.
+
+**4 · Il runtime emette la variabile.**
+`tw-theme/src/runtime/cssVars.ts:91-93` — il loop su
+`Object.entries(theme.radius)` emette `--df-tw-radius-{key}` per
+ognuna.
+
+**Eseguito, non dedotto.** Tre probe temporanei contro il codice reale
+(rimossi dopo la verifica):
+
+```
+--df-tw-radius-full            = 9999px
+borderRadius keys              = none, sm, md, lg, xl, 2xl, full
+borderRadius.full              = var(--df-tw-radius-full)      ← non un literal
+theme con radius.full: '0rem'  → --df-tw-radius-full = 0rem
+```
+
+Quindi il chip di un consumer che vuole angoli vivi si squadra così:
+
+```ts
+patchTheme({ radius: { full: '0rem' } });
+```
+
+**5 · E comunque `sx` arriva al raggio, completamente.** Verificato
+con un probe su `cn(chipVariants(), 'rounded-none')`: `twMerge` fa
+last-wins e `rounded-full` sparisce dalla stringa. Idem con
+`rounded-md`. Diversamente da BUG 24 — dove `sx` raggiunge il testo
+ma lascia indietro hover e focus ring — qui la proprietà è una sola,
+quindi l'override non lascia residui.
+
+### ⚠️ Perché NON è lo stesso caso di BUG 26
+
+Vale la pena tenerli distinti, perché sono stati aperti a quattro
+giorni di distanza e sembrano lo stesso tema:
+
+| | BUG 26 | BUG 30 |
+|---|---|---|
+| Classe | `rounded` bare | `rounded-full` |
+| Esiste un token corrispondente? | no (`DEFAULT` non è nei sette tier) | **sì**, `radius.full` |
+| Riprodotto? | sì, sulla pagina servita (`border-radius: 4px` con token a 0) | no, solo lettura da sorgente |
+| Contratto rotto? | sì | no |
+
+BUG 26 resta valido: `rounded` bare non corrisponde a nessuna chiave
+del preset, quindi cade sul default di Tailwind e nessun tema lo
+raggiunge. BUG 30 no: la chiave c'è.
+
+### Cosa resta in piedi, e vale la pena tracciare
+
+Il report ha un punto che sopravvive alla verifica, ma è **una
+richiesta di feature, non un difetto**: `radius.full` è un martello
+unico. Chi lo azzera per squadrare i chip squadra anche tutto il
+resto che usa `rounded-full` in modo **semanticamente obbligato**.
+Censiti gli otto che lo forzano nel `base`/`slots` (cioè senza asse
+che lo possa cambiare):
+
+| Componente | `rounded-full` forzato | La forma tonda è obbligata? |
+|---|---|---|
+| `RadioGroup` | ×2 | **sì** — un radio quadrato non è un radio |
+| `Switch` | ×2 | **sì** — il thumb scorre dentro un binario |
+| `Slider` | ×4 | **sì** — thumb e track |
+| `Progress` | ×2 | convenzionale |
+| `Stepper` | ×1 | convenzionale (pallino dello step) |
+| `Badge` | ×1 | convenzionale |
+| `LeftNav` | ×1 | convenzionale (pill dell'item attivo) |
+| **`Chip`** | ×1 | **no** — è l'unico dove la forma è una scelta |
+
+Altri cinque (`Avatar`, `Box`, `Image`, `Video`, `Skeleton`) espongono
+già un asse `rounded`, quindi lì il consumer sceglie per istanza.
+
+Il gap reale è quindi: **`Chip` è l'unico componente la cui forma è
+opinabile e che non espone un asse per cambiarla**. Stessa forma di
+BUG 21 (`Checkbox`/`Switch` senza `required` mentre dodici fratelli
+ce l'avevano): non un difetto, una asimmetria di API.
+
+**Proposta**, se si decide di chiuderlo: aggiungere a `Chip` un asse
+`shape?: 'pill' | 'square'` con default `pill`, che sposti
+`rounded-full` dal `base` al valore `pill` dell'asse. Additivo, zero
+impatto su chi non lo passa, e allinea `Chip` alla convenzione di
+`Box`/`Image`/`Video`. Costo stimato: mezz'ora più il test.
+
+### Nota per l'agent che mantiene questo registro
+
+Due volte su due, un report che parla di «token Tailwind» si è
+rivelato ragionato sulla documentazione di Tailwind **vanilla**
+invece che sul preset di Dashforge. Prima di aprire una voce che dice
+«questa classe non legge nessun token», la verifica è:
+
+1. la chiave esiste in `TWRadiusTokens` / `TWSpacingTokens` / … in
+   `libs/dashforge/tw-tokens/src/theme/types.ts`?
+2. `dashforgePreset()` la mappa? (`mapKeysToCssVarRefs` non esclude
+   nulla, quindi basta che la chiave esista nel tema)
+3. `twThemeCssVars()` emette la variabile?
+
+Se le tre risposte sono sì, la classe È themeable e il report è
+partito da una premessa sbagliata. Costa cinque minuti e evita di
+aprire una voce che poi va ritirata.
+
+## BUG 31 — `<Calendar>` (tw): a selectable sibling-month day is painted like a disabled one, and neither a consumer nor a theme can separate the two
+
+Found 25/09/2026 in `~/projects/web/urbango-project/ugo-web`, on a
+booking form whose `DatePicker` carries `minDate = today`: a hotel picks
+the day a guest is driven to the airport, and yesterday is not a day.
+
+**Severity:** low, and cosmetic. But it is cosmetic about *affordance*,
+which is the one thing a date grid exists to communicate.
+
+**Status:** open. Reported as a **request**, not a defect — see
+§ Defect or request.
+
+### Symptom
+
+Today is 25/09/2026. The September grid opens and the user reads:
+
+- 1–24 September: grey. Correct, they are past.
+- 25–30 September: black. Correct.
+- **1–11 October** (the trailing days of the 42-cell grid): **also
+  grey — and fully selectable.**
+
+So the grid uses one visual idiom, "greyed out", for two opposite
+meanings: *you cannot pick this* and *you can pick this, it just belongs
+to next month*. The user's report was literally «perché le date future
+sono grigie? le posso selezionare comunque ma sono grigie».
+
+### Measured, not read
+
+Every one of the 42 buttons, via `getComputedStyle` on the running app:
+
+| Cells | `aria-disabled` | `color` | `opacity` | Selectable |
+|---|---|---|---|---|
+| 31 Aug – 24 Sep | `true` | `rgb(212,212,216)` | `0.6` | no |
+| 25 – 30 Sep | `false` | `rgb(24,24,27)` | `1` | yes |
+| **1 – 11 Oct** | **`false`** | **`rgb(161,161,170)`** | **`1`** | **yes** |
+
+Note the inversion that makes it worse than a plain collision: the
+disabled grey composites to roughly `rgb(229)` on white, i.e. it is
+*lighter* than the sibling-month grey at `rgb(161)`. The day you cannot
+pick is the fainter one, the day you can pick is the stronger one, and
+both are "not black". Nothing on the cell distinguishes them except a
+difference of about 68 levels of luminance.
+
+### Cause
+
+`libs/dashforge/tw/src/components/Calendar/calendar.variants.ts:41`
+
+```ts
+siblingMonth: {
+  true: 'text-neutral-400',
+},
+```
+
+and ten lines below, `:51`
+
+```ts
+disabled: {
+  true: 'cursor-default text-neutral-300 opacity-60 hover:bg-transparent',
+},
+```
+
+Two independent axes, each muting the text, with no compound variant
+reconciling them. (`cn`/tailwind-merge does resolve the *overlap*
+correctly when a cell is both: 31 August comes out `neutral-300`. The
+problem is not the overlap, it is that `siblingMonth` alone already
+looks like `disabled` alone.)
+
+### Why a consumer cannot fix it downstream
+
+`libs/dashforge/tw/src/components/Calendar/Calendar.tsx:250-256`
+
+```tsx
+className={cn(
+  calendarDayVariants({
+    siblingMonth: day.isSiblingMonth,
+    today: day.isToday,
+    selected: day.isSelected,
+    disabled: day.isDisabled,
+  }),
+  themeSlotProps?.day?.className, slotProps?.day?.className,
+)}
+```
+
+`slotProps.day.className` is a flat string applied to **all 42 cells**,
+and so is the theme-level `themeSlotProps.day.className`. There is no
+per-state slot, no render prop, and no `showSiblingDays` switch. An app
+that wants sibling days to read as selectable has exactly three
+options, all bad: restyle every cell identically (which also erases the
+disabled treatment), reach into the DOM after render, or fork the
+component.
+
+### Defect or request
+
+**Request**, and deliberately not called a defect. Muting the days that
+belong to the neighbouring month is the standard convention — React Day
+Picker, MUI's `DateCalendar` and the HTML `<input type="date">` pickers
+all do some version of it, and shipping it as the default is a
+reasonable decision. What is missing is the *escape hatch*: the library
+makes the decision and then leaves no supported way to depart from it,
+which is the same API asymmetry recorded in BUG 26 and BUG 30.
+
+⚠️ The counter-argument, recorded honestly: the two greys *are*
+distinguishable, and a user who studies the grid can work out the rule.
+The report is that at a glance they do not read as two categories — and
+a date grid is scanned, not studied.
+
+### Proposal, least invasive first
+
+1. **`showSiblingDays?: boolean`, default `true`.** When `false`, the
+   trailing and leading cells render as empty placeholders that keep the
+   7-column geometry. This is the cheapest fix and it resolves the whole
+   class of confusion for any form where "a day of the next month" is
+   not a distinct concept — which is most forms. Additive, no impact on
+   anyone who does not pass it.
+2. **Let `slotProps.day` be a function of the day's state**, e.g.
+   `day?: DaySlotProps | ((state: CalendarDayState) => DaySlotProps)`,
+   with `CalendarDayState` being the four booleans already computed at
+   `Calendar.tsx:251`. This is the general fix: it lets a theme restyle
+   one state without touching the others, and it costs nothing at the
+   call sites that pass an object today.
+
+Point 1 alone would close the report. Point 2 is what stops the next
+one of this shape from being opened.
+
+### Current workaround downstream
+
+None. Left as it ships: the click on a past day is correctly refused by
+`selectDate`, so nothing is broken — only harder to read than it should
+be.
+
+## BUG 32 — BUG 17 was fixed only on the MUI side: `@dashforge/tw` still hides every validation message behind an explicit `helperText`
+
+Found 25/09/2026 in `~/projects/web/urbango-project/ugo-web`, making a
+telephone field required on a booking form. The field goes red on
+submit and then tells the user the hint instead of what is wrong.
+
+**Severity:** medium, and higher than BUG 17's original rating. It is
+not a missing nicety: the field turns red and the sentence under it, now
+also red, does not say why. A consumer who follows the library's own
+advice and writes a helpful hint loses every validation message on that
+field, and nothing warns.
+
+**Status:** **fixed** 2026-09-25 (source; awaits the next
+`@dashforge/tw` version bump). Report confirmed in full — see *Fixed*
+section at bottom. **Reproduced in a running app and read from both
+sources.** This is a defect, not a request: BUG 17 was recorded in
+*Fixed* as closed «across all fields that shared the shape», and on
+this renderer it was not. That wording has now been corrected in the
+BUG 17 entry rather than deleted.
+
+### The two lines, side by side
+
+`libs/dashforge/ui/src/components/TextField/textField.validation.ts`,
+fixed 15/09/2026:
+
+```ts
+const helperText = autoMessage ?? explicitHelperText;
+```
+
+`libs/dashforge/tw/src/components/_shared/resolveValidationState.ts:56`,
+untouched:
+
+```ts
+const helperText =
+  explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined);
+```
+
+Same inverted precedence BUG 17 described, still there on the renderer
+this library ships as its own.
+
+### Why it was missed, which is the part worth keeping
+
+The tw resolver's docstring says, at `:19-25`:
+
+> **Renderer-agnostic** — copy of the MUI-side `textField.validation.ts`.
+> […] Precedence rules (matches MUI side byte-for-byte)
+
+The claim was true when it was written and is false now. BUG 17's fix
+lists four files, all under `libs/dashforge/ui/`, and the register's
+verification step was «grep of `import.*textField.validation`», which by
+construction cannot reach a file that is a *copy* rather than an import.
+A duplicated resolver with a comment promising it is a duplicate is
+exactly the shape that survives a fix.
+
+### Reproduction (verified in the browser)
+
+A `<TextField name="phone" required helperText="…" rules={{ required: '…' }} />`
+inside `<DashForm>`, submitted empty. Read off the live DOM:
+
+```
+input[name=phone]   aria-invalid = "true"
+text under it       "Chi l'autista chiama se non trova l'ospite. …"   rgb(220, 38, 38)
+```
+
+The neighbouring `name="passenger"`, identical but with **no**
+`helperText`, shows its rule's message in the same red. So the error
+channel works; the hint is simply winning over it.
+
+Net effect: the field is painted as wrong and then explains something
+else, in the colour of an error. That is worse than showing nothing,
+because the user reads a red sentence and cannot act on it.
+
+### Blast radius
+
+One file, fourteen components. Every tw form component resolves through
+the same shared function:
+
+`Autocomplete`, `Checkbox`, `DatePicker`, `DateRangePicker`,
+`DateTimePicker`, `NumberField`, `OTPField`, `RadioGroup`, `Select`,
+`Slider`, `Switch`, `Textarea`, `TextField`, `TimePicker`.
+
+Unlike the MUI side, tw has **no inline copies**: a grep for the
+inverted shape across `libs/dashforge/tw/src/components/` returns only
+`_shared/resolveValidationState.ts` itself. One line closes all
+fourteen.
+
+### Proposed fix
+
+The same diff BUG 17 applied, on the other renderer:
+
+```diff
+- const helperText =
+-   explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined);
++ const autoMessage = allowAutoError ? autoErr?.message : undefined;
++ const helperText = autoMessage ?? explicitHelperText;
+```
+
+Then two things that stop the next one:
+
+1. **Correct the docstring**, or delete the «byte-for-byte» claim. A
+   comment that asserts parity is worth less than nothing once it is
+   the reason nobody looked.
+2. **Move the resolver test across.** BUG 17 added
+   `textField.validation.test.ts` pinning six invariants on the MUI
+   resolver. The tw copy has no equivalent, which is why a renderer
+   shipped the old behaviour for ten days without a red test. Either
+   port the file or, better, delete one of the two resolvers and have
+   both renderers import the survivor: the duplication is the bug
+   behind the bug.
+
+### Current workaround downstream
+
+None applied, deliberately. `ugo-web` keeps its `rules={{ required: … }}`
+message, which is correct code and today never reaches the screen, and
+leans on a hint written so that it still reads as an instruction when it
+turns red. The message starts working the day this is fixed.
+
 ## Unconfirmed
 
 *(nothing yet — move suspicions here rather than into the list above)*
 
 ## Fixed
+
+### BUG 32 — BUG 17's fix never reached `@dashforge/tw`
+
+**Fixed** 2026-09-25 in the source tree, awaiting the next
+`@dashforge/tw` version bump. **The report was correct on every
+point**, including the diagnosis of why the original verification
+could not have caught it.
+
+**Verifica.** Letto
+`tw/src/components/_shared/resolveValidationState.ts`: la riga 56-57
+conteneva esattamente la forma vecchia
+(`explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined)`),
+e il JSDoc sopra la documentava come regola intenzionale — «Explicit
+props win», «matches MUI side byte-for-byte». Blast radius misurato:
+**14 componenti** importano quel resolver (`Autocomplete`, `Checkbox`,
+`DatePicker`, `DateRangePicker`, `DateTimePicker`, `NumberField`,
+`OTPField`, `RadioGroup`, `Select`, `Slider`, `Switch`, `TextField`,
+`Textarea`, `TimePicker`). Cercate altre copie inline del pattern in
+tutto `tw/src`: **nessuna**, a differenza del lato MUI dove `Textarea`,
+`NumberField` e `RadioGroup` ne avevano una propria. Una riga, quattordici
+componenti.
+
+**Provato, non dedotto.** Probe temporaneo (poi rimosso) contro il
+resolver reale, prima del fix:
+
+```
+error       = true
+helperText  = "Unique, uppercase"
+```
+
+Cioè esattamente la forma descritta nel report: il campo **è** in
+errore — quindi dipinge lo stato danger e imposta `aria-invalid="true"`
+— ma il testo sotto è l'hint. Un campo rosso che non dice perché.
+Combacia con la misura del report sul DOM vivo (`aria-invalid="true"`,
+testo in `rgb(220, 38, 38)`).
+
+**Il fix.** Stessa inversione che BUG 17 aveva portato sul lato MUI:
+
+```diff
+- const helperText =
+-   explicitHelperText ?? (allowAutoError ? autoErr?.message : undefined);
++ const autoMessage = allowAutoError ? autoErr?.message : undefined;
++ const helperText = autoMessage ?? explicitHelperText;
+```
+
+`error` resta invariato: un prop esplicito continua a forzare lo stato
+visivo. Riscritto anche il JSDoc, perché la frase «matches MUI side
+byte-for-byte» era precisamente l'invito a non verificare che ha fatto
+sopravvivere il difetto dieci giorni. Al suo posto c'è un avviso che
+dice che i due file sono copie tenute in passo a mano e che vanno
+cambiati insieme.
+
+**Il guard.** Nuovo file
+`tw/src/components/_shared/resolveValidationState.test.ts`, sette
+asserzioni che ricalcano quelle già presenti sul lato MUI
+(`ui/src/components/TextField/textField.validation.test.ts`): messaggio
+vince su touched, messaggio vince dopo submit, hint torna quando non
+c'è errore, hint resta mentre il campo è pristine, messaggio passa
+senza hint, `error` esplicito forza comunque il visivo, entrambi
+assenti danno `undefined`. La docstring di ciascuna delle due suite
+rimanda all'altra.
+
+**Suite dopo il fix**: `nx test @dashforge/tw` 2014 passati (erano
+2007), 1 skip preesistente, 0 falliti. Typecheck verde. Nota: **nessun
+test tw esistente codificava la precedenza vecchia**, a differenza del
+lato MUI dove cinque la pinnavano e andarono aggiornati. Il
+comportamento sbagliato non era protetto da niente, il che è anche il
+motivo per cui non ha fatto rumore.
+
+**Nota per l'agent che mantiene questo registro.** La lezione non è
+sul `helperText`, è sul metodo. La verifica di BUG 17 diceva:
+
+> Grep of `import.*textField.validation` returned five callers.
+
+Un grep sugli import trova i **consumatori** di un file, mai le sue
+**copie**. Nel monorepo Dashforge i due renderer sono isolati per
+progetto (solo il bridge layer è condiviso), quindi la duplicazione di
+logica fra `ui/` e `tw/` è strutturale e attesa. Prima di dichiarare
+chiuso un fix «su tutti i file che condividono la forma», la verifica
+giusta è cercare **il pattern**, non l'import:
+
+```bash
+# sbagliato: trova solo chi importa il file MUI
+grep -rn "import.*textField.validation" libs/
+
+# giusto: trova la forma ovunque sia, copie comprese
+grep -rn "explicitHelperText ??" libs/dashforge/*/src
+```
+
+Vale per qualsiasi logica duplicata fra i due renderer, non solo per
+questo resolver. Quando un fix tocca `ui/`, la domanda successiva è
+sempre: «esiste la stessa cosa sotto `tw/`, scritta a mano?».
+
+---
 
 ### BUG 22 — `<Stepper>` + `<DashForm>` values lost on step unmount
 
@@ -2871,9 +3397,18 @@ rule is a red flag worth acting on.
 
 ### BUG 17 — an explicit `helperText` permanently hides the field's validation message
 
-**Fixed** 2026-09-15 across all fields that shared the shape. The
-report's example (five fields in inventory-kit) understated the blast
-radius: the resolver lives in
+**Fixed** 2026-09-15 on the **MUI side only**. ⚠️ The original wording
+of this entry said «across all fields that shared the shape», and that
+was wrong: `@dashforge/tw` carries its own COPY of the resolver at
+`tw/src/components/_shared/resolveValidationState.ts`, which kept the
+broken order for ten more days. Caught and closed by **BUG 32**
+(2026-09-25) — see that entry for the fix and for why the verification
+below could not have found it. The claim has been corrected here rather
+than deleted, because the failure mode of the verification is the
+useful part.
+
+The report's example (five fields in inventory-kit) understated the
+blast radius on the MUI side too: the resolver lives in
 `libs/dashforge/ui/src/components/TextField/textField.validation.ts`
 and is imported by `TextField`, `TimePicker`, `DatePicker`,
 `DateRangePicker`, `DateTimePicker`. `NumberField` and `RadioGroup`
