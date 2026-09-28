@@ -3,14 +3,19 @@
   "name": "@dashforge/theme-mui",
   "targets": {
     "typecheck": {
-      "dependsOn": ["^typecheck"],
-      "_comment": "^typecheck orders this after its dependencies own typecheck. Both are tsc --build, which walks project references and re-emits a dependency declarations if they look stale: run concurrently by run-many they write the same dist and .tsbuildinfo and fail intermittently. The inferred @nx/js typecheck targets carry this by default; these explicit ones must restate it.",
+      "dependsOn": [
+        "build",
+        "^typecheck"
+      ],
+      "_comment": "Ordering matches @dashforge/tw. Both `build` and `typecheck` write declarations into the same dist/: @nx/rollup hard-codes `declaration: true` and `rootDir: projectRoot` with no way to disable it, so it emits a full copy under dist/src plus a one-line dist/index.d.ts re-export wrapper, while tsc emits the real flat tree. Whichever ran LAST decided what the package published, which is why this ordering is explicit: typecheck runs after build, overwrites the wrapper with the real declarations, and drops the copy it just made redundant. See libs/dashforge/tw/project.json for the full analysis.",
       "options": {
-        "command": "tsc --build tsconfig.lib.json --emitDeclarationOnly"
+        "command": "tsc --build tsconfig.lib.json --emitDeclarationOnly && rm -rf dist/src"
       }
     },
     "build": {
-      "dependsOn": ["typecheck", "^build"]
+      "dependsOn": [
+        "^build"
+      ]
     }
   }
 }

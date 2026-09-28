@@ -11,7 +11,13 @@
     "moduleResolution": "bundler",
     "rootDir": "src",
     "jsx": "react-jsx",
-    "tsBuildInfoFile": ".tsbuildinfo",
+    // `tsBuildInfoFile` INSIDE `dist` is load-bearing, not tidiness. The
+    // build wipes `dist`; a cache left outside it survives that, so tsc
+    // reads a valid cache describing declarations that no longer exist,
+    // declares the project up to date and emits NOTHING. Dependents then
+    // fail with TS6305, and a package that is published from that state
+    // ships empty. Kept out of the tarball by a `files` negation instead.
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "exclude": [

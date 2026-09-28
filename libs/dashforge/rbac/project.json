@@ -6,7 +6,9 @@
   "targets": {
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "config": "libs/dashforge/rbac/vite.config.mts",
         "passWithNoTests": false,
@@ -15,17 +17,29 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["libs/dashforge/rbac/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/dashforge/rbac/**/*.ts"
+        ]
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit -p libs/dashforge/rbac/tsconfig.lib.json"
-      }
+        "command": "tsc --build libs/dashforge/rbac/tsconfig.lib.json --emitDeclarationOnly && rm -rf libs/dashforge/rbac/dist/src"
+      },
+      "dependsOn": [
+        "build",
+        "^typecheck"
+      ],
+      "_comment": "Emits its own declarations rather than `--noEmit`. It used to rely on a DEPENDENT's `tsc --build` cascade to produce the flat tree in its dist, since a referenced composite project cannot disable emit, so what this package published depended on whether something downstream had been typechecked. Now it owns them, runs after build so its output is the one that survives, and drops the redundant copy @nx/rollup emits under dist/src. See libs/dashforge/tw/project.json for the full analysis."
     }
   },
-  "tags": ["type:library", "scope:dashforge"]
+  "tags": [
+    "type:library",
+    "scope:dashforge"
+  ]
 }

@@ -6,7 +6,9 @@
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
         "lintFilePatterns": [
           "libs/dashforge/ui-core/**/*.ts",
@@ -17,9 +19,17 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit -p libs/dashforge/ui-core/tsconfig.lib.json"
-      }
+        "command": "tsc --build libs/dashforge/ui-core/tsconfig.lib.json --emitDeclarationOnly && rm -rf libs/dashforge/ui-core/dist/src"
+      },
+      "dependsOn": [
+        "build",
+        "^typecheck"
+      ],
+      "_comment": "Emits its own declarations rather than `--noEmit`. It used to rely on a DEPENDENT's `tsc --build` cascade to produce the flat tree in its dist, since a referenced composite project cannot disable emit, so what this package published depended on whether something downstream had been typechecked. Now it owns them, runs after build so its output is the one that survives, and drops the redundant copy @nx/rollup emits under dist/src. See libs/dashforge/tw/project.json for the full analysis."
     }
   },
-  "tags": ["type:library", "scope:dashforge"]
+  "tags": [
+    "type:library",
+    "scope:dashforge"
+  ]
 }

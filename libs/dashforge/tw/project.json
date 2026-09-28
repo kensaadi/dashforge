@@ -4,13 +4,13 @@
   "targets": {
     "typecheck": {
       "options": {
-        "command": "tsc --build tsconfig.lib.json --emitDeclarationOnly"
+        "command": "tsc --build tsconfig.lib.json --emitDeclarationOnly && rm -rf dist/src"
       },
       "dependsOn": [
         "build",
         "^typecheck"
       ],
-      "_comment": "dependsOn build, NOT the reverse. Both targets write into the same `dist/`: this one emits declarations there (outDir in tsconfig.lib.json) while the rollup build's delete-output plugin rmdir's it. Run concurrently by `nx run-many`, they race and the build dies with `ENOTEMPTY: directory not empty, rmdir .../dist/components`, roughly one run in ten. Ordering them this way also makes the published types deterministic: before, `dist/index.d.ts` was written by BOTH and the winner was whoever finished last. The reverse ordering (build dependsOn typecheck) is the one blocked by the TS resolver issue described on the build target. See README-BUG \u00a7 Unconfirmed."
+      "_comment": "dependsOn build, NOT the reverse. Both targets write into the same `dist/`: this one emits declarations there (outDir in tsconfig.lib.json) while the rollup build's delete-output plugin rmdir's it. Run concurrently by `nx run-many`, they race and the build dies with `ENOTEMPTY: directory not empty, rmdir .../dist/components`, roughly one run in ten. Ordering them this way also makes the published types deterministic: before, `dist/index.d.ts` was written by BOTH and the winner was whoever finished last. The reverse ordering (build dependsOn typecheck) is the one blocked by the TS resolver issue described on the build target. See README-BUG \u00a7 Unconfirmed. The `rm -rf dist/src` is not cleanup for its own sake. @nx/rollup hard-codes `declaration: true` and `rootDir: projectRoot` in createTsCompilerOptions, with no option to turn either off, so the bundler emits a SECOND complete copy of every declaration mirroring its entry path, plus a one-line `dist/index.d.ts` re-export wrapper pointing at it. Both trees are self-consistent, so neither state is broken: build alone leaves rollup's, and this target overwrites the wrapper with the real flat declarations and drops the copy it just made redundant. Without it, 194 of tw's 389 published files were dead weight."
     },
     "build": {
       "_comment": "typecheck excluded from dependsOn: TS bundler resolver fails when consuming `@dashforge/forms/dist/index.d.ts` (a 1-line `export * from \"./src/index\"` re-export) through nx's composite project chain. `nx run typecheck` separately works; `nx run-many -t test` works (it bundles types via vitest). Re-attach `typecheck` once the publishables' dist d.ts wrappers are switched to inline `export ...` (out of scope F3).",
