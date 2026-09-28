@@ -10,6 +10,70 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [2.0.0] — 2026-09-28
+
+**The first release where one version covers the whole set.** All eleven
+publishable packages move to `2.0.0` together: `tokens`, `theme-core`,
+`theme-mui`, `ui-core`, `forms`, `rbac`, `ui`, `calendar-core`,
+`tw-tokens`, `tw-theme`, `tw`. `@dashforge/rn` is not part of this
+release and is versioned separately.
+
+The lockstep is a consequence, not a preference. Internal dependencies
+are declared with `workspace:*`, which pnpm rewrites at pack time to the
+EXACT sibling version, so publishing a subset would pin a 2.0.0 package
+to whichever 1.x its siblings happened to be at. **Upgrade every
+`@dashforge/*` package in the same step; a mixed install will not
+resolve.**
+
+Full upgrade instructions, every breaking change with a before and after,
+and the compatibility matrix:
+[libs/dashforge/MIGRATION-2.0.md](./libs/dashforge/MIGRATION-2.0.md).
+
+### What earns the major
+
+Seven breaking changes, each closing a defect rather than moving an API
+around for its own sake:
+
+- `<Select>` and `<Slider>` change their public ref types. `<Slider>`'s
+  ref never arrived at all: the component named the parameter and never
+  attached it.
+- `TWColorTokens` requires an `inverse` role and `TWFontSizeTokens` a
+  `2xs` tier. Consumers who spread a shipped theme are unaffected.
+- The reaction types lose a generic parameter that was accepted and
+  discarded, so `ReactionDefinition<MyForm>` checked nothing.
+- `<AppShell>` changes which element scrolls.
+- `<Chip>`'s clickable root and `<Select>`'s trigger become divs with
+  explicit roles, because both nested a button inside a button, which
+  strips the inner control from the accessibility tree.
+- `<Divider orientation="vertical">` stops spanning its container and
+  `<TopBar>`'s `start` slot starts shrinking.
+
+### Also in this release
+
+Twelve defects closed from the register, a new `<CheckboxGroup>`,
+`<Kbd>` and `<TopBarBrand>`, multi-select across `<Autocomplete>` and
+`<Select>` on the MUI side, `pressed` and `color="inverse"` on
+`<Button>`, `access` and `visibleWhen` on `<Stack>` and `<Grid>`, and
+`draggable` on `<Chip>`.
+
+Three of those defects were found in the browser and could not have been
+found by the test suite, because jsdom does no layout. One of them sat
+underneath a passing test that asserted every required class was present
+while the bar it described was visibly breaking.
+
+### Build and packaging
+
+A clean checkout could not be built: `tsBuildInfoFile` sat outside `dist`
+in seven packages, so wiping `dist` left a valid incremental cache
+describing declarations that no longer existed, and a package published
+from that state would have shipped without its types. Declaration output
+is now deterministic, and the published tarballs went from 725 files to
+463 across the eleven packages.
+
+Per-package detail is in each package's own CHANGELOG.
+
+---
+
 ## [tw 1.5.2] — 2026-08-30
 
 Patch fix for `<Select>`: the selected-option checkmark was stretched

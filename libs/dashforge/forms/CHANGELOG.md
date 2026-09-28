@@ -5,6 +5,62 @@ All notable changes to @dashforge/forms will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] — 2026-09-28
+
+**Every `@dashforge/*` package moves to `2.0.0` together.** Internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack
+time to the EXACT sibling version, so a mixed 1.x / 2.0.0 install will not
+resolve. Upgrade them in the same step.
+
+### Removed
+
+- **BREAKING. The generic parameter is gone from `ReactionDefinition`,
+  `ReactionRunContext`, `ReactionRegistry` and `createReactionRegistry`.**
+
+  It never did anything. `ReactionRunContext<TFieldValues>` ignored its
+  parameter, `ReactionDefinition` "used" it only by handing it down to
+  that, and the registry threaded it further. So
+  `ReactionDefinition<{ item: string }>`, written that way in eleven call
+  sites in this repo alone, checked nothing: `watch` is `string[]` and
+  `getValue` takes a `string`, so a typo in a watched field name compiled
+  and the reaction silently never fired.
+
+  Removing it makes the types honest and aligns them with the sibling
+  `ReactionWhenContext`, which never had a parameter. **Migration: delete
+  the type argument.** `ReactionDefinition<MyForm>` becomes
+  `ReactionDefinition`. Nothing else changes, because nothing was being
+  checked.
+
+  Typed field paths (`Path<TFieldValues>` / `PathValue`) are a real
+  feature and are tracked separately. The silence on a mistyped `watch`
+  entry is deliberate and tested, not a defect.
+
+- `syncValueToRHF` is gone from `FormEngineAdapter`. It was a logging
+  no-op marked "Phase 0", carried three TODOs and had zero callers
+  anywhere in the monorepo.
+
+### Added
+
+- Characterization coverage for two `useDashFieldArray` instances mounted
+  on the same `name`. It records the opposite of what was expected: the
+  two agree on length, ids and order, because the hook stopped delegating
+  to react-hook-form's `useFieldArray` in `1.2.0` and registers one array
+  node per name on the engine. A public page had been describing the old
+  limitation in the present tense for five weeks.
+
+### Fixed (build)
+
+- **A clean checkout could not be built.** `tsBuildInfoFile` sat outside
+  `dist`, so deleting `dist` left a valid incremental cache describing
+  declarations that no longer existed: `tsc --build` emitted nothing and
+  dependents failed with `TS6305`. A package published from that state
+  would have shipped without its types.
+
+- **Declaration output is deterministic.** Two build steps were writing
+  the same declarations in two layouts and whichever ran last decided what
+  shipped. `typecheck` now runs after `build`, emits them, and drops the
+  redundant copy `@nx/rollup` leaves under `dist/src`.
+
 ## [1.2.0] — 2026-09-22
 
 ### Fixed

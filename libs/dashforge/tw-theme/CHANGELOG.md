@@ -13,6 +13,35 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [2.0.0] — 2026-09-28
+
+**Every `@dashforge/*` package moves to `2.0.0` together.** Internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack
+time to the EXACT sibling version, so a mixed 1.x / 2.0.0 install will not
+resolve. Upgrade them in the same step.
+
+### Fixed
+
+- **`inverse` emitted CSS variables but generated no Tailwind class.**
+  `buildColorRefs` listed seven colour roles by hand while
+  `twThemeCssVars` iterated the token tree, so the eighth role produced
+  `--df-tw-color-inverse-*` on `<html>` and no `bg-inverse-*` /
+  `text-inverse-*` utility to read them. It iterates now. Caught only by a
+  key-parity test between the two functions.
+
+### Fixed (build)
+
+- **A clean checkout could not be built.** `tsBuildInfoFile` sat outside
+  `dist`, so deleting `dist` left a valid incremental cache describing
+  declarations that no longer existed: `tsc --build` emitted nothing and
+  dependents failed with `TS6305`. A package published from that state
+  would have shipped without its types.
+
+- **Declaration output is deterministic.** Two build steps were writing
+  the same declarations in two layouts and whichever ran last decided what
+  shipped. `typecheck` now runs after `build`, emits them, and drops the
+  redundant copy `@nx/rollup` leaves under `dist/src`.
+
 ## [1.2.0] — 2026-07-24
 
 ### Added

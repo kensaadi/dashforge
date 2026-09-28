@@ -9,6 +9,66 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [2.0.0] — 2026-09-28
+
+**Every `@dashforge/*` package moves to `2.0.0` together.** Internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack
+time to the EXACT sibling version, so a mixed 1.x / 2.0.0 install will not
+resolve. Upgrade them in the same step.
+
+See [MIGRATION-2.0.md](https://github.com/kensaadi/dashforge/blob/main/libs/dashforge/MIGRATION-2.0.md) for every breaking change with
+a before and after.
+
+### Added
+
+- **Multi-select, which this package did not have anywhere** (BUG 19).
+  The type surface had been widened earlier; this is the runtime.
+  `<Autocomplete multiple>` and `<Select multiple>` carry a parallel
+  pipeline for the array case rather than bending the single-value one.
+
+  One trap worth recording for anyone touching it: destructuring
+  `multiple` removed it from `...rest`, so it stopped reaching MUI and the
+  component stayed silently in single mode. Five tests fail on exactly
+  that, which is why they exist.
+
+- **`<CheckboxGroup>`**, for the case where the options are few enough
+  that a dropdown is the wrong shape.
+
+### Fixed
+
+- **`<CheckboxGroup>` dropped a stored value that had no matching
+  option** (BUG 38), found before it shipped. The check path rebuilt the
+  array from `options` while the uncheck path preserved it, so a form
+  loading a value the option list no longer contained lost it on the first
+  interaction.
+
+- **`<SnackbarProvider>`'s auto-dismiss timer captured `close` with an
+  empty dependency array.** Not a present defect, since `close` is stable,
+  but it would have gone silently stale the day `close` gained a
+  dependency, acting on the queue of the render that created it. `close`
+  moved above `startTimer` so the timer can name it.
+
+### Changed
+
+- Two `jsx-a11y` warnings on `<Autocomplete>` were false and now say so in
+  place. `aria-disabled` sits on an `<li>` whose `role="option"` arrives
+  through MUI's `getOptionProps` spread, which a static rule cannot read.
+  Confirmed against the DOM rather than against MUI's documentation:
+  every row carries the role, every row exposes `aria-selected`, exactly
+  one is true, and a disabled row reports it.
+
+### Fixed (build)
+
+- **A clean checkout could not be built.** `tsBuildInfoFile` sat outside
+  `dist`, so deleting `dist` left a valid incremental cache describing
+  declarations that no longer existed: `tsc --build` emitted nothing and
+  dependents failed with `TS6305`.
+
+- **Declaration output is deterministic.** Two build steps were writing
+  the same declarations in two layouts, and whichever ran last decided
+  what shipped. This package was publishing the bundler's tree; it now
+  publishes tsc's, at the same size.
+
 ## [1.5.0] — 2026-09-22
 
 ### Fixed

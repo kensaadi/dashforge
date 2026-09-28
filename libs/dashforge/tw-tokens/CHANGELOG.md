@@ -13,6 +13,45 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [2.0.0] — 2026-09-28
+
+**Every `@dashforge/*` package moves to `2.0.0` together.** Internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack
+time to the EXACT sibling version, so a mixed 1.x / 2.0.0 install will not
+resolve. Upgrade them in the same step.
+
+### Added
+
+- **BREAKING. `TWColorTokens` requires an `inverse` role.** It is the role
+  for content on a surface that is dark whatever the theme does: a dark
+  hero, an ink footer, an inverted panel.
+
+  It is deliberately the SAME object in both the light and dark themes and
+  **must not be given a dark variant**. Content on an always-dark surface
+  that follows the theme flips to unreadable in exactly one of the two.
+  `cssVars.spec.ts` asserts that invariance.
+
+- **BREAKING. `TWFontSizeTokens` requires a `2xs` tier** (`0.625rem`).
+  Eighteen hard-coded font sizes were sitting in the component catalog
+  with no tier small enough to hold them.
+
+  **Migration for both:** consumers who spread a shipped theme
+  (`{ ...defaultTWThemeLight, ... }`) are unaffected. A theme object built
+  field by field will not compile until both are supplied.
+
+### Fixed (build)
+
+- **A clean checkout could not be built.** `tsBuildInfoFile` sat outside
+  `dist`, so deleting `dist` left a valid incremental cache describing
+  declarations that no longer existed: `tsc --build` emitted nothing and
+  dependents failed with `TS6305`. A package published from that state
+  would have shipped without its types.
+
+- **Declaration output is deterministic.** Two build steps were writing
+  the same declarations in two layouts and whichever ran last decided what
+  shipped. `typecheck` now runs after `build`, emits them, and drops the
+  redundant copy `@nx/rollup` leaves under `dist/src`.
+
 ## [1.2.0] — 2026-07-24
 
 **Coupled release bump.** No code changes since `1.0.0` — this bump exists so all three `@dashforge/tw-*` packages share the `1.2.0` tag per the coupled release strategy documented in [#60](https://github.com/kensaadi/dashforge/issues/60). Jumps `1.1.x`.

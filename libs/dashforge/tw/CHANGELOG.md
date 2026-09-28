@@ -12,6 +12,148 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > duplicated intentionally — no shared "lowest common denominator" headless
 > layer.
 
+## [2.0.0] — 2026-09-28
+
+**Every `@dashforge/*` package moves to `2.0.0` together.** Internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack
+time to the EXACT sibling version, so a mixed 1.x / 2.0.0 install will not
+resolve. Upgrade them in the same step.
+
+See [MIGRATION-2.0.md](https://github.com/kensaadi/dashforge/blob/main/libs/dashforge/MIGRATION-2.0.md) for every breaking change with
+a before and after.
+
+### Changed
+
+- **BREAKING. `<Select>`'s trigger ref is `HTMLDivElement`, not
+  `HTMLButtonElement`** (BUG 23). `<Select multiple>` nested a `<button>`
+  inside the trigger button, which is invalid HTML and, worse, silently
+  strips the inner control from the accessibility tree: `role="button"`
+  makes its descendants presentational, so the delete control existed for
+  a mouse and not for a screen reader. The trigger is now a
+  `div role="combobox"` with an explicit `tabIndex`. The `name` prop is
+  untouched and still keys react-hook-form.
+
+- **BREAKING. `<Slider>`'s ref is `HTMLDivElement`, not
+  `HTMLSpanElement`, and it now actually arrives** (BUG 39). The component
+  was wrapped in `forwardRef`, named the parameter, and never attached it,
+  so `ref.current` stayed `null` forever with no type error and no
+  warning. The declared element type was wrong in the same breath: a
+  `span` over a `div` root.
+
+- **BREAKING. `<AppShell>` defaults to `layout="viewport"`**, which
+  changes which element scrolls (BUG 27). `min-h-screen` on the root made
+  `main`'s scroller dead code, so the window scrolled and the header, nav
+  and footer scrolled away with it. Pass `layout="page"` for the old
+  behaviour.
+
+- **BREAKING. `<Chip>`'s clickable root is a `div role="button"`**
+  (BUG 35), for the same reason as `<Select>`: a chip that was both
+  clickable and deletable nested a button in a button.
+
+- **BREAKING. `<Divider orientation="vertical">` no longer spans the
+  container width** (BUG 25). It came out `w-full`, so in a nowrap row it
+  squeezed its siblings and with wrap it pushed every group onto its own
+  line.
+
+- **BREAKING. `<TopBar>`'s `start` slot can shrink** (BUG 42). It carried
+  `min-w-0` and `shrink-0` together, which cancel: the first exists to let
+  an item shrink, the second forbids it. A long brand kept its full width
+  and pushed `center` and `end` out of the bar.
+
+- **`<Chip variant="outline" color="neutral">`'s border moved from
+  `neutral-300` to `neutral-500`** (BUG 40). At 1.42:1 light and 1.91:1
+  dark it failed WCAG 1.4.11, and an outline chip IS its border. It was
+  also the only colour row at `-300` while the other six sat at `-500`.
+
+- **`<Stack divider>` supplies the orientation you did not choose**
+  (BUG 41). A `<Divider>` defaults to horizontal, which is `h-0 w-full`:
+  in a row that is nothing to see plus a claim on the whole width, so the
+  items were squeezed rather than separated. An explicit `orientation`
+  still wins, and a divider that is not ours is passed through untouched.
+
+### Added
+
+- **`<Button color="inverse">`** for surfaces that are dark whatever the
+  theme does. Reads the theme-invariant `inverse` role.
+
+- **`<Button pressed>`**, a toggle state. The ARIA is opt-in: omit the
+  prop and nothing is emitted, not even `aria-pressed="false"`, because
+  announcing "not pressed" on an ordinary action would make every plain
+  button in the catalog lie. The "on" look is LeftNav's active-row
+  treatment rather than something invented; `solid` deepens to its own
+  `active:` tier; `link` gets the ARIA and no paint.
+
+- **`access` and `visibleWhen` on `<Stack>` and `<Grid>`**, for parity
+  with `<Box>`. A consumer passing neither gets byte-identical output.
+
+- **`<Box borderStyle>`** (`solid | dashed | dotted | double`), orthogonal
+  to `variant`: a `soft` box can be dashed.
+
+- **`<Chip draggable>`**, plus `onDragStart` and `onDragEnd`. Native HTML5
+  drag-and-drop, so no dnd dependency is pulled in and the `dataTransfer`
+  payload stays yours. **A drag is a pointer gesture**: native DnD is not
+  keyboard operable, so pair it with an `onClick` that does the same thing
+  or the palette fails WCAG 2.1.1 in your app.
+
+- **`<Kbd>`**, a keycap. Renders the semantic `<kbd>` element, which is
+  the only reason it needs to exist. Chords compose rather than taking a
+  `keys` array.
+
+- **`<TopBarBrand>`**, the mark-plus-text block for a `<TopBar>`'s `start`
+  slot. A sibling export rather than `TopBar.Brand`, matching this
+  catalog's convention. Layout only: a brand that navigates home is a link
+  wrapped around it.
+
+- **`<Calendar showSiblingDays>`** and **`slotProps.day` as a function of
+  the day's state**. The flat object form still type-checks.
+
+- **`<Stack>` warns in development** on `direction="column"` and on
+  `spacing`, naming the value, the accepted set and the likely intent.
+  `spacing` is also pulled out of the spread so it cannot land on the DOM
+  as an unknown attribute. Accepting both spellings was the alternative
+  and was not taken: a second name for one axis is a fork every consumer,
+  theme default and doc example has to pick a side of, forever.
+
+### Fixed
+
+- **A selectable sibling-month day in `<Calendar>` failed WCAG contrast**
+  (BUG 31): 2.42:1 light and 2.53:1 dark, where the floor for an active
+  control's text at 14px is 4.5:1. `neutral-500` clears light and fails
+  dark, because it is the pivot of the scale and stays rgb(115,115,115) in
+  both themes, so the fix is `neutral-600`.
+
+- **Bare `rounded` ignored the radius tokens** (BUG 26), in ten places
+  across eight components. The preset extends `borderRadius` and defines
+  no `DEFAULT`, so the bare utility keeps Tailwind's hard-coded 0.25rem
+  and is immune to the scale by construction. Bare `shadow` is NOT the
+  same case and was left alone.
+
+- **`<Dialog>` and `<Drawer>` ringed the close button on `:focus`**
+  rather than `:focus-visible`, so it lit up on every mouse click
+  (BUG 28).
+
+- **Radix's hidden input escaped to the `body`** and lengthened the page
+  (BUG 36).
+
+- **`<Drawer>` sat on MUI's z ladder**, so a `<Dialog>` opened from inside
+  it rendered behind (BUG 37).
+
+- Eighteen hard-coded font sizes moved onto the new `2xs` token tier, with
+  catalog-wide guards against hard-coded colour, shadow and font size, off
+  the shared z ladder, and ungated motion.
+
+### Fixed (build)
+
+- **A clean checkout could not be built.** `tsBuildInfoFile` sat outside
+  `dist`, so deleting `dist` left a valid incremental cache describing
+  declarations that no longer existed: `tsc --build` emitted nothing and
+  dependents failed with `TS6305`.
+
+- **Declaration output is deterministic**, and the published tarball
+  dropped from 394 files to 200. Two build steps were writing the same
+  declarations in two layouts, and whichever ran last decided what
+  shipped.
+
 ## [1.7.1] — 2026-09-25
 
 Patch: closes the half of BUG 17 that never reached this package.

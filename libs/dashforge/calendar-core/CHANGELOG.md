@@ -6,6 +6,47 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 with `-alpha` / `-beta` / `-rc` pre-release tags.
 
+## [2.0.0] — 2026-09-28
+
+**Every `@dashforge/*` package moves to `2.0.0` together.** Until now each
+library carried its own number and there was no single version to name.
+The lockstep is not a preference: internal dependencies are declared with
+`workspace:*`, which pnpm rewrites at pack time to the EXACT sibling
+version, so publishing a subset would pin a 2.0.0 package to whichever 1.x
+its siblings happened to be at, and a consumer resolving two copies of the
+engine is a duplicate-React-context failure.
+
+**What this means for you:** upgrade all `@dashforge/*` packages in the
+same step. A mixed 1.x / 2.0.0 install will not resolve.
+
+No functional change. This package's public surface is identical to
+`1.0.0`; the major is the workspace-wide alignment described below.
+
+### Fixed
+
+- **A clean checkout could not be built, and a package built from one
+  shipped without its types.** `tsBuildInfoFile` sat at the project root
+  instead of inside `dist`, so deleting `dist` left the incremental cache
+  behind. `tsc --build` then read a valid cache describing declarations
+  that no longer existed, declared the project up to date and emitted
+  nothing, and any dependent failed with `TS6305`. It survived this long
+  only because nothing had ever wiped `dist`: every run reused the
+  previous one's output. Verified by deleting every `dist`,
+  `.tsbuildinfo` and `out-tsc` in the workspace and building from there.
+
+### Changed
+
+- **Declaration output is deterministic.** `@nx/rollup` hard-codes
+  `declaration: true` and `rootDir: projectRoot`, so the bundler emitted a
+  second full copy of every declaration under `dist/src` plus a one-line
+  `dist/index.d.ts` re-export wrapper, while `tsc` emitted the real flat
+  tree. Whichever target ran last decided what the package published.
+  `typecheck` now always runs after `build`, emits the declarations and
+  drops the copy it makes redundant.
+
+- Build artefacts (`*.d.ts.map`, `*.tsbuildinfo`) are excluded from the
+  published tarball.
+
 ## [1.0.0] — 2026-05-23
 
 **Stable release.** First semver-stable version. The public API is now
