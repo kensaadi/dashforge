@@ -176,7 +176,7 @@ export function DashforgeTailwindProvider({
         const attr = root.getAttribute(DATA_ATTR);
         const storeMode = theme.meta.mode;
         if (attr !== storeMode) {
-          // eslint-disable-next-line no-console -- dev-only guard.
+           
           console.warn(
             `[@dashforge/tw-theme] ${DATA_ATTR} was written outside ` +
               `DashforgeTailwindProvider (attribute is ${JSON.stringify(attr)}, ` +

@@ -136,6 +136,16 @@ const neutralDarkScale: TWColorScale = {
   '950': neutralLightScale['50'],
 };
 
+/**
+ * `inverse` is the light neutral ramp, PINNED.
+ *
+ * It is deliberately the same object in both `lightColors` and
+ * `darkColors`: content on an always-dark surface must not follow the
+ * theme, or it flips to unreadable exactly where it matters. Do not give
+ * this role a dark variant. `cssVars.spec.ts` asserts the invariance.
+ */
+const inverseScale: TWColorScale = neutralLightScale;
+
 const lightColors: TWColorTokens = {
   primary: primaryScale,
   secondary: secondaryScale,
@@ -144,6 +154,7 @@ const lightColors: TWColorTokens = {
   danger: dangerScale,
   info: infoScale,
   neutral: neutralLightScale,
+  inverse: inverseScale,
 };
 
 const darkColors: TWColorTokens = {
@@ -154,6 +165,8 @@ const darkColors: TWColorTokens = {
   danger: dangerScale,
   info: infoScale,
   neutral: neutralDarkScale,
+  // Same ramp as the light theme, on purpose. See `inverseScale`.
+  inverse: inverseScale,
 };
 
 const sharedSpacing = {
@@ -181,6 +194,7 @@ const sharedRadius = {
 };
 
 const sharedFontSize = {
+  '2xs': '0.625rem',
   xs: '0.75rem',
   sm: '0.875rem',
   base: '1rem',

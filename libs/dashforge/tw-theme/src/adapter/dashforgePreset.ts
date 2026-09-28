@@ -66,15 +66,16 @@ function colorScaleToCssVarRefs(role: string, scale: TWColorScale): TWColorScale
 }
 
 function buildColorRefs(template: TWColorTokens): TWColorTokens {
-  return {
-    primary: colorScaleToCssVarRefs('primary', template.primary),
-    secondary: colorScaleToCssVarRefs('secondary', template.secondary),
-    success: colorScaleToCssVarRefs('success', template.success),
-    warning: colorScaleToCssVarRefs('warning', template.warning),
-    danger: colorScaleToCssVarRefs('danger', template.danger),
-    info: colorScaleToCssVarRefs('info', template.info),
-    neutral: colorScaleToCssVarRefs('neutral', template.neutral),
-  };
+  // Iterates the token tree rather than listing the roles. The hand-written
+  // list silently dropped `inverse` when that role was added (#140): the
+  // CSS vars were emitted by `twThemeCssVars`, which DOES iterate, but the
+  // Tailwind colour map never learned about them, so `text-inverse-50`
+  // generated no class at all. Only a key-parity test caught it.
+  const out: Record<string, unknown> = {};
+  for (const role of Object.keys(template) as Array<keyof TWColorTokens>) {
+    out[role] = colorScaleToCssVarRefs(role, template[role]);
+  }
+  return out as unknown as TWColorTokens;
 }
 
 /**

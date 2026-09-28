@@ -42,6 +42,21 @@ export interface TWColorTokens {
   danger: TWColorScale;
   info: TWColorScale;
   neutral: TWColorScale;
+  /**
+   * Content that sits on a surface which is dark REGARDLESS of the active
+   * theme: a dark hero, an ink footer, an inverted panel.
+   *
+   * Unlike `neutral`, this role is **theme-invariant** — it resolves to the
+   * same values in the light and the dark default. That is the whole point:
+   * `neutral` inverts so `bg-neutral-50` always means "page surface", which
+   * is exactly the wrong behaviour for a surface that does not follow the
+   * theme. A button built on `neutral` would be correct in light mode and
+   * unreadable in dark.
+   *
+   * The ramp runs light-to-dark, so `inverse-50` is the foreground tone to
+   * use on a dark ground.
+   */
+  inverse: TWColorScale;
 }
 
 /**
@@ -68,6 +83,14 @@ export interface TWRadiusTokens {
  * Font-size tiers (rem). Tailwind-idiomatic names.
  */
 export interface TWFontSizeTokens {
+  /**
+   * 10px. Added because the catalog could not express itself in its own
+   * scale: `Avatar` size `xs` and `Alert` density `compact` both carried
+   * arbitrary `text-[10px]` / `text-[13px]` values, which no theme can
+   * reach. A scale that stops at 12px leaves badge- and avatar-sized
+   * type outside the system.
+   */
+  '2xs': string;
   xs: string;
   sm: string;
   base: string;

@@ -37,10 +37,14 @@ describe('hexToRgbTriplet', () => {
 
 describe('twThemeCssVars', () => {
   describe('shape', () => {
-    it('emits one CSS var per color role × tone (7 roles × 11 tones = 77 vars)', () => {
+    it('emits one CSS var per color role × tone', () => {
       const vars = twThemeCssVars(defaultTWThemeLight);
       const colorVars = Object.keys(vars).filter((k) => k.startsWith('--df-tw-color-'));
-      expect(colorVars).toHaveLength(7 * 11);
+      // Derived from the token tree rather than hard-coded: the count moved
+      // from 7 roles to 8 when `inverse` landed (#140), and a literal here
+      // just fails on every legitimate addition without saying anything.
+      const roles = Object.keys(defaultTWThemeLight.color).length;
+      expect(colorVars).toHaveLength(roles * 11);
     });
 
     it('emits spacing/radius/fontSize/shadow vars matching slugified token keys', () => {
@@ -142,6 +146,30 @@ describe('twThemeCssVars', () => {
       // Spacing/radius/fontSize unchanged
       expect(light['--df-tw-spacing-4']).toBe(dark['--df-tw-spacing-4']);
       expect(light['--df-tw-radius-md']).toBe(dark['--df-tw-radius-md']);
+    });
+
+    /**
+     * `inverse` is the role for content on a surface that is dark whatever
+     * the theme does. If it ever starts inverting like `neutral`, a button
+     * on a dark hero becomes unreadable in exactly one of the two themes,
+     * and nothing else in the system would catch it. kensaadi/dashforge#140.
+     */
+    it('keeps every `inverse` tone identical across the two themes', () => {
+      const light = twThemeCssVars(defaultTWThemeLight);
+      const dark = twThemeCssVars(defaultTWThemeDark);
+
+      const tones = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
+      for (const tone of tones) {
+        const key = `--df-tw-color-inverse-${tone}`;
+        expect(light[key], `${key} must not change with the theme`).toBe(dark[key]);
+      }
+
+      // And it must NOT be the neutral ramp in disguise: in dark, neutral
+      // has flipped while inverse has not.
+      expect(dark['--df-tw-color-inverse-50']).not.toBe(dark['--df-tw-color-neutral-50']);
+      // The light end stays the light end, which is what makes it usable
+      // as a foreground on a dark ground.
+      expect(dark['--df-tw-color-inverse-50']).toBe(light['--df-tw-color-neutral-50']);
     });
   });
 
