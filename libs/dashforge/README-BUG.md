@@ -4,10 +4,21 @@ A register of confirmed defects in the shipped libraries, written down
 so they survive the session that found them.
 
 **How to use this file.** Each entry is self-contained: symptom, cause
-with `file:line`, how it was reproduced, and a proposed fix. Pick one,
-fix it, move the entry to *Fixed* at the bottom with the commit that
-closed it. Do not delete entries — a fixed bug with its reasoning
-intact is what stops the same design coming back.
+with `file:line`, how it was reproduced, and a proposed fix.
+
+**Closing one is two moves, and the first is easy to get wrong.** The
+entry at the top **stays where it is** and gains a `Status:` line, so the
+diagnosis stays findable by the symptom that sent you looking. A closure
+note then goes in *Fixed* at the bottom, naming the commit that closed it
+and what was measured. Do not delete entries: a fixed bug with its
+reasoning intact is what stops the same design coming back.
+
+**So the top section is not a list of open defects.** It is every defect
+ever confirmed, and roughly forty of them are closed. Read the `Status:`
+line before concluding anything. This paragraph used to say "move the
+entry to *Fixed*", which the file has never done and should not start
+doing, and reading it that way has twice produced a wrong answer to
+"how many bugs are open".
 
 **How to add one.** Only entries that were actually reproduced, or read
 straight out of the source with the lines quoted. A suspicion goes in
@@ -2141,7 +2152,7 @@ altro stato locale provoca un render — costa più di un errore.
 
 ---
 
-## BUG 30 — `<Chip>` (tw) hardcodes `rounded-full`, so a token theme that squares every corner cannot square the chip
+## BUG 30 — NOT A DEFECT. `<Chip>` (tw) hardcodes `rounded-full`, and the preset never claimed otherwise
 
 Found 24/09/2026 in `~/projects/web/urbango-project/ugo-web`, putting a
 status label on a row in an app whose theme sets every radius to `0px`.
@@ -2782,8 +2793,7 @@ entry is corrected above.
 
 ### BUG 42 — `<TopBar>`'s `start` slot said `min-w-0` and `shrink-0` in the same breath
 
-**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `3aed78d`.
 
 Found while building `<TopBarBrand>` for kensaadi/dashforge#63 gap G, and
 found by the browser rather than by the suite, which is the part worth
@@ -2844,8 +2854,7 @@ was a false green.
 
 ### BUG 41 — `<Stack direction="row" divider={<Divider />}>` squeezed its items instead of separating them
 
-**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `3aed78d`.
 
 Reported as gap F of kensaadi/dashforge#63: *"Divider doesn't reliably
 render between Stack children. Needs reproduction, may be the prop semantics
@@ -2919,8 +2928,7 @@ two row cases.
 
 ### BUG 40 — `<Chip variant="outline" color="neutral">` had an edge nobody could see
 
-**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `3aed78d`.
 
 Reported as gap E of kensaadi/dashforge#63: *"`<Chip>` `outline` + `neutral`
 — low contrast in dark theme, chips become barely visible."* The symptom is
@@ -3023,8 +3031,7 @@ across all seven colours; and the solid variant untouched. Verified: with
 
 ### BUG 39 — `<Slider>` (tw) took a forwarded ref and never attached it
 
-**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `98656a7`.
 
 `<Slider ref={r} />` left `r.current` at `null` forever. The component is
 wrapped in `forwardRef`, names the parameter, and then never uses it:
@@ -3085,8 +3092,7 @@ than as a patch.
 
 ### BUG 37 — `<Drawer>` sat on MUI's z ladder, so a `<Dialog>` opened from inside it rendered BEHIND
 
-**Fixed** 2026-09-27 in the source tree, awaiting the next `@dashforge/tw`
-version bump. **Not reported by a consumer, and not findable by reading one
+**Fixed** 2026-09-27, closed by `98656a7`. **Not reported by a consumer, and not findable by reading one
 component.** It came out of a test written to hunt for it.
 
 #### What it was
@@ -3211,8 +3217,7 @@ components. A per-file eye misses what a catalog-wide assertion does not.
 
 ### BUG 31 — `<Calendar>` (tw): a selectable sibling-month day failed WCAG contrast
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `98656a7`.
 
 **Filed as a request, "low, cosmetic". It is a defect.** The report's
 observation was right and its framing understated it: the muted cell is an
@@ -3341,8 +3346,7 @@ which is on record in BUG 24 and BUG 30 and belongs in Project #6.
 
 ### BUG 26 — bare `rounded` is hard-coded and ignores the radius tokens
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed. **The defect is
+**Fixed**, closed by `98656a7`. **The defect is
 real and the diagnosis was right. Two things around it were not: the scope
 and the proposed replacement.**
 
@@ -3470,8 +3474,7 @@ version `ugo-web` installs, so it goes with the bump.
 
 ### BUG 27 — `<AppShell>` (tw): `min-h-screen` on the root made `main`'s scroller dead code
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed. **The report
+**Fixed**, closed by `98656a7`. **The report
 was correct, and both of its ⚠️ notes were load-bearing.**
 
 #### Verified before touching anything
@@ -3560,8 +3563,7 @@ lands.
 
 ### BUG 36 — Radix's hidden input escapes to the `body`, so a checkbox lengthens the page
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `98656a7`.
 
 Found while verifying BUG 27's fix, **not reported by a consumer**. It was
 invisible before: the page scrolled anyway, so nothing pointed at it.
@@ -3634,8 +3636,7 @@ the ones with a bubble input today.
 
 ### BUG 35 — `<Chip>` (tw): a clickable, deletable chip nested a `<button>` in a `<button>`
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `3aed78d`.
 
 #### Swapping the tag would NOT have been the fix
 
@@ -3755,8 +3756,7 @@ change is invisible to consumers at the type level.
 
 ### BUG 25 — `<Divider orientation="vertical">` (tw) came out `w-full`
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed. **The report's
+**Fixed**, closed by `98656a7`. **The report's
 diagnosis was exactly right. Its proposed fix was not, and would have
 shipped a worse defect.**
 
@@ -3897,8 +3897,7 @@ pair the removal with the version that carries the fix.
 
 ### BUG 23 — `<Select multiple>` (tw): a `<button>` nested inside the trigger `<button>`
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed. **The report
+**Fixed**, closed by `98656a7`. **The report
 was correct on every point**, including the parser-rewrite consequence and
 the warning to keep `aria-required` on the combobox element.
 
@@ -4001,8 +4000,7 @@ held a ref to the old element.
 
 ### BUG 28 — `<Dialog>` and `<Drawer>` (tw) ringed the close button on `:focus`
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
-version bump. Fix is in the working tree, not yet committed. **The report
+**Fixed**, closed by `98656a7`. **The report
 was correct, including the reading that this was an oversight rather than a
 policy.**
 
@@ -4035,8 +4033,7 @@ a different thing and not what was reported.
 
 ### BUG 33 — `useEngineVisibility` subscribes conditionally, so a `visibleWhen` that appears or disappears kills the field
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/ui-core`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `57566d9`.
 
 **Not reported by a consumer.** It surfaced while fixing a red CI: the
 pipeline had been failing on `@dashforge/ui-core:lint`, which errored with
@@ -4149,8 +4146,7 @@ is a separate question and was left alone on purpose.
 
 ### BUG 34 — `useEngineValues` calls one hook per array entry, so its hook count follows `nodeIds.length`
 
-**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/ui-core`
-version bump. Fix is in the working tree, not yet committed.
+**Fixed**, closed by `57566d9`.
 
 Found the same way as BUG 33, by registering `eslint-plugin-react-hooks` on
 `ui-core`:
@@ -4231,8 +4227,7 @@ into.
 
 ### BUG 32 — BUG 17's fix never reached `@dashforge/tw`
 
-**Fixed** 2026-09-25 in the source tree, awaiting the next
-`@dashforge/tw` version bump. **The report was correct on every
+**Fixed** 2026-09-25, closed by `81d0389`. **The report was correct on every
 point**, including the diagnosis of why the original verification
 could not have caught it.
 
@@ -5548,6 +5543,36 @@ list above, first verify by static rule: is `{...rest}` spread onto
 a DOM element in that component's source? If no, the report is
 almost certainly an over-claim (as this one's original scope was).
 If yes, add it to the list.
+
+---
+
+### BUG 7 — `<Autocomplete>` (tw): the listbox was dismissed by the focus that opened it
+
+**Fixed** 2026-09-03, closed by `38e575a`.
+
+A regression from BUG 1's portal fix, and the pair below is the reason
+that fix needed two follow-ups rather than one. Moving the listbox into a
+portal changed what counts as "outside" for the dismiss handler, and the
+input's own focus event started reading as an outside interaction, so the
+list opened and closed in the same tick. High severity: the field looked
+broken to anybody who typed.
+
+Regression cover lives in `c41504f`.
+
+---
+
+### BUG 8 — `<Autocomplete>` (tw): an option could not be picked with the MOUSE
+
+**Fixed** 2026-09-03, closed by `6a665cd`.
+
+The second regression from the same portal change, and the more
+embarrassing of the two because keyboard selection kept working, so the
+component passed every test that drove it with keys. A pointerdown on a
+portaled option blurred the input before the click landed, and the
+dismiss ran first.
+
+The lesson is in the pairing: BUG 7 and BUG 8 are one change producing
+two failures on two input methods, and only one of them was covered.
 
 ---
 
