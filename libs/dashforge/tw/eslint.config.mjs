@@ -34,6 +34,11 @@ export default [
             '{projectRoot}/vitest.config.{js,ts,mjs,mts}',
             '{projectRoot}/**/*.spec.{ts,tsx}',
             '{projectRoot}/**/*.test.{ts,tsx}',
+            // Test-only helpers that are not spec files themselves and so
+            // are not caught by the two patterns above. `perfBudget.ts`
+            // imports `expect` from vitest; the directory is excluded from
+            // tsconfig.lib.json, so none of it ships.
+            '{projectRoot}/src/test-utils/**',
           ],
           // tw-tokens (CSS vars + Tailwind preset) and tw-theme
           // (Provider that injects the runtime vars) are CONSUMER-FACING
