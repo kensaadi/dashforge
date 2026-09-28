@@ -143,7 +143,55 @@ a wrapper div and a query, you can delete the workaround.
 
 ---
 
-## 5. `<AppShell>` changes which element scrolls
+## 5. `<Autocomplete>` and `<Select>` hand back a wider value (MUI side)
+
+**Who is affected: you pass a single-select handler to `@dashforge/ui`'s
+`<Autocomplete>` or `<Select>`.** This one is a compile error, not a
+runtime change, and it is the most likely thing to stop your build.
+
+Multi-select arrived on the MUI side in this release, and both components
+now describe both modes with one signature:
+
+```ts
+value?:    TValue | TValue[] | null;
+onChange?: (value: TValue | TValue[] | null) => void;
+```
+
+So the canonical single-select usage no longer type-checks:
+
+```tsx
+// before
+const [value, setValue] = useState<string | null>(null);
+<Autocomplete value={value} onChange={setValue} />
+
+// after: widen the state
+const [value, setValue] = useState<string | string[] | null>(null);
+<Autocomplete value={value} onChange={setValue} />
+
+// or narrow at the boundary, if you would rather keep your state tight
+const [value, setValue] = useState<string | null>(null);
+<Autocomplete
+  value={value}
+  onChange={(v) => setValue(Array.isArray(v) ? (v[0] ?? null) : v)}
+/>
+```
+
+Nothing changes at runtime: without `multiple`, the value handed back is
+never an array. The type simply cannot say so, because `AutocompleteProps`
+inherits `multiple` from MUI rather than declaring it, so there is no own
+member with a literal type to discriminate on.
+
+**This is a regression in ergonomics and it is being undone.** The
+Tailwind side solved the same problem with a union of handler types,
+which stays assignable from a narrow handler, so `onChange={setValue}`
+still works there. Aligning the MUI side is tracked in
+[kensaadi/dashforge#142](https://github.com/kensaadi/dashforge/issues/142)
+as a types-only change. Whatever you write now keeps compiling after it
+lands, so prefer whichever of the two forms above reads better to you.
+
+---
+
+## 6. `<AppShell>` changes which element scrolls
 
 **Who is affected: everyone using `<AppShell>`.** This is the one to look
 at in a browser rather than in a diff.
@@ -162,7 +210,7 @@ with it. The new default is the shell most applications want.
 
 ---
 
-## 6. Markup changes that can break selectors and tests
+## 7. Markup changes that can break selectors and tests
 
 **Who is affected: you query by tag name, or snapshot the DOM.**
 
@@ -178,7 +226,7 @@ If you select these by role rather than by tag, nothing changes:
 
 ---
 
-## 7. Two visual changes you did not ask for
+## 8. Two visual changes you did not ask for
 
 **Who is affected: you compare screenshots.**
 

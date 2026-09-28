@@ -50,6 +50,27 @@ a before and after.
 
 ### Changed
 
+- **BREAKING, and only at the type level. `<Autocomplete>` and
+  `<Select>` widened `value` and `onChange` to describe both modes with
+  one signature**, so a single-select handler no longer type-checks:
+
+  ```
+  Type 'Dispatch<SetStateAction<string | null>>' is not assignable to
+  type '(value: string | string[] | null) => void'
+  ```
+
+  Nothing changes at runtime: without `multiple`, the value handed back
+  is never an array. The type cannot say so because `AutocompleteProps`
+  inherits `multiple` from MUI rather than declaring it, leaving nothing
+  with a literal type to discriminate on. The Tailwind side solved the
+  same problem with a union of handler types, which stays assignable
+  from a narrow handler.
+
+  This is a regression in ergonomics and it is being undone in
+  kensaadi/dashforge#142, a types-only change. Widening your state or
+  narrowing at the boundary both keep compiling afterwards. See the
+  migration guide for both forms.
+
 - Two `jsx-a11y` warnings on `<Autocomplete>` were false and now say so in
   place. `aria-disabled` sits on an `<li>` whose `role="option"` arrives
   through MUI's `getOptionProps` spread, which a static rule cannot read.
