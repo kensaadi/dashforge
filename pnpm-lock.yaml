@@ -358,7 +358,7 @@ importers:
         specifier: ^3.1.1
         version: 3.2.2(tailwind-merge@3.6.0)(tailwindcss@4.3.0)
       tailwindcss:
-        specifier: '>=3.4.1'
+        specifier: '>=3.4.1 <5'
         version: 4.3.0
     devDependencies:
       '@vitejs/plugin-react':
@@ -380,7 +380,7 @@ importers:
         specifier: workspace:*
         version: link:../tw-tokens
       tailwindcss:
-        specifier: '>=3.4.1'
+        specifier: '>=3.4.1 <5'
         version: 4.3.0
       valtio:
         specifier: ^2.3.0
