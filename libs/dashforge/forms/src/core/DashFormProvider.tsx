@@ -274,7 +274,7 @@ export function DashFormProvider<
       return null;
     }
 
-    const registry = createReactionRegistry<TFieldValues>({
+    const registry = createReactionRegistry({
       debug,
       // Inject dependencies for testability
       getValue: (name: string) => {

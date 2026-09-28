@@ -1,4 +1,3 @@
-import type { FieldValues } from 'react-hook-form';
 import type { FieldRuntimeState } from '../runtime/runtime.types';
 
 /**
@@ -25,7 +24,7 @@ export interface ReactionWhenContext {
  * Context provided to run execution.
  * Read access to values/runtime, write access to runtime only.
  */
-export interface ReactionRunContext<TFieldValues = FieldValues> {
+export interface ReactionRunContext {
   /**
    * Get current value of a field.
    * Same as when context - value-driven, not mount-driven.
@@ -97,7 +96,7 @@ export interface ReactionRunContext<TFieldValues = FieldValues> {
  * - Reactions registered once per registry instance
  * - Duplicate IDs will throw error
  */
-export interface ReactionDefinition<TFieldValues = FieldValues> {
+export interface ReactionDefinition {
   /**
    * Unique identifier for this reaction.
    * Must be unique within reaction registry.
@@ -154,7 +153,7 @@ export interface ReactionDefinition<TFieldValues = FieldValues> {
    *   }
    * }
    */
-  run: (ctx: ReactionRunContext<TFieldValues>) => void | Promise<void>;
+  run: (ctx: ReactionRunContext) => void | Promise<void>;
 }
 
 /**

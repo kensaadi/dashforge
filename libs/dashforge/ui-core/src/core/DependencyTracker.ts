@@ -73,10 +73,12 @@ export class DependencyTracker {
     }
 
     for (const nodeId of rule.dependencies) {
-      if (!this.graph.has(nodeId)) {
-        this.graph.set(nodeId, new Set());
+      let dependents = this.graph.get(nodeId);
+      if (!dependents) {
+        dependents = new Set();
+        this.graph.set(nodeId, dependents);
       }
-      this.graph.get(nodeId)!.add(rule.id);
+      dependents.add(rule.id);
 
       if (this.debug) {
         console.log(

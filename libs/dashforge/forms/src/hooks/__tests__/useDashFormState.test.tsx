@@ -24,7 +24,7 @@
  *   consumer.
  */
 import { describe, it, expect } from 'vitest';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { render, act } from '@testing-library/react';
 import { DashFormContext } from '@dashforge/ui-core';

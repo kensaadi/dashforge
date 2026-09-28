@@ -4,6 +4,9 @@
  * This is a convenience hook that combines useEngineNode with value extraction.
  */
 
+import { useSnapshot } from 'valtio';
+import type { Node } from '../types/node.types';
+import { useEngineContext } from './EngineProvider';
 import { useEngineNode } from './useEngineNode';
 
 /**
@@ -79,5 +82,20 @@ export function useEngineValueWithDefault<TValue>(
 export function useEngineValues<TValue = unknown>(
   nodeIds: string[]
 ): (TValue | undefined)[] {
-  return nodeIds.map((id) => useEngineValue<TValue>(id));
+  // One subscription for the whole batch, deliberately not
+  // `nodeIds.map((id) => useEngineValue(id))`: that called a hook per entry
+  // and so made React's hook count follow `nodeIds.length`, corrupting the
+  // hook order as soon as an id was added or removed while the component
+  // stayed mounted. Same defect class as BUG 16 and BUG 33.
+  //
+  // Reading N ids off a single snapshot subscribes to exactly what N
+  // `useEngineValue` calls subscribed to, because `useEngineNode` watches
+  // the whole `nodes` map and indexes into it anyway. One difference worth
+  // knowing: this now throws outside an `EngineProvider` even for an empty
+  // `nodeIds`, where the per-entry version happened to call no hook at all
+  // and quietly returned `[]`.
+  const engine = useEngineContext();
+  const nodes = useSnapshot(engine.getState().nodes);
+
+  return nodeIds.map((id) => (nodes[id] as Node<TValue> | undefined)?.value);
 }

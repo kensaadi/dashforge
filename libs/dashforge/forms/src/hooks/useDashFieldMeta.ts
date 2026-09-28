@@ -124,7 +124,6 @@ export function useDashFieldMeta(name: string): DashFieldMeta {
         | null,
       snapshot: null as DashFieldMeta | null,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

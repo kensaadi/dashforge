@@ -43,15 +43,6 @@ export interface IFormEngineAdapter<
    */
   syncValueToEngine(name: FieldPath<TFieldValues>, value: unknown): void;
 
-  /**
-   * Synchronizes a value from Engine to RHF.
-   * Phase 0: STUB - logs only if debug enabled.
-   * Phase 1+: Will update RHF form state.
-   *
-   * @param name - Field name
-   * @param value - Value to sync to RHF
-   */
-  syncValueToRHF(name: FieldPath<TFieldValues>, value: unknown): void;
 
   /**
    * Returns all currently registered field names.
@@ -181,7 +172,7 @@ export interface DashFormConfig<
    *
    * @default undefined
    */
-  reactions?: ReactionDefinition<TFieldValues>[];
+  reactions?: ReactionDefinition[];
 
   /**
    * Optional React Hook Form resolver (pass-through).

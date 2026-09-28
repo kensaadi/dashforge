@@ -8,8 +8,18 @@
  * @module useEngineVisibility
  */
 
-import { useSnapshot } from 'valtio';
+import { proxy, useSnapshot } from 'valtio';
 import type { Engine } from '../types';
+
+/**
+ * Stand-in subscription target for a render that has nothing to watch.
+ *
+ * `useSnapshot` needs a valtio proxy and the hook below has to call it
+ * unconditionally, so a render with no engine or no predicate subscribes
+ * here instead. Created once at module scope and never mutated, so
+ * subscribing to it can never schedule a re-render.
+ */
+const NOTHING_TO_WATCH = proxy<Record<string, never>>({});
 
 /**
  * Hook to reactively evaluate a visibility predicate based on engine state.
@@ -24,7 +34,7 @@ import type { Engine } from '../types';
  *
  * Behavior:
  * - If visibleWhen is not provided: returns true (no condition, always visible)
- * - If engine exists: subscribes to engine changes and evaluates predicate with engine
+ * - If engine exists: re-evaluates the predicate on engine changes
  * - If engine is null/undefined but predicate exists: evaluates predicate without engine (plain mode)
  * - If predicate throws: returns true (fail-safe to visible) with dev warning
  *
@@ -58,17 +68,30 @@ export function useEngineVisibility(
   engine: Engine | null | undefined,
   visibleWhen?: ((engine: Engine) => boolean) | undefined
 ): boolean {
+  // Subscribe BEFORE any early return, and unconditionally.
+  //
+  // Both arguments are ordinary inputs a caller can change between renders
+  // (`visibleWhen={flag ? predicate : undefined}` is the obvious way to
+  // write an optional predicate), so a `useSnapshot` call sitting inside
+  // `if (engine)` made React's hook count follow a prop. React does not
+  // report that as the readable "Rendered more hooks" warning here: it dies
+  // inside `areHookInputsEqual` with a TypeError whose stack points into
+  // react-dom, telling the consumer nothing about their own code. BUG 33.
+  //
+  // Only the subscription SUBJECT stays conditional, which keeps the live
+  // subscriptions exactly what the old branch produced: the engine nodes
+  // map when there is a predicate to re-evaluate, nothing otherwise.
+  useSnapshot(
+    visibleWhen && engine ? engine.getState().nodes : NOTHING_TO_WATCH
+  );
+
   // If no predicate provided, always visible
   if (!visibleWhen) {
     return true;
   }
 
-  // If we have an engine, subscribe to changes and evaluate with engine
+  // If we have an engine, evaluate with engine
   if (engine) {
-    // Subscribe to engine nodes map - this causes re-render when any node changes
-    // We don't need to use the snapshot directly, just accessing it creates the subscription
-    useSnapshot(engine.getState().nodes);
-
     // Evaluate the predicate with error handling
     try {
       return !!visibleWhen(engine);

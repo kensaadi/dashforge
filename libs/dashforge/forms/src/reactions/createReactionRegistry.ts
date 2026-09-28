@@ -1,4 +1,3 @@
-import type { FieldValues } from 'react-hook-form';
 import type { FieldRuntimeState } from '../runtime/runtime.types';
 import type {
   ReactionDefinition,
@@ -13,7 +12,7 @@ import type {
  * Reaction registry interface.
  * Manages reaction definitions and orchestrates execution.
  */
-export interface ReactionRegistry<TFieldValues = FieldValues> {
+export interface ReactionRegistry {
   /**
    * Register reactions (one-shot per registry instance).
    *
@@ -26,7 +25,7 @@ export interface ReactionRegistry<TFieldValues = FieldValues> {
    * @param reactions - Array of reaction definitions
    * @throws Error if duplicate reaction IDs detected
    */
-  registerReactions(reactions: ReactionDefinition<TFieldValues>[]): void;
+  registerReactions(reactions: ReactionDefinition[]): void;
 
   /**
    * Evaluate all reactions (initial evaluation).
@@ -76,7 +75,7 @@ export interface ReactionRegistry<TFieldValues = FieldValues> {
   /**
    * Get all registered reactions (for debugging/testing).
    */
-  getReactions(): ReactionDefinition<TFieldValues>[];
+  getReactions(): ReactionDefinition[];
 
   /**
    * Reset registry (clear all reactions and state).
@@ -96,7 +95,7 @@ export interface ReactionRegistry<TFieldValues = FieldValues> {
  * @param config - Registry configuration and injected dependencies
  * @returns Reaction registry instance
  */
-export function createReactionRegistry<TFieldValues = FieldValues>(
+export function createReactionRegistry(
   config: ReactionRegistryConfig & {
     // Dependencies injected for testability
     getValue: (name: string) => unknown;
@@ -106,12 +105,12 @@ export function createReactionRegistry<TFieldValues = FieldValues>(
       patch: Partial<FieldRuntimeState<TData>>
     ) => void;
   }
-): ReactionRegistry<TFieldValues> {
+): ReactionRegistry {
   const { debug = false, getValue, getFieldRuntime, setFieldRuntime } = config;
 
   // Internal state (NOT React state)
-  const reactions: ReactionDefinition<TFieldValues>[] = [];
-  const reactionById = new Map<string, ReactionDefinition<TFieldValues>>(); // v4: O(1) lookup
+  const reactions: ReactionDefinition[] = [];
+  const reactionById = new Map<string, ReactionDefinition>(); // v4: O(1) lookup
   const watchIndex: WatchIndex = new Map();
   const asyncTracker: AsyncRequestTracker = new Map();
 
@@ -131,7 +130,7 @@ export function createReactionRegistry<TFieldValues = FieldValues>(
   /**
    * Create run context for reaction execution.
    */
-  function createRunContext(): ReactionRunContext<TFieldValues> {
+  function createRunContext(): ReactionRunContext {
     return {
       getValue: <T = unknown>(name: string): T => getValue(name) as T,
       getRuntime: (name) => getFieldRuntime(name),
@@ -165,7 +164,7 @@ export function createReactionRegistry<TFieldValues = FieldValues>(
    * Evaluates when condition (if present) and runs effect if condition passes.
    */
   async function executeReaction(
-    reaction: ReactionDefinition<TFieldValues>
+    reaction: ReactionDefinition
   ): Promise<void> {
     if (debug) {
       console.log('[ReactionRegistry] Evaluating reaction', { id: reaction.id });
@@ -222,7 +221,7 @@ export function createReactionRegistry<TFieldValues = FieldValues>(
 
   return {
     registerReactions(
-      reactionList: ReactionDefinition<TFieldValues>[]
+      reactionList: ReactionDefinition[]
     ): void {
       // GUARD: Prevent repeated registration (v4 correction)
       if (registrationCompleted) {
@@ -263,10 +262,12 @@ export function createReactionRegistry<TFieldValues = FieldValues>(
       // Build watch index (field → reaction IDs)
       for (const reaction of reactionList) {
         for (const fieldName of reaction.watch) {
-          if (!watchIndex.has(fieldName)) {
-            watchIndex.set(fieldName, new Set());
+          let watchers = watchIndex.get(fieldName);
+          if (!watchers) {
+            watchers = new Set();
+            watchIndex.set(fieldName, watchers);
           }
-          watchIndex.get(fieldName)!.add(reaction.id);
+          watchers.add(reaction.id);
         }
       }
 
@@ -366,7 +367,7 @@ export function createReactionRegistry<TFieldValues = FieldValues>(
       return initialEvaluationCompleted;
     },
 
-    getReactions(): ReactionDefinition<TFieldValues>[] {
+    getReactions(): ReactionDefinition[] {
       return [...reactions];
     },
 

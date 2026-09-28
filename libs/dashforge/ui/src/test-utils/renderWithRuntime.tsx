@@ -134,10 +134,11 @@ export function renderWithRuntime(
     },
 
     subscribeFieldRuntime: (name: string, listener: () => void): (() => void) => {
-      if (!runtimeSubscribers.has(name)) {
-        runtimeSubscribers.set(name, new Set());
+      let subscribers = runtimeSubscribers.get(name);
+      if (!subscribers) {
+        subscribers = new Set();
+        runtimeSubscribers.set(name, subscribers);
       }
-      const subscribers = runtimeSubscribers.get(name)!;
       subscribers.add(listener);
 
       return () => {

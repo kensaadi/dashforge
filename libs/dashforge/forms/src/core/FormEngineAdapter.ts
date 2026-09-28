@@ -204,29 +204,6 @@ export class FormEngineAdapter<TFieldValues extends FieldValues = FieldValues>
   }
 
   /**
-   * Synchronizes a value from Engine to RHF.
-   *
-   * **Phase 0:** STUB - Only logs if debug enabled.
-   *
-   * **Future:** Will update RHF form state.
-   *
-   * @param name - Field name
-   * @param value - Value to sync to RHF
-   */
-  syncValueToRHF(name: FieldPath<TFieldValues>, value: unknown): void {
-    if (this.debug) {
-      console.log('[FormEngineAdapter] syncValueToRHF (STUB)', {
-        name: String(name),
-        value,
-      });
-    }
-
-    // TODO: Phase 1 - Call rhfMethods.setValue(name, value)
-    // TODO: Phase 1 - Prevent circular updates
-    // TODO: Phase 1 - Handle nested field paths
-  }
-
-  /**
    * Returns all currently registered field names.
    *
    * @returns Array of registered field names
