@@ -215,7 +215,7 @@ Workarounds that 2.0.0 makes unnecessary:
 | | requirement |
 |---|---|
 | React | `^18.0.0 \|\| ^19.0.0` |
-| Tailwind CSS (tw stack) | `>=3.4.1` |
+| Tailwind CSS (tw stack) | `>=3.4.1 <5`. Tailwind 4 is not verified yet, and the upper bound says so rather than implying support. |
 | MUI (`@dashforge/ui`) | `@mui/material@^9.0.0` |
 | Emotion (MUI stack) | `@emotion/react@^11`, `@emotion/styled@^11` |
 | `@dashforge/rn` | **not part of this release**, versioned separately |

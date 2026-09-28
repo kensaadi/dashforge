@@ -45,7 +45,7 @@
     "@dashforge/tw-theme": "workspace:*",
     "@dashforge/tw-tokens": "workspace:*",
     "react": "^18.0.0 || ^19.0.0",
-    "tailwindcss": ">=3.4.1"
+    "tailwindcss": ">=3.4.1 <5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "*",
