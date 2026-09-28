@@ -43,7 +43,7 @@ export const stepperVariants = tv({
       'group-data-[state=invalid]/step:text-danger-700',
     ],
     helperText: 'text-xs text-neutral-600 truncate',
-    optionalTag: 'text-[10px] italic text-neutral-500',
+    optionalTag: 'text-2xs italic text-neutral-500',
     connector: 'bg-neutral-200',
     content: 'w-full',
     footer: 'flex items-center justify-between mt-4',
@@ -102,7 +102,7 @@ export const stepperVariants = tv({
       sm: {
         indicator: 'w-6 h-6 text-xs',
         label: 'text-xs',
-        helperText: 'text-[10px]',
+        helperText: 'text-2xs',
       },
       md: {
         indicator: 'w-7 h-7 text-sm',

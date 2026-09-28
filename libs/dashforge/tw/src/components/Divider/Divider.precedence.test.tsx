@@ -22,7 +22,7 @@ describe('Divider precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins: orientation=vertical', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Divider: { defaults: { orientation: 'vertical' } } },
       });
@@ -33,7 +33,7 @@ describe('Divider precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme override', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Divider: { defaults: { orientation: 'vertical' } } },
       });
@@ -51,7 +51,7 @@ describe('Divider precedence chain — Option C (Track A)', () => {
     const { getByRole, rerender } = render(<Divider />);
     expect(getByRole('separator').getAttribute('aria-orientation')).toBe('horizontal');
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Divider: { defaults: { orientation: 'vertical' } } },
       });

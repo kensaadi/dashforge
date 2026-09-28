@@ -40,7 +40,7 @@ describe('Slider precedence chain — Option C', () => {
 
   it('level 2 — theme.components.Slider.defaults wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Slider: { defaults: { color: 'success', size: 'sm' } },
@@ -56,7 +56,7 @@ describe('Slider precedence chain — Option C', () => {
 
   it('level 3 — instance prop wins over theme defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Slider: { defaults: { color: 'success' } } },
       });
@@ -79,7 +79,7 @@ describe('Slider precedence chain — Option C', () => {
 
   it('theme slotProps.controlWrapper.className merges into the wrapper', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Slider: {
@@ -96,7 +96,7 @@ describe('Slider precedence chain — Option C', () => {
 
   it('DS-identity scenario — bare Slider renders theme.defaults everywhere', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Slider: { defaults: { color: 'warning', size: 'lg', fullWidth: true } },

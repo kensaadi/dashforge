@@ -43,7 +43,7 @@ export const skeletonVariants = tv({
   variants: {
     variant: {
       text: {
-        root: 'rounded h-[1em] w-full',
+        root: 'rounded-sm h-[1em] w-full',
       },
       rectangle: {
         root: 'rounded-md w-full h-[100px]',

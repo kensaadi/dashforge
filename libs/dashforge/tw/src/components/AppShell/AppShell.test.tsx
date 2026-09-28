@@ -161,7 +161,16 @@ describe('<AppShell> performance', () => {
       </AppShell>
     );
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(30);
+    // Smoke bound, deliberately generous, NOT a budget. A wall-clock
+    // assertion in a unit test measures the machine, not the component:
+    // under `nx run-many -t lint typecheck test build` the runner is
+    // building eleven other projects alongside 2000 jsdom tests, and this
+    // mount was measured at 44ms against a 30ms bound — a false red with
+    // nothing wrong in the library. Raised to match the rest of the perf
+    // suite, whose bounds for a comparable mount sit at 100-250ms. The
+    // deterministic assertion of the same intent is the render-count test
+    // below; prefer adding to that one.
+    expect(t1 - t0).toBeLessThan(200);
   });
 
   it('renders at most 2 times on mount', () => {

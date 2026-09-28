@@ -18,13 +18,51 @@ declare module '@dashforge/tw-tokens' {
   }
 }
 
+/**
+ * The four booleans the day recipe is keyed on, handed to a functional
+ * `slotProps.day` so a consumer can restyle ONE state without touching the
+ * others.
+ *
+ * Before this existed, `slotProps.day.className` was a flat string applied
+ * to all 42 cells, so an app that wanted, say, sibling-month days to read
+ * as selectable had to restyle every cell identically (which also erased
+ * the disabled treatment), reach into the DOM after render, or fork the
+ * component. See README-BUG § BUG 31.
+ */
+export interface CalendarDayState {
+  /** The cell belongs to the previous or next month. */
+  siblingMonth: boolean;
+  /** The cell is today. */
+  today: boolean;
+  /** The cell is the selected date. */
+  selected: boolean;
+  /** The cell cannot be picked (outside min/max, or explicitly disabled). */
+  disabled: boolean;
+}
+
 /** Per-slot `className` overrides for `<Calendar>`. */
 export interface CalendarSlotProps {
   root?: { className?: string };
   header?: { className?: string };
   grid?: { className?: string };
-  /** Applied to every day-cell button. */
-  day?: { className?: string };
+  /**
+   * Applied to every day-cell button.
+   *
+   * Accepts either a flat object, which lands on all 42 cells, or a
+   * function of the cell's state, which is what lets a theme address a
+   * single state. Passing an object keeps working unchanged.
+   *
+   * @example
+   * ```tsx
+   * slotProps={{
+   *   day: ({ siblingMonth }) =>
+   *     siblingMonth ? { className: 'opacity-100 text-neutral-500' } : {},
+   * }}
+   * ```
+   */
+  day?:
+    | { className?: string }
+    | ((state: CalendarDayState) => { className?: string } | undefined);
 }
 
 /**
@@ -70,6 +108,19 @@ export interface CalendarProps {
   today?: ISODate;
   /** Disables the whole calendar. */
   disabled?: boolean;
+  /**
+   * Render the leading and trailing cells that belong to the neighbouring
+   * months. Default `true`, which is the convention React Day Picker, MUI's
+   * `DateCalendar` and the native pickers all follow.
+   *
+   * Set `false` and those cells become empty placeholders that keep the
+   * 7-column geometry. Worth doing for any form where "a day of the next
+   * month" is not a distinct concept, because a muted-but-selectable day
+   * reads as unavailable at a glance. See README-BUG § BUG 31.
+   *
+   * @default true
+   */
+  showSiblingDays?: boolean;
   /** Moves DOM focus to the active day cell on mount. */
   autoFocus?: boolean;
   /** Accessible label for the grid. Default `"Calendar"`. */

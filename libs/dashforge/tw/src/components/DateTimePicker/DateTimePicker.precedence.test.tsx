@@ -28,7 +28,7 @@ describe('DateTimePicker precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (layout=inline)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DateTimePicker: { defaults: { layout: 'inline' } } },
       });
@@ -39,7 +39,7 @@ describe('DateTimePicker precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DateTimePicker: { defaults: { layout: 'inline' } } },
       });
@@ -55,7 +55,7 @@ describe('DateTimePicker precedence chain — Option C (Track A)', () => {
 
   it('theme stepMinutes/hour12 override applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DateTimePicker: { defaults: { stepMinutes: 15, hour12: true } } },
       });

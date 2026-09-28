@@ -26,7 +26,7 @@ describe('Progress precedence chain — Option C', () => {
 
   it('level 2 — theme.components.Progress.defaults wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Progress: { defaults: { color: 'success', size: 'lg' } } },
       });
@@ -38,7 +38,7 @@ describe('Progress precedence chain — Option C', () => {
 
   it('level 3 — instance prop wins over theme defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Progress: { defaults: { color: 'success' } } },
       });
@@ -57,7 +57,7 @@ describe('Progress precedence chain — Option C', () => {
 
   it('DS-identity scenario — bare Progress inherits theme defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Progress: {

@@ -28,6 +28,22 @@ import { tv, type VariantProps } from 'tailwind-variants';
  * Motion is gated by `prefers-reduced-motion`: slide animations collapse
  * to instantaneous appear/disappear for users who opt out.
  */
+/*
+ * Layering: the Drawer sits on the catalog's `z-50` overlay tier, like
+ * Dialog, Menu, Popover, Tooltip, Snackbar and the two comboboxes. It used
+ * to carry `z-[1400]` / `z-[1410]`, MUI's ladder, which is a different
+ * scale entirely — and authored alone it looked fine.
+ *
+ * What it broke, which only shows when two overlays meet: a Dialog raised
+ * from inside a Drawer rendered BEHIND it (50 against 1410), so the user
+ * got a drawer with an invisible modal holding their focus, and a Snackbar
+ * confirming an action taken in the drawer was invisible too.
+ *
+ * Overlay and content are both `z-50` on purpose, matching Dialog: within
+ * one component DOM order settles it (content renders after the overlay),
+ * and between components the one mounted later wins, which is what
+ * "opened on top" means.
+ */
 export const drawerVariants = tv({
   slots: {
     overlay: [
@@ -35,7 +51,7 @@ export const drawerVariants = tv({
       // z-1300; Chakra AppShell uses ~1000). z-[1400] sits above them
       // without touching the reserved "topmost" (~9999) tier for host
       // error overlays / dev tools. Matches Chakra Drawer's own default.
-      'fixed inset-0 z-[1400] bg-neutral-950/60 backdrop-blur-sm',
+      'fixed inset-0 z-50 bg-neutral-950/60 backdrop-blur-sm',
       // Fade the backdrop in/out via a pure CSS keyframe (defined in
       // Drawer.tsx's module-level style injection).
       'data-[state=open]:animate-[df-drawer-fade-in_300ms_ease-out]',
@@ -45,7 +61,7 @@ export const drawerVariants = tv({
     content: [
       // Same z-tier as the overlay (see note above) plus 10 so the
       // drawer panel stacks above its own backdrop reliably.
-      'fixed z-[1410] flex flex-col',
+      'fixed z-50 flex flex-col',
       // bg-white hardcoded (doesn't auto-invert) so `dark:` is needed.
       // Same pattern as Dialog for cross-primitive consistency.
       'bg-white dark:bg-neutral-100 shadow-xl',
@@ -77,7 +93,11 @@ export const drawerVariants = tv({
       // mode without a `dark:` variant.
       'rounded-md border border-neutral-200',
       'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 hover:border-neutral-300',
-      'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1',
+      // `focus-visible:`, not `focus:` — see BUG 28. Radix focuses the
+      // panel on open and this is its first focusable child, so a plain
+      // `focus:ring` framed the × on every mouse-opened drawer. The
+      // `resizeHandle` slot below already had it right.
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
       'transition-colors motion-reduce:transition-none',
     ],
     body: 'flex-1 min-h-0 overflow-y-auto p-4',

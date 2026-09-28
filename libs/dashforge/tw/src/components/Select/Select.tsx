@@ -137,7 +137,8 @@ function nextEnabledIndex<V extends SelectValue>(
  */
 function SelectInner<V extends SelectValue = string>(
   props: SelectProps<V>,
-  ref: React.Ref<HTMLButtonElement>,
+  // The trigger is a `<div role="combobox">`, not a `<button>` — see BUG 23.
+  ref: React.Ref<HTMLDivElement>,
 ): ReactElement | null {
   const themeDefaults = useComponentDefaults('Select');
   const merged: SelectProps<V> = { ...themeDefaults?.defaults, ...props } as SelectProps<V>;
@@ -180,6 +181,7 @@ function SelectInner<V extends SelectValue = string>(
   const controlId = useId();
   const listboxId = `${controlId}-listbox`;
   const helperId = `${controlId}-help`;
+  const labelId = `${controlId}-label`;
   const isFormMode = Boolean(bridge?.register);
 
   useStandaloneFieldWarning('Select', name, isFormMode, userValue, onChange);
@@ -227,7 +229,7 @@ function SelectInner<V extends SelectValue = string>(
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const typeAheadBufferRef = useRef<string>('');
   const typeAheadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLUListElement | null>(null);
 
   useEffect(() => {
@@ -353,7 +355,7 @@ function SelectInner<V extends SelectValue = string>(
   // letter type-ahead. `Tab` is intentionally not intercepted so the
   // trigger keeps its native focus flow.
   const handleTriggerKeyDown = useCallback(
-    (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+    (event: ReactKeyboardEvent<HTMLDivElement>) => {
       if (effectiveDisabled) return;
       const openIfClosed = () => {
         if (!isOpen) setIsOpen(true);
@@ -526,7 +528,17 @@ function SelectInner<V extends SelectValue = string>(
   return (
     <div className={rootClasses} data-testid={testId}>
       {label != null && (
-        <label htmlFor={controlId} className={labelClasses}>
+        <label
+          id={labelId}
+          htmlFor={controlId}
+          className={labelClasses}
+          // `htmlFor` no longer associates anything: the trigger is a div,
+          // and `<label for>` only binds to a labelable element. It is kept
+          // because it is harmless and consumers may key CSS off it, but
+          // the real name comes from `aria-labelledby` on the trigger and
+          // the focus-on-click has to be done by hand. BUG 23.
+          onClick={() => triggerRef.current?.focus()}
+        >
           {renderLabelWithTooltip(
             label,
             tooltipConfig,
@@ -537,24 +549,52 @@ function SelectInner<V extends SelectValue = string>(
 
       <RadixPopover.Root open={isOpen} onOpenChange={handleOpenChange}>
         <RadixPopover.Trigger asChild>
-          <button
+          {/*
+            A `<div role="combobox" tabIndex={0}>`, NOT a `<button>`.
+
+            `<button>`'s content model is phrasing content with no
+            interactive descendant, so the chips' remove buttons could not
+            legally live inside it: React reported a hydration error and the
+            parser hoisted them out, building a tree the component never
+            described. This is the ARIA APG select-only combobox pattern,
+            and it is what makes the chips legal. BUG 23.
+
+            Nothing is lost by dropping the native element:
+            - Enter / Space / arrows / Home / End / type-ahead are all
+              already driven by `handleTriggerKeyDown`, which also returns
+              early when disabled;
+            - `disabled` needs no native attribute because `open` is fully
+              controlled and `handleOpenChange` refuses while disabled;
+            - the recipe's disabled styling is a prop-driven variant, not a
+              `:disabled` pseudo-class, and focus already used
+              `focus-visible:`.
+          */}
+          <div
             ref={(node) => {
               triggerRef.current = node;
               if (typeof ref === 'function') ref(node);
-              else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
+              else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
             }}
             id={controlId}
-            type="button"
+            // Radix's PopoverTrigger injects `type="button"`, and under
+            // `asChild` the CHILD's props win, so the override has to be
+            // explicit. Verified both ways: drop this and the div renders
+            // `type="button"`, trading a nested button for an invalid
+            // attribute. It is spread rather than written as a JSX attribute
+            // because `type` is not in `HTMLAttributes<HTMLDivElement>`, so
+            // TS rejects the direct spelling.
+            {...({ type: undefined } as React.HTMLAttributes<HTMLDivElement>)}
             role="combobox"
+            tabIndex={effectiveDisabled ? -1 : 0}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
             aria-controls={listboxId}
+            aria-labelledby={label != null ? labelId : undefined}
             aria-required={required || undefined}
             aria-invalid={hasError || undefined}
             aria-describedby={resolvedHelperText != null ? helperId : undefined}
             aria-disabled={effectiveDisabled || undefined}
-            disabled={effectiveDisabled}
-            name={name}
+            data-name={name}
             className={triggerClasses}
             onKeyDown={handleTriggerKeyDown}
           >
@@ -563,7 +603,7 @@ function SelectInner<V extends SelectValue = string>(
               className={cn(chevronClasses)}
               // data-open drives the rotate variant in the recipe.
             />
-          </button>
+          </div>
         </RadixPopover.Trigger>
 
         <RadixPopover.Portal>
@@ -660,7 +700,7 @@ function SelectInner<V extends SelectValue = string>(
  *   `<Select<'a' | 'b'> options={…} onChange={…} />`.
  */
 export const Select = forwardRef(SelectInner) as <V extends SelectValue = string>(
-  props: SelectProps<V> & { ref?: React.Ref<HTMLButtonElement> },
+  props: SelectProps<V> & { ref?: React.Ref<HTMLDivElement> },
 ) => ReactElement | null;
 
 // `forwardRef` erases the display name; re-attach it for React DevTools.

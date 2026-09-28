@@ -19,7 +19,7 @@ describe('Spinner precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (size=xl)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Spinner: { defaults: { size: 'xl' } } },
       });
@@ -31,7 +31,7 @@ describe('Spinner precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Spinner: { defaults: { size: 'xl' } } },
       });
@@ -49,7 +49,7 @@ describe('Spinner precedence chain — Option C (Track A)', () => {
 
   it('theme color override applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Spinner: { defaults: { color: 'primary' } } },
       });
@@ -61,7 +61,7 @@ describe('Spinner precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Spinner: {

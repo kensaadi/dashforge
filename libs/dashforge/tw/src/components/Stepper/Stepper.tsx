@@ -133,7 +133,7 @@ export function Stepper(props: StepperProps) {
       pass.push(<Fragment key={`stepper-passthrough-${i}`}>{child}</Fragment>);
     });
     if (sawStrayDom && process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console -- dev-only, guarded by NODE_ENV.
+       
       console.warn(
         '[@dashforge/tw] <Stepper> received bare DOM children (text or ' +
           'intrinsic elements like <div>). Only <Step> configs and ' +
@@ -172,7 +172,7 @@ export function Stepper(props: StepperProps) {
       return initialStep;
     }
     if (initialStep && process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console -- dev-only warning.
+       
       console.warn(
         `[@dashforge/tw] <Stepper initialStep="${initialStep}"> did not ` +
           `match any visible step. Falling back to the first visible step.`,
@@ -264,7 +264,7 @@ export function Stepper(props: StepperProps) {
           return false;
         }
       } else if (process.env.NODE_ENV !== 'production') {
-        // eslint-disable-next-line no-console -- dev-only guard.
+         
         console.warn(
           `[@dashforge/tw] <Step name="${step.name}" fields={[...]}> was ` +
             `used outside a <DashForm> (or with a bridge that does not ` +

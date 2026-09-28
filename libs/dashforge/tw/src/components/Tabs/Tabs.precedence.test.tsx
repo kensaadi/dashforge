@@ -24,7 +24,7 @@ describe('Tabs precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (variant=pill)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Tabs: { defaults: { variant: 'pill' } } },
       });
@@ -36,7 +36,7 @@ describe('Tabs precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Tabs: { defaults: { variant: 'pill' } } },
       });
@@ -53,7 +53,7 @@ describe('Tabs precedence chain — Option C (Track A)', () => {
 
   it('theme orientation override applies (vertical)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Tabs: { defaults: { orientation: 'vertical' } } },
       });
@@ -75,7 +75,7 @@ describe('Tabs precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Tabs: { defaults: { variant: 'pill', orientation: 'vertical' } } },
       });

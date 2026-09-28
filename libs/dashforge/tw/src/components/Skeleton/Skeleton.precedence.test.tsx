@@ -19,7 +19,7 @@ describe('Skeleton precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (variant=circle)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Skeleton: { defaults: { variant: 'circle' } } },
       });
@@ -31,7 +31,7 @@ describe('Skeleton precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins (rectangle beats theme circle)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Skeleton: { defaults: { variant: 'circle' } } },
       });
@@ -48,7 +48,7 @@ describe('Skeleton precedence chain — Option C (Track A)', () => {
 
   it('theme animation override applied (none)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Skeleton: { defaults: { animation: 'none' } } },
       });
@@ -60,7 +60,7 @@ describe('Skeleton precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Skeleton: { defaults: { variant: 'circle', animation: 'wave' } } },
       });

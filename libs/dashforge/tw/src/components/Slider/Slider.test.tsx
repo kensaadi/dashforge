@@ -19,6 +19,59 @@ beforeAll(() => {
 });
 
 describe('<Slider>', () => {
+  // ─── Forwarded ref ────────────────────────────────────────────────
+  describe('forwarded ref', () => {
+    /**
+     * `forwardRef` is a promise that `ref.current` is a DOM node. Slider
+     * named the parameter and never attached it, so the promise was broken
+     * silently: no type error, no warning, `current` just stayed null. The
+     * declared element type was wrong too (`HTMLSpanElement` over a `div`
+     * root), so a caller who trusted it and reached for a span-only member
+     * got `undefined` at runtime.
+     */
+    it('hands the caller the root element', () => {
+      const ref = { current: null } as React.RefObject<HTMLDivElement | null>;
+      render(
+        <Slider
+          name="volume"
+          value={50}
+          onCommit={() => undefined}
+          ref={ref}
+          testId="vol"
+        />
+      );
+
+      expect(ref.current).not.toBeNull();
+      expect(ref.current).toBe(screen.getByTestId('vol'));
+    });
+
+    it('hands over a div, which is what the declared type says', () => {
+      const ref = { current: null } as React.RefObject<HTMLDivElement | null>;
+      render(
+        <Slider name="volume" value={50} onCommit={() => undefined} ref={ref} />
+      );
+
+      expect(ref.current).toBeInstanceOf(HTMLDivElement);
+      expect(ref.current?.tagName).toBe('DIV');
+    });
+
+    it('accepts a callback ref too', () => {
+      let captured: HTMLDivElement | null = null;
+      render(
+        <Slider
+          name="volume"
+          value={50}
+          onCommit={() => undefined}
+          ref={(node) => {
+            captured = node;
+          }}
+        />
+      );
+
+      expect(captured).toBeInstanceOf(HTMLDivElement);
+    });
+  });
+
   // ─── Base rendering ───────────────────────────────────────────────
   describe('base rendering', () => {
     it('renders a slider with a thumb (single mode)', () => {

@@ -17,11 +17,26 @@ import { tv, type VariantProps } from 'tailwind-variants';
  */
 export const checkboxVariants = tv({
   slots: {
-    root: 'inline-flex items-start gap-2',
+    /*
+     * `relative` is load-bearing, not cosmetic. Radix renders a hidden
+     * native input for form participation with inline
+     * `position: absolute; opacity: 0; transform: translateX(-100%)`.
+     * Without a positioned ancestor it anchors to the BODY, so it escapes
+     * any `overflow: hidden` ancestor and extends the document's
+     * scrollable area down to wherever the field happens to sit.
+     *
+     * Measured on `learn/dash` with a checkbox ~1870px down the page:
+     * `document.documentElement.scrollHeight` 1891 against a 768px
+     * viewport, and the window scrolled 800px inside an AppShell that had
+     * just been given `h-dvh overflow-hidden`. Adding this one declaration
+     * dropped scrollHeight to 768 and the window scroll to 0.
+     * See README-BUG § BUG 36.
+     */
+    root: 'relative inline-flex items-start gap-2',
     control: [
       'inline-flex items-center justify-center shrink-0',
       // bg-neutral-50 inverts — dark-mode aware via the dashforge preset.
-      'rounded border bg-neutral-50',
+      'rounded-sm border bg-neutral-50',
       'border-neutral-300',
       'transition-colors',
       // Radix.Checkbox.Root renders a `<button>`, whose UA cursor is

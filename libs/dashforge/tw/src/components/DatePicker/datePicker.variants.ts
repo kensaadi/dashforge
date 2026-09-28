@@ -17,7 +17,7 @@ export const datePickerVariants = tv({
       'flex items-center gap-2 h-10 min-w-[12rem] rounded-md border border-neutral-300 bg-neutral-50 px-3 text-base text-neutral-900 cursor-pointer transition-colors hover:border-neutral-400 focus-visible:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500/30 disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-neutral-200',
     value: 'flex-1 truncate text-left',
     placeholder: 'flex-1 truncate text-left text-neutral-400',
-    icon: 'shrink-0 text-[1rem] text-neutral-500',
+    icon: 'shrink-0 text-base text-neutral-500',
     helperText: 'mt-1 text-sm text-neutral-600',
     errorText: 'mt-1 text-sm text-danger-600',
   },

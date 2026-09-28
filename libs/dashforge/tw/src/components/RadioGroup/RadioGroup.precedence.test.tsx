@@ -23,7 +23,7 @@ describe('RadioGroup precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (layout=row)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { RadioGroup: { defaults: { layout: 'row' } } },
       });
@@ -34,7 +34,7 @@ describe('RadioGroup precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { RadioGroup: { defaults: { size: 'lg' } } },
       });
@@ -54,7 +54,7 @@ describe('RadioGroup precedence chain — Option C (Track A)', () => {
 
   it('partial theme merge — size only, layout falls through to TV', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { RadioGroup: { defaults: { size: 'lg' } } },
       });
@@ -65,7 +65,7 @@ describe('RadioGroup precedence chain — Option C (Track A)', () => {
 
   it('no axis leaks onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { RadioGroup: { defaults: { size: 'lg', layout: 'row' } } },
       });

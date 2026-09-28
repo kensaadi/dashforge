@@ -18,7 +18,7 @@ describe('Badge precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Badge: { defaults: { color: 'success' } } },
       });
@@ -29,7 +29,7 @@ describe('Badge precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Badge: { defaults: { color: 'success' } } },
       });
@@ -52,7 +52,7 @@ describe('Badge precedence chain — Option C (Track A)', () => {
     );
     expect(container.querySelector('[class*="bg-danger"]')).not.toBeNull();
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Badge: { defaults: { color: 'info' } } },
       });

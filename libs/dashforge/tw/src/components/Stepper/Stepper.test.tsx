@@ -4,7 +4,6 @@ import {
   render,
   screen,
   fireEvent,
-  act,
   waitFor,
 } from '@testing-library/react';
 import { DashFormContext } from '@dashforge/ui-core';
@@ -37,7 +36,7 @@ function makeBridge(overrides?: Partial<DashFormBridge>): DashFormBridge {
     ...overrides,
     // Attach an escape hatch so tests can set errors mid-flow.
     // (Kept off the DashFormBridge type on purpose — tests only.)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     ['__setError' as any]: (name: string, msg: string | null) => {
       if (msg === null) errors.delete(name);
       else errors.set(name, msg);

@@ -22,7 +22,7 @@ describe('Table precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (variant=zebra)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Table: { defaults: { variant: 'zebra' } } },
       });
@@ -33,7 +33,7 @@ describe('Table precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Table: { defaults: { variant: 'zebra' } } },
       });
@@ -44,7 +44,7 @@ describe('Table precedence chain — Option C (Track A)', () => {
 
   it('theme density=compact applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Table: { defaults: { density: 'compact' } } },
       });
@@ -55,7 +55,7 @@ describe('Table precedence chain — Option C (Track A)', () => {
 
   it('theme size override applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Table: { defaults: { size: 'lg' } } },
       });
@@ -66,7 +66,7 @@ describe('Table precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Table: {

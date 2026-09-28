@@ -31,7 +31,7 @@ describe('SnackbarProvider precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (position=top-center)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Snackbar: { defaults: { position: 'top-center' } } },
       });
@@ -46,7 +46,7 @@ describe('SnackbarProvider precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Snackbar: { defaults: { position: 'top-center', maxVisible: 2 } } },
       });
@@ -61,7 +61,7 @@ describe('SnackbarProvider precedence chain — Option C (Track A)', () => {
 
   it('theme enqueueDefaults merges with provider defaults (provider wins)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Snackbar: {

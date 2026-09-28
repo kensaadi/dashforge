@@ -56,7 +56,7 @@ export const leftNavVariants = tv({
     itemLabel: 'truncate flex-1 min-w-0 text-left',
     itemBadge: [
       'shrink-0 inline-flex items-center justify-center',
-      'px-1.5 h-5 rounded-full text-[10px] font-medium',
+      'px-1.5 h-5 rounded-full text-2xs font-medium',
       'bg-neutral-200 text-neutral-800',
     ],
     group: 'flex flex-col gap-0.5',

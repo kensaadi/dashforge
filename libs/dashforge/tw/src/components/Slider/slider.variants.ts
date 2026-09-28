@@ -58,7 +58,7 @@ export const sliderVariants = tv({
     ],
     valueLabel: [
       'absolute -translate-x-1/2 -translate-y-full',
-      'px-1.5 py-0.5 rounded text-xs font-medium text-neutral-50',
+      'px-1.5 py-0.5 rounded-md text-xs font-medium text-neutral-50',
       'pointer-events-none whitespace-nowrap',
       'shadow-sm',
       // background color applied via variant below
@@ -107,7 +107,7 @@ export const sliderVariants = tv({
         track: 'h-1',
         thumb: 'w-3.5 h-3.5',
         mark: 'w-0.5 h-0.5',
-        valueLabel: 'text-[10px] px-1',
+        valueLabel: 'text-2xs px-1',
       },
       md: {
         controlWrapper: 'py-2 h-8',

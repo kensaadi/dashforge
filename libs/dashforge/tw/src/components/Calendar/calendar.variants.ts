@@ -13,7 +13,7 @@ export const calendarVariants = tv({
     root: 'inline-flex w-fit flex-col gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3 select-none',
     header: 'flex items-center justify-between gap-1',
     navButton:
-      'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[1rem] text-neutral-600 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40',
+      'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-base text-neutral-600 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40',
     monthLabel: 'flex-1 text-center text-sm font-semibold text-neutral-900',
     grid: 'flex flex-col gap-1 focus:outline-none',
     weekdayRow: 'grid grid-cols-7 gap-1',
@@ -39,7 +39,27 @@ export const calendarDayVariants = tv({
   base: 'flex h-9 w-9 items-center justify-center rounded-md text-sm text-neutral-900 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500',
   variants: {
     siblingMonth: {
-      true: 'text-neutral-400',
+      /*
+       * `neutral-600`, not `neutral-400`, and not `neutral-500` either.
+       *
+       * A sibling-month cell is ACTIVE: it is selectable, so its label is
+       * subject to WCAG 1.4.3, and at 14px / weight 400 the threshold is
+       * 4.5:1. Measured on the running app, `neutral-400` gave **2.42:1**
+       * in light and **2.53:1** in dark. Both fail. (The disabled cells sit
+       * at 1.23:1 and are fine: WCAG exempts the text of inactive
+       * components.)
+       *
+       * `neutral-500` is the pivot of the scale — it stays rgb(115,115,115)
+       * in both themes — so it clears light at 4.54:1 but **fails dark at
+       * 4.18:1**. `neutral-600` is the first tier that passes both:
+       * 7.49:1 light, 7.85:1 dark, while still reading clearly muted
+       * against the current month's 17:1.
+       *
+       * See README-BUG § BUG 31. Do not soften this without re-measuring
+       * BOTH themes: the neutral scale inverts, so one number proves
+       * nothing.
+       */
+      true: 'text-neutral-600',
     },
     today: {
       true: 'font-bold ring-1 ring-inset ring-primary-400',

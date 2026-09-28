@@ -18,7 +18,7 @@ describe('TextField precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins for size', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TextField: { defaults: { size: 'sm' } } },
       });
@@ -30,7 +30,7 @@ describe('TextField precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TextField: { defaults: { size: 'sm' } } },
       });
@@ -49,7 +49,7 @@ describe('TextField precedence chain — Option C (Track A)', () => {
   it('reactive: patchTheme after mount re-renders', () => {
     const { container, rerender } = render(<TextField name="a" label="A" />);
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TextField: { defaults: { fullWidth: true } } },
       });

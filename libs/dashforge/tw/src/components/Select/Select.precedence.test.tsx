@@ -18,7 +18,7 @@ import type { SelectOption } from './select.types.js';
 const OPTS: SelectOption<string>[] = [{ value: 'a', label: 'A' }];
 
 function triggerClasses(container: HTMLElement): Set<string> {
-  const btn = container.querySelector('button[role="combobox"]');
+  const btn = container.querySelector('[role="combobox"]');
   return new Set((btn?.className ?? '').split(/\s+/).filter(Boolean));
 }
 
@@ -43,7 +43,7 @@ describe('Select precedence chain — Option C', () => {
 
   it('level 2 — theme.components.Select.defaults wins over TV defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Select: { defaults: { size: 'sm', fullWidth: true } },
@@ -63,7 +63,7 @@ describe('Select precedence chain — Option C', () => {
 
   it('level 3 — instance props win over theme defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Select: { defaults: { size: 'sm' } },
@@ -102,7 +102,7 @@ describe('Select precedence chain — Option C', () => {
 
   it('theme slotProps.trigger.className merges into the trigger', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Select: {
@@ -120,7 +120,7 @@ describe('Select precedence chain — Option C', () => {
 
   it('DS-identity scenario — bare Select renders the theme.defaults size everywhere', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Select: { defaults: { size: 'sm', layout: 'inline', fullWidth: true } },

@@ -9,7 +9,11 @@ import type { ISODate } from '@dashforge/calendar-core';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
 import { calendarDayVariants, calendarVariants } from './calendar.variants.js';
-import type { CalendarProps } from './calendar.types.js';
+import type {
+  CalendarProps,
+  CalendarDayState,
+  CalendarSlotProps,
+} from './calendar.types.js';
 
 // Inline 16×16 stroke chevrons — no icon dependency (tw convention).
 function ChevronLeftIcon() {
@@ -84,6 +88,7 @@ export function Calendar(props: CalendarProps) {
     locale,
     today,
     disabled = false,
+    showSiblingDays = true,
     autoFocus = false,
     sx,
     slotProps,
@@ -169,6 +174,17 @@ export function Calendar(props: CalendarProps) {
   );
 
   const resolvedLocale = locale ?? 'en-US';
+  /**
+   * `slotProps.day` may be a flat object or a function of the cell state.
+   * Resolving it here keeps the call site in the grid readable and means
+   * the theme-level and instance-level slots go through the same path.
+   */
+  const resolveDaySlot = (
+    slot: CalendarSlotProps['day'],
+    state: CalendarDayState,
+  ): string | undefined =>
+    (typeof slot === 'function' ? slot(state) : slot)?.className;
+
   const v = calendarVariants({ disabled });
 
   return (
@@ -228,6 +244,30 @@ export function Calendar(props: CalendarProps) {
           <div key={week.key} role="row" className={v.weekRow()}>
             {week.days.map((day) => {
               const isActiveCell = day.iso === calendar.focusedDate;
+
+              // `showSiblingDays={false}` keeps the 7-column geometry with
+              // an empty cell rather than dropping the element, so the grid
+              // does not reflow and the row stays a row.
+              if (day.isSiblingMonth && !showSiblingDays) {
+                return (
+                  <span
+                    key={day.iso}
+                    role="gridcell"
+                    aria-hidden="true"
+                    className="flex"
+                  >
+                    <span className="h-9 w-9" />
+                  </span>
+                );
+              }
+
+              const dayState: CalendarDayState = {
+                siblingMonth: day.isSiblingMonth,
+                today: day.isToday,
+                selected: day.isSelected,
+                disabled: day.isDisabled,
+              };
+
               return (
                 <span key={day.iso} role="gridcell" className="flex">
                   <button
@@ -246,13 +286,9 @@ export function Calendar(props: CalendarProps) {
                       calendar.selectDate(day.iso);
                     }}
                     className={cn(
-                      calendarDayVariants({
-                        siblingMonth: day.isSiblingMonth,
-                        today: day.isToday,
-                        selected: day.isSelected,
-                        disabled: day.isDisabled,
-                      }),
-                      themeSlotProps?.day?.className, slotProps?.day?.className,
+                      calendarDayVariants(dayState),
+                      resolveDaySlot(themeSlotProps?.day, dayState),
+                      resolveDaySlot(slotProps?.day, dayState),
                     )}
                   >
                     {day.day}

@@ -38,7 +38,7 @@ describe('Drawer precedence chain — Option C', () => {
 
   it('level 2 — theme.components.Drawer.defaults wins over TV', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Drawer: { defaults: { position: 'left', size: 'lg' } },
@@ -58,7 +58,7 @@ describe('Drawer precedence chain — Option C', () => {
 
   it('level 3 — instance prop wins over theme defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Drawer: { defaults: { position: 'left' } } },
       });
@@ -98,7 +98,7 @@ describe('Drawer precedence chain — Option C', () => {
 
   it('DS-identity scenario — bare Drawer inherits full theme identity', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Drawer: {

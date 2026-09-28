@@ -10,8 +10,12 @@ export const accordionVariants = tv({
     trigger: [
       'flex flex-1 items-center justify-between py-3 text-left',
       'text-sm font-medium text-neutral-900',
-      'transition-all hover:underline',
-      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:rounded',
+      // `transition-all` covers transform-able properties, so it is
+      // motion under WCAG 2.3.3 and needs the gate. Every other
+      // `transition-transform` in the catalog has one; this was the
+      // only movement left ungated.
+      'transition-all hover:underline motion-reduce:transition-none',
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:rounded-sm',
       '[&[data-state=open]>svg]:rotate-180',
       'disabled:opacity-50 disabled:pointer-events-none',
       'motion-reduce:transition-none',

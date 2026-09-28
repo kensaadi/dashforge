@@ -99,7 +99,7 @@ function pctOf(value: number, min: number, max: number): number {
  *
  * See {@link SliderProps} for the full API surface.
  */
-export const Slider = forwardRef<HTMLSpanElement, SliderProps>(function Slider(
+export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
   rawProps,
   ref,
 ) {
@@ -374,7 +374,7 @@ export const Slider = forwardRef<HTMLSpanElement, SliderProps>(function Slider(
   };
 
   return (
-    <div className={rootClasses} data-testid={testId}>
+    <div ref={ref} className={rootClasses} data-testid={testId}>
       {label != null && (
         <label htmlFor={controlId} className={labelClasses}>
           {label}

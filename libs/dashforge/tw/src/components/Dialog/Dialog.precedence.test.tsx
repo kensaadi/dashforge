@@ -23,7 +23,7 @@ describe('Dialog precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (size=lg)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Dialog: { defaults: { size: 'lg' } } },
       });
@@ -39,7 +39,7 @@ describe('Dialog precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Dialog: { defaults: { size: 'lg' } } },
       });
@@ -65,7 +65,7 @@ describe('Dialog precedence chain — Option C (Track A)', () => {
 
   it('theme showCloseButton=false hides the close button', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Dialog: { defaults: { showCloseButton: false } } },
       });
@@ -111,7 +111,7 @@ describe('Dialog precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Dialog: { defaults: { size: 'lg' } } },
       });

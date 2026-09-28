@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import * as React from 'react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
 import { RbacProvider } from '@dashforge/rbac';
 import type { RbacPolicy, Subject } from '@dashforge/rbac';
 import {

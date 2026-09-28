@@ -23,7 +23,7 @@ describe('Popover precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (side=top)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Popover: { defaults: { side: 'top' } } },
       });
@@ -39,7 +39,7 @@ describe('Popover precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Popover: { defaults: { side: 'top' } } },
       });
@@ -55,7 +55,7 @@ describe('Popover precedence chain — Option C (Track A)', () => {
 
   it('theme align override applies (start)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Popover: { defaults: { align: 'start' } } },
       });
@@ -85,7 +85,7 @@ describe('Popover precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Popover: {

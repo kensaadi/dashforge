@@ -36,7 +36,7 @@ describe('Link precedence chain — Option C', () => {
 
   it('level 2 — theme.components.Link.defaults wins over TV defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Link: {
@@ -64,7 +64,7 @@ describe('Link precedence chain — Option C', () => {
 
   it('level 3 — instance props win over theme defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Link: { defaults: { color: 'secondary', size: 'sm' } },
@@ -96,7 +96,7 @@ describe('Link precedence chain — Option C', () => {
   it('DS identity scenario — bare <Link>text</Link> renders the DS default set', () => {
     // Simulates a design system that fixes Link identity in the theme.
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Link: {
@@ -121,7 +121,7 @@ describe('Link precedence chain — Option C', () => {
 
   it('theme slotProps.root.className merges with variant classes', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Link: {
@@ -139,7 +139,7 @@ describe('Link precedence chain — Option C', () => {
 
   it('instance slotProps.root.className wins over theme slotProps', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Link: { slotProps: { root: { className: 'tracking-wide' } } },

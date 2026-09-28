@@ -18,7 +18,7 @@ describe('Alert precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (variant=outlined)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Alert: { defaults: { variant: 'outlined' } } },
       });
@@ -31,7 +31,7 @@ describe('Alert precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Alert: { defaults: { variant: 'filled' } } },
       });
@@ -47,7 +47,7 @@ describe('Alert precedence chain — Option C (Track A)', () => {
 
   it('theme density affects rendered variant classes', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Alert: { defaults: { density: 'compact' } } },
       });
@@ -71,7 +71,7 @@ describe('Alert precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Alert: { defaults: { variant: 'filled', density: 'compact' } } },
       });

@@ -18,7 +18,7 @@ describe('Calendar precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme weekStartDay=1 (Monday) applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Calendar: { defaults: { weekStartDay: 1 } } },
       });
@@ -29,7 +29,7 @@ describe('Calendar precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Calendar: { defaults: { weekStartDay: 1 } } },
       });
@@ -45,7 +45,7 @@ describe('Calendar precedence chain — Option C (Track A)', () => {
 
   it('theme locale override applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Calendar: { defaults: { locale: 'fr-FR' } } },
       });

@@ -60,7 +60,7 @@ export const alertVariants = tv({
      */
     density: {
       comfortable: { root: 'px-4 py-3' },
-      compact: { root: 'px-3 py-2 text-[13px]' },
+      compact: { root: 'px-3 py-2 text-xs' },
     },
   },
   defaultVariants: {

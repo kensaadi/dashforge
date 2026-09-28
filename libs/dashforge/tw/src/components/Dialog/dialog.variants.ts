@@ -45,7 +45,11 @@ export const dialogVariants = tv({
       'absolute top-4 right-4 inline-flex items-center justify-center',
       'h-8 w-8 rounded-md text-neutral-500 hover:text-neutral-900',
       'hover:bg-neutral-100',
-      'focus:outline-none focus:ring-2 focus:ring-primary-500',
+      // `focus-visible:`, not `focus:` — Radix moves focus into the panel
+      // on open and this button is the first focusable thing in it, so a
+      // plain `focus:ring` painted a ring on every mouse-opened dialog.
+      // BUG 28. Matches the catalog's dominant form (9 other slots).
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
       'transition-colors',
     ],
     body: 'flex-1 overflow-y-auto',

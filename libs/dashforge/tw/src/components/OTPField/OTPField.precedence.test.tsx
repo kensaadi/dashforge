@@ -18,7 +18,7 @@ describe('OTPField precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { OTPField: { defaults: { size: 'lg' } } },
       });
@@ -29,7 +29,7 @@ describe('OTPField precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { OTPField: { defaults: { size: 'lg' } } },
       });

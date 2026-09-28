@@ -28,7 +28,7 @@ describe('TimePicker precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (hour12=true)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TimePicker: { defaults: { hour12: true } } },
       });
@@ -39,7 +39,7 @@ describe('TimePicker precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TimePicker: { defaults: { hour12: true } } },
       });
@@ -55,7 +55,7 @@ describe('TimePicker precedence chain — Option C (Track A)', () => {
 
   it('theme stepMinutes override applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TimePicker: { defaults: { stepMinutes: 15 } } },
       });

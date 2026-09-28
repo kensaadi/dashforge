@@ -35,7 +35,7 @@ export const linkVariants = tv({
     'inline-flex items-center gap-1',
     // Anchor semantics — cursor + focus-visible ring using primary token.
     'cursor-pointer',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:rounded',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:rounded-sm',
     // Motion-reduce safe transition on color / decoration.
     'transition-colors',
     'motion-reduce:transition-none',

@@ -133,7 +133,7 @@ export function ColumnFilterTrigger(props: ColumnFilterTriggerProps) {
         aria-pressed={active}
         disabled={disabled}
         className={cn(
-          'inline-flex items-center justify-center h-6 w-6 rounded',
+          'inline-flex items-center justify-center h-6 w-6 rounded-md',
           'text-neutral-500 hover:text-neutral-900',
           active && 'text-primary-700',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',

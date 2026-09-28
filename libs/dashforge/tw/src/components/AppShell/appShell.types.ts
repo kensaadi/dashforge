@@ -51,6 +51,14 @@ export interface AppShellProps extends AppShellVariants {
 declare module '@dashforge/tw-tokens' {
   interface TWComponentDefaults {
     AppShell?: {
+      /**
+       * Theme-level variant defaults, same shape as every other component
+       * in the catalog. AppShell carried only `slotProps` until the
+       * `layout` axis landed (BUG 27), at which point the new axis could
+       * be set per instance but not once for the app, which is backwards
+       * for a shell.
+       */
+      defaults?: Partial<AppShellVariants>;
       slotProps?: AppShellSlotProps;
     };
   }

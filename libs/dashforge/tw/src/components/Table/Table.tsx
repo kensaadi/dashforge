@@ -632,7 +632,7 @@ function Row<T extends object>(props: {
               aria-expanded={isExpanded}
               disabled={!isInteractive}
               className={cn(
-                'inline-flex items-center justify-center h-6 w-6 rounded',
+                'inline-flex items-center justify-center h-6 w-6 rounded-md',
                 // text-neutral-500 + hover bump; both auto-invert via CSS-var preset.
                 'text-neutral-500 hover:text-neutral-900',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',

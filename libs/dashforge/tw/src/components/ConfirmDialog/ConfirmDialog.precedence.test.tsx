@@ -36,7 +36,7 @@ describe('ConfirmDialogProvider precedence chain — Option C (Track A)', () => 
 
   it('level 2 — theme severity override wins (danger)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { ConfirmDialog: { defaults: { severity: 'danger' } } },
       });
@@ -51,7 +51,7 @@ describe('ConfirmDialogProvider precedence chain — Option C (Track A)', () => 
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { ConfirmDialog: { defaults: { severity: 'danger' } } },
       });
@@ -66,7 +66,7 @@ describe('ConfirmDialogProvider precedence chain — Option C (Track A)', () => 
 
   it('theme invocationDefaults merge under provider defaults (provider wins)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           ConfirmDialog: {

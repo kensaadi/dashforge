@@ -27,7 +27,7 @@ describe('Container precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins for size', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Container: { defaults: { size: 'lg' } } },
       });
@@ -39,7 +39,7 @@ describe('Container precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme override', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Container: { defaults: { size: 'lg' } } },
       });
@@ -60,7 +60,7 @@ describe('Container precedence chain — Option C (Track A)', () => {
     const { getByTestId, rerender } = render(<Container data-testid="c">child</Container>);
     expect(classesOf(getByTestId('c')).has('max-w-screen-xl')).toBe(true);
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Container: { defaults: { size: 'md' } } },
       });
@@ -71,7 +71,7 @@ describe('Container precedence chain — Option C (Track A)', () => {
 
   it('no leak: variant axes never spread onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Container: { defaults: { size: 'lg' } } },
       });

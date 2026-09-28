@@ -24,7 +24,7 @@ describe('<Select>', () => {
 
     it('applies size + layout defaults (md + stacked)', () => {
       const { container } = render(<Select name="x" options={VARIANT_OPTIONS} />);
-      const trigger = container.querySelector('button[role="combobox"]');
+      const trigger = container.querySelector('[role="combobox"]');
       const cls = trigger?.className ?? '';
       expect(cls).toContain('h-10');   // size md
       expect(cls).toContain('text-base');
@@ -221,7 +221,11 @@ describe('<Select>', () => {
     it('disabled trigger blocks click open', () => {
       render(<Select name="x" options={VARIANT_OPTIONS} disabled />);
       const trigger = screen.getByRole('combobox');
-      expect((trigger as HTMLButtonElement).disabled).toBe(true);
+      // `aria-disabled`, not the native `.disabled` — the trigger is a
+      // `<div role="combobox">` since BUG 23, so the a11y attribute is the
+      // signal. What actually blocks opening is `handleOpenChange`, which
+      // returns early while disabled; the assertion below is the real one.
+      expect(trigger.getAttribute('aria-disabled')).toBe('true');
       fireEvent.click(trigger);
       expect(screen.queryByRole('listbox')).toBeNull();
     });
@@ -230,7 +234,7 @@ describe('<Select>', () => {
       const { container } = render(
         <Select name="x" options={VARIANT_OPTIONS} error helperText="Required" />,
       );
-      const trigger = container.querySelector('button[role="combobox"]') as HTMLElement;
+      const trigger = container.querySelector('[role="combobox"]') as HTMLElement;
       expect(trigger.getAttribute('aria-invalid')).toBe('true');
       expect(trigger.className).toContain('border-danger-500');
     });
@@ -242,7 +246,7 @@ describe('<Select>', () => {
       const { container } = render(
         <Select name="x" options={VARIANT_OPTIONS} sx="tracking-wide" />,
       );
-      const trigger = container.querySelector('button[role="combobox"]');
+      const trigger = container.querySelector('[role="combobox"]');
       expect(trigger?.className).toContain('tracking-wide');
     });
 
@@ -254,7 +258,7 @@ describe('<Select>', () => {
           slotProps={{ trigger: { className: 'w-40' } }}
         />,
       );
-      const trigger = container.querySelector('button[role="combobox"]');
+      const trigger = container.querySelector('[role="combobox"]');
       expect(trigger?.className).toContain('w-40');
     });
   });

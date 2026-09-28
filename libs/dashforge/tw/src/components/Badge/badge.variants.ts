@@ -40,7 +40,7 @@ export const badgeVariants = tv({
       // dimensions below.
       'inline-flex items-center justify-center',
       'rounded-full',
-      'text-[10px] font-medium leading-none',
+      'text-2xs font-medium leading-none',
       'pointer-events-none select-none',
       // Smooth show/hide for `invisible` toggle (consumer-side
       // animation hook). Gated on motion-reduce per WCAG 2.3.3.

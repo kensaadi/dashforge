@@ -73,20 +73,24 @@ const FOCUSABLE_SELECTOR = [
  */
 export function AppShell(props: AppShellProps) {
   const themeDefaults = useComponentDefaults('AppShell');
+  // Instance props win over the theme, same precedence as every other
+  // component that supports `theme.components.<Name>.defaults`.
+  const merged: AppShellProps = { ...themeDefaults?.defaults, ...props };
   const {
     header,
     nav,
     footer,
     children,
+    layout = 'viewport',
     navOpen = false,
     onNavOpenChange,
     sx,
     slotProps,
-  } = props;
+  } = merged;
   // Theme-level slotProps (Option C Track B).
   const themeSlotProps = themeDefaults?.slotProps;
 
-  const v = appShellVariants({ navOpen });
+  const v = appShellVariants({ layout, navOpen });
 
   // Lock body scroll while the mobile drawer is open.
   useEffect(() => {

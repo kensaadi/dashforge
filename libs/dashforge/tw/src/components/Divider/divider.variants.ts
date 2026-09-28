@@ -67,7 +67,16 @@ export type DividerVariants = VariantProps<typeof dividerVariants>;
  * border-* color token to the intent.
  *
  * The `segment` axis distinguishes whether this is a line-only render
- * (full width) vs a labeled-mode segment (flex-1 grows to share space).
+ * (spans its own main axis) vs a labeled-mode segment (flex-1 grows to
+ * share space).
+ *
+ * `full` means "span the divider's OWN main axis", which is the width
+ * for a horizontal rule and the HEIGHT for a vertical one. It is
+ * therefore orientation-dependent and lives in `compoundVariants`, not
+ * on the plain axis. See README-BUG § BUG 25: an unconditional
+ * `w-full` here fought the `w-0` from the orientation axis, tailwind-
+ * merge kept the later `w-full`, and every vertical line-only divider
+ * came out as a full-width bar with a left border.
  */
 export const dividerLineVariants = tv({
   base: '',
@@ -75,6 +84,14 @@ export const dividerLineVariants = tv({
   variants: {
     orientation: {
       horizontal: 'h-0 border-t',
+      /*
+       * `w-0` does double duty and must NOT be dropped:
+       *   - in a `flex-row` parent it is the main-axis size, so the
+       *     visible width is exactly the 1px `border-l`;
+       *   - in a `flex-col` parent (labeled vertical mode) it is the
+       *     CROSS size, and being definite it stops `self-stretch` from
+       *     stretching the rule to the full width.
+       */
       vertical:   'w-0 border-l self-stretch',
     },
 
@@ -96,14 +113,48 @@ export const dividerLineVariants = tv({
     },
 
     /*
-     * `segment` controls whether the line spans full width (line-only
-     * mode) or grows to fill space (labeled-mode flex segment).
+     * `segment` controls whether the line spans its own main axis
+     * (line-only mode) or grows to fill space (labeled-mode flex
+     * segment).
+     *
+     * `full` is empty here on purpose: what "full" resolves to depends
+     * on the orientation, so it is emitted from `compoundVariants`.
+     * `grow` is genuinely orientation-agnostic — `flex-1` grows along
+     * whichever main axis the parent sets — so it stays on the axis.
      */
     segment: {
-      full:  'w-full',
+      full:  '',
       grow:  'flex-1',
     },
   },
+
+  compoundVariants: [
+    /*
+     * Horizontal: `w-full` is load-bearing. A block child does NOT fill
+     * the width once it is a flex item, which is exactly the toolbar
+     * case, so the rule would collapse without this.
+     */
+    { orientation: 'horizontal', segment: 'full', class: 'w-full' },
+
+    /*
+     * Vertical: deliberately NOTHING.
+     *
+     * The span is already handled by `self-stretch` on the orientation
+     * axis, which is what `divider.types.ts` promises in the public
+     * JSDoc for `flexItem` ("already applied on the vertical line
+     * segment by default in the TV").
+     *
+     * Measured in Chrome, `flex-row` with a button either side:
+     *   w-0 border-l self-stretch           -> 1px wide, 32px tall  ✓
+     *   w-0 border-l self-stretch h-full    -> 1px wide, 0px tall   ✗
+     *
+     * `align-self: stretch` only applies while the cross size is
+     * `auto`, so adding a definite `h-full` SUPPRESSES the stretch and
+     * then resolves the percentage to zero against an auto-height flex
+     * parent. An `h-full` here would trade a full-width bar for an
+     * invisible divider. See README-BUG § BUG 25.
+     */
+  ],
 
   defaultVariants: {
     orientation: 'horizontal',

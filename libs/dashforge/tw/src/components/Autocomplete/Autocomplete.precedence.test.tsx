@@ -23,7 +23,7 @@ describe('Autocomplete precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (fullWidth)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Autocomplete: { defaults: { fullWidth: true } } },
       });
@@ -34,7 +34,7 @@ describe('Autocomplete precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Autocomplete: { defaults: { size: 'lg' } } },
       });
@@ -52,7 +52,7 @@ describe('Autocomplete precedence chain — Option C (Track A)', () => {
 
   it('partial theme merge — size only, other axes fall through', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Autocomplete: { defaults: { size: 'lg' } } },
       });
@@ -63,7 +63,7 @@ describe('Autocomplete precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Autocomplete: {

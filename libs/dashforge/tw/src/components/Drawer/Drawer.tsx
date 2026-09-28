@@ -196,7 +196,7 @@ export function Drawer(props: DrawerProps) {
     if (hasWarnedRef.current) return;
     if (process.env.NODE_ENV === 'production') return;
     hasWarnedRef.current = true;
-    // eslint-disable-next-line no-console -- dev-only, guarded above.
+     
     console.warn(
       '[@dashforge/tw] <Drawer resize> was used without a `resizeKey`. ' +
         'The resized dimension will not persist across sessions. Pass a ' +

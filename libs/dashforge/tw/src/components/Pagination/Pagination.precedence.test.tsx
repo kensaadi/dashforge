@@ -26,7 +26,7 @@ describe('Pagination precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme variant override wins (compact)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Pagination: { defaults: { variant: 'compact' } } },
       });
@@ -38,7 +38,7 @@ describe('Pagination precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Pagination: { defaults: { variant: 'compact' } } },
       });
@@ -54,7 +54,7 @@ describe('Pagination precedence chain — Option C (Track A)', () => {
 
   it('theme size override applies (lg)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Pagination: { defaults: { size: 'lg' } } },
       });
@@ -65,7 +65,7 @@ describe('Pagination precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Pagination: { defaults: { variant: 'compact', size: 'lg' } } },
       });

@@ -22,7 +22,7 @@ describe('DataGrid precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override renders (variant=zebra)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DataGrid: { defaults: { variant: 'zebra' } } },
       });
@@ -33,7 +33,7 @@ describe('DataGrid precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DataGrid: { defaults: { variant: 'zebra' } } },
       });
@@ -44,7 +44,7 @@ describe('DataGrid precedence chain — Option C (Track A)', () => {
 
   it('theme size/density override applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           DataGrid: { defaults: { size: 'lg', density: 'spacious' } },
@@ -69,7 +69,7 @@ describe('DataGrid precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           DataGrid: { defaults: { variant: 'zebra', size: 'lg', density: 'compact' } },

@@ -29,7 +29,7 @@ describe('Menu precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (modal=true)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Menu: { defaults: { modal: true } } },
       });
@@ -40,7 +40,7 @@ describe('Menu precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Menu: { defaults: { modal: true } } },
       });
@@ -60,7 +60,7 @@ describe('Menu precedence chain — Option C (Track A)', () => {
 
   it('theme closeOnItemClick=false propagates via context', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Menu: { defaults: { closeOnItemClick: false } } },
       });
@@ -71,7 +71,7 @@ describe('Menu precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Menu: { defaults: { modal: true, closeOnItemClick: false } },

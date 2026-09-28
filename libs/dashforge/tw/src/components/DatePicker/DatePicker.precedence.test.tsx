@@ -28,7 +28,7 @@ describe('DatePicker precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme layout override wins (inline)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DatePicker: { defaults: { layout: 'inline' } } },
       });
@@ -39,7 +39,7 @@ describe('DatePicker precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DatePicker: { defaults: { layout: 'inline' } } },
       });
@@ -57,7 +57,7 @@ describe('DatePicker precedence chain — Option C (Track A)', () => {
 
   it('theme fullWidth applies', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { DatePicker: { defaults: { fullWidth: true } } },
       });

@@ -23,7 +23,22 @@ import { tv, type VariantProps } from 'tailwind-variants';
  */
 export const radioGroupVariants = tv({
   slots: {
-    root: 'flex flex-col gap-1.5',
+    /*
+     * `relative` is load-bearing, not cosmetic. Radix renders a hidden
+     * native input for form participation with inline
+     * `position: absolute; opacity: 0; transform: translateX(-100%)`.
+     * Without a positioned ancestor it anchors to the BODY, so it escapes
+     * any `overflow: hidden` ancestor and extends the document's
+     * scrollable area down to wherever the field happens to sit.
+     *
+     * Measured on `learn/dash` with a checkbox ~1870px down the page:
+     * `document.documentElement.scrollHeight` 1891 against a 768px
+     * viewport, and the window scrolled 800px inside an AppShell that had
+     * just been given `h-dvh overflow-hidden`. Adding this one declaration
+     * dropped scrollHeight to 768 and the window scroll to 0.
+     * See README-BUG § BUG 36.
+     */
+    root: 'relative flex flex-col gap-1.5',
     label: 'block text-sm font-medium text-neutral-900',
     requiredMark: 'text-danger-500 ml-0.5',
     optionList: 'flex gap-3',

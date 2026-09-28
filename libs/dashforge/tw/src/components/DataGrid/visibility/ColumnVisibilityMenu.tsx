@@ -128,7 +128,7 @@ export function ColumnVisibilityTrigger<T extends object>(
                 typeof col.header === 'function' ? col.header() : col.header;
               return (
                 <li key={field}>
-                  <label className="flex items-center gap-2 cursor-pointer py-1 px-1 rounded hover:bg-neutral-100">
+                  <label className="flex items-center gap-2 cursor-pointer py-1 px-1 rounded-md hover:bg-neutral-100">
                     <input
                       type="checkbox"
                       checked={!hidden}

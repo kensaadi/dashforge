@@ -75,7 +75,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
       process.env.NODE_ENV !== 'production' &&
       (startIcon != null || endIcon != null)
     ) {
-      // eslint-disable-next-line no-console -- dev-only nudge.
+       
       console.warn(
         '[@dashforge/tw] <Link asChild> ignores startIcon / endIcon — the ' +
           'child element renders its own content. Move the icons inside the ' +

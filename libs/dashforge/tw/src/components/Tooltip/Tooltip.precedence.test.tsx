@@ -38,7 +38,7 @@ describe('Tooltip precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override renders tooltip (side=bottom)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Tooltip: { defaults: { side: 'bottom' } } },
       });
@@ -55,7 +55,7 @@ describe('Tooltip precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme (renders)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Tooltip: { defaults: { side: 'bottom' } } },
       });
@@ -70,7 +70,7 @@ describe('Tooltip precedence chain — Option C (Track A)', () => {
 
   it('theme align override applies (renders)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Tooltip: { defaults: { align: 'end' } } },
       });
@@ -85,7 +85,7 @@ describe('Tooltip precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Tooltip: {

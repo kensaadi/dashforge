@@ -18,7 +18,7 @@ describe('Checkbox precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Checkbox: { defaults: { size: 'lg' } } },
       });
@@ -29,7 +29,7 @@ describe('Checkbox precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Checkbox: { defaults: { size: 'lg' } } },
       });
@@ -45,7 +45,7 @@ describe('Checkbox precedence chain — Option C (Track A)', () => {
 
   it('no size axis leaks onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Checkbox: { defaults: { size: 'lg' } } },
       });

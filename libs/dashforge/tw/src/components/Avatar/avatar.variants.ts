@@ -39,7 +39,7 @@ export const avatarVariants = tv({
   variants: {
     size: {
       xs: {
-        root: 'w-5 h-5 text-[10px]',
+        root: 'w-5 h-5 text-2xs',
         initials: '',
       },
       sm: {

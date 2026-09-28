@@ -26,7 +26,7 @@ describe('Typography precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Typography: { defaults: { variant: 'h1', weight: 'bold' } } },
       });
@@ -38,7 +38,7 @@ describe('Typography precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme override', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Typography: { defaults: { variant: 'h1' } } },
       });
@@ -58,7 +58,7 @@ describe('Typography precedence chain — Option C (Track A)', () => {
     const { getByText, rerender } = render(<Typography>hi</Typography>);
     expect(classesOf(getByText('hi')).has('text-base')).toBe(true);
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Typography: { defaults: { variant: 'h3' } } },
       });
