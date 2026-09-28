@@ -84,6 +84,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     size,
     fullWidth,
     loading,
+    pressed,
     asChild,
     sx,
     children,
@@ -110,7 +111,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     Boolean(disabled) || accessState.disabled || accessState.readonly || Boolean(loading);
 
   const classes = cn(
-    buttonVariants({ variant, color, size, fullWidth, loading }),
+    buttonVariants({ variant, color, size, fullWidth, loading, pressed }),
     sx
   );
 
@@ -133,6 +134,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         data-disabled={effectiveDisabled || undefined}
         aria-disabled={effectiveDisabled || undefined}
         aria-busy={ariaBusy}
+        aria-pressed={pressed}
       >
         {children}
       </Slot>
@@ -145,6 +147,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={rest.type ?? 'button'}
       disabled={effectiveDisabled}
       aria-busy={ariaBusy}
+      aria-pressed={pressed}
       className={classes}
       {...rest}
     >

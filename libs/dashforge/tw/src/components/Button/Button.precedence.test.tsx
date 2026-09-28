@@ -53,7 +53,7 @@ describe('Button precedence chain — Option C (Track A)', () => {
   it('level 2 — theme override wins over defaultVariants', () => {
     act(() => {
       // Consumer sets a global Button default: solid → outline, primary → danger.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Button: {
@@ -78,7 +78,7 @@ describe('Button precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme override', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Button: {
@@ -120,7 +120,7 @@ describe('Button precedence chain — Option C (Track A)', () => {
     // Theme only sets `size`; variant + color + fullWidth + loading
     // must still come from TV defaults.
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Button: {
@@ -146,7 +146,7 @@ describe('Button precedence chain — Option C (Track A)', () => {
     expect(before.has('bg-primary-500')).toBe(true);
 
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Button: {
@@ -170,7 +170,7 @@ describe('Button precedence chain — Option C (Track A)', () => {
     // the current behavior: theme with only variant axes never
     // pollutes the DOM with non-standard attributes.
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Button: {

@@ -15,7 +15,7 @@ import type { BoxVariants } from './box.variants.js';
  */
 export type BoxVariantProps = Pick<
   BoxVariants,
-  'variant' | 'color' | 'elevation' | 'rounded' | 'fullWidth' | 'fullHeight'
+  'variant' | 'color' | 'elevation' | 'rounded' | 'borderStyle' | 'fullWidth' | 'fullHeight'
 >;
 
 declare module '@dashforge/tw-tokens' {
@@ -76,6 +76,25 @@ export interface BoxProps
    * Border-radius identity.
    * @default 'none'
    */
+  /**
+   * Border style, for wireframe and placeholder surfaces (a dashed drop
+   * target, a dotted "empty state" frame).
+   *
+   * Only renders where a border-width already exists: pair it with
+   * `variant="outlined"`, which sets one. On `plain` / `elevated` there
+   * is no border for the style to apply to.
+   *
+   * @default undefined (Tailwind's own `solid` applies)
+   *
+   * @example
+   * ```tsx
+   * <Box variant="outlined" borderStyle="dashed" rounded="lg" p={4}>
+   *   Drop a file here
+   * </Box>
+   * ```
+   */
+  borderStyle?: BoxVariants['borderStyle'];
+
   rounded?: BoxVariants['rounded'];
 
   /** Uniform padding — spacing token step. */

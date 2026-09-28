@@ -25,7 +25,7 @@ describe('Chip precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Chip: { defaults: { color: 'danger', variant: 'solid' } } },
       });
@@ -38,7 +38,7 @@ describe('Chip precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Chip: { defaults: { color: 'danger' } } },
       });
@@ -59,7 +59,7 @@ describe('Chip precedence chain — Option C (Track A)', () => {
     const { getByText, rerender } = render(<Chip label="c" variant="solid" />);
     expect(getByText('c')).toBeDefined();
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Chip: { defaults: { color: 'warning', variant: 'solid' } } },
       });

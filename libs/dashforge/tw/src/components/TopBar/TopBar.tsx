@@ -1,7 +1,8 @@
+import { forwardRef } from 'react';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
-import { topBarVariants } from './topBar.variants.js';
-import type { TopBarProps } from './topBar.types.js';
+import { topBarVariants, topBarBrandVariants } from './topBar.variants.js';
+import type { TopBarProps, TopBarBrandProps } from './topBar.types.js';
 
 /**
  * Dashforge TW TopBar — sticky header with 3 named slots.
@@ -68,3 +69,48 @@ export function TopBar(props: TopBarProps) {
     </Tag>
   );
 }
+
+/**
+ * `<TopBarBrand>` — the mark-plus-text block for a `<TopBar>`'s `start`
+ * slot.
+ *
+ * ```tsx
+ * <TopBar
+ *   start={<TopBarBrand logo={<Logo />} title="Dashforge" subtitle="src/App.tsx" />}
+ *   end={<UserMenu />}
+ * />
+ * ```
+ *
+ * See {@link TopBarBrandProps} for why it is a sibling export rather than
+ * `TopBar.Brand`, and why it stays layout-only.
+ */
+export const TopBarBrand = forwardRef<HTMLDivElement, TopBarBrandProps>(
+  function TopBarBrand({ logo, title, subtitle, sx, slotProps }, ref) {
+    const v = topBarBrandVariants();
+
+    return (
+      <div
+        ref={ref}
+        className={cn(v.root(), slotProps?.root?.className, sx)}
+      >
+        {logo != null && (
+          <span className={cn(v.logo(), slotProps?.logo?.className)}>
+            {logo}
+          </span>
+        )}
+        <span className={cn(v.text(), slotProps?.text?.className)}>
+          <span className={cn(v.title(), slotProps?.title?.className)}>
+            {title}
+          </span>
+          {subtitle != null && (
+            <span className={cn(v.subtitle(), slotProps?.subtitle?.className)}>
+              {subtitle}
+            </span>
+          )}
+        </span>
+      </div>
+    );
+  }
+);
+
+TopBarBrand.displayName = 'TopBarBrand';

@@ -54,6 +54,13 @@ export const buttonVariants = tv({
       success: '',
       warning: '',
       danger: '',
+      /**
+       * For a surface that is dark regardless of the theme: a dark hero,
+       * an ink footer, an inverted panel. Reads the theme-invariant
+       * `inverse` token role, so it does NOT flip with light/dark the way
+       * a `neutral`-based treatment would. See kensaadi/dashforge#140.
+       */
+      inverse: '',
     },
     size: {
       sm: 'h-8 px-3 text-sm',
@@ -65,6 +72,20 @@ export const buttonVariants = tv({
     },
     loading: {
       true: 'cursor-wait',
+    },
+
+    /**
+     * Toggle state. Styling lives in `compoundVariants` because "on" reads
+     * differently on a filled button than on a quiet one: the quiet
+     * variants gain a surface, `solid` deepens the one it already has.
+     *
+     * The treatment is not invented. It is LeftNav's `itemActive`
+     * (`bg-*-100 text-*-900 font-medium`), the catalog's existing way of
+     * saying "this is the current thing". kensaadi/dashforge#63 gap C.
+     */
+    pressed: {
+      true: '',
+      false: '',
     },
   },
   compoundVariants: [
@@ -152,6 +173,104 @@ export const buttonVariants = tv({
     { variant: 'link', color: 'success', class: 'text-success-700 hover:text-success-800' },
     { variant: 'link', color: 'warning', class: 'text-warning-700 hover:text-warning-800' },
     { variant: 'link', color: 'danger', class: 'text-danger-700 hover:text-danger-800' },
+
+    // ───── × inverse ─────
+    //
+    // `focus-visible:ring-offset-transparent` on every row is load-bearing.
+    // The base sets `focus-visible:ring-offset-2`, and neither the preset
+    // nor the base declares a ring-offset COLOUR, so it falls through to
+    // Tailwind v4's default of `#fff`. On a dark surface that paints a
+    // white halo around the button the moment it takes keyboard focus.
+    {
+      variant: 'solid',
+      color: 'inverse',
+      class:
+        'bg-inverse-50 text-inverse-900 hover:bg-inverse-200 active:bg-inverse-300 ' +
+        'focus-visible:ring-inverse-50 focus-visible:ring-offset-transparent',
+    },
+    {
+      variant: 'outline',
+      color: 'inverse',
+      class:
+        'border-inverse-50/40 text-inverse-50 hover:bg-inverse-50/10 ' +
+        'focus-visible:ring-inverse-50 focus-visible:ring-offset-transparent',
+    },
+    {
+      variant: 'ghost',
+      color: 'inverse',
+      class:
+        'text-inverse-50 hover:bg-inverse-50/10 ' +
+        'focus-visible:ring-inverse-50 focus-visible:ring-offset-transparent',
+    },
+    {
+      variant: 'link',
+      color: 'inverse',
+      class: 'text-inverse-50 hover:text-inverse-200',
+    },
+
+    // ───── pressed × color, on the quiet variants ─────
+    //
+    // `outline` and `ghost` have no surface of their own, so an "on" toggle
+    // gains one. Shape borrowed from LeftNav's `itemActive` rather than
+    // invented, so a pressed Button and an active nav row read the same.
+    {
+      variant: ['outline', 'ghost'],
+      pressed: true,
+      color: 'primary',
+      class: 'bg-primary-100 text-primary-900 font-medium hover:bg-primary-200',
+    },
+    {
+      variant: ['outline', 'ghost'],
+      pressed: true,
+      color: 'secondary',
+      class: 'bg-secondary-100 text-secondary-900 font-medium hover:bg-secondary-200',
+    },
+    {
+      variant: ['outline', 'ghost'],
+      pressed: true,
+      color: 'success',
+      class: 'bg-success-100 text-success-900 font-medium hover:bg-success-200',
+    },
+    {
+      variant: ['outline', 'ghost'],
+      pressed: true,
+      color: 'warning',
+      class: 'bg-warning-100 text-warning-900 font-medium hover:bg-warning-200',
+    },
+    {
+      variant: ['outline', 'ghost'],
+      pressed: true,
+      color: 'danger',
+      class: 'bg-danger-100 text-danger-900 font-medium hover:bg-danger-200',
+    },
+    {
+      // `inverse` keeps its own idiom: a wash over the dark surface rather
+      // than a tint from a scale that does not follow the theme. The hover
+      // rows above use `/10`, so "on" sits one step up at `/20`.
+      variant: ['outline', 'ghost'],
+      pressed: true,
+      color: 'inverse',
+      class:
+        'bg-inverse-50/20 text-inverse-50 font-medium hover:bg-inverse-50/25 ' +
+        'focus-visible:ring-offset-transparent',
+    },
+
+    // ───── pressed × color, on solid ─────
+    //
+    // Already filled, so "on" deepens instead of tinting: it reuses each
+    // row's own `active:` tier, the shade that already means "being pressed
+    // right now".
+    { variant: 'solid', pressed: true, color: 'primary', class: 'bg-primary-700 hover:bg-primary-800' },
+    { variant: 'solid', pressed: true, color: 'secondary', class: 'bg-secondary-700 hover:bg-secondary-800' },
+    { variant: 'solid', pressed: true, color: 'success', class: 'bg-success-700 hover:bg-success-800' },
+    { variant: 'solid', pressed: true, color: 'warning', class: 'bg-warning-700 hover:bg-warning-800' },
+    { variant: 'solid', pressed: true, color: 'danger', class: 'bg-danger-700 hover:bg-danger-800' },
+    { variant: 'solid', pressed: true, color: 'inverse', class: 'bg-inverse-300 hover:bg-inverse-400' },
+
+    // `link` gets no pressed treatment on purpose: a link that is also a
+    // toggle is a shape worth questioning, and a background behind inline
+    // text would fight the underline. `aria-pressed` is still emitted, so
+    // the state is announced even where nothing is painted.
   ],
   defaultVariants: {
     variant: 'solid',

@@ -27,7 +27,7 @@ describe('Stack precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins over defaultVariants', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Stack: { defaults: { direction: 'row', gap: 4 } } },
       });
@@ -40,7 +40,7 @@ describe('Stack precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme override', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Stack: { defaults: { direction: 'row' } } },
       });
@@ -60,7 +60,7 @@ describe('Stack precedence chain — Option C (Track A)', () => {
 
   it('theme partial override falls through to TV for unset fields', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Stack: { defaults: { gap: 4 } } },
       });
@@ -75,7 +75,7 @@ describe('Stack precedence chain — Option C (Track A)', () => {
     const { getByTestId, rerender } = render(<Stack data-testid="s"><div /></Stack>);
     expect(classesOf(getByTestId('s')).has('flex-col')).toBe(true);
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Stack: { defaults: { direction: 'row' } } },
       });
@@ -86,7 +86,7 @@ describe('Stack precedence chain — Option C (Track A)', () => {
 
   it('no leak: theme variant axes never spread onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Stack: { defaults: { direction: 'row' } } },
       });

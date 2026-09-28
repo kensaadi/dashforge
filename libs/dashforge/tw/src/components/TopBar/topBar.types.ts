@@ -68,3 +68,68 @@ export interface TopBarProps {
   /** Children render between `start` and `end` when no `center` is set. */
   children?: ReactNode;
 }
+
+/** Per-slot class overrides for `<TopBarBrand>`. */
+export interface TopBarBrandSlotProps {
+  /** Outer wrapper holding logo, title and subtitle. */
+  root?: { className?: string };
+  /** The mark. */
+  logo?: { className?: string };
+  /** Wrapper around the two text lines. */
+  text?: { className?: string };
+  /** The primary line. */
+  title?: { className?: string };
+  /** The secondary line. */
+  subtitle?: { className?: string };
+}
+
+/**
+ * Props for `<TopBarBrand>` — the "mark plus a line or two of text" block
+ * that fills a `<TopBar>`'s `start` slot. kensaadi/dashforge#63 gap G.
+ *
+ * A **sibling export, not `TopBar.Brand`**, despite how the request was
+ * written: this catalog attaches subcomponents as named siblings
+ * (`Card` / `CardContent` / `CardActionArea`), and one component doing it
+ * differently is worse than matching the request's punctuation.
+ *
+ * It is deliberately layout only: no link, no routing, no click. A brand
+ * that navigates home is a `<Link>` or a router component wrapped around
+ * this, which keeps the router out of the library.
+ *
+ * ⚠️ This lands ahead of kensaadi/dashforge#132, whose job is to freeze the
+ * AppShell and TopBar surface, and #134 lists this helper as one of its
+ * deliverables. It is kept to the smallest shape that removes the
+ * duplication so the audit can adopt or reshape it cheaply.
+ */
+export interface TopBarBrandProps {
+  /** The mark: an svg, an `<img>`, an icon. Omit for text-only brands. */
+  logo?: ReactNode;
+
+  /**
+   * The primary line, e.g. the product name.
+   */
+  title: ReactNode;
+
+  /**
+   * The secondary line, e.g. the open file or the current page. Omitted,
+   * the block is a single line and the title centres against the logo.
+   *
+   * @default undefined
+   */
+  subtitle?: ReactNode;
+
+  /**
+   * Utility classes appended to the root's variant chain, resolved through
+   * `tailwind-merge`.
+   *
+   * @default undefined
+   */
+  sx?: string;
+
+  /**
+   * Per-slot class overrides.
+   *
+   * @default undefined
+   */
+  slotProps?: TopBarBrandSlotProps;
+}

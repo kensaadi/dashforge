@@ -73,6 +73,19 @@ export const chipVariants = tv({
      * Compound rules below apply the actual shift per (variant, color)
      * cell.
      */
+    /*
+     * Pointer affordance for a chip used as a drag source, e.g. a palette
+     * of items dragged onto a canvas. Native HTML5 drag-and-drop, so the
+     * library takes on no dnd dependency and the consumer keeps ownership
+     * of the transfer payload. kensaadi/dashforge#63 gap D.
+     *
+     * `active:cursor-grabbing` rather than a `:hover` swap: the closed
+     * hand belongs to the moment the pointer is down, not to hovering.
+     */
+    draggable: {
+      true: 'cursor-grab active:cursor-grabbing',
+    },
+
     selected: {
       true: 'ring-2 ring-offset-1',
     },
@@ -109,7 +122,7 @@ export const chipVariants = tv({
     // Border + colored text. Outline neutral: both auto-invert via
     // CSS-var swap. Color rows: `dark:text-*-300` for legibility in
     // dark mode on a transparent background.
-    { variant: 'outline', color: 'neutral',   class: 'border border-neutral-300 text-neutral-700' },
+    { variant: 'outline', color: 'neutral',   class: 'border border-neutral-500 text-neutral-700' },
     { variant: 'outline', color: 'primary',   class: 'border border-primary-500 text-primary-700 dark:text-primary-300' },
     { variant: 'outline', color: 'secondary', class: 'border border-secondary-500 text-secondary-700 dark:text-secondary-300' },
     { variant: 'outline', color: 'success',   class: 'border border-success-500 text-success-700 dark:text-success-300' },

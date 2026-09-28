@@ -114,6 +114,7 @@ export { Calendar } from './components/Calendar/Calendar.js';
 export type {
   CalendarProps,
   CalendarSlotProps,
+  CalendarDayState,
   CalendarVariantProps,
 } from './components/Calendar/calendar.types.js';
 export {
@@ -180,11 +181,13 @@ export type {
 } from './components/LeftNav/leftNav.types.js';
 export { leftNavVariants } from './components/LeftNav/leftNav.variants.js';
 
-export { TopBar } from './components/TopBar/TopBar.js';
+export { TopBar, TopBarBrand } from './components/TopBar/TopBar.js';
 export type {
   TopBarProps,
   TopBarSlotProps,
   TopBarVariantProps,
+  TopBarBrandProps,
+  TopBarBrandSlotProps,
 } from './components/TopBar/topBar.types.js';
 export { topBarVariants } from './components/TopBar/topBar.variants.js';
 
@@ -242,6 +245,19 @@ export type {
   AlertDefaultVariantProps,
 } from './components/Alert/alert.types.js';
 export { alertVariants } from './components/Alert/alert.variants.js';
+
+/**
+ * The severity unions themselves, which `Alert` and `Snackbar` both build
+ * on. They were reachable only by inference or through the
+ * `SnackbarSeverity` alias, so a consumer annotating a list of severities
+ * had to either re-declare the union or import a Snackbar-flavoured name
+ * for an Alert-flavoured value. `learn/dash` did the latter and failed to
+ * compile against a barrel that never published them.
+ */
+export type {
+  Severity,
+  SeverityVariant,
+} from './components/_shared/severity/severity.types.js';
 
 // IconButton — square, icon-only variant of <Button>. Reuses
 // `buttonVariants` 1:1 (variant × color × size × loading); adds square
@@ -427,6 +443,23 @@ export type {
 } from './components/Badge/badge.types.js';
 export { badgeVariants } from './components/Badge/badge.variants.js';
 export type { BadgeVariants } from './components/Badge/badge.variants.js';
+
+// Kbd — a single keycap, for showing the key that triggers something
+// (⌘K, Esc, Shift). Renders the semantic `<kbd>` element rather than a
+// styled span: assistive tech and reader modes treat `<kbd>` as keyboard
+// input. One `size` axis and no intent colour, because a keycap is chrome
+// around a literal key, not a status. Chords compose (two caps plus the
+// separator the design wants) rather than taking a `keys` array, which
+// would decide `⌘ + K` against `⌘K` for everyone. kensaadi/dashforge#63
+// gap J.
+export { Kbd } from './components/Kbd/Kbd.js';
+export type {
+  KbdProps,
+  KbdSize,
+  KbdVariantProps,
+} from './components/Kbd/kbd.types.js';
+export { kbdVariants } from './components/Kbd/kbd.variants.js';
+export type { KbdVariants } from './components/Kbd/kbd.variants.js';
 
 // Spinner — rotating-arc loading indicator. SVG + animate-spin
 // (pure CSS, GPU-accelerated, motion-reduce-safe). Color via

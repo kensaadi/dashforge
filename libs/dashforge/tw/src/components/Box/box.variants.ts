@@ -97,6 +97,20 @@ export const boxVariants = tv({
       5: 'shadow-xl',
     },
 
+    /*
+     * Border style. Only visible where a border-width is already set:
+     * `variant="outlined"` sets one, and a consumer can bring their own
+     * through `sx`. Declared as its own axis rather than folded into
+     * `variant` because the two are orthogonal — a dashed placeholder
+     * can be outlined, soft or solid. kensaadi/dashforge#63 gap I.
+     */
+    borderStyle: {
+      solid:  'border-solid',
+      dashed: 'border-dashed',
+      dotted: 'border-dotted',
+      double: 'border-double',
+    },
+
     rounded: {
       none: 'rounded-none',
       sm:   'rounded-sm',

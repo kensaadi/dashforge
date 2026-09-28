@@ -127,6 +127,51 @@ export interface ChipProps {
   deleteLabel?: string;
 
   /**
+   * Makes the chip a native drag source: sets the `draggable` attribute and
+   * the grab cursor. Use it for a palette of items dragged onto a canvas,
+   * which is the shape `<Stack>` + `<Chip>` already composes; what was
+   * missing was only the affordance and the event.
+   *
+   * Native HTML5 drag-and-drop, so no dnd dependency is pulled in and the
+   * `dataTransfer` payload stays yours to define in `onDragStart`.
+   *
+   * ⚠️ **A drag is a pointer gesture and nothing else.** Native DnD is not
+   * keyboard operable, so a chip whose ONLY route is dragging fails WCAG
+   * 2.1.1 in your app. Give the same action a second path: an `onClick`
+   * that adds the item, a context menu, a button beside the palette. The
+   * library cannot supply that for you, and it will not pretend otherwise.
+   *
+   * @default undefined
+   *
+   * @example
+   * ```tsx
+   * <Chip
+   *   label="Heading"
+   *   draggable
+   *   onDragStart={(e) => e.dataTransfer.setData('text/plain', 'heading')}
+   *   onClick={() => insertAtCursor('heading')}
+   * />
+   * ```
+   */
+  draggable?: boolean;
+
+  /**
+   * Fires when a drag begins. Set the `dataTransfer` payload here.
+   * Only meaningful together with `draggable`.
+   *
+   * @default undefined
+   */
+  onDragStart?: (event: React.DragEvent<HTMLElement>) => void;
+
+  /**
+   * Fires when the drag ends, whether it was dropped or abandoned. Use it
+   * to clear any drag-in-progress state.
+   *
+   * @default undefined
+   */
+  onDragEnd?: (event: React.DragEvent<HTMLElement>) => void;
+
+  /**
    * Reactive visibility predicate. Re-evaluated on every engine state
    * change when the chip is mounted inside a `<DashForm>`; outside
    * a form, evaluated as a plain predicate (the consumer captures

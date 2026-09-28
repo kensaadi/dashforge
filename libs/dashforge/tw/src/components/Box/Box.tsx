@@ -53,6 +53,7 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
       color,
       elevation,
       rounded,
+      borderStyle,
       p, px, py, m, mx, my,
       fullWidth,
       fullHeight,
@@ -87,7 +88,7 @@ export const Box = forwardRef<HTMLElement, BoxProps>(
 
     const classes = cn(
       boxVariants({
-        variant, color, elevation, rounded,
+        variant, color, elevation, rounded, borderStyle,
         p, px, py, m, mx, my,
         fullWidth, fullHeight,
       }),

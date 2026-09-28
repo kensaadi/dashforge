@@ -1,7 +1,9 @@
-import { forwardRef, type ElementType, type ReactElement } from 'react';
+import { forwardRef, useContext, type ElementType, type ReactElement } from 'react';
 import { Slot } from '@radix-ui/react-slot';
+import { DashFormContext, useEngineVisibility } from '@dashforge/ui-core';
 import { useComponentDefaults } from '@dashforge/tw-theme';
 import { cn } from '../../utils/cn.js';
+import { useAccessState } from '../../hooks/useAccessState.js';
 import { gridVariants } from './grid.variants.js';
 import type {
   GridProps,
@@ -48,14 +50,47 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
     // branches of the discriminated union.
     const themeDefaults = useComponentDefaults('Grid');
     const props = { ...themeDefaults?.defaults, ..._props } as GridProps;
-    const { as, asChild = false, sx, children, className: consumerClassName, ...rest } =
-      props as GridProps & {
+    const {
+      as,
+      asChild = false,
+      sx,
+      visibleWhen,
+      access,
+      children,
+      className: consumerClassName,
+      ...rest
+    } = props as GridProps & {
         as?: ElementType;
         asChild?: boolean;
         sx?: string;
         children?: React.ReactNode;
         className?: string;
       };
+
+    // Bridge — hooks called unconditionally, ABOVE the early return and
+    // above the union branching (rules-of-hooks; see README-BUG § BUG 33
+    // for what a conditional subscription costs). Both are no-ops when
+    // their prop is absent, so a consumer passing neither renders exactly
+    // as before. Destructured out of `rest` so neither can reach the DOM.
+    const bridge = useContext(DashFormContext);
+    const isVisible = useEngineVisibility(bridge?.engine, visibleWhen);
+    const accessState = useAccessState(access);
+
+    // Early return — predicate false OR RBAC denies visibility.
+    if (!isVisible || !accessState.visible) return null;
+
+    // RBAC-denied surfaces dim and carry the ARIA attributes below, so
+    // descendants and assistive tech can react.
+    const accessClasses = cn(
+      accessState.disabled && 'opacity-60',
+      accessState.readonly && 'opacity-80',
+    );
+    const ariaProps = {
+      'aria-disabled': accessState.disabled || undefined,
+      'aria-readonly': accessState.readonly || undefined,
+      'data-disabled': accessState.disabled || undefined,
+      'data-readonly': accessState.readonly || undefined,
+    };
     // #112 (G-28): salvage a stray untyped `className` that snuck in via
     // spread props so the JSX spread doesn't clobber the variant chain
     // via last-wins prop override. Merged through `cn` in both branches
@@ -93,6 +128,7 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
           spacingY: containerPayload.spacingY,
           autoFlow: containerPayload.autoFlow,
         }),
+        accessClasses,
         consumerClassName,
         sx,
       );
@@ -110,6 +146,7 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
           lg: itemPayload.lg,
           xl: itemPayload.xl,
         }),
+        accessClasses,
         consumerClassName,
         sx,
       );
@@ -145,7 +182,7 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
 
     if (asChild) {
       return (
-        <Slot ref={ref} className={classes} {...domRest}>
+        <Slot ref={ref} className={classes} {...ariaProps} {...domRest}>
           {children as ReactElement}
         </Slot>
       );
@@ -153,7 +190,7 @@ export const Grid = forwardRef<HTMLElement, GridProps>(
 
     const Tag = (as ?? 'div') as ElementType;
     return (
-      <Tag ref={ref as never} className={classes} {...domRest}>
+      <Tag ref={ref as never} className={classes} {...ariaProps} {...domRest}>
         {children}
       </Tag>
     );

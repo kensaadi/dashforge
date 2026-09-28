@@ -44,12 +44,12 @@ describe('<Chip>', () => {
       expect(container.querySelector('button')).toBeNull();
     });
 
-    it('renders as <button> when clickable=true', () => {
+    it('exposes role=button when clickable=true', () => {
       render(<Chip label="Filter" clickable />);
       expect(screen.getByRole('button', { name: /filter/i })).toBeTruthy();
     });
 
-    it('renders as <button> when onClick is provided (implicit clickable)', () => {
+    it('exposes role=button when onClick is provided (implicit clickable)', () => {
       render(<Chip label="Click me" onClick={() => {}} />);
       expect(screen.getByRole('button', { name: /click me/i })).toBeTruthy();
     });
@@ -185,8 +185,13 @@ describe('<Chip>', () => {
       render(
         <Chip label="tag" onClick={onClick} onDelete={onDelete} />
       );
-      // Click on the delete button
-      fireEvent.click(screen.getByRole('button', { name: /remove/i }));
+      // On a CLICKABLE chip the delete affordance is not a button and has
+      // no accessible name: a `button` role makes its children
+      // presentational, so it is addressed by its data hook instead.
+      // BUG 35.
+      const del = document.querySelector('[data-chip-delete]') as HTMLElement;
+      expect(del.tagName).toBe('SPAN');
+      fireEvent.click(del);
       expect(onDelete).toHaveBeenCalledTimes(1);
       expect(onClick).not.toHaveBeenCalled();
     });
@@ -215,8 +220,12 @@ describe('<Chip>', () => {
   describe('disabled state', () => {
     it('respects the explicit disabled prop on clickable chip', () => {
       render(<Chip label="x" clickable disabled />);
-      const btn = screen.getByRole('button') as HTMLButtonElement;
-      expect(btn.disabled).toBe(true);
+      // `aria-disabled`, not the native attribute: the clickable root is a
+      // `<div role="button">` since BUG 35, and it is taken out of the tab
+      // order rather than disabled.
+      const btn = screen.getByRole('button');
+      expect(btn.getAttribute('aria-disabled')).toBe('true');
+      expect(btn.getAttribute('tabindex')).toBe('-1');
     });
 
     it('applies opacity-50 + cursor-not-allowed to root when disabled', () => {
@@ -257,8 +266,12 @@ describe('<Chip>', () => {
           />
         </RbacProvider>
       );
-      const btn = screen.getByRole('button') as HTMLButtonElement;
-      expect(btn.disabled).toBe(true);
+      // Same as the explicit-disabled case: the clickable root is a
+      // `<div role="button">` since BUG 35, so RBAC's disable shows as
+      // `aria-disabled` plus removal from the tab order.
+      const btn = screen.getByRole('button');
+      expect(btn.getAttribute('aria-disabled')).toBe('true');
+      expect(btn.getAttribute('tabindex')).toBe('-1');
     });
 
     it('renders normally for admin subject', () => {

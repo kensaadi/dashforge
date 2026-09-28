@@ -1,4 +1,6 @@
 import type { ElementType, HTMLAttributes } from 'react';
+import type { Engine } from '@dashforge/ui-core';
+import type { AccessRequirement } from '@dashforge/rbac';
 
 /**
  * Grid types — discriminated union for container vs item role.
@@ -104,6 +106,49 @@ interface GridCommonProps extends Omit<HTMLAttributes<HTMLDivElement>, 'classNam
   asChild?: boolean;
   /** Utility-class override, merged via tailwind-merge. */
   sx?: string;
+
+  /**
+   * Reactive visibility predicate. When it returns `false` the component
+   * renders `null`. Inside a `<DashForm>` it subscribes reactively to
+   * engine state; outside a form it is evaluated as a plain closure.
+   *
+   * Use it for state-driven hiding. **For permission-driven hiding prefer
+   * `access` with `onUnauthorized: 'hide'`**, which is the semantically
+   * correct path and surfaces properly in RBAC dev tools.
+   *
+   * @default undefined
+   *
+   * @example
+   * ```tsx
+   * <Grid visibleWhen={() => pendingCount > 0}>
+   *   <Typography variant="h3">{pendingCount} pending</Typography>
+   * </Grid>
+   * ```
+   */
+  visibleWhen?: (engine: Engine) => boolean;
+
+  /**
+   * RBAC requirement, evaluated by the centralized `@dashforge/rbac`
+   * policy engine. Brings Grid to parity with `<Box>`, which has
+   * carried both props since 1.1.0.
+   *
+   * - `onUnauthorized: 'hide'`     → does not render
+   * - `onUnauthorized: 'disable'`  → `aria-disabled` + dimmed; interactive
+   *   children derive their own state from `data-disabled` or carry their
+   *   own `access`
+   * - `onUnauthorized: 'readonly'` → `aria-readonly`, for gated sections
+   *
+   * @default undefined
+   *
+   * @example
+   * ```tsx
+   * <Grid access={{ resource: 'billing', action: 'read', onUnauthorized: 'hide' }}>
+   *   <RevenueCard />
+   * </Grid>
+   * ```
+   */
+  access?: AccessRequirement;
+
 }
 
 /**

@@ -16,6 +16,9 @@ export type ButtonVariantProps = Pick<
   ButtonVariants,
   'variant' | 'color' | 'size' | 'fullWidth' | 'loading'
 >;
+// `pressed` is deliberately absent above: it is per-instance state, not a
+// look a theme can choose once for the app. A theme that pressed every
+// button would be a bug, not a preset.
 
 /**
  * Register `<Button>` with the theme's component defaults registry.
@@ -85,6 +88,28 @@ export interface ButtonProps
    * click handlers, and set `aria-busy="true"`.
    * @default false
    */
+  /**
+   * Toggle state. Pass it and the button becomes a toggle: `aria-pressed`
+   * is emitted so assistive tech announces on/off, and the "on" look is
+   * painted. Leave it out and nothing changes, including the ARIA: a plain
+   * button must not be announced as a toggle.
+   *
+   * The "on" treatment is LeftNav's active-row shape, so a pressed button
+   * and a current nav item read the same. `variant="link"` is the one
+   * exception: it gets the ARIA but no background, because a surface behind
+   * inline text fights the underline.
+   *
+   * @default undefined
+   *
+   * @example
+   * ```tsx
+   * <Button variant="ghost" pressed={bold} onClick={() => setBold(!bold)}>
+   *   Bold
+   * </Button>
+   * ```
+   */
+  pressed?: boolean;
+
   loading?: ButtonVariants['loading'];
 
   /**

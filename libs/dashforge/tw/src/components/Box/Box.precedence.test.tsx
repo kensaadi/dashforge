@@ -34,7 +34,7 @@ describe('Box precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins over defaultVariants', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Box: {
@@ -51,7 +51,7 @@ describe('Box precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme override', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Box: {
@@ -79,7 +79,7 @@ describe('Box precedence chain — Option C (Track A)', () => {
 
   it('theme partial override — unset fields fall through to TV defaultVariants', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: {
           Box: {
@@ -98,7 +98,7 @@ describe('Box precedence chain — Option C (Track A)', () => {
     const { getByTestId, rerender } = render(<Box data-testid="box">child</Box>);
     expect(classesOf(getByTestId('box')).has('rounded-none')).toBe(true);
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Box: { defaults: { rounded: 'md' } } },
       });
@@ -111,7 +111,7 @@ describe('Box precedence chain — Option C (Track A)', () => {
 
   it('no leak: theme variant axes never spread onto DOM attributes', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Box: { defaults: { variant: 'outlined' } } },
       });

@@ -1,4 +1,6 @@
 import type { ElementType, HTMLAttributes, ReactNode } from 'react';
+import type { Engine } from '@dashforge/ui-core';
+import type { AccessRequirement } from '@dashforge/rbac';
 import type { StackGap, StackVariants } from './stack.variants.js';
 
 /**
@@ -125,4 +127,46 @@ export interface StackProps
    * variant defaults.
    */
   sx?: string;
+
+  /**
+   * Reactive visibility predicate. When it returns `false` the component
+   * renders `null`. Inside a `<DashForm>` it subscribes reactively to
+   * engine state; outside a form it is evaluated as a plain closure.
+   *
+   * Use it for state-driven hiding. **For permission-driven hiding prefer
+   * `access` with `onUnauthorized: 'hide'`**, which is the semantically
+   * correct path and surfaces properly in RBAC dev tools.
+   *
+   * @default undefined
+   *
+   * @example
+   * ```tsx
+   * <Stack visibleWhen={() => pendingCount > 0}>
+   *   <Typography variant="h3">{pendingCount} pending</Typography>
+   * </Stack>
+   * ```
+   */
+  visibleWhen?: (engine: Engine) => boolean;
+
+  /**
+   * RBAC requirement, evaluated by the centralized `@dashforge/rbac`
+   * policy engine. Brings Stack to parity with `<Box>`, which has
+   * carried both props since 1.1.0.
+   *
+   * - `onUnauthorized: 'hide'`     → does not render
+   * - `onUnauthorized: 'disable'`  → `aria-disabled` + dimmed; interactive
+   *   children derive their own state from `data-disabled` or carry their
+   *   own `access`
+   * - `onUnauthorized: 'readonly'` → `aria-readonly`, for gated sections
+   *
+   * @default undefined
+   *
+   * @example
+   * ```tsx
+   * <Stack access={{ resource: 'billing', action: 'read', onUnauthorized: 'hide' }}>
+   *   <RevenueCard />
+   * </Stack>
+   * ```
+   */
+  access?: AccessRequirement;
 }

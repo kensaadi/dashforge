@@ -20,7 +20,7 @@ describe('TopBar precedence chain — Option C (Track A)', () => {
 
   it('level 2 — theme override wins (height=sm)', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TopBar: { defaults: { height: 'sm' } } },
       });
@@ -31,7 +31,7 @@ describe('TopBar precedence chain — Option C (Track A)', () => {
 
   it('level 3 — instance prop wins over theme', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TopBar: { defaults: { height: 'sm' } } },
       });
@@ -49,7 +49,7 @@ describe('TopBar precedence chain — Option C (Track A)', () => {
 
   it('theme sticky=false removes sticky class', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TopBar: { defaults: { sticky: false } } },
       });
@@ -60,7 +60,7 @@ describe('TopBar precedence chain — Option C (Track A)', () => {
 
   it('no axes leak onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { TopBar: { defaults: { height: 'sm', sticky: false } } },
       });

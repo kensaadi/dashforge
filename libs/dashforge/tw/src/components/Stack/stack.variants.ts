@@ -113,6 +113,20 @@ export type StackGap =
  * `gap` value at render time. Same set as {@link StackGap}. Frozen
  * so callers can't mutate the source of truth.
  */
+/**
+ * The accepted `direction` values, for the dev-time guard in `Stack.tsx`.
+ *
+ * Frozen and exported rather than inlined so the warning cannot drift from
+ * the variant recipe: adding an axis value without adding it here would
+ * make the guard warn about something that works.
+ */
+export const STACK_DIRECTION_VALUES = Object.freeze([
+  'row',
+  'col',
+  'row-reverse',
+  'col-reverse',
+] as const);
+
 export const STACK_GAP_VALUES: readonly StackGap[] = Object.freeze([
   0, 0.5, 1, 2, 3, 4, 6, 8, 12, 16, 24,
 ]);

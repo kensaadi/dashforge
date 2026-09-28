@@ -29,7 +29,7 @@ describe('Grid precedence chain — Option C (Track A, container axes)', () => {
 
   it('level 2 — theme override wins for cols', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Grid: { defaults: { cols: 6, spacing: 4 } } },
       });
@@ -44,7 +44,7 @@ describe('Grid precedence chain — Option C (Track A, container axes)', () => {
 
   it('level 3 — instance prop wins over theme override', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Grid: { defaults: { cols: 6 } } },
       });
@@ -72,7 +72,7 @@ describe('Grid precedence chain — Option C (Track A, container axes)', () => {
     );
     expect(classesOf(getByTestId('g')).has('grid-cols-12')).toBe(true);
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Grid: { defaults: { cols: 4 } } },
       });
@@ -83,7 +83,7 @@ describe('Grid precedence chain — Option C (Track A, container axes)', () => {
 
   it('no leak: container axes never spread onto DOM', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Grid: { defaults: { cols: 6 } } },
       });
@@ -99,7 +99,7 @@ describe('Grid precedence chain — Option C (Track A, container axes)', () => {
 
   it('item-role Grid does not consume theme container defaults', () => {
     act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       (patchTheme as any)({
         components: { Grid: { defaults: { cols: 6 } } },
       });
