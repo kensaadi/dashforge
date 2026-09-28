@@ -1,6 +1,5 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
-import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(() => ({
@@ -17,13 +16,10 @@ export default defineConfig(() => ({
     globals: true,
     environment: 'node',
     include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    // Perf specs assert wall-clock budgets calibrated for a dev machine.
-    // Shared CI runners are slower, so they false-fail there — skip them
-    // when `CI` is set. They still run locally (`nx test @dashforge/tw`).
-    exclude: [
-      ...configDefaults.exclude,
-      ...(process.env.CI ? ['**/*.perf.test.*'] : []),
-    ],
+    // No `exclude` here: Vitest 4 ignores `test.exclude`, so the
+    // `process.env.CI` exclusion this config used to carry for the
+    // `*.perf.test.tsx` specs never took effect. Their wall-clock budgets
+    // are tolerance-scaled instead, in src/test-utils/perfBudget.ts.
     reporters: ['default'],
     coverage: {
       reportsDirectory: './test-output/vitest/coverage',

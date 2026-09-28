@@ -25,6 +25,7 @@ import { useEffect, useRef } from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { Autocomplete } from './Autocomplete.js';
 import type { AutocompleteOption } from './autocomplete.types.js';
+import { expectWithinBudget } from '../../test-utils/perfBudget';
 
 // Generate `n` deterministic options.
 function makeOptions(n: number): AutocompleteOption[] {
@@ -54,7 +55,7 @@ describe('<Autocomplete> performance', () => {
     const t0 = performance.now();
     render(<Autocomplete name="x" options={options} label="X" />);
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(500);
+    expectWithinBudget(t1 - t0, 500);
   });
 
   it('filters a 1000-option list well under 100ms per keystroke', () => {
@@ -64,7 +65,7 @@ describe('<Autocomplete> performance', () => {
     const t0 = performance.now();
     fireEvent.change(input, { target: { value: '9' } });
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(100);
+    expectWithinBudget(t1 - t0, 100);
   });
 });
 

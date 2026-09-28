@@ -22,6 +22,7 @@ import {
 } from '@testing-library/react';
 import { LeftNav } from './LeftNav.js';
 import type { LeftNavNode } from './leftNav.types.js';
+import { expectWithinBudget } from '../../test-utils/perfBudget';
 
 void React;
 afterEach(() => cleanup());
@@ -63,7 +64,7 @@ describe('<LeftNav> performance', () => {
     const t0 = performance.now();
     render(<LeftNav items={items} />);
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(50);
+    expectWithinBudget(t1 - t0, 50);
   });
 
   it('mounts a 300-row flat nav in under 250ms', () => {
@@ -71,7 +72,7 @@ describe('<LeftNav> performance', () => {
     const t0 = performance.now();
     render(<LeftNav items={items} />);
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(250);
+    expectWithinBudget(t1 - t0, 250);
   });
 
   it('mounts a 10×10 nested nav (100 leaf rows) in under 150ms', () => {
@@ -79,7 +80,7 @@ describe('<LeftNav> performance', () => {
     const t0 = performance.now();
     render(<LeftNav items={items} />);
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(150);
+    expectWithinBudget(t1 - t0, 150);
   });
 
   it('toggles `collapsed` in under 100ms (30 rows)', () => {
@@ -88,7 +89,7 @@ describe('<LeftNav> performance', () => {
     const t0 = performance.now();
     rerender(<LeftNav items={items} collapsed />);
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(100);
+    expectWithinBudget(t1 - t0, 100);
   });
 });
 

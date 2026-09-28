@@ -16,6 +16,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import { Breadcrumbs } from './Breadcrumbs.js';
 import type { BreadcrumbItem } from './breadcrumbs.types.js';
+import { expectWithinBudget } from '../../test-utils/perfBudget';
 
 void React;
 afterEach(() => cleanup());
@@ -47,7 +48,7 @@ describe('<Breadcrumbs> performance', () => {
     // Generous bound — matches the rest of the perf suite. The old
     // 50ms budget was flaky under a parallel full-suite run (cold
     // start jitter), not a real regression signal.
-    expect(t1 - t0).toBeLessThan(200);
+    expectWithinBudget(t1 - t0, 200);
   });
 
   it('mounts a 1000-crumb (collapsed) trail under 100ms', () => {
@@ -55,7 +56,7 @@ describe('<Breadcrumbs> performance', () => {
     const t0 = performance.now();
     render(<Breadcrumbs items={trail} maxItems={5} />);
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(100);
+    expectWithinBudget(t1 - t0, 100);
   });
 });
 

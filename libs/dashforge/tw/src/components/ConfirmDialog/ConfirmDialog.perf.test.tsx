@@ -20,6 +20,7 @@
  */
 import * as React from 'react';
 import { describe, it, expect, afterEach, beforeAll } from 'vitest';
+import { expectWithinBudget } from '../../test-utils/perfBudget';
 import {
   render,
   screen,
@@ -65,7 +66,7 @@ describe('<ConfirmDialogProvider> performance', () => {
     const t1 = performance.now();
     // Generous bound to accommodate cold-start variance under full
     // workspace test run; warm path is in single-digit ms.
-    expect(t1 - t0).toBeLessThan(200);
+    expectWithinBudget(t1 - t0, 200);
   });
 
   it('opens + closes a dialog in under 30ms', async () => {
@@ -97,7 +98,7 @@ describe('<ConfirmDialogProvider> performance', () => {
     const t1 = performance.now();
     // Generous budget to absorb cold-start variance when run alongside
     // the rest of the workspace test suite.
-    expect(t1 - t0).toBeLessThan(200);
+    expectWithinBudget(t1 - t0, 200);
   });
 });
 

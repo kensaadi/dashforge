@@ -4,6 +4,12 @@
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
+    // `tsBuildInfoFile` INSIDE `dist` is load-bearing, not sloppiness.
+    // The rollup build wipes `dist`, which invalidates this incremental
+    // cache along with the outputs it describes. Move it out and tsc
+    // finds a valid cache pointing at declarations that no longer exist,
+    // so it emits NOTHING and the package ships without its types.
+    // It is kept out of the tarball by a `files` negation instead.
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,

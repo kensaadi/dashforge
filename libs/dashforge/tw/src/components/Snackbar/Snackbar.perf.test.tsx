@@ -22,6 +22,7 @@ import {
   act,
 } from '@testing-library/react';
 import { SnackbarProvider, useSnackbar } from './Snackbar.js';
+import { expectWithinBudget } from '../../test-utils/perfBudget';
 
 void React;
 afterEach(() => cleanup());
@@ -37,7 +38,7 @@ describe('<SnackbarProvider> performance', () => {
     const t1 = performance.now();
     // Generous bound for cold-start under workspace-wide test runs;
     // warm path is sub-10ms.
-    expect(t1 - t0).toBeLessThan(200);
+    expectWithinBudget(t1 - t0, 200);
   });
 
   it('enqueues 50 snackbars (cap=50) under 200ms', () => {
@@ -66,7 +67,7 @@ describe('<SnackbarProvider> performance', () => {
       fireEvent.click(screen.getByTestId('a'));
     });
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(200);
+    expectWithinBudget(t1 - t0, 200);
   });
 });
 

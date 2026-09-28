@@ -3,6 +3,8 @@
   "name": "@dashforge/forms",
   "targets": {
     "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "_comment": "^typecheck orders this after its dependencies own typecheck. Both are tsc --build, which walks project references and re-emits a dependency declarations if they look stale: run concurrently by run-many they write the same dist and .tsbuildinfo and fail intermittently. The inferred @nx/js typecheck targets carry this by default; these explicit ones must restate it.",
       "options": {
         "command": "tsc --build tsconfig.lib.json --emitDeclarationOnly"
       }

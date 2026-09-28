@@ -16,6 +16,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import { Table } from './Table.js';
 import type { TableColumn } from './table.types.js';
+import { expectWithinBudget } from '../../test-utils/perfBudget';
 
 void React;
 afterEach(() => cleanup());
@@ -52,7 +53,7 @@ describe('<Table> performance', () => {
     const t0 = performance.now();
     render(<Table rows={rows} cols={COLS} getRowId={(r) => r.id} />);
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(800);
+    expectWithinBudget(t1 - t0, 800);
   });
 
   it('renders every row in the DOM (non-virtualized contract)', () => {
@@ -76,6 +77,6 @@ describe('<Table> performance', () => {
       />,
     );
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(800);
+    expectWithinBudget(t1 - t0, 800);
   });
 });

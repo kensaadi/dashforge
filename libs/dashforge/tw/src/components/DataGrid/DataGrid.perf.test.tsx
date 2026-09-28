@@ -17,6 +17,7 @@ import { describe, it, expect, afterEach, beforeAll } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import { DataGrid } from './DataGrid.js';
 import type { TableColumn } from '../Table/table.types.js';
+import { expectWithinBudget } from '../../test-utils/perfBudget';
 
 void React;
 afterEach(() => cleanup());
@@ -70,7 +71,7 @@ describe('<DataGrid> virtualization performance', () => {
       />,
     );
     const t1 = performance.now();
-    expect(t1 - t0).toBeLessThan(500);
+    expectWithinBudget(t1 - t0, 500);
   });
 
   it('mounts only the visible window in the DOM, NOT the full dataset', () => {
@@ -107,7 +108,7 @@ describe('<DataGrid> virtualization performance', () => {
     // 10× the rows — the RENDER stays windowed, so the cost must not
     // scale with the dataset. Generous absolute bound (not a ratio,
     // to stay non-flaky under CI jitter).
-    expect(t1 - t0).toBeLessThan(800);
+    expectWithinBudget(t1 - t0, 800);
     // And the DOM still holds only the window.
     expect(container.querySelectorAll('tbody tr').length).toBeLessThan(100);
   });
