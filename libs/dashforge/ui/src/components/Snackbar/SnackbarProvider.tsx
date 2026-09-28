@@ -42,13 +42,6 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
   // Timer Management
   // ==========================================================================
 
-  const startTimer = useCallback((id: string, duration: number) => {
-    const timer = setTimeout(() => {
-      close(id);
-    }, duration);
-    timersRef.current.set(id, timer);
-  }, []);
-
   const clearTimer = useCallback((id: string) => {
     const timer = timersRef.current.get(id);
     if (timer) {
@@ -56,6 +49,53 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
       timersRef.current.delete(id);
     }
   }, []);
+
+  // Declared here, ahead of `startTimer`, rather than with the other queue
+  // operations below: the auto-dismiss timer calls it, and a dependency
+  // has to exist by the time the dep array is evaluated during render.
+  const close = useCallback(
+    (id: string) => {
+      setState((prev) => {
+        const item = prev.queue.find((i) => i.id === id);
+
+        // No-op if item not found or already exiting
+        if (!item || item.status === 'exiting') {
+          return prev;
+        }
+
+        // Cancel timer
+        clearTimer(id);
+
+        // Queued items are removed immediately
+        if (item.status === 'queued') {
+          return {
+            queue: prev.queue.filter((i) => i.id !== id),
+          };
+        }
+
+        // Visible items transition to exiting
+        return {
+          queue: prev.queue.map((i) =>
+            i.id === id ? { ...i, status: 'exiting' as const } : i
+          ),
+        };
+      });
+    },
+    [clearTimer]
+  );
+
+  const startTimer = useCallback((id: string, duration: number) => {
+    const timer = setTimeout(() => {
+      close(id);
+    }, duration);
+    timersRef.current.set(id, timer);
+    // `close` is stable (it depends only on the equally stable
+    // `clearTimer`), so naming it here does not re-create this callback,
+    // and `enqueue` downstream keeps its identity too. It is named all
+    // the same: with an empty array this timer would keep calling the
+    // `close` of the render that created it, and the day `close` gains a
+    // dependency the auto-dismiss would quietly act on a stale queue.
+  }, [close]);
 
   const clearAllTimers = useCallback(() => {
     timersRef.current.forEach((timer) => clearTimeout(timer));
@@ -119,36 +159,6 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
     [generateId, startTimer]
   );
 
-  const close = useCallback(
-    (id: string) => {
-      setState((prev) => {
-        const item = prev.queue.find((i) => i.id === id);
-
-        // No-op if item not found or already exiting
-        if (!item || item.status === 'exiting') {
-          return prev;
-        }
-
-        // Cancel timer
-        clearTimer(id);
-
-        // Queued items are removed immediately
-        if (item.status === 'queued') {
-          return {
-            queue: prev.queue.filter((i) => i.id !== id),
-          };
-        }
-
-        // Visible items transition to exiting
-        return {
-          queue: prev.queue.map((i) =>
-            i.id === id ? { ...i, status: 'exiting' as const } : i
-          ),
-        };
-      });
-    },
-    [clearTimer]
-  );
 
   const closeAll = useCallback(() => {
     // Clear all timers

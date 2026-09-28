@@ -30,7 +30,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should sanitize display value to empty during loading (prevents MUI warning)', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items',
           watch: [],
@@ -121,7 +121,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should sanitize display value to empty in error state', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items-error',
           watch: [],
@@ -162,7 +162,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     });
 
     it('should not be disabled in error state', () => {
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items-error',
           watch: [],
@@ -199,7 +199,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should display resolved value after options load', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items-async',
           watch: [],
@@ -262,7 +262,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should display empty for unresolved value after options load', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items-unresolved',
           watch: [],
@@ -326,7 +326,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should sanitize display value during loading (display-layer only)', () => {
       // This test verifies display sanitization without form value access
       // Policy: Display is sanitized, but form value remains unchanged (see integration tests)
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items',
           watch: [],
@@ -378,7 +378,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     });
 
     it('should sanitize display value in error state', () => {
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items-error',
           watch: [],
@@ -415,7 +415,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should handle numeric values during loading', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const reactions: ReactionDefinition<{ numItem: number }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-numeric',
           watch: [],
@@ -456,7 +456,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should handle empty string value during loading', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items',
           watch: [],
@@ -495,7 +495,7 @@ describe('Select - Runtime Loading State (Step 05d)', () => {
     it('should handle null value during loading', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const reactions: ReactionDefinition<{ item: string | null }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items',
           watch: [],

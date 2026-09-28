@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, render, screen } from '@testing-library/react';
 import React from 'react';
 import { useCan } from '../useCan';
 import { RbacProvider } from '../RbacProvider';
@@ -160,17 +160,57 @@ describe('useCan', () => {
     });
 
     it('should work with inline request object construction', () => {
+      // This declared a TestComponent calling useCan with a `delete` request
+      // and then never mounted it, asserting `typeof boolean` on an unrelated
+      // `read` hook instead. It passed whatever inline construction did.
       function TestComponent() {
         const canDelete = useCan({ action: 'delete', resource: 'booking' });
         return <div>{canDelete ? 'Can delete' : 'Cannot delete'}</div>;
       }
 
-      const { result } = renderHook(
-        () => useCan({ action: 'read', resource: 'booking' }),
-        { wrapper: createWrapper(userSubject) }
+      const Wrapper = createWrapper(userSubject);
+      render(
+        <Wrapper>
+          <TestComponent />
+        </Wrapper>
       );
 
-      expect(typeof result.current).toBe('boolean');
+      // `user` holds `delete` on `booking` only under a condition that reads
+      // `resourceData.ownerId`, and this call passes no resourceData. The
+      // permission must come back denied rather than throwing on the missing
+      // object: a component asking "may I, in general?" is a normal caller.
+      expect(screen.getByText('Cannot delete')).toBeTruthy();
+    });
+
+    it('re-evaluates a fresh request object without looping', () => {
+      // The point the name above was reaching for: the request is a new
+      // object literal on every render, so an identity-keyed memo inside the
+      // hook would either loop or go stale.
+      let renders = 0;
+      function Counter() {
+        renders += 1;
+        const canRead = useCan({ action: 'read', resource: 'booking' });
+        return <div>{canRead ? 'yes' : 'no'}</div>;
+      }
+
+      const Wrapper = createWrapper(userSubject);
+      const { rerender } = render(
+        <Wrapper>
+          <Counter />
+        </Wrapper>
+      );
+
+      expect(screen.getByText('yes')).toBeTruthy();
+      const afterMount = renders;
+
+      rerender(
+        <Wrapper>
+          <Counter />
+        </Wrapper>
+      );
+
+      expect(screen.getByText('yes')).toBeTruthy();
+      expect(renders).toBe(afterMount + 1);
     });
   });
 

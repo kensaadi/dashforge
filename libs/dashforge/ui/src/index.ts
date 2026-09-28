@@ -20,6 +20,15 @@ export type { SwitchProps } from './components/Switch/Switch';
 export { RadioGroup } from './components/RadioGroup/RadioGroup';
 export type { RadioGroupProps } from './components/RadioGroup/RadioGroup';
 
+// CheckboxGroup — several checkboxes bound to ONE field storing a
+// `string[]`. The small-set half of README-BUG § BUG 19; `<Autocomplete
+// multiple>` and `<Select multiple>` cover the long lists.
+export { CheckboxGroup } from './components/CheckboxGroup/CheckboxGroup';
+export type {
+  CheckboxGroupProps,
+  CheckboxGroupOption,
+} from './components/CheckboxGroup/CheckboxGroup';
+
 export { NumberField } from './components/NumberField/NumberField';
 export type { NumberFieldProps } from './components/NumberField/NumberField';
 

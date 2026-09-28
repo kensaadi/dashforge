@@ -97,6 +97,48 @@ interface NormalizedOption<TValue extends string | number> {
   raw: unknown; // Original option for renderOption customization
 }
 
+/**
+ * Multi-select value adapters — README-BUG § BUG 19.
+ *
+ * The bridge stores a plain `TValue[]`; MUI's multi mode wants the option
+ * OBJECTS for `value` and hands back an array of them on change. These two
+ * functions are the whole translation layer, kept next to the type they
+ * translate so the mapping is readable in one place.
+ */
+
+/** Bridge `TValue[]` → the option objects MUI renders as chips. */
+function toOptionArray<TValue extends string | number>(
+  values: readonly TValue[],
+  options: readonly NormalizedOption<TValue>[]
+): NormalizedOption<TValue>[] {
+  return values.map(
+    (v) =>
+      options.find((o) => o.value === v) ?? {
+        // A stored value with no matching option still has to render as a
+        // chip, or removing it becomes impossible: it would vanish from the
+        // UI while staying in the form payload. Falls back to its own
+        // string form as the label.
+        value: v,
+        label: String(v),
+        disabled: false,
+        raw: v,
+      }
+  );
+}
+
+/** MUI's change payload → the `TValue[]` the bridge stores. */
+function fromOptionArray<TValue extends string | number>(
+  next: unknown
+): TValue[] {
+  if (!Array.isArray(next)) return [];
+  return next.map((item) =>
+    item !== null && typeof item === 'object' && 'value' in item
+      ? ((item as NormalizedOption<TValue>).value)
+      : // freeSolo typed text arrives as a bare string.
+        (item as TValue)
+  );
+}
+
 // Type-safe props: extends MUI Autocomplete props but with simplified API
 // MUI generic signature: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>
 // Our case: T = AutocompleteOption, Multiple = boolean (BUG 19 widened to unlock
@@ -279,6 +321,7 @@ export function Autocomplete<
     optionsFromFieldData,
     layout = 'floating',
     required,
+    multiple = false,
     ...rest
   } = props;
 
@@ -343,7 +386,7 @@ export function Autocomplete<
   const unregisterRef = useRef({ bridge, name });
   unregisterRef.current = { bridge, name };
   const isMountedRef = useRef(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -543,6 +586,28 @@ export function Autocomplete<
     const valueForAutocomplete: NormalizedOption<TValue> | null =
       matchingOption;
 
+    /*
+     * Multi mode runs a PARALLEL pipeline rather than widening the scalar
+     * one. The scalar path carries the freeSolo / sanitization / inputValue
+     * logic that BUG 2, BUG 7 and BUG 8 all came out of, and none of it
+     * applies when MUI is rendering chips and owns the filter text. Keeping
+     * them separate is what makes this change safe to land on a component
+     * with that history. README-BUG § BUG 19.
+     */
+    const resolvedArray: TValue[] = multiple
+      ? Array.isArray(explicitValue)
+        ? (explicitValue as TValue[])
+        : explicitValue !== undefined
+        ? []
+        : Array.isArray(autoValue)
+        ? (autoValue as TValue[])
+        : []
+      : [];
+
+    const valueForAutocompleteMulti = multiple
+      ? toOptionArray(resolvedArray, normalizedOptions)
+      : [];
+
     // Control inputValue to display the correct text in the input field
     // This is critical for freeSolo mode with object options
     // Phase 2: Use displayInputValue for sanitization
@@ -623,6 +688,25 @@ export function Autocomplete<
       _event: unknown,
       newValue: NormalizedOption<TValue> | TValue | null
     ) => {
+      // Multi mode: MUI hands back the whole array of picked options.
+      if (multiple) {
+        const mappedArray = fromOptionArray<TValue>(newValue);
+        const syntheticMulti = {
+          target: { name, value: mappedArray },
+          type: 'change',
+        };
+        if (registration.onChange) {
+          await registration.onChange(syntheticMulti);
+        }
+        if (bridge.setValue) {
+          bridge.setValue(name, mappedArray);
+        }
+        if (explicitOnChange) {
+          explicitOnChange(mappedArray);
+        }
+        return;
+      }
+
       // Extract TValue from newValue
       let mappedValue: TValue | null = null;
       if (newValue === null) {
@@ -763,8 +847,14 @@ export function Autocomplete<
         disabled={effectiveDisabled || isLoading}
         readOnly={effectiveReadonly}
         disableClearable={effectiveReadonly || rest.disableClearable}
-        value={valueForAutocomplete}
-        inputValue={inputValue}
+        multiple={multiple}
+        value={multiple ? valueForAutocompleteMulti : valueForAutocomplete}
+        {...(multiple
+          ? // MUI owns the filter text in multi mode: it clears the input
+            // after each pick. Controlling `inputValue` here would freeze
+            // the typed text and make the second selection impossible.
+            {}
+          : { inputValue })}
         options={normalizedOptions}
         getOptionLabel={(option: NormalizedOption<TValue> | string) => {
           // In freeSolo mode, option can be from options array OR a typed string
@@ -783,6 +873,11 @@ export function Autocomplete<
             unknown
           >;
           return (
+            // `rest` carries role="option" from MUI's getOptionProps, which is
+            // what makes the aria-disabled below valid. The rule cannot read a
+            // spread, so it sees an `li` with its implicit `listitem` role and
+            // flags it. Autocomplete.a11y.test.tsx checks what reaches the DOM.
+            // eslint-disable-next-line jsx-a11y/role-supports-aria-props
             <li
               key={key}
               {...rest}
@@ -887,6 +982,18 @@ export function Autocomplete<
   const plainValueForAutocomplete: NormalizedOption<TValue> | null =
     plainMatchingOption;
 
+  // Multi mode, plain branch. Same parallel-pipeline reasoning as the
+  // bridge branch above: the scalar path owns freeSolo and inputValue
+  // control, neither of which applies while MUI renders chips.
+  const plainArray: TValue[] = multiple
+    ? Array.isArray(explicitValue)
+      ? (explicitValue as TValue[])
+      : []
+    : [];
+  const plainValueForAutocompleteMulti = multiple
+    ? toOptionArray(plainArray, normalizedOptions)
+    : [];
+
   // Control inputValue to display the correct text in the input field
   const plainComputedInputValue = plainMatchingOption
     ? plainMatchingOption.label
@@ -908,6 +1015,11 @@ export function Autocomplete<
     _event: unknown,
     newValue: NormalizedOption<TValue> | TValue | null
   ) => {
+    if (multiple) {
+      explicitOnChange?.(fromOptionArray<TValue>(newValue));
+      return;
+    }
+
     // Extract TValue
     let mappedValue: TValue | null = null;
     if (newValue === null) {
@@ -983,9 +1095,14 @@ export function Autocomplete<
       disabled={effectiveDisabled}
       readOnly={effectiveReadonly}
       disableClearable={effectiveReadonly || rest.disableClearable}
-      value={plainValueForAutocomplete}
-      inputValue={plainInputValue}
-      onInputChange={handlePlainInputChange}
+      multiple={multiple}
+      value={multiple ? plainValueForAutocompleteMulti : plainValueForAutocomplete}
+      {...(multiple
+        ? {}
+        : {
+            inputValue: plainInputValue,
+            onInputChange: handlePlainInputChange,
+          })}
       options={normalizedOptions}
       getOptionLabel={(option: NormalizedOption<TValue> | string) => {
         // In freeSolo mode, option can be from options array OR a typed string
@@ -1003,6 +1120,11 @@ export function Autocomplete<
           unknown
         >;
         return (
+          // `rest` carries role="option" from MUI's getOptionProps, which is
+          // what makes the aria-disabled below valid. The rule cannot read a
+          // spread, so it sees an `li` with its implicit `listitem` role and
+          // flags it. Autocomplete.a11y.test.tsx checks what reaches the DOM.
+          // eslint-disable-next-line jsx-a11y/role-supports-aria-props
           <li
             key={key}
             {...rest}

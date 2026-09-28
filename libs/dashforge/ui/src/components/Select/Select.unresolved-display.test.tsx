@@ -178,7 +178,7 @@ describe('Select - Unresolved Value Display (Step 05b)', () => {
 
     it('value is sanitized during runtime loading (Step 05d fix)', () => {
       // Step 05d: During loading, sanitization now applies (empty array causes sanitization)
-      const reactions: ReactionDefinition<{ item: string }>[] = [
+      const reactions: ReactionDefinition[] = [
         {
           id: 'load-items',
           watch: [],

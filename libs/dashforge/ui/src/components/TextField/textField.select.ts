@@ -71,8 +71,33 @@ function extractValueFromEvent(event: unknown): unknown {
  */
 export function sanitizeSelectDisplayValue(
   rawValue: unknown,
-  availableValues?: (string | number)[]
+  availableValues?: (string | number)[],
+  multiple = false
 ): unknown {
+  /*
+   * Multi mode, BUG 19. MUI throws outright if `value` is not an array when
+   * `multiple` is set, and the scalar path below sanitized an array to `''`
+   * because an array is never a member of `availableValues` — which is
+   * exactly how `<Select multiple>` died on render.
+   *
+   * Unresolved entries are DROPPED rather than kept, matching what the
+   * scalar path does with an unresolved value. This differs on purpose from
+   * `<Autocomplete multiple>`, which keeps them: Autocomplete builds its own
+   * chip and can render an unknown value cleanly, while MUI's Select would
+   * log an out-of-range warning for every one.
+   */
+  if (multiple) {
+    const asArray = Array.isArray(rawValue)
+      ? rawValue
+      : rawValue === '' || rawValue == null
+      ? []
+      : [rawValue];
+    if (availableValues === undefined) return asArray;
+    return asArray.filter((v) =>
+      availableValues.includes(v as string | number)
+    );
+  }
+
   // No sanitization if no available values provided
   if (availableValues === undefined) {
     return rawValue;
@@ -124,7 +149,11 @@ export function createSelectIntegration(
 
   // Display value sanitization (Step 05b):
   // Use shared helper to sanitize display value
-  const displayValue = sanitizeSelectDisplayValue(rawValue, availableValues);
+  const displayValue = sanitizeSelectDisplayValue(
+    rawValue,
+    availableValues,
+    isMultiSelectMode(userSlotProps)
+  );
 
   // Wrap onChange to provide correct event shape
   const handleChange = async (event: unknown) => {
@@ -207,4 +236,16 @@ export function isNativeSelectMode(
 ): boolean {
   const selectProps = slotProps?.select as { native?: boolean } | undefined;
   return selectProps?.native === true;
+}
+
+/**
+ * Is this select in MUI's multi mode? `<Select multiple>` forwards the flag
+ * through `slotProps.select`, which is the only place the integration can
+ * see it. README-BUG § BUG 19.
+ */
+export function isMultiSelectMode(
+  slotProps: MuiTextFieldProps['slotProps']
+): boolean {
+  const selectProps = slotProps?.select as { multiple?: boolean } | undefined;
+  return selectProps?.multiple === true;
 }
