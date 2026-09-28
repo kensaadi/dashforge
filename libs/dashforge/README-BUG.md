@@ -1918,134 +1918,7 @@ itself by hand, which is the job `DashForm` exists to do.
 
 ---
 
-## BUG 23 — `<Select multiple>` (tw): the chip's remove button is nested INSIDE the trigger `<button>`, which is invalid HTML and breaks hydration
-
-Reproduced 19/09/2026 in `~/projects/web/urbango-project/ugo-web`, on
-the event-agency sign-up form, which uses a multi-select of Italian
-regions / Swiss cantons.
-
-**Severity:** medium-high. It is invalid HTML, React reports it as a
-hydration error on every render of the page, and the nesting is the
-kind the HTML parser rewrites — so the DOM the browser builds is not
-the DOM the component described.
-
-**Status:** open.
-
-### Symptom
-
-With at least one option chosen, the browser console carries, on every
-load of a page holding a multi `<Select>`:
-
-```
-In HTML, <button> cannot be a descendant of <button>.
-This will cause a hydration error.
-```
-
-and, on the next line:
-
-```
-<button> cannot contain a nested <button>.
-```
-
-React's own stack names the two elements: the outer
-`<button role="combobox" name="areas" aria-required={true}>` and, inside
-its chips list, `<button aria-label="Remove Lombardia">`.
-
-### Cause
-
-`tw/src/components/Select/Select.tsx:501` builds the chip's remove
-control as a `<button>`:
-
-```tsx
-{!effectiveDisabled && (
-  <button
-    type="button"
-    aria-label={`Remove ${labelToText(opt.label) || String(opt.value)}`}
-    className={chipRemoveClasses}
-    onClick={(e) => handleRemoveChip(opt, e)}
-  >
-    <ChipRemoveIcon />
-  </button>
-)}
-```
-
-and that markup is assigned to `triggerContent`, which
-`Select.tsx:540-563` renders as the children of the trigger:
-
-```tsx
-<button
-  id={controlId}
-  type="button"
-  role="combobox"
-  ...
->
-  {triggerContent}
-  <ChevronDownIcon ... />
-</button>
-```
-
-`<button>` has *phrasing content* as its content model, with no
-interactive descendants allowed. The HTML parser does not nest the two:
-it closes the outer button and hoists the inner one out, so the tree the
-browser builds differs from the tree React rendered — which is exactly
-what the hydration error is reporting.
-
-### Why this matters more than a console warning
-
-1. The parser's rewrite moves the remove buttons **out of the trigger**,
-   which changes where clicks land and what the trigger's hit area is.
-2. A nested interactive element is unreachable in the intended order for
-   keyboard and screen-reader users: the outer button swallows the
-   focusable child in some ATs and not others.
-3. React 19 treats it as a hydration mismatch, and a page that reports
-   hydration errors for a *library* component teaches consumers to
-   ignore the ones that are their own fault.
-
-### Proposed fix
-
-Take the trigger off `<button>` and give the chips somewhere legal to
-live. In order of cost:
-
-1. **Render the trigger as a `<div role="combobox" tabIndex={0}>`** and
-   keep every ARIA attribute already on it (`aria-haspopup`,
-   `aria-expanded`, `aria-controls`, `aria-required`, `aria-invalid`,
-   `aria-describedby`, `aria-disabled`). `handleTriggerKeyDown` already
-   drives the listbox from the keyboard, so the only thing lost is the
-   implicit Space/Enter activation, which that handler can add. This is
-   the pattern the ARIA authoring practices use for an editable combobox
-   and the one that makes the nesting legal.
-2. **Or move the chips list out of the trigger**, rendering it as a
-   sibling above or below, and leave only the summary text and the
-   chevron inside the button. This changes the visual design, so it is
-   the library's call, not a consumer's.
-
-⚠️ Whatever the choice, `aria-required` and `aria-invalid` must stay on
-the element that carries `role="combobox"`, or this re-opens BUG 21's
-cost on a different component.
-
-### How to verify it is fixed
-
-On a page with a multi `<Select>` and at least one option chosen:
-
-```js
-!!document.querySelector('button[role=combobox] button')
-// must be false; today it is true
-
-document.querySelector('[role=combobox]').getAttribute('aria-required')
-// must still be "true" on a required field
-```
-
-and the console must carry no `cannot be a descendant of <button>`
-entry on load.
-
-### No downstream workaround
-
-`ugo-web` ships the form as it is: there is nothing a consumer can do
-about markup a library renders from its own props.
-
----
-
-## BUG 24 — `<Button>` (tw): no way to put one on an inverted surface, so any dark header or footer has to hand-roll it
+## BUG 24 — RICLASSIFICATA. Non è un difetto ma una capability assente: `<Button>` (tw) non ha un trattamento per superfici scure, parcheggiata in kensaadi/dashforge#140
 
 Hit 19/09/2026 in `~/projects/web/urbango-project/ugo-web`, putting a
 quiet «Dashboard» action into the marketing header.
@@ -2055,7 +1928,12 @@ is simply unreadable, which at least shows. It matters because it makes
 the library unusable on exactly the surfaces a marketing site has most
 of: dark heroes, ink footers, inverted panels.
 
-**Status:** open.
+**Status:** riclassificata 26/09/2026 e **parcheggiata**, non aperta.
+Il sintomo è reale e verificato; la classificazione era sbagliata. Nulla
+si comporta male, manca una capability, e chiuderla aggiunge superficie
+API pubblica. Spec completa, con piano di release, in
+kensaadi/dashforge#140 (Project #6, Dashforge 2.0.0). Le sezioni qui
+sotto sono il report originale, conservato; il verdetto è in coda.
 
 ### Symptom
 
@@ -2128,365 +2006,91 @@ from the library, no `loading` state, and no `disabled` treatment. They
 are buttons in appearance only, and every one of them is a place where
 the system's behaviour has to be remembered by hand.
 
----
+### ✅ Verifica 26/09/2026 — il sintomo regge, due affermazioni no
 
-## BUG 25 — `<Divider orientation="vertical">` (tw) comes out `w-full`, so it breaks the row it was meant to divide
+Letto dal sorgente, non dal report:
 
-Hit 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, separating
-the groups of a toolbar.
+- l'asse `color` ha **cinque** valori (`primary` → `danger`): nessun
+  `neutral`, nessun `inverse`, e **nessun asse `surface` in tutto il
+  catalogo**, quindi non esiste un pattern da applicare;
+- le 15 righe `compoundVariants` di `outline`/`ghost`/`link` fissano
+  davvero il foreground al tier `-700`.
 
-**Severity:** medium. It is loud rather than silent — the layout is
-visibly wrong — but the cause is invisible from the call site, and the
-obvious `sx` fix does not work.
+Due correzioni:
 
-**Status:** open.
+1. **«Every variant resolves to a fixed foreground» è troppo forte.**
+   `solid` porta `text-white` più un proprio background nel variant
+   class, quindi funziona già su qualsiasi superficie. Il buco è su tre
+   variant su quattro.
+2. **«dalle scale neutral o semantiche» è sbagliato.** `neutral` non è
+   fra i valori di `color`. Sono solo semantiche.
 
-### Symptom
+#### Il claim su `sx`, misurato invece che asserito
 
-A row of buttons with vertical dividers between the groups does not
-come out as a row. Every divider takes the full width of the container,
-so each group is pushed onto a line of its own and the bar becomes five
-rows tall.
-
-Measured on the served page, the vertical divider's box:
-
-```
-class  "border-l self-stretch border-solid w-full h-5 mx-1 border-neutral-200"
-width  621px      ← the whole container
-```
-
-### Cause
-
-`tw/src/components/Divider/divider.variants.ts`, in
-`dividerLineVariants`. Two axes disagree and the wrong one wins.
-
-The orientation axis is right:
+Passando le stringhe vere per `twMerge`:
 
 ```
-orientation: {
-  horizontal: 'h-0 border-t',
-  vertical:   'w-0 border-l self-stretch',
-}
+sx="text-white"
+  -> hover:bg-primary-50 focus-visible:ring-primary-500 text-white
+
+sx="text-white hover:bg-white/10 focus-visible:ring-white"
+  -> text-white hover:bg-white/10 focus-visible:ring-white
 ```
 
-The segment axis is not orientation-aware:
+L'override ingenuo, che è quello che un consumer scrive, lascia hover e
+ring sulla scala chiara: il failure mode descritto («leggibile a riposo,
+sbagliato appena passa il mouse») è esatto. Ma un `sx` completo a tre
+proprietà li sostituisce puliti. Quindi non è impossibile oggi: è una
+formula da ricordare a ogni call site, la cui forma comune rompe solo
+sull'interazione. È un argomento più difendibile di «impossibile», ed è
+quello vero.
+
+### ⚠️ La fix proposta qui sopra NON è costruibile come scritta
+
+«compound entries that use the inverse tokens»: **quei token non
+esistono.** Il preset definisce sei scale (`neutral`, `primary`,
+`secondary`, `success`, `warning`, `danger`) e niente chiamato inverse,
+on-dark o contrast.
+
+L'unica inversione nel sistema è la scala `neutral` che scambia 50 e 950
+fra light e dark. È **theme-driven, non surface-driven**, ed è il
+meccanismo sbagliato qui: un hero scuro è scuro in *entrambi* i temi,
+quindi un bottone costruito su `neutral` sarebbe corretto in light e
+rotto in dark. `slate` è theme-invariant ed è ciò che il progetto usa
+già per le superfici sempre-scure, ma viene dalla palette Tailwind e non
+dalle CSS var del preset, quindi non è temizzabile via token Dashforge.
+
+### Un artefatto che il report non nomina
+
+La base del Button ha `focus-visible:ring-offset-2`, e né la base né il
+preset impostano un colore per l'offset. Cade sul default di Tailwind
+v4, verificato in `tailwindcss@4.3.0/dist/lib.mjs`:
 
 ```
-segment: {
-  full:  'w-full',      ← unconditional
-  grow:  'flex-1',
-}
+"--tw-ring-offset-color","#fff"
 ```
 
-A line-only divider renders with `segment: 'full'` whatever its
-orientation, so a vertical one gets `w-0` from one axis and `w-full`
-from the other. `tailwind-merge` keeps the later of two conflicting
-width utilities, `w-full` wins, and the divider is a full-width bar
-with a left border.
-
-`full` means «span the divider's own main axis». For a horizontal line
-that is the width; for a vertical one it is the **height**.
-
-### Why `sx` does not save the call site
-
-`sx="h-5 mx-1"` reads as the right fix and changes nothing about the
-width: nothing in it conflicts with `w-full`, so the merge keeps it.
-The consumer has to write `w-px` — a width, to beat a width — which
-nobody guesses from a prop called `orientation`.
-
-### Proposed fix
-
-Make `segment` a compound of orientation, which is what it always
-meant:
-
-```
-compoundVariants: [
-  { orientation: 'horizontal', segment: 'full', class: 'w-full' },
-  { orientation: 'vertical',   segment: 'full', class: 'h-full' },
-]
-```
-
-and drop `full` from the plain `segment` axis, leaving `grow: 'flex-1'`
-(which is already orientation-agnostic and correct).
-
-⚠️ `orientation: vertical` should probably also stop emitting `w-0`:
-with a `border-l` the element is 1px wide by its border, and `w-0` plus
-a border is a shape that only reads as intentional to whoever wrote it.
-
-### How to verify it is fixed
-
-```tsx
-<div className="flex flex-row items-center gap-1">
-  <button>A</button>
-  <Divider orientation="vertical" sx="h-5" />
-  <button>B</button>
-</div>
-```
-
-A and B must stay on the same line, with a 1px rule between them. Today
-B is on the second line.
-
-### Current workaround downstream
-
-`ugo-web/app/components/editor/post-editor.tsx` — `sx="w-px h-5 mx-1"`,
-where the `w-px` exists only to beat `w-full` and will look like
-superstition to whoever reads it next. Remove it when this is fixed.
-
----
-
-## BUG 26 — a few components hard-code bare `rounded`, which in Tailwind v4 reads no token, so they cannot be themed
-
-Found 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, giving
-the dashboard a theme.
-
-**Severity:** low, and worth an entry anyway: it is small, it is silent,
-and it defeats the one thing a token system is for.
-
-**Status:** open.
-
-### Symptom
-
-A consumer whose brand is square sets the radius scale to zero:
-
-```css
-@theme { --radius-xs: 0; --radius-sm: 0; --radius-md: 0; /* … */ }
-```
-
-Everything squares — Button, Card, Select, TextField — except a handful
-of components, which keep a 4px corner nobody asked for and nothing can
-reach.
-
-Measured on the served page: `button[role=checkbox]` →
-`border-radius: 4px`, with every radius token at `0px`.
-
-### Cause
-
-`tw/src/components/Checkbox/checkbox.variants.ts:24`
-
-```
-'rounded border bg-neutral-50',
-```
-
-⚠️ In Tailwind v4 `rounded` (no suffix) is **0.25rem hard-coded**, not
-`var(--radius-sm)`. Only the suffixed utilities read the scale. So this
-class is immune to the theme by construction.
-
-The same bare `rounded` appears in `Slider` and `Skeleton`. `Avatar`,
-`Box`, `Card`, `Image` and `Video` also match a grep for it, but there
-it is the name of a **prop** (`rounded="lg"`), which is fine and not
-this bug — the grep is noisier than the defect.
-
-### Why it is worth fixing rather than working around
-
-A design system's promise is that the brand lives in the tokens. One
-component that ignores them is not a small visual difference: it is the
-proof that the promise does not hold, and the consumer learns to stop
-trusting the scale and to override per component — which is the state
-this consumer was in before it had a theme at all.
-
-### Proposed fix
-
-Replace bare `rounded` with `rounded-sm` (the same 0.25rem default) in
-`Checkbox`, `Slider` and `Skeleton`. Behaviour is identical out of the
-box, and the class starts reading `--radius-sm`.
-
-⚠️ Worth a lint rule rather than a one-off fix: bare `rounded`,
-`shadow`, `blur` and `ring` are all v4 utilities that skip the token
-scale, and any of them landing later reintroduces this quietly.
-
-### How to verify it is fixed
-
-With `--radius-sm: 0px` in the consumer's `@theme`:
-
-```js
-getComputedStyle(document.querySelector('button[role=checkbox]')).borderRadius
-// must be "0px"; today it is "4px"
-```
-
-### Current workaround downstream
-
-`ugo-web/app/components/forms/field-styles.ts` — `checkboxSlots.control`
-carries an explicit `rounded-none`. It is one line in one place because
-the consumer has a theme; without one it would have been four forms.
-
----
-
-## BUG 27 — `<AppShell>` (tw): the root is `min-h-screen`, so the window scrolls and `main`'s own `overflow-y-auto` never engages
-
-Found 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, asking
-the dashboard header to stay put.
-
-**Severity:** low-medium. Nothing breaks; the shell simply does not do
-the thing its own documentation draws, and two of its classes
-contradict each other.
-
-**Status:** open.
-
-### Symptom
-
-The header and the left nav scroll away with the page. A `<TopBar
-sticky>` inside the header slot does not help: measured after scrolling
-54px, the header sat at `top: -54`.
-
-### Cause
-
-`tw/src/components/AppShell/appShell.variants.ts`
-
-```
-root: 'flex flex-col min-h-screen bg-neutral-100',
-body: 'flex flex-1 min-h-0',
-main: 'flex-1 min-w-0 overflow-y-auto',
-```
-
-`main` declares itself the scroller. `root` is `min-h-screen`, so when
-the content is taller than the viewport the ROOT grows, the window
-scrolls, and `main` never overflows — its `overflow-y-auto` is dead
-code in every page that is long enough to matter, which is every page
-where it would have mattered.
-
-The two classes describe two different layouts. The component's own
-header comment draws the first one:
-
-```
- *   ├────────┴─────────────────────────────────┤
- *   │              footer                      │
-```
-
-with a fixed header and nav, which is the layout `main: overflow-y-auto`
-was written for.
-
-### Proposed fix
-
-Either make the root fill the viewport:
-
-```
-root: 'flex flex-col h-dvh overflow-hidden bg-neutral-100',
-```
-
-or, better, put it on an axis, because both layouts are legitimate and
-a marketing-style shell wants the page to scroll:
-
-```
-layout: {
-  viewport: 'h-dvh overflow-hidden',   // header and nav fixed
-  page:     'min-h-screen',            // the window scrolls
-}
-```
-
-⚠️ `h-dvh` and not `h-screen`: on a phone the address bar comes and
-goes, and `100vh` is the height the screen has only while that bar is
-hidden. `h-screen` produces a shell taller than the window — the page
-scrolls again, on exactly the devices where it is most annoying.
-
-⚠️ And the nav needs `overflow-y-auto` of its own in the fixed layout:
-fixed must not mean clipped, or on a short screen the last items become
-unreachable.
-
-### How to verify it is fixed
-
-With a page taller than the viewport:
-
-```js
-document.querySelector('main').scrollTop = 600
-window.scrollY                                        // must stay 0
-document.querySelector('header').getBoundingClientRect().top  // must stay 0
-```
-
-### Current workaround downstream
-
-`ugo-web/app/theme/dashforge.ts` — `AppShell.slotProps` sets
-`root: 'h-dvh overflow-hidden'` and `nav: 'overflow-y-auto'`. One place
-because the consumer has a theme; without one it would have been every
-shell in the product.
-
----
-
-## BUG 28 — `<Dialog>` and `<Drawer>` (tw) ring their close button on `:focus`, so every dialog opened with the mouse shows a focus ring
-
-Found 20/09/2026 in `~/projects/web/urbango-project/ugo-web`, opening a
-read-only detail card from a click.
-
-**Severity:** low, and cosmetic — but it is on the two components where
-it is guaranteed to be seen, because both move focus there themselves.
-
-**Status:** open.
-
-### Symptom
-
-Click anything that opens a `<Dialog>`. The `×` in the corner comes up
-wearing a 2px ring, before the pointer has gone anywhere near it. It
-reads as a framed button, not as focus: the first thing the eye lands
-on in a panel is a box around the one control nobody came for.
-
-Measured on the element the dialog had just focused, with the mouse:
-
-```
-document.activeElement                  // <button aria-label="Close">
-el.matches(':focus-visible')            // false
-getComputedStyle(el).boxShadow          // rgb(24,24,27) 0 0 0 2px  ← painted anyway
-```
-
-`:focus-visible` says no and the ring is there, which is the whole bug
-in two lines.
-
-### Cause
-
-`tw/src/components/Dialog/dialog.variants.ts:48`
-
-```
-'focus:outline-none focus:ring-2 focus:ring-primary-500',
-```
-
-`tw/src/components/Drawer/drawer.variants.ts:80`
-
-```
-'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1',
-```
-
-Plain `:focus`, so it matches however focus arrived — and it always
-arrives: Radix moves focus into the panel on open, and the close button
-is the first focusable thing in it. A mouse click therefore paints a
-ring every single time.
-
-⚠️ **The library already knows better everywhere else.** 28 files use
-`focus-visible:ring`; these two lines are the only `focus:ring` in
-`tw/src`. It is not a policy, it is two lines that were missed — and
-they landed on the two components that focus something on open, which
-is why they are the ones you see.
-
-### Proposed fix
-
-```
-'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500'
-```
-
-in both files. Keyboard users keep the ring — Tab into the close button
-and `:focus-visible` matches — and a mouse-opened panel comes up clean.
-
-⚠️ Do NOT fix it by suppressing the focus move instead (`onOpenAutoFocus`
-preventing default): focus has to enter the panel or Escape and Tab stop
-belonging to it. The problem is what the ring is drawn on, not that the
-button has focus.
-
-### How to verify it is fixed
-
-Open a dialog **by clicking**:
-
-```js
-const el = document.activeElement          // the Close button
-el.matches(':focus-visible')               // false
-getComputedStyle(el).boxShadow             // must now be 'none'
-```
-
-Then press Tab twice to come back to it: `:focus-visible` true, ring
-painted.
-
-### Current workaround downstream
-
-None. `ugo-web` leaves it as it is: the ring is wrong but harmless, and
-overriding it from the consumer's theme would mean re-specifying a focus
-treatment for the one component whose default is out of step with the
-other 28.
+Su fondo scuro, il focus da tastiera dipinge un **alone bianco** di 2px.
+Qualsiasi trattamento inverse deve impostare l'offset o togliersi
+l'offset, altrimenti la fix spedisce l'artefatto.
+
+### Dove è finita
+
+kensaadi/dashforge#140, Project #6. Strada scelta: quella
+token-corretta, non la scorciatoia hardcoded. Una scala `inverse`
+**theme-invariant** in `tw-tokens`, emessa come
+`--df-tw-color-inverse-*` dal preset, letta dai compound del Button.
+Tre package, tre minor (`tw-tokens` 1.2.0 → 1.3.0, `tw-theme`
+1.2.0 → 1.3.0, `tw` 1.7.1 → 1.8.0), tutti additivi.
+
+⚠️ Vincolo di compatibilità che la issue tratta e che vale ripetere:
+`tw` 1.8.0 emette classi `text-inverse-*` che leggono CSS var che solo
+`tw-theme` 1.3.0 produce. Con `tw-theme` 1.2.0 quelle classi non
+risolvono nulla e il bottone resta senza foreground, che è **peggio del
+bug che stiamo chiudendo**. Il peer range va alzato a `>=1.3.0` e
+l'ordine di publish è tokens, theme, tw. È anche il primo vincolo
+cross-package del repo che richiede davvero un `COMPAT.md`, che oggi non
+esiste.
 
 ---
 
@@ -2722,136 +2326,6 @@ Se le tre risposte sono sì, la classe È themeable e il report è
 partito da una premessa sbagliata. Costa cinque minuti e evita di
 aprire una voce che poi va ritirata.
 
-## BUG 31 — `<Calendar>` (tw): a selectable sibling-month day is painted like a disabled one, and neither a consumer nor a theme can separate the two
-
-Found 25/09/2026 in `~/projects/web/urbango-project/ugo-web`, on a
-booking form whose `DatePicker` carries `minDate = today`: a hotel picks
-the day a guest is driven to the airport, and yesterday is not a day.
-
-**Severity:** low, and cosmetic. But it is cosmetic about *affordance*,
-which is the one thing a date grid exists to communicate.
-
-**Status:** open. Reported as a **request**, not a defect — see
-§ Defect or request.
-
-### Symptom
-
-Today is 25/09/2026. The September grid opens and the user reads:
-
-- 1–24 September: grey. Correct, they are past.
-- 25–30 September: black. Correct.
-- **1–11 October** (the trailing days of the 42-cell grid): **also
-  grey — and fully selectable.**
-
-So the grid uses one visual idiom, "greyed out", for two opposite
-meanings: *you cannot pick this* and *you can pick this, it just belongs
-to next month*. The user's report was literally «perché le date future
-sono grigie? le posso selezionare comunque ma sono grigie».
-
-### Measured, not read
-
-Every one of the 42 buttons, via `getComputedStyle` on the running app:
-
-| Cells | `aria-disabled` | `color` | `opacity` | Selectable |
-|---|---|---|---|---|
-| 31 Aug – 24 Sep | `true` | `rgb(212,212,216)` | `0.6` | no |
-| 25 – 30 Sep | `false` | `rgb(24,24,27)` | `1` | yes |
-| **1 – 11 Oct** | **`false`** | **`rgb(161,161,170)`** | **`1`** | **yes** |
-
-Note the inversion that makes it worse than a plain collision: the
-disabled grey composites to roughly `rgb(229)` on white, i.e. it is
-*lighter* than the sibling-month grey at `rgb(161)`. The day you cannot
-pick is the fainter one, the day you can pick is the stronger one, and
-both are "not black". Nothing on the cell distinguishes them except a
-difference of about 68 levels of luminance.
-
-### Cause
-
-`libs/dashforge/tw/src/components/Calendar/calendar.variants.ts:41`
-
-```ts
-siblingMonth: {
-  true: 'text-neutral-400',
-},
-```
-
-and ten lines below, `:51`
-
-```ts
-disabled: {
-  true: 'cursor-default text-neutral-300 opacity-60 hover:bg-transparent',
-},
-```
-
-Two independent axes, each muting the text, with no compound variant
-reconciling them. (`cn`/tailwind-merge does resolve the *overlap*
-correctly when a cell is both: 31 August comes out `neutral-300`. The
-problem is not the overlap, it is that `siblingMonth` alone already
-looks like `disabled` alone.)
-
-### Why a consumer cannot fix it downstream
-
-`libs/dashforge/tw/src/components/Calendar/Calendar.tsx:250-256`
-
-```tsx
-className={cn(
-  calendarDayVariants({
-    siblingMonth: day.isSiblingMonth,
-    today: day.isToday,
-    selected: day.isSelected,
-    disabled: day.isDisabled,
-  }),
-  themeSlotProps?.day?.className, slotProps?.day?.className,
-)}
-```
-
-`slotProps.day.className` is a flat string applied to **all 42 cells**,
-and so is the theme-level `themeSlotProps.day.className`. There is no
-per-state slot, no render prop, and no `showSiblingDays` switch. An app
-that wants sibling days to read as selectable has exactly three
-options, all bad: restyle every cell identically (which also erases the
-disabled treatment), reach into the DOM after render, or fork the
-component.
-
-### Defect or request
-
-**Request**, and deliberately not called a defect. Muting the days that
-belong to the neighbouring month is the standard convention — React Day
-Picker, MUI's `DateCalendar` and the HTML `<input type="date">` pickers
-all do some version of it, and shipping it as the default is a
-reasonable decision. What is missing is the *escape hatch*: the library
-makes the decision and then leaves no supported way to depart from it,
-which is the same API asymmetry recorded in BUG 26 and BUG 30.
-
-⚠️ The counter-argument, recorded honestly: the two greys *are*
-distinguishable, and a user who studies the grid can work out the rule.
-The report is that at a glance they do not read as two categories — and
-a date grid is scanned, not studied.
-
-### Proposal, least invasive first
-
-1. **`showSiblingDays?: boolean`, default `true`.** When `false`, the
-   trailing and leading cells render as empty placeholders that keep the
-   7-column geometry. This is the cheapest fix and it resolves the whole
-   class of confusion for any form where "a day of the next month" is
-   not a distinct concept — which is most forms. Additive, no impact on
-   anyone who does not pass it.
-2. **Let `slotProps.day` be a function of the day's state**, e.g.
-   `day?: DaySlotProps | ((state: CalendarDayState) => DaySlotProps)`,
-   with `CalendarDayState` being the four booleans already computed at
-   `Calendar.tsx:251`. This is the general fix: it lets a theme restyle
-   one state without touching the others, and it costs nothing at the
-   call sites that pass an object today.
-
-Point 1 alone would close the report. Point 2 is what stops the next
-one of this shape from being opened.
-
-### Current workaround downstream
-
-None. Left as it ships: the click on a past day is correctly refused by
-`selectDate`, so nothing is broken — only harder to read than it should
-be.
-
 ## BUG 32 — BUG 17 was fixed only on the MUI side: `@dashforge/tw` still hides every validation message behind an explicit `helperText`
 
 Found 25/09/2026 in `~/projects/web/urbango-project/ugo-web`, making a
@@ -2971,9 +2445,1789 @@ turns red. The message starts working the day this is fixed.
 
 ## Unconfirmed
 
-*(nothing yet — move suspicions here rather than into the list above)*
+### FIXED 26/09/2026 — `@dashforge/tw:build` raced `@dashforge/tw:typecheck` over the same `dist/`
+
+Not a library defect, and **not** the same thing as the wall-clock
+assertion resolved below. That one is closed; this is a second,
+independent cause of an intermittent red on the same task name, and it is
+still open.
+
+Caught 26/09/2026 with the failing run's own output, which is what the
+note below says to do and what finally worked:
+
+```
+[!] (plugin rollup-plugin-nx-delete-output)
+    Error: ENOTEMPTY: directory not empty, rmdir
+    '…/libs/dashforge/tw/dist/components'
+  at deleteOutputDir (@nx/rollup/src/utils/fs.js:14:21)
+```
+
+#### Cause, read out of the config
+
+Two targets own the same directory and nothing orders them:
+
+- `typecheck` → `tsc --build tsconfig.lib.json --emitDeclarationOnly`,
+  and `tsconfig.lib.json` has `"outDir": "dist"`, so it **writes**
+  `libs/dashforge/tw/dist/**`;
+- `build` → rollup, whose `@nx/rollup` delete-output plugin **rmdir**s
+  the same `dist/`.
+
+`nx run-many` schedules them concurrently, so when tsc is emitting
+`dist/components/**/*.d.ts` while the plugin is removing
+`dist/components`, the rmdir hits a directory that just got repopulated.
+Both artifacts are dated minutes apart in a normal run
+(`dist/index.d.ts` and `dist/src/index.d.ts`), which is the same fact
+seen from the other side.
+
+The ordering is **deliberately absent**, and `project.json` says why:
+
+> `_comment`: "typecheck excluded from dependsOn: TS bundler resolver
+> fails when consuming `@dashforge/forms/dist/index.d.ts` … Re-attach
+> `typecheck` once the publishables' dist d.ts wrappers are switched to
+> inline `export ...` (out of scope F3)."
+
+So the race is a known consequence of a documented workaround, not an
+oversight. It just was never connected to the intermittent red.
+
+#### Frequency
+
+Roughly one run in ten of the full four-target command. Two immediate
+re-runs after the failure above were both green, which is exactly why it
+looked like flakiness for so long.
+
+#### Options, none applied — this touches the published artifact
+
+1. Re-attach `typecheck` to `build`'s `dependsOn`. Simplest, and the
+   `_comment` says it is blocked by the d.ts wrapper shape.
+2. Give `typecheck` its own `outDir` so the two never share a directory.
+   Needs care: the published package's `types` resolve through `dist/`,
+   so moving the emit changes what ships.
+3. Drop the delete-output plugin and clean `dist/` in an ordered step.
+
+#### Fix applied — option 4, which the list above missed
+
+`typecheck` now `dependsOn: ["build"]`. The `_comment` on the build target
+documents why the REVERSE (build depending on typecheck) is blocked by a TS
+resolver issue; nobody had tried this direction. No cycle, and the two can
+no longer overlap, so the race is gone **by construction** rather than by
+luck. Four consecutive full four-target runs with `--skip-nx-cache`: green.
+
+It also fixed something nobody had noticed. Run separately, the two targets
+produce:
+
+```
+typecheck  ->  dist/index.d.ts + dist/components/**/*.d.ts     (191 files)
+build      ->  dist/index.esm.js + dist/index.d.ts
+               + dist/src/components/**/*.d.ts                 (191 files)
+```
+
+**Both wrote `dist/index.d.ts`**, at different internal path shapes
+(`./components/…` versus `./src/components/…`), and the winner was whoever
+finished last. The published types were non-deterministic. With the
+ordering, typecheck always lands last and the shipped `index.d.ts` is
+always the `./components/…` flavour.
+
+⚠️ What the ordering does NOT fix, and what the mandatory pre-publish pack
+check surfaced immediately afterwards: both sets of declarations still
+SHIP. `@dashforge/tw` packs **766 files / 4.6 MB**, of which 382 are
+`.d.ts` (191 of them redundant) and 382 are `.d.ts.map`, plus
+`dist/tsconfig.lib.tsbuildinfo`, a pure build artifact. Against the
+standing guideline of under 100 files and under 1 MB for a UI package.
+`tw-theme` has the same shape at a smaller scale (11 duplicates + a
+tsbuildinfo); `ui`, `forms` and `ui-core` do not duplicate.
+
+That is packaging, not the race, and it is worth closing before an
+eleven-package release rather than after.
+
+#### Packaging cleaned 27/09/2026, with two traps taken in the face
+
+Every publishable package now excludes declaration sourcemaps and any
+incremental-compile cache:
+
+```json
+"files": ["dist", "!dist/**/*.d.ts.map", "!dist/**/*.tsbuildinfo",
+          "README.md", "CHANGELOG.md"]
+```
+
+| package | files before | after | tarball |
+|---|---|---|---|
+| `tw` | 766 | **386** | 412K |
+| `tw-theme` | 46 | 26 | 23K |
+| `ui` | 152 | 81 | 160K |
+| the other seven | — | 13-39 | 4-84K |
+
+Zero `.d.ts.map` and zero `tsbuildinfo` across all ten. The maps pointed at
+`.ts` sources the packages do not ship, so they were dead weight in every
+one of them.
+
+⚠️ **Trap 1: `tsBuildInfoFile` inside `dist` is load-bearing.** Moving it
+out looked strictly correct and broke the build silently. The rollup build
+wipes `dist`, which invalidates that incremental cache along with the
+outputs it describes. Moved out, it survives the wipe, tsc finds a cache
+that says everything is current, emits **nothing**, and the package ships
+with one declaration file instead of 191. Caught only because the pack
+check ran afterwards. Both tsconfigs now carry a comment saying so.
+
+⚠️ **Trap 2: `!dist/src` cannot be used, even though `dist/src` really is
+a duplicate on `tw` and `tw-theme`.** The exclusion is only correct when
+`typecheck` has run AFTER `build`, because only then do the top-level
+declarations exist. `scripts/link-tw-to-dash.sh` runs `nx build` alone, so
+at pack time the ONLY declarations present are the ones under `dist/src` —
+and the exclusion stripped them. The package installed into `learn/dash`
+with **two files** and every import failed to resolve. A `files` whitelist
+must not depend on which tasks happened to run.
+
+So the duplication stays for now: `tw` ships 382 declarations where 191
+would do. The correct fix is to stop the rollup build emitting them at all,
+so a single producer owns `dist`, and that belongs in the rollup config,
+not in a pack-time exclusion.
+
+#### Verified
+
+`@dashforge/tw` packed and installed into `learn/dash`: 193 files arrive,
+192 declarations, zero maps, and `tsc -b --noEmit` across the whole
+consumer reports **zero errors**. The trimmed package resolves.
+
+---
+
+### RESOLVED — one intermittent CI red was a wall-clock assertion
+
+Kept here because the earlier note in this section guessed at it and the
+guess was wrong. The cause is now known, from a captured failing run:
+
+```
+FAIL src/components/AppShell/AppShell.test.tsx
+     > <AppShell> performance > mounts under 30ms with all slots filled
+AssertionError: expected 44.66166700000008 to be less than 30
+```
+
+Not flaky, and nothing to do with the library. `AppShell.test.tsx`
+asserted a **render time** — `expect(t1 - t0).toBeLessThan(30)` — which
+measures the machine, not the component. Run alone the mount is inside
+30ms; run the way CI runs it, with eleven other projects building
+alongside 2000 jsdom tests, it took 44ms.
+
+The earlier suspicion in this slot ("memory pressure", from the one
+failure I could not reproduce) was in the right area and named the wrong
+mechanism. The lesson that made it findable: **capture the failing run's
+own output before doing anything else**. Six clean reruns proved nothing,
+because they were not the run that failed.
+
+Also worth knowing, and the reason this was mistaken for a build problem
+earlier: when one task fails, nx terminates its siblings, truncating
+their stdout mid-line (`✓ @dashf`). A cut-off log is a killed process,
+not a failing test. Read `Failed tasks:`, then re-run that one task alone
+for untruncated output.
+
+`tw:build` also prints a long run of `ERROR failed to read input source
+map: … "useTableSelection.js.map"` from swc, one per file under
+`_shared/data/` and `DataGrid/`. Noise, not a cause: the build writes
+`dist` and succeeds, and the lines appear in passing runs too. Left
+alone.
+
+**Fixed** 26/09/2026 by raising the two bounds tight enough to measure
+contention rather than code: `AppShell` 30 -> 200ms, and `TopBar`
+20 -> 200ms, which at 20ms was the tightest in the suite and the next one
+due to fire. Neither assertion was removed. For context, the suite holds
+**18** of these, and the rest sit at 50-800ms:
+
+| bound | count |
+|---|---|
+| 50ms | 1 |
+| 100-250ms | 9 |
+| 500-800ms | 5 |
+
+The deterministic version of the same intent already exists next to the
+AppShell one — `renders at most 2 times on mount`, which asserts a render
+count and cannot be affected by load. That is the pattern to extend.
+
+⚠️ The real fix is structural and was not done: a wall-clock bound does
+not belong in a unit test that gates merges. Splitting the `*.perf.test.tsx`
+files into their own target, kept out of the CI gate, removes the whole
+class. Left for a deliberate pass.
+
+#### Closed 27/09/2026, and the plan above was the wrong one
+
+The gate went red twice more on the same class, from the same cause:
+
+```
+FAIL src/components/Autocomplete/Autocomplete.perf.test.tsx
+AssertionError: expected 159.81825000000003 to be less than 100
+FAIL src/components/LeftNav/LeftNav.perf.test.tsx
+AssertionError: expected 117.69637499999999 to be less than 50
+```
+
+Two things turned up on the way to fixing it, and both contradict what
+this note said to do.
+
+**`vite.config.ts` already carried a mitigation, and it never ran.** The
+config excluded `**/*.perf.test.*` when `process.env.CI` was set. Vitest
+4.0.18 **ignores `test.exclude`**: with the pattern unconditional and no
+CLI filter, a full run still collected all 146 files including the seven
+perf ones. So the perf specs have been gating CI all along, and the
+comment promising otherwise was reassuring and false. Anyone writing
+`test.exclude` in this repo should know it does nothing.
+
+**Taking the files out of the gate would have removed real coverage.**
+They are not pure timing specs. Of 39 assertions, 16 are wall-clock and
+the rest are deterministic — render counts (`at most 2 times on mount`),
+the virtualizer's row count (`< 100` of 10000), callback call counts — and
+some sit in the *same* `it` as a timing assertion, so per-file exclusion
+could not separate them.
+
+So the split went per-assertion instead. `src/test-utils/perfBudget.ts`
+exports `expectWithinBudget(elapsed, budget)`, which scales the budget by
+`DF_PERF ? 1 : 4`. All 16 wall-clock assertions call it. The gate keeps
+every deterministic guard and tolerates contention; `nx run
+@dashforge/tw:test-perf` sets `DF_PERF` and enforces the budgets as
+written, on a quiet machine. 4x is the measured worst contention (2.3x)
+plus room, not an open door: `perfBudget.test.ts` pins that 401ms against
+a 100ms budget still fails.
+
+Verified: `test-perf` green on an idle machine (7 files, 39 tests), and
+the full `lint typecheck test build` across all twelve projects green
+under the contention that produced the numbers above.
+
+### Sweep 27/09/2026 — what the lint noise was hiding
+
+Run before the 2.0.0 alignment, on the premise that the register being at
+zero open bugs did not mean the tree was clean. It was not. None of the
+below is a defect in a shipped component except where it says so; kept
+here because each one had been invisible for a reason worth remembering.
+
+**197 lint warnings on `@dashforge/tw`, 181 of them suppressions of a rule
+that is already off.** Every `*.precedence.test.tsx` carried
+`// eslint-disable-next-line @typescript-eslint/no-explicit-any` lines, and
+the root config switches that rule off for test files. Removed with
+`eslint --fix`. Six more were the `_name` convention for a deliberately
+unused binding (`tooltip: _tooltip`, which strips a prop out of `...rest`
+per BUG 9), which `no-unused-vars` was not configured to honour; the root
+config now sets `argsIgnorePattern` / `varsIgnorePattern` / the caught-error
+and destructured-array equivalents to `^_`. Repo-wide the count went from
+197+ to 23, and five packages to zero. BUG 39 above is what was buried in
+it.
+
+**Four `typecheck` targets had lost their ordering.** `forms`, `theme-mui`,
+`tw-theme` and `ui` declare `typecheck` in `project.json` and, in
+overriding the inferred `@nx/js` target, dropped its
+`dependsOn: ["^typecheck"]`. All four run `tsc --build`, which walks project
+references and re-emits a dependency's declarations when they look stale:
+`ui:typecheck` writes `forms/dist` while `forms:typecheck` is writing the
+same files and the same `.tsbuildinfo`. That is the intermittent red on
+`ui:typecheck` that nx labelled flaky. `^typecheck` restored on all four,
+and added alongside `build` on `tw`. Note for later: a bare
+`options.command` in `project.json` only works because it merges onto an
+inferred target — a genuinely new target needs an explicit `executor`, or
+Nx drops it without a word.
+
+**A dead adapter stub in `@dashforge/forms`.** `syncValueToRHF` in
+`FormEngineAdapter.ts`, marked "Phase 0", was a logging no-op carrying three
+TODOs and had zero callers anywhere in the monorepo. Removed along with its
+declaration in `form.types.ts`.
+
+**A generic parameter that promised type safety and delivered none.**
+`ReactionRunContext<TFieldValues>` never used its parameter;
+`ReactionDefinition<TFieldValues>` "used" it only by passing it down to
+that, and `ReactionRegistry` / `createReactionRegistry` threaded it further.
+So `ReactionDefinition<{ item: string }>` — written that way in eleven call
+sites — checked nothing: `watch` is `string[]` and `getValue` takes a
+`string`, so a typo in a watched field name compiled. Dropped from all four
+types, which aligns them with the sibling `ReactionWhenContext` that never
+had it. Typed field paths (`Path<TFieldValues>` / `PathValue`) are a real
+feature and belong in Project #6, not in a cleanup. The silence on a
+mistyped `watch` entry is deliberate and tested (`reaction watches
+non-existent field (no crash)`), not a defect.
+
+**A test that tested nothing.** `rbac`'s `useCan.spec.tsx` case named
+"should work with inline request object construction" declared a
+`TestComponent` calling `useCan` with a `delete` request, never mounted it,
+and asserted `typeof boolean` on an unrelated `read` hook. It now renders
+the component, which also answers a question nobody had asked: `user` holds
+`delete` on `booking` only under a condition reading
+`resourceData.ownerId`, and a caller passing no `resourceData` gets a clean
+deny rather than a crash. A second case covers what the name was reaching
+for — a fresh request object literal each render, which neither loops nor
+goes stale.
+
+**`eslint-plugin-react-hooks` was enabled on five packages that lacked
+it** (`forms`, `rbac`, `tw-theme`, `calendar-core`, `theme-core`), on the
+expectation that a rules-of-hooks violation was hiding somewhere after
+BUG 33 and BUG 34. There was none. Worth recording as a negative result.
+
+**`<SnackbarProvider>` (ui): `startTimer` captured `close` with an empty
+dependency array.** Not a present defect — `close` depends only on the
+equally stable `clearTimer`, so the identity never changes — but the
+auto-dismiss timer would have gone silently stale the day `close` gained a
+dependency, acting on the queue of the render that created it. `close` moved
+above `startTimer` (a dep array is evaluated during render, so a forward
+reference is a TDZ error) and `startTimer` now names it. The hardened
+auto-dismiss suite passes unchanged.
+
+**Two `jsx-a11y` warnings on `<Autocomplete>` (ui) were false, and now say
+so.** `aria-disabled` on an `<li>` whose `role="option"` arrives through
+MUI's `getOptionProps` spread, which a static rule cannot read. Confirmed
+against the DOM rather than against MUI's documentation:
+`Autocomplete.a11y.test.tsx`, 4 cases — every row carries `role="option"`,
+every row exposes `aria-selected`, exactly one is `true`, and a disabled row
+reports `aria-disabled="true"`. Suppressed on the line the rule reports
+(the opening tag, not the attribute) with that test named in the comment.
+Making the role literal instead was tried and rejected: it just moved the
+complaint to `role-has-required-aria-props` asking for `aria-selected`.
+
+**BUG 31's own entry had gone stale.** It stated that the two API proposals
+were deliberately not built. Both were built later in the same pass. The
+entry is corrected above.
 
 ## Fixed
+
+### BUG 42 — `<TopBar>`'s `start` slot said `min-w-0` and `shrink-0` in the same breath
+
+**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed.
+
+Found while building `<TopBarBrand>` for kensaadi/dashforge#63 gap G, and
+found by the browser rather than by the suite, which is the part worth
+keeping.
+
+#### The two classes cancel each other
+
+```
+start: 'flex items-center gap-2 min-w-0 shrink-0'
+```
+
+`min-w-0` exists to let a flex item shrink below its content width, which
+is the precondition for `truncate` to do anything. `shrink-0` forbids that
+item from shrinking at all. So the `min-w-0` was dead, and whoever wrote it
+was reaching for a truncation that could never happen.
+
+The visible consequence is not a brand that overflows. It is a brand that
+keeps its full width and **pushes `center` and `end` out of the bar**.
+Measured on `learn/dash` with a brand carrying a file-path subtitle:
+
+| bar width | subtitle before | `end` inside before | subtitle after | `end` inside after |
+|---|---|---|---|---|
+| 492px | 203px | yes | 203px | yes |
+| 300px | 203px | yes | 189px | yes |
+| 200px | 203px | **no** | **89px** | **yes** |
+| 140px | 203px | **no** | **29px** | **yes** |
+
+Before, the subtitle never moves off 203px at any width and the `end` slot
+leaves the bar from 200px down. After, it shrinks progressively and the
+`end` slot stays inside at every width. Both columns measured on the built
+package linked into `learn/dash`, not on the source.
+
+#### Fix
+
+`shrink-0` dropped from the `start` slot. Only the already-broken case
+changes: where there is room, a shrinkable item and a non-shrinkable one
+lay out identically, which is why all 2249 `@dashforge/tw` tests passed
+untouched.
+
+#### How a green test missed it
+
+The `<TopBarBrand>` spec asserted that `min-w-0` was on the root and the
+text column and that `truncate` was on both lines. Every one of those was
+true while the bar was breaking, because no descendant can shrink inside an
+ancestor that refuses to. A class-presence assertion cannot see that, and
+jsdom does no layout, so nothing in the suite could have.
+
+What was added is the only part of it jsdom CAN hold: that the `start` slot
+does not carry `shrink-0`. The layout proof stays a browser measurement and
+lives in the table above.
+
+#### Guard
+
+`tw/src/components/TopBar/TopBarBrand.test.tsx`, 11 cases, one of which
+pins the slot contract and says in its own comment why the case above it
+was a false green.
+
+
+### BUG 41 — `<Stack direction="row" divider={<Divider />}>` squeezed its items instead of separating them
+
+**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed.
+
+Reported as gap F of kensaadi/dashforge#63: *"Divider doesn't reliably
+render between Stack children. Needs reproduction, may be the prop semantics
+confusing consumers."* Filed with no repro and with the right guess attached.
+
+#### Reproduced, all four compositions
+
+| | composition | rendered classes | |
+|---|---|---|---|
+| A | `col` + `divider` prop | `h-0 border-t w-full` | correct |
+| B | `row` + `divider={<Divider orientation="vertical"/>}` | `w-0 border-l self-stretch` | correct |
+| C | `col` + `<Divider>` as a plain child | `h-0 border-t w-full` | correct |
+| D | **`row` + `divider={<Divider />}`** | **`h-0 border-t w-full`** | **the defect** |
+
+#### Why it read as "doesn't reliably render"
+
+The rule was in the DOM the whole time, which is why the report could not
+pin it. `<Divider>` defaults to `orientation="horizontal"`, and a horizontal
+rule is `h-0 border-t w-full`. Drop that into a `flex-row`:
+
+- `h-0` gives it no height, so along the row's cross axis there is nothing
+  to see;
+- `w-full` makes it claim the container's entire width as a flex item, so
+  the actual items get squeezed into what is left.
+
+You do not get a missing divider. You get a full-width invisible one and a
+squashed row, which looks like a layout bug somewhere else entirely.
+
+This is adjacent to BUG 25 and not the same. BUG 25 was the case where you
+DID ask for `orientation="vertical"` and still got `w-full`. This is the
+case where you never asked, and the default was wrong for the axis.
+
+#### Why the caller should not have to say it
+
+The names work against you: a row is separated by **vertical** rules and a
+column by **horizontal** ones. So the prop most likely to be omitted is
+exactly the one whose correct value is the counter-intuitive one. And the
+Stack already knows its own axis, so nothing is being guessed.
+
+#### Fix
+
+`interleaveDividers` now takes the Stack's `direction` and supplies the
+orientation the caller did not choose: `row` / `row-reverse` → `vertical`,
+`col` / `col-reverse` → `horizontal`, defaulting to `horizontal` to match
+`defaultVariants.direction: 'col'`.
+
+Two guards on the derivation itself:
+
+- **an explicit `orientation` always wins**, including the shape that looks
+  wrong. A caller who writes `<Divider orientation="horizontal" />` into a
+  row may want exactly that;
+- **a divider that is not ours is never touched.** The check reads
+  `displayName === 'Divider'` rather than importing the component, so Stack
+  keeps no dependency on Divider and the test fails safe. Injecting an
+  `orientation` prop into an `<hr>` or a consumer's own node would put an
+  unknown attribute on the DOM, which is how `tooltip` shipped onto elements
+  in BUG 9.
+
+For a column Stack, the common case, the derived value is the one already
+being produced, so the change is a no-op there.
+
+#### Guard
+
+`tw/src/components/Stack/Stack.divider.test.tsx`, 12 cases: the four axes,
+the unstated default, an explicit orientation winning, a foreign divider
+passing through with no injected attribute, a non-element divider still
+interleaving, and the N-1 arithmetic across 0, 1, 2, 3 and 5 children.
+Verified: with the derivation disabled, 2 of the 12 fail, and they are the
+two row cases.
+
+
+### BUG 40 — `<Chip variant="outline" color="neutral">` had an edge nobody could see
+
+**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed.
+
+Reported as gap E of kensaadi/dashforge#63: *"`<Chip>` `outline` + `neutral`
+— low contrast in dark theme, chips become barely visible."* The symptom is
+real. Both halves of the diagnosis are wrong, and this is the third report
+of this shape, so the measuring came first.
+
+#### Measured against `dashforgePreset()`, on the real surfaces
+
+`#fafafa` light, `#0a0a0a` dark, computed from the neutral scale the preset
+actually installs:
+
+| | light | dark | |
+|---|---|---|---|
+| text, `text-neutral-700` | 9.93:1 | 13.36:1 | passes 4.5:1 twice over |
+| border, `border-neutral-300` | **1.42:1** | **1.91:1** | **fails 3:1, both** |
+
+#### The two things the report got backwards
+
+**It blamed the text.** The text is among the strongest in the catalog. And
+`neutral` is the one colour row with no `dark:` variant precisely because it
+auto-inverts through the preset's CSS vars: adding one would invert twice,
+which is the documented anti-pattern.
+
+**It blamed dark mode.** Dark is the *better* of the two, 1.91 against
+light's 1.42. The border failed in both themes and failed worse in light,
+where nobody had thought to look.
+
+#### Why it is a defect and not a preference
+
+An `outline` chip **is** its border. Take the border out of the reading and
+what remains is unstyled text on the page surface, indistinguishable from a
+label. That makes the border a UI component boundary, so WCAG 1.4.11 applies
+and the floor is 3:1, not the 4.5:1 that would govern text.
+
+| tier | light | dark | |
+|---|---|---|---|
+| `neutral-300` | 1.42 | 1.91 | shipped; fails both |
+| `neutral-400` | 2.42 | 2.53 | still fails both |
+| `neutral-500` | **4.54** | **4.18** | passes both |
+| `neutral-600` | 7.49 | 7.85 | passes, too heavy for a chip |
+
+Note `neutral-400` fails as well: the one-step fix is not enough here, the
+same way it was not enough in BUG 31. Two tiers had to move.
+
+#### The inconsistency that hid it
+
+`neutral` was the only colour row at `-300`. The other six all sit at
+`-500`:
+
+```
+outline + neutral    border-neutral-300     <- the outlier
+outline + primary    border-primary-500
+outline + secondary  border-secondary-500
+outline + success    border-success-500
+outline + warning    border-warning-500
+outline + danger     border-danger-500
+outline + info       border-info-500
+```
+
+So one edit closes a WCAG failure and an inconsistency at the same time, and
+the fix is not a new opinion about how chips should look: it is the tier the
+component already used everywhere else.
+
+#### Fix
+
+`border-neutral-300` → `border-neutral-500`. The text tier is untouched.
+
+#### Verified in the browser, both themes
+
+On `learn/dash`, `/chip-playground`, read with `getComputedStyle` and
+composited against the surface the chip actually sits on. That surface is a
+raised card, `rgb(23,23,23)` in dark and `rgb(245,245,245)` in light, not the
+page beneath it, which makes it the **worse** case of the two and the one
+worth quoting:
+
+| | before | after | floor |
+|---|---|---|---|
+| border, dark | **1.73:1** | **3.78:1** | 3:1 |
+| border, light | 1.42:1 | **4.35:1** | 3:1 |
+| text, dark | 12.09:1 | unchanged | 4.5:1 |
+| text, light | 9.51:1 | unchanged | 4.5:1 |
+
+The dark margin is the thin one, 3.78 against a floor of 3, because a card
+sits a tier above the page. It clears, and it is worth knowing that a chip
+on an even lighter raised surface would be the next thing to check.
+
+One measuring note for whoever repeats this: reading `getComputedStyle`
+straight after clicking the theme toggle returns values from the middle of
+the CSS transition. The first light-mode reading here came back at 1.36:1 for
+text that is really 9.51:1. Wait for the transition to settle.
+
+#### Guard
+
+`tw/src/components/Chip/Chip.contrast.test.ts`, 4 cases: the tier, with both
+rejected alternatives named and their numbers; the text tier left alone plus
+the absence of a `dark:` variant on the neutral row; the border tier equal
+across all seven colours; and the solid variant untouched. Verified: with
+`neutral-300` restored, 2 of the 4 fail.
+
+
+### BUG 39 — `<Slider>` (tw) took a forwarded ref and never attached it
+
+**Fixed** 27/09/2026 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed.
+
+`<Slider ref={r} />` left `r.current` at `null` forever. The component is
+wrapped in `forwardRef`, names the parameter, and then never uses it:
+
+```tsx
+export const Slider = forwardRef<HTMLSpanElement, SliderProps>(function Slider(
+  rawProps,
+  ref,        // <- the only occurrence of `ref` in the file
+) {
+  ...
+  return <div className={rootClasses} data-testid={testId}>   // no ref
+```
+
+No type error, no console warning, nothing at runtime to notice. A caller
+measuring the track, scrolling it into view or driving focus from a parent
+got a null and had to work around it.
+
+The declared element type was wrong in the same breath: `HTMLSpanElement`
+over a root that is a `div`. Anyone who trusted the generic and reached
+for a span-only member got `undefined` rather than a type error.
+
+#### How it stayed hidden
+
+It was visible the whole time, as
+`@typescript-eslint/no-unused-vars: 'ref' is defined but never used` — one
+line inside `197 problems (0 errors, 197 warnings)` on `@dashforge/tw`.
+181 of those 197 were **unused `eslint-disable` directives** for
+`@typescript-eslint/no-explicit-any` in the `*.precedence.test.tsx` files,
+suppressing a rule the root config already switches off for tests. Six
+more were the repo's own `_`-prefixed "unused on purpose" convention,
+which the rule was not configured to honour. A real dropped variable sat
+in that noise.
+
+#### Fix
+
+`ref` attached to the root, and the generic corrected to `HTMLDivElement`
+— a breaking type change, which is why it lands in the 2.0.0 major rather
+than as a patch.
+
+#### Guards
+
+- `tw/src/components/forwardedRefAttached.test.ts`, 3 cases, catalog-wide:
+  every file declaring `forwardRef<…>` and naming a `ref` parameter must
+  reference it somewhere else, and where the root is an unambiguous DOM tag
+  the declared element type has to match it. A source scan rather than a
+  render test because the invariant is the point, not one component's
+  markup, and rendering twenty-odd components means knowing each one's
+  required props. Verified: with the defect restored the scan names
+  `Slider/Slider.tsx` and nothing else, so the other 21 `forwardRef`
+  components in the catalog were checked and are clean.
+  `<Slot>`-based roots (`Button`, `IconButton`, `Link`) are skipped in the
+  tag check: a capitalised element is a polymorphic wrapper whose rendered
+  tag is not knowable statically.
+- `tw/src/components/Slider/Slider.test.tsx`, 3 added cases: the ref is the
+  root element, it is an `HTMLDivElement`, and a callback ref works too.
+  Verified: all 3 fail without the fix.
+
+
+### BUG 37 — `<Drawer>` sat on MUI's z ladder, so a `<Dialog>` opened from inside it rendered BEHIND
+
+**Fixed** 2026-09-27 in the source tree, awaiting the next `@dashforge/tw`
+version bump. **Not reported by a consumer, and not findable by reading one
+component.** It came out of a test written to hunt for it.
+
+#### What it was
+
+Every overlay in the catalog sits on Tailwind's `z-50` tier:
+
+```
+dialogOverlay 50   dialogContent 50   snackbar 50
+tooltip 50         menu 50            popover 50
+drawerOverlay 1400 drawerContent 1410      <- MUI's ladder
+```
+
+The Drawer alone carried `z-[1400]` / `z-[1410]`, which is MUI's
+convention, a different scale entirely. Authored on its own it looks
+correct, and every Drawer test passed.
+
+The defect only exists when two overlays meet, which nothing tested:
+
+- a **Dialog raised from inside a Drawer** rendered behind it (50 against
+  1410), so the user saw the drawer with an invisible modal holding their
+  focus;
+- a **Snackbar** confirming an action taken in the drawer was invisible for
+  the same reason.
+
+#### Fix
+
+Both Drawer slots move to `z-50`, matching Dialog, which puts its overlay
+AND its content on the same tier and lets DOM order settle them. Between
+components the one mounted later wins, which is what "opened on top"
+means, and it is already how Dialog, Menu, Popover and Tooltip coexist.
+
+#### Guard
+
+`tw/src/components/_shared/layering.test.tsx`, 6 cases. It is the first
+test in the catalog that renders a **pair** of overlays rather than one.
+Against the pre-fix values **4 of the 6 fail**, including a rendered
+Dialog-over-Drawer pair.
+
+The invariant that would have caught it earlier is now also in
+`tokenScaleCompliance.test.ts`: no component may leave the 0-50 ladder.
+
+⚠️ One note on the assertion itself. The first version asserted the dialog
+was *strictly* above the drawer, which kept failing after the fix, because
+the catalog's model is one tier plus DOM order. The test was encoding a
+contract the library does not have. It now asserts "not below" at the
+recipe level and document order on the rendered pair.
+
+---
+
+### BUG 38 — `<CheckboxGroup>` silently dropped a stored value that had no option
+
+**Fixed** 2026-09-27, same day it was introduced. Found by writing tests
+against the component's hostile inputs rather than its happy path.
+
+`nextValues` rebuilt the array from `options` on the CHECK path, to keep the
+declared order stable. Anything the form held that was NOT in `options`
+therefore had no seat in that rebuild and vanished. The UNCHECK path is a
+plain `filter`, so it preserved the same value. Two paths, opposite
+behaviour, and the user never touched the value that disappeared.
+
+```
+stored ['ghost'] + check 'read'   ->  ['read']        // 'ghost' gone
+stored ['ghost','read'] + uncheck ->  ['ghost']       // preserved
+```
+
+Reachable whenever the options load async, or reload for a different scope,
+while the form already holds a value from the previous set.
+
+Fixed by partitioning: values present in `options` come out in declared
+order, values that are not are preserved and placed first, in stored order.
+They go in front rather than being interleaved because they have no seat in
+the declared order and guessing one would be worse than admitting it.
+
+Two tests now pin **both** paths, so it cannot come back on one side only.
+
+---
+
+### Token-scale compliance across the catalog — 2026-09-27
+
+Not a single defect, a sweep. The audit that produced it started from the
+token-first contract and asked what the components actually obey.
+
+**Clean:** all five token groups flow theme → preset → CSS vars with no gaps
+(88 colour, 11 spacing, 7 radius, 8 fontSize, 7 shadow). The preset's
+`darkMode` selector matches the attribute the provider writes. Component
+defaults cover 51 of 54, and the three gaps are all correct — `Accordion`
+has no variants at all, `AspectRatio` and `VisuallyHidden` are structural.
+Zero hard-coded colours, zero hard-coded shadows.
+
+**Fixed:**
+
+- **18 hard-coded font sizes across 11 components.** `text-[1rem]` was a
+  free bypass: `text-base` already meant exactly that. `text-[10px]` and
+  `text-[13px]` were genuinely off-scale, so the **scale** was the problem:
+  it started at 12px and the catalog could not express its own Avatar
+  initials or compact Alert inside it. Added a `2xs` tier at 0.625rem and
+  snapped 13px to `xs`. Verified themeable on `learn/dash`: the new tier
+  reads 10px by default and 32px when the CSS var is moved, where
+  `text-[10px]` could never be reached by any theme.
+- **`Accordion`'s `transition-all` was the only movement not gated** on
+  `prefers-reduced-motion`. All four `transition-transform` in the catalog
+  were already gated.
+
+**Checked and NOT a defect**, recorded so it is not re-opened:
+
+- `dark:bg-neutral-100` appears six times and is always paired with
+  `bg-white`. White does not auto-invert, so the `dark:` is required. It is
+  not the double-inversion anti-pattern.
+- 33 ungated `transition-colors`. Colour is not motion under WCAG 2.3.3.
+  The inconsistency with the 14 that are gated is stylistic, and churning
+  47 slots to settle it buys nothing.
+- `w-[220px]`, `w-[12rem]` and similar on pickers and DataGrid filters are
+  component widths, not spacing-scale material.
+
+**Guard:** `tw/src/components/tokenScaleCompliance.test.ts`, 6 catalog-wide
+invariants — no hard-coded font size, colour or shadow, the z ladder, and
+gated movement. It found **8 font sizes my own manual scan had miscounted**:
+I read "6 occurrences" as "6 in Avatar" when they were spread across five
+components. A per-file eye misses what a catalog-wide assertion does not.
+
+---
+
+### BUG 31 — `<Calendar>` (tw): a selectable sibling-month day failed WCAG contrast
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed.
+
+**Filed as a request, "low, cosmetic". It is a defect.** The report's
+observation was right and its framing understated it: the muted cell is an
+**active, selectable control**, so its label is subject to WCAG 1.4.3, and
+it was failing.
+
+#### Everything the report claimed, verified
+
+Source is exactly as described: `calendar.variants.ts` had
+`siblingMonth → text-neutral-400` and `disabled → text-neutral-300
+opacity-60`, with no compound reconciling them, and the only
+`compoundVariants` entry is the unrelated `selected + today` ring. The
+escape-hatch claim holds too: `Calendar.tsx` applies
+`themeSlotProps?.day?.className, slotProps?.day?.className` as a flat
+string to all 42 cells, with no per-state hook.
+
+The compositing claim holds as well: the disabled cell at `opacity: 0.6`
+composites to ~rgb(227), lighter than the sibling month's rgb(163).
+
+#### One correction: that ordering is not an inversion
+
+The entry calls it "the inversion that makes it worse than a plain
+collision". Measured against the real surface, the hierarchy is the
+conventional one:
+
+| cell | effective | contrast |
+|---|---|---|
+| current month, selectable | rgb(23,23,23) | 17.18:1 |
+| sibling month, selectable | rgb(163,163,163) | 2.42:1 |
+| disabled | rgb(227,227,227) | 1.23:1 |
+
+Disabled is the **most** recessive, sibling sits between it and the active
+day. That is the ordering you would design. The collision between the two
+greys is the weaker argument, and it is not what makes this a defect.
+
+#### What makes it a defect
+
+The cell is **14px at weight 400**, which is normal text, so WCAG 1.4.3
+requires **4.5:1**. The sibling-month day is selectable, so it is active
+text and the requirement applies:
+
+| theme | surface | sibling contrast | |
+|---|---|---|---|
+| light | rgb(250,250,250) | **2.42:1** | fails |
+| dark | rgb(10,10,10) | **2.53:1** | fails |
+
+The disabled cells are **not** a violation: WCAG exempts the text of
+inactive components, and at 1.23:1 they are doing their job. The only
+non-conforming cell was the one the report treated as a cosmetic nicety.
+
+#### The obvious one-step fix is the wrong one
+
+`neutral-500` is the first tier that clears 4.5:1 in light. It does not
+clear dark:
+
+| tier | light | dark | |
+|---|---|---|---|
+| `neutral-400` | 2.42 | 2.53 | shipped; fails both |
+| `neutral-500` | 4.54 | **4.18** | passes light, **fails dark** |
+| `neutral-600` | 7.49 | 7.85 | passes both |
+
+`neutral-500` is the **pivot of the scale**: it stays rgb(115,115,115) in
+both themes because the preset inverts around it, so it cannot clear a
+near-black surface. Any future adjustment has to be measured in **both**
+themes; one number proves nothing here.
+
+#### Fix
+
+`siblingMonth: 'text-neutral-600'`. Still clearly muted against the current
+month's 17:1, comfortably above the floor, and it widens the gap from the
+disabled treatment from 1.2x to 6x, which closes the readability complaint
+the report actually opened with as a side effect.
+
+#### Verified in the browser, both themes
+
+On `learn/dash`, `/test-calendar-tw`, measured with `getComputedStyle` and
+composited against the real surface:
+
+| | before | after |
+|---|---|---|
+| sibling, light | 2.42:1 | **7.49:1** |
+| sibling, dark | 2.53:1 | **7.85:1** |
+| current month | 17.18 / 18.16 | unchanged |
+| disabled | 1.23 / 1.38 | unchanged |
+
+Screenshots taken before and after in both themes. The dark-theme pair is
+the stark one: at rgb(82,82,82) on rgb(10,10,10) the trailing days were
+close to invisible.
+
+#### Guard
+
+`tw/src/components/Calendar/Calendar.contrast.test.ts`, 4 cases, pinning
+the tier and **both rejected alternatives by name** so the reasoning
+survives. Verified: with `neutral-400` restored, 1 of the 4 fails. The
+other three are the properties that must not regress while fixing this —
+sibling stays muted against the current month, disabled stays a distinct
+token, and a cell that is both sibling and disabled still reads as
+disabled (tailwind-merge resolves it that way, which the test pins).
+
+#### Both API proposals were built after all
+
+This section first recorded them as deliberately out of scope. That was
+revised later in the same pass: both are the general fix that the contrast
+tier only patches locally, and shipping them inside the same major avoids
+opening a second breaking window for them.
+
+1. `showSiblingDays?: boolean` — `calendar.types.ts:123`, default `true`,
+   the convention React Day Picker, MUI's `DateCalendar` and the native
+   pickers all follow. `false` keeps the 7-column geometry and renders the
+   neighbouring cells as empty placeholders.
+2. `slotProps.day` now also accepts a function of the day's state —
+   `calendar.types.ts:63`, `{ className?: string } | ((state:
+   CalendarDayState) => { className?: string } | undefined)`. The old flat
+   object still type-checks, so the change is additive.
+
+Guard: `tw/src/components/Calendar/Calendar.slots.test.tsx`, 6 cases,
+covering the default, the placeholder geometry, the flat-object form, one
+state addressed without touching its neighbours, every flag the recipe is
+keyed on, and the selected cell in isolation.
+
+What stays open is the wider asymmetry rather than this component: the same
+per-state escape hatch is missing on every other compound in the catalog,
+which is on record in BUG 24 and BUG 30 and belongs in Project #6.
+
+---
+
+### BUG 26 — bare `rounded` is hard-coded and ignores the radius tokens
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed. **The defect is
+real and the diagnosis was right. Two things around it were not: the scope
+and the proposed replacement.**
+
+#### Verified against `dashforgePreset()`, not against Tailwind's docs
+
+This is the third report of the form "this class reads no token", and the
+previous two started from a wrong premise (BUG 30 closed NOT A DEFECT). So
+the preset was read first:
+
+```js
+dashforgePreset().theme.extend.borderRadius
+// { none, sm, md, lg, xl, 2xl, full }  -> all var(--df-tw-radius-*)
+// DEFAULT present? false
+```
+
+Two facts settle it. The preset uses `theme.extend`, so it **extends**
+rather than replaces, and Tailwind's own keys survive. And it defines **no
+`DEFAULT`**. Bare `rounded` maps to `borderRadius.DEFAULT`, so it keeps
+Tailwind's hard-coded 0.25rem and is immune to the scale by construction.
+
+Measured on `learn/dash`, squaring every radius token on `<html>` the way
+the provider writes them:
+
+| utility | default | tokens at 0 |
+|---|---|---|
+| `rounded-sm` | 2px | **0px** |
+| `rounded-md` | 6px | **0px** |
+| `rounded` (bare) | 4px | **4px** |
+| the checkbox | 4px | **4px** |
+
+⚠️ First attempt at this proof failed and the failure is worth recording:
+overriding the vars in a `:root` stylesheet changed nothing, because
+`DashforgeTailwindProvider` writes them as **inline style on `<html>`**, and
+inline beats a stylesheet rule. The test only means something when the
+override is applied the way the provider applies it.
+
+#### Scope — ten occurrences across eight components, not three
+
+The entry named `Checkbox`, `Slider` and `Skeleton`, and dismissed the rest
+of a grep as prop names. That was right for `Avatar`, `Box`, `Image` and
+`Video`, where `rounded` is a prop or a union member, and wrong for five
+more components where it is a real class:
+
+| site | was | now | why that tier |
+|---|---|---|---|
+| `Checkbox` control | `rounded` | `rounded-sm` | matches `Select`'s `listItemIndicator`, the catalog's other small square indicator |
+| `Skeleton` root | `rounded` | `rounded-sm` | text-line placeholder |
+| `Slider` valueLabel | `rounded` | `rounded-md` | a tooltip-like bubble with `shadow-sm`; `Tooltip` is `rounded-md` |
+| `DataGrid` ColumnFilters button | `rounded` | `rounded-md` | icon button; `IconButton` reuses `Button`'s variants, which are `rounded-md` |
+| `DataGrid` ColumnVisibilityMenu row | `rounded` | `rounded-md` | matches `Menu`'s `item` |
+| `Table` icon button | `rounded` | `rounded-md` | as above |
+| `DateTimePicker` list item | `rounded` | `rounded-md` | matches `Menu` item and `Select` option |
+| `TimePicker` list item | `rounded` | `rounded-md` | as above |
+| `Accordion` trigger | `focus-visible:rounded` | `focus-visible:rounded-sm` | focus ring on a text row |
+| `Link` | `focus-visible:rounded` | `focus-visible:rounded-sm` | focus ring on an inline anchor |
+
+Each tier was picked from the nearest existing analogue in the catalog
+rather than by eye, per the rule that canonical patterns are authoritative.
+`rounded-md` is also the catalog's dominant tier (68 uses against 22 for
+`sm`).
+
+#### The proposed replacement was not visually neutral
+
+The entry said to use `rounded-sm`, "the same 0.25rem default", and that
+"behaviour is identical out of the box". It is not: under this preset
+`rounded-sm` is `--df-tw-radius-sm` = **0.125rem = 2px**, half of the bare
+`rounded`'s 4px. And `rounded-md` is 6px. **No tier reproduces 4px**, so
+every one of these ten sites moves 2px in one direction or the other. That
+is the right trade — the point is to follow the theme — but it is a visible
+change and should not have been sold as a no-op.
+
+#### The entry's ⚠️ about a lint rule was right; its list was not
+
+It suggested `rounded`, `shadow`, `blur` and `ring` all skip the scale.
+Checked one by one against the preset rather than assumed:
+
+- **`shadow`** — the preset **does** define `boxShadow.DEFAULT` as
+  `var(--df-tw-shadow-DEFAULT)`, so bare `shadow` **is** token-driven. Three
+  uses exist (`Box`, `Slider`, `Switch`) and all three are correct. This is
+  the exact asymmetry that makes the bug: `borderRadius` has no DEFAULT,
+  `boxShadow` does.
+- **`ring`** — zero bare uses.
+- **`blur`** — ten hits, every one of them `type: 'blur'`, an event type.
+- **`border`** — fifty uses, all correct: bare `border` sets
+  `border-width: 1px`, it is not a token-scale lookup.
+
+#### Guard — the lint rule, as a test
+
+`tw/src/components/tokenDrivenRadius.test.ts` scans every non-test source
+under `components/` and fails on a bare `rounded` in a class string, naming
+the file and line. A per-component assertion would not have helped: the
+defect is not any one component, it is that a bare `rounded` can land later
+and reintroduce it silently.
+
+Verified by reintroducing one: the scan fails and prints
+`Checkbox/checkbox.variants.ts:39  rounded`. It also asserts it scanned more
+than 50 files, so a broken path cannot make it vacuously green.
+
+Type-level uses are excluded explicitly and narrowly: `BoxProps['rounded']`,
+`case 'rounded':`, `Pick<…, 'rounded'>` and prop declarations.
+
+#### Verified in the browser
+
+On `learn/dash`, the checkbox after the fix:
+
+```
+class ......................... rounded-sm
+at default tokens ............. 2px      (was 4px)
+every radius token at 0px ..... 0px      (was stuck at 4px)
+every radius token at 10px .... 10px     (tracks both directions)
+```
+
+And a sweep of the whole page with every radius token at zero left **three**
+elements still rounded, all `<code class="font-mono">` at 4px from
+`learn/dash`'s own `src/index.css:113`. Nothing from the library keeps a
+hard-coded corner.
+
+#### Downstream workaround — remove after the bump, not before
+
+`ugo-web/app/components/forms/field-styles.ts` gives `checkboxSlots.control`
+an explicit `rounded-none`. It is now redundant, but it is pinned to the
+version `ugo-web` installs, so it goes with the bump.
+
+---
+
+### BUG 27 — `<AppShell>` (tw): `min-h-screen` on the root made `main`'s scroller dead code
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed. **The report
+was correct, and both of its ⚠️ notes were load-bearing.**
+
+#### Verified before touching anything
+
+Measured in Chrome on `learn/dash`, whose whole app is wrapped in
+`AppShell`, viewport 768px:
+
+```
+root height ................. 2207px      (grew to the content)
+main.scrollHeight/client .... 2249 / 2249 -> never overflows
+main.scrollTop = 600 ........ stayed 0
+window.scrollTo(0, 600) ..... scrollY 600, header top -511
+```
+
+So `main: overflow-y-auto` was dead on every page long enough to need it,
+exactly as reported. The contradiction was also already written into the
+file: the slot docstring called `root` "outer flex column (full viewport)"
+and `main` "scrollable content area", which is the layout `min-h-screen`
+prevents.
+
+#### Fix — the axis, not the single value
+
+Both shells are legitimate, so `layout` became an axis rather than a value
+baked into the slots:
+
+```ts
+layout: {
+  viewport: { root: 'h-dvh overflow-hidden', nav: 'overflow-y-auto', main: 'overflow-y-auto' },
+  page:     { root: 'min-h-screen' },
+}
+// defaultVariants: layout: 'viewport'
+```
+
+`viewport` is the default because it is the layout the component's own
+header diagram draws and the one `main: overflow-y-auto` was written for.
+`page` keeps the window-scrolls shell for a marketing-style layout, and
+deliberately gives `main` **no** overflow: it could never be the scroller in
+that mode, and advertising one is how the two ended up contradicting.
+
+Both of the entry's ⚠️ were followed: `h-dvh` and never `h-screen`, and the
+nav gets its own `overflow-y-auto` so a fixed rail is not a clipped one.
+
+`AppShellProps extends AppShellVariants`, so the axis reached the public
+props with no type change of its own. AppShell's theme defaults expose only
+`slotProps`, not variant `defaults`, so `layout` cannot be set theme-wide —
+acceptable, since an app shell is a singleton in practice. Noted rather than
+changed.
+
+#### The fix was not enough on its own, and that is how BUG 36 was found
+
+After the change the root was correctly 768px and `main` correctly scrolled,
+yet **the window still scrolled 800px**. The cause was not AppShell: one
+`<input type="checkbox">` far down the page, absolutely positioned by Radix
+with no positioned ancestor, was anchoring to the `body` and extending the
+document past the clipper. That is BUG 36, fixed alongside because BUG 27's
+fix does not deliver its promise on any page containing a checkbox.
+
+#### Verified after, in the browser
+
+```
+root ........................ flex flex-col bg-neutral-100 h-dvh overflow-hidden
+root height ................. 768   (= viewport, was 2207)
+html.scrollHeight ........... 768   (was 1891)
+main.scrollTop = 600 ........ 600,  window.scrollY 0
+window.scrollTo(0, 800) ..... scrollY 0, root top 0   -> the window cannot scroll
+nav <aside> ................. overflow-y auto, stays at top 0 while main scrolls 900
+inputs anchored to body ..... 0
+```
+
+#### Guard
+
+`tw/src/components/AppShell/AppShell.layout.test.tsx`, 6 cases, **all 6 fail
+against the pre-fix recipe**. The first is the invariant the defect broke,
+asserted across every mode: a root that grows with the content cannot also
+have a child that scrolls internally. AppShell suite: 22 tests, green.
+
+#### Downstream workaround — remove after the bump, not before
+
+`ugo-web/app/theme/dashforge.ts` sets `AppShell.slotProps` to
+`root: 'h-dvh overflow-hidden'` and `nav: 'overflow-y-auto'`. That is now
+exactly what the default emits, so the override is redundant — but it is
+pinned to whatever version `ugo-web` installs, so it goes when the bump
+lands.
+
+---
+
+### BUG 36 — Radix's hidden input escapes to the `body`, so a checkbox lengthens the page
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed.
+
+Found while verifying BUG 27's fix, **not reported by a consumer**. It was
+invisible before: the page scrolled anyway, so nothing pointed at it.
+
+#### Cause
+
+Radix renders a hidden native input for form participation, with inline
+styles of its own:
+
+```
+position: absolute; pointer-events: none; opacity: 0;
+margin: 0px; transform: translateX(-100%); width: 20px; height: 20px;
+```
+
+`Checkbox`, `Switch` and `RadioGroup` all had roots with no positioning —
+`checkbox.variants.ts` `root: 'inline-flex items-start gap-2'` and the
+equivalents. With no positioned ancestor the input anchors to the **body**,
+so `overflow: hidden` on any ancestor does not clip it, and it extends the
+document's scrollable area down to wherever the field sits.
+
+`overflow: hidden` clipping an absolutely positioned descendant only works
+when the clipper is also its containing block. That is the whole bug.
+
+#### Reproduction — measured, and isolated to one element
+
+On `learn/dash` with a checkbox ~1870px down the page, inside an AppShell
+that had just been given `h-dvh overflow-hidden`:
+
+```
+document.documentElement.scrollHeight ..... 1891   (viewport 768)
+window.scrollTo(0, 800) ................... scrollY 800, shell top -800
+absolutely positioned inputs .............. 1
+  \_ offsetParent ......................... body
+  \_ document bottom ...................... 1892   (= the 1891 exactly)
+```
+
+Nothing else on the page overflowed: a sweep for elements extending past the
+viewport outside a scroller returned **zero**, and hiding `#root` dropped
+`scrollHeight` to 768.
+
+Proved by patching it live before touching the source — setting
+`position: relative` on that one wrapper in the console:
+
+| | before | after |
+|---|---|---|
+| `html.scrollHeight` | 1891 | **768** |
+| `window.scrollTo(0, 800)` | 800 | **0** |
+| input `offsetParent` | `body` | the wrapper |
+
+#### Fix
+
+`relative` on the root of `Checkbox`, `Switch` and `RadioGroup`. None of the
+three had any positioning before, and none has an absolutely positioned
+descendant of its own, so this is purely additive: it makes the field the
+containing block for its own hidden input and changes nothing else. With
+`z-index: auto` it does not create a stacking context either.
+
+#### Guard
+
+`tw/src/components/Checkbox/hiddenInputContainment.test.tsx`, 5 cases across
+the three components, including one asserting the root is not positioned any
+*other* way — `relative` is there to be a containing block, and anything
+stronger would change how the field sits in its own layout.
+
+⚠️ Worth a sweep beyond these three: any component wrapping a Radix
+primitive that renders a hidden input has the same exposure. These three are
+the ones with a bubble input today.
+
+---
+
+### BUG 35 — `<Chip>` (tw): a clickable, deletable chip nested a `<button>` in a `<button>`
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed.
+
+#### Swapping the tag would NOT have been the fix
+
+This is the part worth keeping. The obvious move, copying BUG 23's
+resolution and making the clickable root a `<div role="button">`, silences
+the HTML error and leaves the real problem standing.
+
+`role="button"` carries ARIA's **presentational children** rule: the
+semantics of everything inside a `button` role are stripped for assistive
+tech. So a nested control is either invalid markup (`<button>` inside
+`<button>`) or invisible to AT (`<button>` inside `role="button"`) —
+different spelling, same defect. A fix that only moved the tag would have
+turned a loud error into a silent one.
+
+Precedent, read from `@mui/material@9.0.1/Chip/Chip.js` rather than
+assumed:
+
+```js
+const component = clickable || onDelete ? ButtonBase : 'div';
+const moreProps = component === ButtonBase
+  ? { component: ComponentProp || 'div', internalNativeButton: false, ... }
+  : {};
+```
+
+MUI never renders a native button for a chip that is clickable or
+deletable, and its delete icon is not a focusable control. The keyboard
+path is `isDeleteKeyboardEvent` on the root, which is `Backspace` or
+`Delete`, guarded by `event.currentTarget === event.target` so child events
+are ignored.
+
+The component had already worked this out. `Chip.tsx`'s clickable branch
+carried a no-op `onKeyDown` whose comment read "here for future extension
+(e.g. Delete key to fire onDelete when focused)". This fix is that
+extension.
+
+#### Fix
+
+Clickable root becomes `<div role="button" tabIndex={isDisabled ? -1 : 0}>`,
+re-supplying by hand everything the native element gave away: focusability,
+Enter / Space activation with `preventDefault` on Space so the page does not
+scroll, `aria-disabled` in place of the native attribute, and the
+`currentTarget === target` guard so a focusable slot keeps its own keys.
+
+The delete affordance now has **two shapes**, and the branch decides which
+is legal:
+
+| root | delete control | keyboard path |
+|---|---|---|
+| clickable, `role="button"` | non-focusable `<span aria-hidden>` | Backspace / Delete on the chip |
+| static `<span>` | real `<button aria-label>` | Tab to it, Enter |
+
+The static path is **deliberately untouched**. A `<span>` is not a widget,
+so a focusable button inside it is valid and is the only keyboard route to
+delete. It was never broken, and "fixing" it alongside would have removed a
+working affordance.
+
+Both shapes carry `data-chip-delete`, because on the clickable chip the
+control is `aria-hidden` with no accessible name and cannot be reached by
+role or name queries.
+
+#### Honest limitation, inherited from the pattern
+
+On a clickable chip the delete affordance is not announced at all. A screen
+reader hears a button; nothing says Backspace removes it. MUI has the same
+gap. The alternative is worse: promising an affordance that presentational
+children makes unreachable. Worth revisiting if the catalog ever grows a
+convention for this.
+
+#### Verified in the browser, on `learn/dash`
+
+A probe section was added to `src/pages/ChipPlayground.tsx`
+(`data-probe="chip-both"`), because **no page in the repo rendered the
+broken combination** — the playground had `onDelete` chips and `clickable`
+chips, never both on one chip, which is why it shipped.
+
+Markup, measured on the rendered page:
+
+```
+root          DIV   role=button   tabindex=0   no <button> inside
+delete        SPAN  aria-hidden=true   not focusable   painted
+document.querySelectorAll('button button').length          -> 0
+document.querySelectorAll('[role="button"] button').length -> 0
+```
+
+All three interaction paths driven for real, with the event log on the page
+as the witness:
+
+1. mouse click on the chip -> `click: design`, and the chip takes focus;
+2. `Backspace` on the focused chip -> `delete: design`, chip removed, 3 -> 2;
+3. real DOM click on the × -> `delete: infra` with **no** `click: infra`,
+   so `stopPropagation` holds, 2 -> 1.
+
+Console clean, no hydration error.
+
+#### Guard
+
+`tw/src/components/Chip/Chip.nesting.test.tsx`, 6 cases. Against the
+pre-fix component **5 fail**. Chip suite: 44 tests across 3 files, green.
+Full CI: 12 projects, four targets, green, and **zero** `cannot be a
+descendant of` left in the whole suite output — BUG 23 removed the Select
+one, this removed the last.
+
+Four existing assertions were updated, and two of them were misnamed rather
+than wrong: `renders as <button> when clickable=true` asserted
+`getByRole('button')`, which a `div role="button"` satisfies, so the test
+kept passing while its name described markup that no longer existed. Both
+were renamed to say role. The other two asserted the native `.disabled`
+property and now assert `aria-disabled` plus removal from the tab order.
+
+#### No breaking type change
+
+Unlike BUG 23, the public ref type is untouched: `Chip` was already
+`forwardRef<HTMLElement, ChipProps>` with a per-branch cast, so the element
+change is invisible to consumers at the type level.
+
+---
+
+### BUG 25 — `<Divider orientation="vertical">` (tw) came out `w-full`
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed. **The report's
+diagnosis was exactly right. Its proposed fix was not, and would have
+shipped a worse defect.**
+
+#### The defect
+
+`segment: 'full'` emitted an unconditional `w-full` while the orientation
+axis emitted `w-0` for vertical. `tailwind-merge` keeps the later of two
+conflicting width utilities, so `w-full` won.
+
+`full` means "span the divider's OWN main axis": the width for a horizontal
+rule, the **height** for a vertical one. The axis could not know which, and
+the error was written into its own docstring, which said "whether the line
+spans full width".
+
+Two things stronger than the entry stated: `Divider.tsx:84` passes
+`segment: 'full'` **explicitly** for line-only mode rather than inheriting
+the default, so the defect was unconditional on every vertical line-only
+divider; and labeled mode (`segment: 'grow'` → `flex-1`) was never affected,
+because `flex-1` grows along whichever main axis the parent sets.
+
+#### The proposed fix was broken, and that is the part worth keeping
+
+The entry proposed `{ orientation: 'vertical', segment: 'full' } → 'h-full'`.
+Measured in Chrome against `learn/dash`, with inline CSS so Tailwind's JIT
+was not involved, in a `flex-row` with a button either side:
+
+| rule | width | height | |
+|---|---|---|---|
+| `border-l self-stretch w-full` (the defect) | 576.95px | 32px | eats the row |
+| `w-0 border-l self-stretch` | 1px | 32px | **correct** |
+| `w-0 border-l self-stretch h-full` (proposed) | 1px | **0px** | **invisible** |
+
+`align-self: stretch` applies only while the cross size is `auto`, so a
+definite `h-full` **suppresses** the stretch, and the percentage then
+resolves to zero against an auto-height flex parent. The proposal would have
+traded a full-width bar for a divider nobody can see, which is a quieter
+failure than the one it closed.
+
+This is not a style preference. `divider.types.ts:74-84` already promises in
+the public JSDoc that the vertical span comes from `self-stretch`, "already
+applied on the vertical line segment by default in the TV". The vertical
+compound therefore has to emit **nothing**.
+
+#### `w-0` stays, against the entry's ⚠️
+
+The entry suggested dropping it. It does double duty:
+
+- in a `flex-row` parent it is the **main**-axis size, so the visible width
+  is exactly the 1px `border-l`;
+- in a `flex-col` parent (labeled vertical mode) it is the **cross** size,
+  and being definite it stops `self-stretch` from stretching the rule to the
+  full width.
+
+Removing it would re-open the same class of bug from the other side.
+
+#### Fix
+
+`segment.full` emptied on the plain axis, moved to `compoundVariants`:
+
+```ts
+{ orientation: 'horizontal', segment: 'full', class: 'w-full' },
+// vertical: deliberately nothing — `self-stretch` already spans it
+```
+
+`w-full` is load-bearing on the horizontal path: a block child does not fill
+the width once it is a flex item, which is the toolbar case this came from.
+
+#### The symptom was imprecise, measured both ways
+
+"The bar becomes five rows tall" needs `flex-wrap: wrap` on the consumer's
+toolbar. With the defect in place:
+
+- `flex-wrap: nowrap` (the default) → **1 line**, 32px: the divider takes
+  the space and squeezes the buttons, without wrapping;
+- `flex-wrap: wrap` → **3 distinct lines**, 112px.
+
+Same defect, and the `nowrap` form is quieter than the entry describes.
+
+#### Verified on the real component, not only in unit tests
+
+A probe section was added to `learn/dash` (`src/pages/TestFoundation.tsx`,
+`data-probe="nowrap|wrap|stretch"`), the fixed `@dashforge/tw` was linked in
+with `scripts/link-tw-to-dash.sh`, and the rendered elements were measured:
+
+| probe | before | after |
+|---|---|---|
+| nowrap | separator 155.73px wide | **1px** |
+| wrap | separator 587px, **3 button lines**, row 186px | **1px**, **1 line**, row 50px |
+| stretch (no explicit height) | separator 409.04px | **1px**, height **32px** |
+
+The third row is the one that validates leaving `h-full` out: with no
+height given, the rule is still 32px tall, so `self-stretch` is doing the
+span on its own. Computed style on the shipped element:
+
+```
+border-left: 1px solid rgb(229, 229, 229)   (neutral-200)
+border-top/right/bottom-width: 0px
+width: 1px      height: 20px      align-self: stretch
+```
+
+#### Guard
+
+`tw/src/components/Divider/Divider.orientation.test.tsx`, 5 cases. Run
+against the pre-fix file, **3 fail and 2 pass**: the two that pass are the
+horizontal path and labeled mode, which were never broken and are there to
+stay that way. Divider suite: 48 tests across 3 files, green. Full CI: 12
+projects, four targets, green.
+
+jsdom does no layout, so the class contract is what the unit tests pin; the
+geometry above is the browser half of the same assertion.
+
+#### Why it shipped
+
+`dashforge-docs-lab` documents Divider with `DividerHorizontalDemo` and
+`DividerWithLabelDemo`. **There is no vertical demo anywhere**, and no test
+asserted `w-full` on the vertical path, so nothing could have caught it.
+
+⚠️ Worth fixing at the source: `dashforge-docs-lab` currently **cannot be
+started** on this machine. It pins `engines.pnpm: 10.7.1` against a global
+pnpm of 10.28.2, so `pnpm dev` dies with `ERR_PNPM_UNSUPPORTED_ENGINE`. A
+vertical demo belongs there, not only in `learn/dash`.
+
+#### Downstream workaround — NOT yet removed
+
+`ugo-web/app/components/editor/post-editor.tsx` still carries
+`sx="w-px h-5 mx-1"`, where the `w-px` exists only to out-specify the
+`w-full` this entry removed. It is now redundant, but it is **not harmful**:
+`w-px` and the absent `w-full` no longer conflict, so the divider renders at
+1px either way.
+
+It cannot be removed yet, and that is the point: this fix lives in the
+source tree only. Until a `@dashforge/tw` version ships with it, deleting
+`w-px` downstream would restore the full-width bar on whatever version
+`ugo-web` actually installs. **Remove it after the bump, not before**, and
+pair the removal with the version that carries the fix.
+
+---
+
+### BUG 23 — `<Select multiple>` (tw): a `<button>` nested inside the trigger `<button>`
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed. **The report
+was correct on every point**, including the parser-rewrite consequence and
+the warning to keep `aria-required` on the combobox element.
+
+Resolution: option 1 of the two proposed, the `<div role="combobox"
+tabIndex={0}>`. It is the ARIA APG select-only combobox pattern and it
+preserves the visual design, which option 2 would have changed.
+
+#### What the native `<button>` was providing, and why none of it was lost
+
+This is the part worth recording, because a switch away from a native
+element usually drops something quietly. Each was checked in the source
+before the change, not after:
+
+| provided by `<button>` | already covered by |
+|---|---|
+| Enter / Space activation | `handleTriggerKeyDown` handles both explicitly with `preventDefault`, opening if closed and selecting if open — arrows, Home, End and type-ahead were already there too |
+| blocking clicks when disabled | `handleOpenChange` returns early while `effectiveDisabled`, and `open` is fully controlled, so Radix's toggle cannot open it |
+| `:disabled` styling | the recipe never used the pseudo-class: disabled is a prop-driven tv variant (`select.variants.ts:124`) |
+| focus ring | already `focus-visible:` in the recipe, which works on any element with a tabindex |
+| keyboard reachability | replaced by an explicit `tabIndex={effectiveDisabled ? -1 : 0}` |
+| `<label for>` association | **this one was NOT covered** — see below |
+
+#### The one real regression, and how it was caught
+
+`<label for>` only binds to a *labelable* element, and a div is not one.
+So the fix adds `id` on the label plus `aria-labelledby` on the trigger,
+and an `onClick` on the label to restore click-to-focus, which `htmlFor`
+had been doing for free.
+
+Worth keeping: the first version of the regression test asserted this with
+`getByLabelText('Variant')`, and it **passed before the fix was
+complete** — testing-library resolves `for` against any element id,
+labelable or not, so it reports a name where a real screen reader gets
+nothing. The test now asserts the `aria-labelledby` attribute and
+resolves the target element. A query helper agreeing with you is not
+evidence that a browser will.
+
+#### Radix injects `type="button"`, and `asChild` lets the child win
+
+`@radix-ui/react-popover` builds its trigger as `Primitive.button` with
+`type: "button"` hardcoded (`dist/index.mjs:89`), then spreads the caller's
+props over it. Under `asChild` that lands on whatever element you supply,
+so the div has to override `type` explicitly or the fix trades a nested
+button for an invalid attribute.
+
+Verified both ways: removing the override makes the guard fail, so it is
+load-bearing, not defensive. It is written as a spread —
+`{...({ type: undefined } as React.HTMLAttributes<HTMLDivElement>)}` —
+because `type` is not in `HTMLAttributes<HTMLDivElement>` and TS rejects
+the direct JSX spelling (`TS2322`).
+
+#### Two observable changes beyond the element itself
+
+1. **`name={name}` on the trigger is now `data-name={name}`.** `name` is
+   not a valid attribute on a div, and the whole point of the fix is valid
+   markup. It was already decorative: on a `<button type="button">` it
+   never submitted anything. Nothing in the monorepo queries the trigger by
+   it, which was checked before changing it.
+2. **The public ref type changed** from `React.Ref<HTMLButtonElement>` to
+   `React.Ref<HTMLDivElement>` (`Select.tsx` inner signature and the
+   exported wrapper). This is a **breaking type change** for any consumer
+   holding a `useRef<HTMLButtonElement>`. It has to change, because the old
+   type was describing an element the component no longer renders. Belongs
+   in the CHANGELOG for the bump, not buried here.
+
+#### Guard
+
+`tw/src/components/Select/Select.nesting.test.tsx`, 8 cases. Four failed
+against the unfixed component and four passed — those four are the ones
+pinning what the div must not lose (`aria-required`/`aria-invalid`, the
+label, chip removal not opening the listbox, no remove buttons while
+disabled).
+
+Five existing assertions were retargeted from
+`container.querySelector('button[role="combobox"]')` to
+`[role="combobox"]`: they were pinning the element's tag, not its
+behaviour. One assertion changed meaning rather than selector — `disabled
+trigger blocks click open` asserted `(trigger as HTMLButtonElement)
+.disabled === true`, which no longer exists, and now asserts
+`aria-disabled`. The behavioural half of that test, that the listbox does
+not open, was already there and still passes.
+
+Full Select suite: 49 tests across 4 files, green. Whole `tw` suite: 133
+files, 2061 tests, green.
+
+#### Checked and NOT affected
+
+Per the rule that cost BUG 17 ten days — grep the pattern, not the
+imports — the same `aria-label={`Remove …`}` shape exists in
+`tw/src/components/Autocomplete/Autocomplete.tsx:990`. It is **not** the
+same bug: Autocomplete puts `role="combobox"` on an `<input>` and its
+chips inside `<div>`s, so the remove buttons were always in legal
+position.
+
+`<Chip>` **is** the same bug, and is now BUG 35 in the open list above.
+`<Select>` has no internal JSX consumers, so nothing inside the library
+held a ref to the old element.
+
+---
+
+### BUG 28 — `<Dialog>` and `<Drawer>` (tw) ringed the close button on `:focus`
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/tw`
+version bump. Fix is in the working tree, not yet committed. **The report
+was correct, including the reading that this was an oversight rather than a
+policy.**
+
+Confirmed before changing anything: `focus:ring` appears **exactly twice**
+in all of `tw/src`, on the two lines the report named, against **29 files**
+using `focus-visible:ring`. Stronger still, the correct form already sits
+three lines below one of them, on the Drawer's own `resizeHandle` slot:
+`'focus:outline-none focus-visible:bg-primary-500/50'`.
+
+#### Fix, deviating from the proposal on one detail
+
+```
+'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500'
+```
+
+on `dialog.variants.ts` → `closeButton` and `drawer.variants.ts` →
+`closeButton` (the latter keeping its `focus-visible:ring-offset-1`).
+
+The entry proposed `focus-visible:outline-none`. Kept as plain
+`focus:outline-none` instead, because that is the catalog's dominant
+spelling — 9 slots use exactly this string — and matching it means the two
+lines rejoin an existing pattern rather than introducing a third. Per the
+standing rule that existing canonical patterns are authoritative.
+
+`focus:outline-none` untouched on the `content` slots of both components:
+that suppresses the UA outline on the panel Radix focuses on open, which is
+a different thing and not what was reported.
+
+---
+
+### BUG 33 — `useEngineVisibility` subscribes conditionally, so a `visibleWhen` that appears or disappears kills the field
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/ui-core`
+version bump. Fix is in the working tree, not yet committed.
+
+**Not reported by a consumer.** It surfaced while fixing a red CI: the
+pipeline had been failing on `@dashforge/ui-core:lint`, which errored with
+`Definition for rule 'react-hooks/exhaustive-deps' was not found` because
+`ui-core` had no eslint config of its own and so never registered
+`eslint-plugin-react-hooks`. Registering the plugin cleared that error and
+immediately reported two real rules-of-hooks violations that had been
+sitting in the package unseen. This is one; BUG 34 is the other.
+
+#### Symptom
+
+A field whose `visibleWhen` prop goes from absent to present, or the
+reverse, while the field stays mounted takes the whole tree down. The
+consumer does **not** get React's readable diagnostic. They get:
+
+```
+TypeError: Cannot read properties of undefined (reading 'length')
+  at areHookInputsEqual   react-dom-client.development.js:7611:36
+  at updateCallback       react-dom-client.development.js:8769:28
+  at Object.useCallback   react-dom-client.development.js:26451:16
+  at useSnapshot          valtio/esm/react.mjs:23:5
+  at useEngineVisibility  ui-core/src/react/useEngineVisibility.ts:70:5
+  at TextField            ui/src/components/TextField/TextField.tsx:79:21
+```
+
+Every frame but the last two points into `react-dom` and `valtio`. Nothing
+in that stack tells the consumer that the prop they just made conditional
+is the cause, which is what makes this worse to receive than BUG 16, whose
+"Rendered more hooks than during the previous render" at least named the
+category.
+
+#### Cause
+
+`useEngineVisibility` called its subscription from inside a branch, below
+an early return:
+
+```ts
+if (!visibleWhen) {
+  return true;                                   // 0 hook calls
+}
+
+if (engine) {
+  useSnapshot(engine.getState().nodes);          // 1 hook call
+  ...
+}
+```
+
+Both `engine` and `visibleWhen` are ordinary inputs. `engine` is stable per
+mount in practice, so it was never the trigger, but `visibleWhen` is a
+plain prop, and
+
+```tsx
+<TextField name="email" visibleWhen={advanced ? pred : undefined} />
+```
+
+is the obvious way to write an optional predicate. That flips the hook
+count between renders, and React dereferences a hook slot that does not
+exist.
+
+#### Reproduction — verified, not read
+
+`libs/dashforge/ui/src/components/TextField/TextField.visibleWhen.test.tsx`,
+two cases, both of which failed against the unfixed hook with the stack
+above and pass against the fix:
+
+1. `visibleWhen` flipping `undefined -> () => true -> undefined` from React
+   state while the field stays mounted.
+2. `visibleWhen` appearing as a predicate that evaluates to `false`, so the
+   hook-count change and the unmount land in the same render.
+
+The guard lives on the `ui` side because **`ui-core` has no test target at
+all** — its `project.json` declares only `lint` and `typecheck`, and there
+is no vitest config in the package. `ui`'s suite already instruments
+ui-core sources transitively, so that is where a ui-core hook can be
+guarded today. Worth its own entry: a package exporting thirteen hooks with
+no test target is how both of these survived.
+
+#### Blast radius
+
+`useEngineVisibility` is imported by **45 source files across both
+renderers** — every field component in `ui/` and `tw/`, plus `useGating`.
+One hook backs both editions, so one fix covers them; this is the opposite
+of the BUG 17 / BUG 32 situation, where the logic was duplicated by hand.
+
+#### Fix
+
+One unconditional call whose *subject* varies, so the set of live
+subscriptions stays exactly what the branch produced:
+
+```ts
+const NOTHING_TO_WATCH = proxy<Record<string, never>>({});
+
+useSnapshot(
+  visibleWhen && engine ? engine.getState().nodes : NOTHING_TO_WATCH
+);
+```
+
+`NOTHING_TO_WATCH` is created once at module scope and never mutated, so
+subscribing to it cannot schedule a re-render. Deliberately *not*
+`useSnapshot(engine.getState().nodes)` unconditionally: that would add a
+live subscription to the engine for every field that has an engine but no
+predicate, which is most of them, and change re-render behaviour across the
+library while fixing a hook-order bug. Behaviour is preserved exactly.
+
+The `useSnapshot(...)` return value is discarded here, as it was before.
+Whether valtio's access tracking makes that subscription re-render anything
+is a separate question and was left alone on purpose.
+
+---
+
+### BUG 34 — `useEngineValues` calls one hook per array entry, so its hook count follows `nodeIds.length`
+
+**Fixed** 2026-09-26 in the source tree, awaiting the next `@dashforge/ui-core`
+version bump. Fix is in the working tree, not yet committed.
+
+Found the same way as BUG 33, by registering `eslint-plugin-react-hooks` on
+`ui-core`:
+
+```
+useEngineValue.ts:82:30  error  React Hook "useEngineValue" cannot be
+                                called inside a callback
+```
+
+#### Cause — read out of the source, not reproduced
+
+```ts
+export function useEngineValues<TValue = unknown>(
+  nodeIds: string[]
+): (TValue | undefined)[] {
+  return nodeIds.map((id) => useEngineValue<TValue>(id));   // line 82
+}
+```
+
+Literally BUG 16's defect one layer down: React's hook count is tied to an
+array length, so adding or removing an id while the component stays mounted
+corrupts the hook order.
+
+**Not reproduced, and say so plainly.** There is no test and no caller to
+write one against: `useEngineValues` is exported from `src/index.ts` and
+documented in the README, and has **zero consumers** anywhere in the
+monorepo. The coverage report agrees, marking it `function not covered`. It
+is public API that nothing exercises, which is exactly why a defect this
+plain lasted. The defect is certain from the source; the claim being held
+back is only that no user has hit it.
+
+#### Fix
+
+`useEngineNode` already subscribes to the whole `nodes` map and indexes into
+it, so reading N ids off a single snapshot subscribes to precisely what N
+`useEngineValue` calls did, at a constant hook count:
+
+```ts
+const engine = useEngineContext();
+const nodes = useSnapshot(engine.getState().nodes);
+
+return nodeIds.map((id) => (nodes[id] as Node<TValue> | undefined)?.value);
+```
+
+One deliberate behaviour change, documented at the call site: this now
+throws outside an `EngineProvider` even for an empty `nodeIds`, where the
+per-entry version happened to call no hook at all and quietly returned
+`[]`. Any caller that relied on that was already broken the moment the
+array became non-empty, since `useEngineContext` throws.
+
+#### The gap behind BUG 33 and BUG 34, which is the part worth keeping
+
+`eslint-plugin-react-hooks` is registered in exactly three packages — `tw`,
+`ui` and now `ui-core`. These author hooks and do **not** have it:
+
+| package | hooks exported | plugin |
+|---|---|---|
+| `forms` | 7 | no |
+| `rbac` | 3 | no |
+| `tw-theme` | 3 | no |
+| `calendar-core` | 2 | no |
+| `theme-core` | 1 | no |
+
+`forms` is the one that matters: it holds `DashFormProvider` and the
+bridge, and BUG 22 already showed how much consumer behaviour hangs off
+it. On its first run against `ui-core` the plugin found two real bugs, one
+of them in a hook on the render path of every field in the library. That is
+a strong prior for what a sweep over the remaining five would turn up.
+
+Deliberately **not** done here, for the reason already written into
+`libs/dashforge/tw/eslint.config.mjs` when the plugin was first scoped to
+one package: turning it on surfaces pre-existing violations that belong to
+their own pass, not to whatever sprint is open. Enabling it on `ui-core`
+cost two fixes; enabling it on `forms` should be planned, not stumbled
+into.
+
+---
 
 ### BUG 32 — BUG 17's fix never reached `@dashforge/tw`
 
@@ -3646,6 +4900,103 @@ complementary. Documented on the JSDoc of both new props.
 
 ### BUG 19 — multi-select in `@dashforge/ui`
 
+**Runtime landed 2026-09-27.** `<Autocomplete multiple>` and
+`<Select multiple>` now store and read `TValue[]` through the bridge. The
+report's third piece, a `CheckboxGroup` for the small-set case, is still
+open and is a new component rather than a fix.
+
+#### What was actually broken, measured
+
+The type widening let `<Select multiple>` COMPILE, and it then died on
+render:
+
+```
+Error: MUI: The `value` prop must be an array when using the `Select`
+       component with `multiple`.
+```
+
+Cause: `<Select>` composes from `<TextField select>`, so its value goes
+through `createSelectIntegration`, which sanitized anything absent from
+`availableValues` down to `''`. An array is never a member of that list, so
+a multi select in bridge mode resolved to a string and MUI threw. That is
+worse than the pre-widening state, where it merely failed to compile.
+
+`<Autocomplete multiple>` did not throw but did nothing: the array was
+narrowed to `null` on the way in, so no chips rendered, and the array MUI
+handed back on change fell through a scalar mapper that produced `null`.
+
+#### Fix — a parallel pipeline, not a widened one
+
+`Autocomplete` keeps its scalar path untouched and runs multi alongside it.
+The scalar path owns freeSolo, display sanitization and controlled
+`inputValue`, none of which applies while MUI renders chips and owns the
+filter text, and all of which is where BUG 2, BUG 7 and BUG 8 came from.
+Two adapters do the whole translation:
+
+```
+toOptionArray   bridge TValue[]      ->  the option objects MUI renders
+fromOptionArray MUI's change payload ->  the TValue[] the bridge stores
+```
+
+`Select` needed a smaller change: `createSelectIntegration` gained
+`isMultiSelectMode`, read from `slotProps.select.multiple`, and the
+sanitizer now coerces to an array and filters element-wise in multi mode.
+
+⚠️ One deliberate divergence between the two, documented at the call site:
+an entry that matches no option is **kept** by Autocomplete and **dropped**
+by Select. Autocomplete builds its own chip and can render an unknown value
+cleanly, so hiding it would leave a value in the payload with no way to
+remove it. MUI's Select logs an out-of-range warning for every unknown
+value, so it filters instead, matching what the scalar path already did.
+
+⚠️ Trap hit while implementing: destructuring `multiple` out of the props
+removed it from `...rest`, so it stopped reaching MUI through the
+passthrough and the component silently stayed in single mode. It is now
+passed explicitly on both branches. Five tests failed on exactly this and
+nothing else pointed at it.
+
+#### Guards
+
+`Autocomplete.multiRuntime.test.tsx` (8) and `Select.multiRuntime.test.tsx`
+(7). Both suites pin the storage contract in both directions, the
+accumulate-don't-replace behaviour, the unresolved-value policy, and — in
+every file — that the scalar path still stores a scalar and renders no
+chips. Whole `ui` suite: 51 files, 615 tests, green.
+
+#### `CheckboxGroup` — the third piece, landed 2026-09-27
+
+`<Autocomplete multiple>` and `<Select multiple>` cover the long lists;
+this is the small-set case, where showing every option beats hiding them
+behind a popover. Built on `<RadioGroup>`'s shape on purpose: same bridge
+wiring, same RBAC model, same visibility and unregister semantics, so the
+family has one shape to learn.
+
+Two behaviours worth knowing, both pinned by tests:
+
+- The field stores `[]` when nothing is checked, never `null` or `''`, so a
+  consumer reading the payload can always `.map` over it.
+- The payload keeps the **declared option order**, not the click order. An
+  order that drifts with the clicking is a nuisance to snapshot and to diff.
+- An option gated to `hide` stays VISIBLE while it is checked, and is
+  disabled instead. Hiding it would strand a value in the payload the user
+  can neither see nor clear. Same rule the option-level RBAC in
+  `<RadioGroup>` uses for the selected value.
+
+One wart deliberately not copied: `<RadioGroup>` honours `tooltip` in plain
+mode and drops it in bound mode. `<CheckboxGroup>` renders it in both.
+
+13 tests, covering the array contract, validation including BUG 17's
+precedence, plain mode, option- and group-level RBAC, and a BUG 16 / BUG 33
+guard for `visibleWhen` flipping while mounted. Whole `ui` suite: 52 files,
+628 tests, green.
+
+**BUG 19 is now closed in full.**
+
+---
+
+<details>
+<summary>The original partial fix, 2026-09-15 (type-level only)</summary>
+
 **Partially fixed** 2026-09-15 (type-level widening only). The
 report identified three missing pieces: `<Autocomplete multiple>`,
 `<Select multiple>`, and a `CheckboxGroup`. This partial fix
@@ -3717,6 +5068,8 @@ multi-select feature lands, this entry graduates from "partially
 fixed" to "fixed" and the workaround note above can be deleted.
 Keep an eye on the pin `boolean` in the internal MUI generic
 annotations; narrowing it back to `false` reintroduces the bug.
+
+</details>
 
 ---
 
