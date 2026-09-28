@@ -23,6 +23,13 @@
   "exclude": [
     "out-tsc",
     "dist",
+    // Exclude the DIRECTORY, not a filename pattern. The `*.test.ts` /
+    // `*.spec.ts` patterns below miss anything named differently, and two
+    // files slipped through into the published tarball because of it:
+    // `engine-typing.type-test.ts` ends in `-test.ts`, not `.test.ts`, and
+    // `testHarness.ts` carries no suffix at all. Caught by the pre-publish
+    // pack audit before 2.0.0.
+    "src/**/__tests__/**",
     "**/*.spec.ts",
     "**/*.test.ts",
     "**/*.spec.tsx",
