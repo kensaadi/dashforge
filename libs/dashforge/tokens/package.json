@@ -22,6 +22,8 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.d.ts.map",
+    "!dist/**/*.tsbuildinfo",
     "README.md",
     "CHANGELOG.md"
   ],
