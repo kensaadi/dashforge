@@ -281,7 +281,7 @@ export type { DashFormBridge, FieldRegistration, BridgeFieldError } from './brid
  * Package version
  * Updated automatically during build
  */
-export const VERSION = '0.2.3-beta';
+export const VERSION = '2.0.1';
 
 /**
  * Package metadata

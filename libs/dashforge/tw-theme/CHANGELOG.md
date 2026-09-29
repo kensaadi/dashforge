@@ -13,6 +13,25 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [2.0.1] — 2026-09-29
+
+Lockstep release. This package is unchanged; it moves because internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack time
+to the EXACT sibling version. Leaving it on 2.0.0 would pin its siblings to a
+version carrying the `@dashforge/ui-core` defect this release fixes.
+
+See [`@dashforge/ui-core` 2.0.1](https://github.com/kensaadi/dashforge/blob/main/libs/dashforge/ui-core/CHANGELOG.md)
+for what was actually wrong.
+
+### Fixed
+
+- **The exported `VERSION` constant told the truth again.** It had drifted
+  from `package.json` and stayed there, because `prepare-release.mjs` only
+  rewrote it when it already matched, which made the first drift permanent.
+  `ui-core` and `forms` were publishing `'0.2.3-beta'`, `calendar-core` and
+  `tw-theme` and `tw-tokens` `'0.2.0-beta'`, and `tw` `'1.5.2'`, all on 2.0.0.
+  The script rewrites it unconditionally now and says so when it had drifted.
+
 ## [2.0.0] — 2026-09-28
 
 **Every `@dashforge/*` package moves to `2.0.0` together.** Internal

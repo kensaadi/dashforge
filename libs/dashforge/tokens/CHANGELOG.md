@@ -9,6 +9,16 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [2.0.1] — 2026-09-29
+
+Lockstep release. This package is unchanged; it moves because internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack time
+to the EXACT sibling version. Leaving it on 2.0.0 would pin its siblings to a
+version carrying the `@dashforge/ui-core` defect this release fixes.
+
+See [`@dashforge/ui-core` 2.0.1](https://github.com/kensaadi/dashforge/blob/main/libs/dashforge/ui-core/CHANGELOG.md)
+for what was actually wrong.
+
 ## [2.0.0] — 2026-09-28
 
 **Every `@dashforge/*` package moves to `2.0.0` together.** Until now each

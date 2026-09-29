@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 with `-alpha` / `-beta` / `-rc` pre-release tags.
 
+## [2.0.1] — 2026-09-29
+
+Lockstep release. This package is unchanged; it moves because internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack time
+to the EXACT sibling version. Leaving it on 2.0.0 would pin its siblings to a
+version carrying the `@dashforge/ui-core` defect this release fixes.
+
+See [`@dashforge/ui-core` 2.0.1](https://github.com/kensaadi/dashforge/blob/main/libs/dashforge/ui-core/CHANGELOG.md)
+for what was actually wrong.
+
+### Fixed
+
+- **The exported `VERSION` constant told the truth again.** It had drifted
+  from `package.json` and stayed there, because `prepare-release.mjs` only
+  rewrote it when it already matched, which made the first drift permanent.
+  `ui-core` and `forms` were publishing `'0.2.3-beta'`, `calendar-core` and
+  `tw-theme` and `tw-tokens` `'0.2.0-beta'`, and `tw` `'1.5.2'`, all on 2.0.0.
+  The script rewrites it unconditionally now and says so when it had drifted.
+
+- **A type-test declaration no longer rides along in the tarball.** The
+  `exclude` patterns matched `*.test.ts` with a dot, and these files spell it
+  with a hyphen: `path.type-test.ts`, `autocomplete.props.type-test.ts`. The
+  `__tests__` directory is excluded as a directory now, alongside the hyphen
+  spelling.
+
 ## [2.0.0] — 2026-09-28
 
 **Every `@dashforge/*` package moves to `2.0.0` together.** Until now each

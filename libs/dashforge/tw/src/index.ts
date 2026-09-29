@@ -776,4 +776,4 @@ export type { VariantProps } from 'tailwind-variants';
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '1.5.2';
+export const VERSION = '2.0.1';

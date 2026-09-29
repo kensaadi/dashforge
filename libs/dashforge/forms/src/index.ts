@@ -209,4 +209,4 @@ export { DashForm } from './components/DashForm';
 /**
  * Package version.
  */
-export const VERSION = '0.2.3-beta';
+export const VERSION = '2.0.1';

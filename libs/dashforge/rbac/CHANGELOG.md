@@ -9,6 +9,53 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 > For the cross-package release context, see the
 > [top-level CHANGELOG](https://github.com/kensaadi/dashforge/blob/main/CHANGELOG.md).
 
+## [2.0.1] — 2026-09-29
+
+`@dashforge/ui-core` and `@dashforge/rbac` shipped 2.0.0 with a declaration
+entry point that re-exported from paths the tarball did not contain. A
+consumer installing either one got `TS2307: Cannot find module './src/types'`
+on every symbol, or, with `skipLibCheck: true`, a clean compile in which the
+whole package had silently degraded to `any`.
+
+Nothing changes at runtime. `.d.ts` files never reach a bundle, which is why
+the defect was invisible to every test suite.
+
+### Fixed
+
+- **The published declarations are back.** The `typecheck` target ran
+  `tsc --build … && rm -rf dist/src` on both packages, copied from
+  `@dashforge/forms` where it is correct. On `forms`, `tsc` writes the flat
+  tree into `dist/` and `dist/src` really is a redundant copy from
+  `@nx/rollup`. On these two, `outDir` points outside the package, to
+  `dist/out-tsc/`, so `tsc` writes nothing into `dist/` and `dist/src` is not
+  a copy, it is the entire payload. The `rm -rf` deleted it and left an index
+  pointing at nothing.
+
+  The shipped declarations are byte-identical to what `tsc` emits from the
+  package's own `tsconfig.lib.json`: 29 files for `ui-core`, 20 for `rbac`,
+  compared one by one, zero differences.
+
+- **A type-test declaration no longer rides along in the tarball.** The
+  `exclude` patterns matched `*.test.ts` with a dot, and these files spell it
+  with a hyphen: `path.type-test.ts`, `autocomplete.props.type-test.ts`. The
+  `__tests__` directory is excluded as a directory now, alongside the hyphen
+  spelling.
+
+### Internal
+
+- **CI reads the tarball now.** 2.0.0 was green on lint, typecheck, test and
+  build across every project and still shipped two unusable packages, because
+  inside the monorepo everything compiles against project references that read
+  from `dist/out-tsc/`, where the declarations always exist. Only an installing
+  consumer saw it. `scripts/verify-tarballs.mjs` packs all eleven packages and,
+  for each, resolves every specifier the declaration entry re-exports and
+  compiles a throwaway consumer against the `.tgz`.
+
+  That consumer runs with `skipLibCheck: false` deliberately. On the default
+  `true`, TypeScript skips declaration files entirely and the broken 2.0.0
+  compiles clean, so a probe on default settings would have certified the very
+  defect it exists to catch.
+
 ## [2.0.0] — 2026-09-28
 
 **Every `@dashforge/*` package moves to `2.0.0` together.** Until now each

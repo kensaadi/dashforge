@@ -10,6 +10,40 @@ with `-alpha` / `-beta` / `-rc` pre-release tags.
 
 ---
 
+## [2.0.1] — 2026-09-29
+
+Lockstep patch across all eleven packages.
+
+`@dashforge/ui-core` and `@dashforge/rbac` shipped `2.0.0` with a
+declaration entry point re-exporting from paths their tarball did not
+contain. What a consumer saw depended on one compiler flag: `TS2307` on
+every symbol with `skipLibCheck: false`, or a clean compile in which the
+package silently degraded to `any` with the default `true`. Runtime was
+never affected, which is why every suite stayed green and the defect went
+a day unnoticed.
+
+The other nine packages change nothing but their version. Internal
+dependencies are declared with `workspace:*`, which pnpm rewrites at pack
+time to the exact sibling version, so leaving any of them on `2.0.0`
+would pin its siblings to the release being fixed.
+
+| Package | Change |
+| --- | --- |
+| `@dashforge/ui-core` · `@dashforge/rbac` | declarations restored; stray type-test file excluded |
+| `@dashforge/tw` · `@dashforge/forms` · `@dashforge/calendar-core` · `@dashforge/tw-theme` · `@dashforge/tw-tokens` | corrected `VERSION` constant, which had been publishing a stale string |
+| `@dashforge/ui` · `@dashforge/theme-mui` · `@dashforge/theme-core` · `@dashforge/tokens` | lockstep only |
+
+Also in this release: CI verifies the tarball rather than the working
+tree. `nx run-many -t lint typecheck test build` was green on every
+project while `2.0.0` shipped unusable, because dependents inside the
+monorepo compile against project references that read declarations from a
+directory no tarball includes. `scripts/verify-tarballs.mjs` packs all
+eleven and compiles a throwaway consumer against each `.tgz`, with
+`skipLibCheck: false` so the check cannot certify the defect it exists to
+catch.
+
+Detailed per-package entries: see each `libs/dashforge/*/CHANGELOG.md`.
+
 ## [2.0.0] — 2026-09-28
 
 **The first release where one version covers the whole set.** All eleven

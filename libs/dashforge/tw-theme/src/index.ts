@@ -79,4 +79,4 @@ export type {
 /**
  * Package version (synced with `package.json` at publish time).
  */
-export const VERSION = '0.2.0-beta';
+export const VERSION = '2.0.1';
