@@ -2789,6 +2789,133 @@ complaint to `role-has-required-aria-props` asking for `aria-selected`.
 were deliberately not built. Both were built later in the same pass. The
 entry is corrected above.
 
+## BUG 43 — tw controls do not repaint after a write through the `rhf` escape hatch
+
+**Severity:** medium. The form holds the new value and the control
+shows the old one, with no error anywhere. Whatever the user reads is
+what they believe they are saving.
+
+**Status:** open, reproduced 2026-09-29 against `@dashforge/tw@2.0.0`
+and `@dashforge/forms@2.0.0`.
+
+**Tracked as** [kensaadi/dashforge#146](https://github.com/kensaadi/dashforge/issues/146),
+in Project #6. The root cause is NOT established: the open question in
+the Cause section below is the work that issue is asking for, and the
+two directions under Suggested fix should not be implemented before it
+is answered. Do not re-diagnose this from scratch; read the issue
+first.
+
+### Symptom
+
+A Google Places pick fills several fields at once through the
+documented escape hatch, `useDashFormContext().rhf`:
+
+```ts
+rhf.setValue('city', data.city, { shouldDirty: true, shouldValidate: true })
+rhf.setValue('postcode', data.postcode, { shouldDirty: true })
+rhf.setValue('country_code', data.country, { shouldDirty: true })
+```
+
+The two `<TextField>`s repaint. The `<Select>` does not.
+
+Measured in the browser, same render, a probe rendered beside the
+control:
+
+| | reads |
+|---|---|
+| `rhf.watch('country_code')` | `IT` |
+| what `<Select>` displays | `Svizzera` (`CH`) |
+
+Adding `shouldTouch: true` and `shouldValidate: true` changes nothing.
+
+`<TextField>` escapes the fault because RHF registers it as an
+uncontrolled input and writes straight to the DOM node: it never
+needed the repaint.
+
+### Cause
+
+`libs/dashforge/tw/src/components/Select/Select.tsx:254`
+
+```ts
+const bridgeValue = (bridge.getValue(name) ?? fieldMeta?.value) as …
+```
+
+`bridge.getValue` is read during render, so the control repaints only
+when something re-renders it. That something is
+`useDashFieldMeta(name)` (`Select.tsx:178`), which subscribes through
+`bridge.subscribeField`. A field's listeners fire from two places in
+`libs/dashforge/forms/src/core/DashFormProvider.tsx`:
+
+- line 223, `adapter.addOnValueSyncListener` — and the adapter only
+  broadcasts from `syncFieldValue`, i.e. from **`bridge.setValue`**
+  (`FormEngineAdapter.ts:184`), never from a write that went straight
+  to RHF;
+- lines 318-337, `diffAndNotify` over `errors`, `touchedFields` and
+  `dirtyFields`.
+
+So a programmatic write through the escape hatch has no value-sync
+path to the field at all.
+
+**What I could not explain from the source, and where a second pair of
+eyes is worth more than my guess:** the second path *should* have
+covered it. `shouldDirty: true` flips `dirtyFields.country_code` from
+`undefined` to `true`, `diffAndNotify` compares with `!==`, and that
+ought to call `notifyField('country_code')`. It demonstrably does not
+repaint the control. Either the diff is not seeing that key, or the
+notification lands before `getSnapshot` would return the new value.
+I did not chase it further than the measurement above, and I would
+rather say so than name a cause the way BUG 4's first entry did.
+
+### Suggested fix
+
+Give the escape hatch the same broadcast the bridge has: either have
+`DashFormProvider` subscribe to RHF's value changes (`rhf.watch`
+with a subscription, or `useWatch` on the provider) and call
+`notifyField` for the changed path, or document that programmatic
+writes must go through `bridge.setValue` and make the escape hatch's
+`rhf.setValue` a thin wrapper that notifies.
+
+The second is cheaper but narrows what `rhf` means; `useDashFormContext`
+currently presents it as plain RHF.
+
+### Reproduction
+
+`ugo-web`, `/partner/settings`: the partner sits in Lugano (`CH`), pick
+"Duomo di Milano" in the Places field. City becomes `Milano`, CAP
+`20122`, and the country menu still reads `Svizzera` while the form
+holds `IT`.
+
+### It is not only `setValue`, and not only `<Select>`
+
+Found 2026-09-29 in the same session, which is why the title is no
+longer about one method and one control.
+
+`ugo-web`, `/partner/profile`, the password form: on a 403 the screen
+calls `rhf.setError('current', …)` so the refusal lands on the field
+to correct. The error reaches RHF and stays there — logged from inside
+the handler, immediately and 400ms later:
+
+```
+[probe] now:   current  La password attuale non è giusta.
+[probe] 400ms: current  La password attuale non è giusta.
+```
+
+The `<TextField>` showed nothing and kept `aria-invalid` unset. The
+same control *does* show an error raised by its own `rules`, so the
+rendering path is fine; what does not arrive is the notification.
+
+This one deepens the open question above rather than answering it. The
+provider diffs `errors` and calls `notifyField` (DashFormProvider.tsx
+lines 318-322), so this path looked covered on paper and is not in
+practice — exactly as `shouldDirty` looked covered for the Select.
+Whatever is wrong is one thing, not two.
+
+`adapter.notifyValueChange(name)` repairs both cases from the consumer
+side, which is further evidence that the notification, and not the
+state, is what goes missing.
+
+---
+
 ## Fixed
 
 ### BUG 42 — `<TopBar>`'s `start` slot said `min-w-0` and `shrink-0` in the same breath
