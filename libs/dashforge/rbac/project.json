@@ -29,13 +29,13 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --build libs/dashforge/rbac/tsconfig.lib.json --emitDeclarationOnly && rm -rf libs/dashforge/rbac/dist/src"
+        "command": "tsc --build libs/dashforge/rbac/tsconfig.lib.json --emitDeclarationOnly"
       },
       "dependsOn": [
         "build",
         "^typecheck"
       ],
-      "_comment": "Emits its own declarations rather than `--noEmit`. It used to rely on a DEPENDENT's `tsc --build` cascade to produce the flat tree in its dist, since a referenced composite project cannot disable emit, so what this package published depended on whether something downstream had been typechecked. Now it owns them, runs after build so its output is the one that survives, and drops the redundant copy @nx/rollup emits under dist/src. See libs/dashforge/tw/project.json for the full analysis."
+      "_comment": "Emits its own declarations rather than `--noEmit`. It used to rely on a DEPENDENT's `tsc --build` cascade to produce the flat tree in its dist, since a referenced composite project cannot disable emit, so what this package published depended on whether something downstream had been typechecked. It owns them now, and runs after build.\n\nNOTE, and do not copy this target to another package without checking: unlike @dashforge/forms, this project's tsconfig.lib.json sends outDir OUTSIDE the package, to dist/out-tsc/, because it is composite and referenced. So tsc writes nothing into dist/ here. The declarations this package publishes are the ones @nx/rollup emits under dist/src, which the one-line dist/index.d.ts wrapper re-exports from. A `rm -rf dist/src` on this target is NOT dropping a redundant copy, it deletes the entire payload and ships an index that points at nothing. That shipped in 2.0.0."
     }
   },
   "tags": [

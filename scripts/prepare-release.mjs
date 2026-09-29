@@ -85,16 +85,22 @@ if (existsSync(pkg.indexTsPath)) {
   const re = /export const VERSION = '([^']+)'/;
   const m = re.exec(content);
   if (m) {
-    if (m[1] === currentVersion) {
-      const next = content.replace(re, `export const VERSION = '${nextVersion}'`);
-      writeFileSync(pkg.indexTsPath, next, 'utf-8');
-      changes.push(`✓ ${path.relative(REPO_ROOT, pkg.indexTsPath)} — VERSION const → ${nextVersion}`);
-    } else {
-      changes.push(
-        `${c.yellow('!')} ${path.relative(REPO_ROOT, pkg.indexTsPath)} — VERSION (${m[1]}) ` +
-        `differs from package.json (${currentVersion}); LEFT UNCHANGED — fix by hand.`
-      );
-    }
+    // Always rewrite, and say so loudly when it had drifted.
+    //
+    // This used to skip the rewrite whenever the constant disagreed with
+    // package.json, which made the first drift permanent: once out of
+    // step, the guard refused to touch it on every subsequent release.
+    // ui-core and forms shipped 2.0.0 exporting VERSION '0.2.3-beta',
+    // calendar-core '0.2.0-beta' and tw '1.5.2' for exactly that reason.
+    const drifted = m[1] !== currentVersion;
+    const next = content.replace(re, `export const VERSION = '${nextVersion}'`);
+    writeFileSync(pkg.indexTsPath, next, 'utf-8');
+    changes.push(
+      drifted
+        ? `${c.yellow('!')} ${path.relative(REPO_ROOT, pkg.indexTsPath)} — VERSION was ` +
+          `${m[1]}, not ${currentVersion} as package.json claimed; corrected to ${nextVersion}`
+        : `✓ ${path.relative(REPO_ROOT, pkg.indexTsPath)} — VERSION const → ${nextVersion}`
+    );
   }
 }
 

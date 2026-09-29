@@ -33,6 +33,10 @@ export const ECOSYSTEM_OF = {
   '@dashforge/forms':      'bridge',
   '@dashforge/rbac':       'bridge',
   '@dashforge/ui-core':    'bridge',
+  // Was missing until 2.0.1, so every `prepare-release` run silently
+  // skipped it and the package drifted a version behind the lockstep it
+  // is part of. `tw` and `ui` both depend on it through `workspace:*`.
+  '@dashforge/calendar-core': 'bridge',
 };
 
 /** Every publishable @dashforge/* package known to the release tooling. */

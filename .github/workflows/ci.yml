@@ -33,3 +33,11 @@ jobs:
 
       - name: Lint, typecheck, test, build
         run: pnpm exec nx run-many -t lint typecheck test build
+
+      # Everything above passes against the working tree and the project
+      # references, which is why it all went green while 2.0.0 shipped
+      # @dashforge/ui-core and @dashforge/rbac with a declaration entry
+      # point re-exporting from paths the tarball did not contain. This
+      # step packs each package and checks what a consumer would install.
+      - name: Verify what the tarballs actually ship
+        run: node scripts/verify-tarballs.mjs

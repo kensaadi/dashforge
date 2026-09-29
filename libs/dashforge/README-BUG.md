@@ -2454,6 +2454,105 @@ message, which is correct code and today never reaches the screen, and
 leans on a hint written so that it still reads as an instruction when it
 turns red. The message starts working the day this is fixed.
 
+## BUG 44 — `@dashforge/ui-core` and `@dashforge/rbac` published 2.0.0 without their declarations
+
+**Severity:** high for anyone installing from npm, zero at runtime.
+
+**Status:** fixed in 2.0.1. Reproduced 2026-09-29 against the
+published `@dashforge/ui-core@2.0.0` tarball, not inferred from the
+source.
+
+### Symptom
+
+What a consumer saw depended entirely on one compiler flag:
+
+| `skipLibCheck` | Result |
+|---|---|
+| `false` | `TS2307: Cannot find module './src/types'`, once per re-export |
+| `true` (the common default) | compiles clean, every symbol degrades to `any` |
+
+The second row is why it went unnoticed for a day. `.d.ts` files never
+reach a bundle, so every test suite stayed green, `ugo-web` kept
+building and the deployed app kept working. The defect removes the
+type safety without touching the behaviour.
+
+### Cause
+
+The `typecheck` target ran, on both packages:
+
+```
+tsc --build <tsconfig.lib.json> --emitDeclarationOnly && rm -rf <pkg>/dist/src
+```
+
+copied from `@dashforge/forms`, where it is correct: there `outDir` is
+`dist`, `tsc` writes the flat tree into the package, and `dist/src` is
+a genuinely redundant copy from `@nx/rollup`.
+
+On these two, `tsconfig.lib.json` sets
+
+```
+"outDir": "../../../dist/out-tsc/libs/dashforge/<pkg>"
+```
+
+because both are `composite` and referenced. `tsc` writes nothing into
+`dist/`. What the package publishes is the rollup emission under
+`dist/src`, which the one-line `dist/index.d.ts` wrapper re-exports
+from. The `rm -rf` deleted the entire payload and left an index
+pointing at nothing.
+
+The `_comment` on both targets described the `forms` setup word for
+word, which is how the copy was made and why review did not catch it.
+
+### Why nothing caught it
+
+Nothing read the tarball. `nx run-many -t lint typecheck test build`
+was green on every project, because dependents inside the monorepo
+compile against the project references, which read declarations from
+`dist/out-tsc/` where they always exist. The pre-publish audit checked
+size and stray files, and the tarball was small and clean: only twenty
+files were missing and nobody was counting.
+
+### Fix
+
+`&& rm -rf dist/src` dropped from both `typecheck` targets, and the
+`_comment` rewritten to describe the setup these two packages actually
+have, with an explicit warning against copying the target elsewhere.
+
+The shipped declarations were verified byte-identical to what `tsc`
+emits from each package's own `tsconfig.lib.json`: 29 files for
+`ui-core`, 20 for `rbac`, compared one by one, zero differences. So
+the package publishes the compiler's output, reached by a different
+path, not a second-class copy.
+
+### The guard that was missing
+
+`scripts/verify-tarballs.mjs`, wired into CI after the existing
+`nx run-many` step. It packs all eleven packages and, for each, checks
+that the declared `types` entry exists, that every specifier it
+re-exports resolves, that no test file rode along, that the exported
+`VERSION` matches `package.json`, and that a throwaway consumer
+compiles against the `.tgz`.
+
+That consumer runs with `skipLibCheck: false`, and that is the load
+bearing detail: on the default `true` the broken 2.0.0 compiles clean,
+so a probe on default settings would have certified the exact defect
+it exists to catch.
+
+On its first full run the guard found two packages nobody had looked
+at, `tw-theme` and `tw-tokens`, both exporting `VERSION '0.2.0-beta'`
+while publishing 2.0.0.
+
+### Related, same release
+
+- Six packages exported a stale `VERSION` constant. `prepare-release.mjs`
+  only rewrote it when it already matched `package.json`, so the first
+  drift made itself permanent. It rewrites unconditionally now.
+- `@dashforge/calendar-core` was not registered in the release tooling
+  at all, so every `prepare-release` run silently skipped it.
+- `path.type-test.ts` and `autocomplete.props.type-test.ts` shipped
+  inside tarballs: the `exclude` patterns spell it `*.test.ts` with a
+  dot and those files use a hyphen.
+
 ## Unconfirmed
 
 ### FIXED 26/09/2026 — `@dashforge/tw:build` raced `@dashforge/tw:typecheck` over the same `dist/`

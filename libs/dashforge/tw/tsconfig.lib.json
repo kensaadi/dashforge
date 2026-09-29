@@ -28,6 +28,13 @@
   // chain still runs the deps' `build` targets before this one via
   // `dependsOn: ["typecheck", "^build"]` so `nx` order is preserved.
   "exclude": [
+    // Exclude the DIRECTORY, and the hyphen spelling. The `*.test.ts` /
+    // `*.spec.ts` patterns miss anything named differently: `path.type-test.ts`
+    // and `autocomplete.props.type-test.ts` end in `-test.ts`, not `.test.ts`,
+    // and both shipped inside a published tarball because of it.
+    "src/**/__tests__/**",
+    "**/*-test.ts",
+    "**/*-test.tsx",
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",
