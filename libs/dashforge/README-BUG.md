@@ -2553,6 +2553,258 @@ while publishing 2.0.0.
   inside tarballs: the `exclude` patterns spell it `*.test.ts` with a
   dot and those files use a hyphen.
 
+## BUG 45 — `useDashFieldMeta` on a field array is never notified when a row inside it changes
+
+**Severity:** medium. Nothing throws and nothing looks broken: a value
+computed from the array simply stops updating, and the screen keeps
+showing the figure it had when it mounted.
+
+**Status:** confirmed 2026-10-01 in a consumer app (UrbanGo), with a
+probe rendered into the page, not inferred from the source.
+
+### Symptom
+
+A step of a registration wizard holds a `useDashFieldArray('drivers')`
+with rows of `{ name, phone }`, and a sibling component that counts how
+many rows are complete:
+
+```tsx
+function Count() {
+  const rows = (useDashFieldMeta('drivers').value ?? []) as Row[]
+  const ready = rows.filter((r) => r.name.trim() && isMobile(r.phone)).length
+  return ready > 0 ? <p>{ready} will be invited</p> : null
+}
+```
+
+`append` and `remove` reach it: the hook returns the new array, with the
+empty row added. Typing into `drivers.0.phone` does not. The component
+is not re-rendered at all, so the count stays at whatever it was.
+
+Logged from inside the component, each line one render:
+
+```
+[probe] []                                        after mount
+[probe] [{"name":"","phone":""}]                  after append
+(nothing)                                         after typing a name and a number
+```
+
+The value is in the form: reading `drivers` later, from an event
+handler, returns the typed row. It is the notification that does not
+arrive, so the subscriber never reads again.
+
+### What it looks like it is
+
+`subscribeField` appears to be keyed on the exact field path. A write
+to `drivers.0.phone` notifies `drivers.0.phone`, and nothing walks up
+the path to tell `drivers` that one of its descendants moved.
+
+### Why it matters
+
+An array is the one field whose *interesting* value is aggregate. A row
+knows its own state; whether the set is complete, how many are valid,
+whether anything is left to fill is a question about the container, and
+today the container cannot be watched. `useDashFieldArray` does not
+close the gap either: it returns `fields`, `append`, `remove`, `move`,
+`insert` and `replace`, and no values.
+
+### What a consumer can do today
+
+Subscribe to the leaves instead, one small component per row, each
+calling `useDashFieldMeta(`${field.name}.phone`)`. That works and it is
+arguably the better UI, because the message lands on the row it is
+about. It does not cover the aggregate case: a submit button that
+should enable when at least one row is complete has nowhere to look.
+
+### What would close it
+
+Either notify ancestors of a changed path, or give
+`useDashFieldArray` a subscribed `values`. The second is narrower and
+would not change the behaviour of any existing subscriber.
+
+---
+
+## BUG 46 — `<Checkbox>` (tw) never surfaces its own validation error: it blocks the submit in silence
+
+**Severity:** high for the one case it is always used in. A checkbox
+with `rules` is almost always the consent or declaration that gates a
+form. It refuses correctly, so nothing is let through, and it says
+nothing at all: the person presses the button and the page does not
+move. There is no error state, no message, and no focus ring to look
+for. A silent refusal on a required field is worse than a wrong
+message, because there is nothing to search the screen for.
+
+**Status:** confirmed 2026-10-02 in a consumer app (UrbanGo), read off
+the live DOM, with a `TextField` carrying identical `rules` on the
+same step as the control.
+
+### Symptom
+
+```tsx
+<Checkbox
+  name="compliance"
+  required
+  rules={{ required: 'Senza questa dichiarazione non possiamo aprire la centrale.' }}
+  label={<span>…</span>}
+/>
+```
+
+`rhf.trigger([... , 'compliance'])` returns `false`, so the wizard
+correctly refuses to advance. On screen nothing happens.
+
+### Measured, side by side, on the same step
+
+Same `<DashForm>`, same submit, both fields empty:
+
+```
+input[name=legalName]   aria-invalid = "true"
+                        message      = "Serve la ragione sociale."   ← rendered
+
+[role=checkbox]         aria-invalid = null                          ← absent
+                        message      = none                          ← nothing rendered
+```
+
+The `TextField` goes through the shared validation resolver and the
+`Checkbox` does not reach it at all. This is not BUG 32: there the
+message existed and lost a precedence contest with an explicit
+`helperText`; here there is no explicit `helperText`, and no message
+is produced in the first place.
+
+### What the consumer has to write meanwhile
+
+```tsx
+const meta = useDashFieldMeta('compliance')
+const missing = Boolean(meta.error)
+
+<Checkbox
+  name="compliance"
+  required
+  rules={{ required: MESSAGE }}
+  error={missing}
+  helperText={missing ? MESSAGE : undefined}
+  …
+/>
+```
+
+Note what that costs: the message is now written **twice** in the
+caller, once inside `rules` and once in `helperText`, and the two can
+drift. The component already has both props and already receives the
+rule; it just does not connect them.
+
+### Expected
+
+A `Checkbox` with `rules` behaves like a `TextField` with `rules`:
+`aria-invalid` on the control, the rule's own message rendered
+underneath, and no `helperText` needed from the caller.
+
+### Where it is worked around downstream
+
+`~/projects/web/urbango-project/ugo-web/app/registration/blocks/centre-block.tsx`
+— the `Compliance` component, three lines marked with this bug number.
+They come out when this is closed.
+
+---
+
+## BUG 47 — `<Autocomplete>` (tw): an option with a ReactNode label leaves the input showing the typed text after selection
+
+**Severity:** high in the one case the feature exists for. A rich option
+row is what you reach for when a plain string is not enough — a place
+with its address under it, a person with their role. The moment it is
+used, the field stops reporting what was chosen: the value is committed
+correctly and the input keeps whatever was typed, so the screen says the
+operator picked their own half-typed query.
+
+**Status:** confirmed 2026-10-03 in a consumer app (UrbanGo), read off
+the live DOM.
+
+**Tracked as** [kensaadi/dashforge#147](https://github.com/kensaadi/dashforge/issues/147),
+in Project #6, opened as a `feat` rather than a `bug`: there is no line to
+correct. When the label is a node no string exists anywhere to fall back
+to, so any fix adds an accessor, which makes it a minor rather than a
+patch. The issue also carries three corrections to the Cause section
+below, two of which would otherwise send someone to the wrong branch.
+Read it before touching this.
+
+### Symptom
+
+```tsx
+const options = suggestions.map((s) => ({
+  value: s.place_id,
+  label: <PlaceOption name={s.name} address={s.address} />,   // ReactNode
+}))
+
+<Autocomplete name="from" options={options} loadOptions={load} … />
+```
+
+The dropdown renders exactly as intended. Choosing a row commits the
+right value — the parent receives `place_id` and the dependent button
+enables — and the input keeps the search text.
+
+### Measured
+
+Typed `Agno aerop`, picked *Aeroporto di Lugano-Agno (LUG)*:
+
+```
+input.value            = "Agno aerop"     ← the query, still there
+committed value        = the right place_id
+button "Cerca un'auto" = enabled          ← so the selection did land
+```
+
+With `label` as a plain string, same build, same flow, the input reads
+`Aeroporto di Lugano-Agno (LUG), Via Aeroporto, Agno`.
+
+### Cause, read out of `dist/index.esm.js`
+
+```js
+/** Resolve the string label of an option, if it is a string. Returns
+ *  `undefined` for non-string labels (e.g., `<span>`) so callers can
+ *  fall back to the persisted value for `textValue` / input text. */
+const labelAsString = (option) => {
+  const lbl = getOptionLabel(option);
+  return typeof lbl === 'string' ? lbl : undefined;
+};
+```
+
+and at commit time:
+
+```js
+const found_label = found ? labelAsString(found) : undefined;
+if (found_label !== undefined) { setInputValue(found_label); }
+```
+
+The comment promises a fallback that only exists under `freeSolo`. In
+the ordinary single-select path there is no `else`: when the label is a
+node, `setInputValue` is simply never called, so the input keeps the
+query string. The same `undefined` also makes the local filter fall
+back to the option's VALUE (`text = labelAsString(opt) ?? getOptionValue(opt)`),
+so with node labels the type-ahead filters against ids.
+
+### What a consumer can do today
+
+Nothing from outside. Re-seeding the chosen option with a string label
+after selection does not help: the input text is read once, at click
+time, and afterwards the component keeps its own `inputValue` because
+`hasInteracted` is true. Measured — same flow, option swapped back to a
+string on the next render, input still `Agno aerop`.
+
+### What would close it
+
+A separate text accessor, so display and text value stop being the same
+function: `getOptionTextValue?: (option: TOption) => string`, used for
+the input text, `textValue` and the filter, with `getOptionLabel` left
+free to return a node. A `renderOption` slot would do the same job from
+the other end.
+
+### Where it is worked around downstream
+
+Nowhere: the two-line rows were built, measured and **reverted**. The
+place field in `~/projects/web/urbango-project/ugo-web/app/components/forms/place-field.tsx`
+is back to one-line string labels, because a field that does not show
+the address that was chosen is worse than a plain list on a screen where
+someone reads that address out loud.
+
+
+---
+
 ## Unconfirmed
 
 ### FIXED 26/09/2026 — `@dashforge/tw:build` raced `@dashforge/tw:typecheck` over the same `dist/`
