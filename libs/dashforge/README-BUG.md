@@ -2562,6 +2562,12 @@ showing the figure it had when it mounted.
 **Status:** confirmed 2026-10-01 in a consumer app (UrbanGo), with a
 probe rendered into the page, not inferred from the source.
 
+**Tracked as** [kensaadi/dashforge#148](https://github.com/kensaadi/dashforge/issues/148),
+in Project #6. The cause this entry hedged as "what it looks like it is"
+is confirmed there against the source: `notifyField` and `subscribeField`
+both key a `Map` on the exact path string, so nothing walks up to tell
+`drivers` that `drivers.0.phone` moved.
+
 ### Symptom
 
 A step of a registration wizard holds a `useDashFieldArray('drivers')`
@@ -2636,6 +2642,12 @@ message, because there is nothing to search the screen for.
 **Status:** confirmed 2026-10-02 in a consumer app (UrbanGo), read off
 the live DOM, with a `TextField` carrying identical `rules` on the
 same step as the control.
+
+**Tracked as** [kensaadi/dashforge#149](https://github.com/kensaadi/dashforge/issues/149),
+in Project #6. First thing to measure there, before any fix: whether
+`<Switch>`, `<RadioGroup>` and `<CheckboxGroup>` share the path. If they
+do this is one fix at the shared layer rather than four on four
+components.
 
 ### Symptom
 
